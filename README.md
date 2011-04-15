@@ -24,6 +24,17 @@ create the necessary DDL statements for your audited entities.
 ## Installation (In Symfony2 Application)
 
 1. Register Bundle in AppKernel.php
+
+    public function registerBundles()
+    {
+        $bundles = array(
+            //...
+            new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
+            //...
+        );
+        return $bundles;
+    }
+
 2. Load extension "simple_things_entity_audit" and specify the audited entities (yes, that ugly for now!)
 
     simple_things_entity_audit:
