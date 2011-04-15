@@ -6,7 +6,7 @@ allows full versioning of entities and their associations.
 ## How does it work?
 
 There are a bunch of different approaches to auditing or versioning of database tables. This extension
-creates a table for each audited entity that is prefixed with "_audit". Besides all the columns
+creates a mirroring table for each audited entitys table that is suffixed with "_audit". Besides all the columns
 of the audited entity there are two additional fields:
 
 * rev - Contains the global revision number generated from a "revisions" table.
