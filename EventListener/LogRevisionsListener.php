@@ -45,8 +45,10 @@ class LogRevisionsListener implements EventSubscriber
     private $conn;
     private $platform;
     private $em;
-    private $insertRevisionSql = array();
+    private $insertRevisionSQL = array();
     private $uow;
+
+    private $revisionId;
 
     public function __construct(AuditConfiguration $config, $metadataFactory)
     {
@@ -69,10 +71,7 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $date = date_create("now")->format($this->platform->getDateFormatString());
-        $this->conn->insert($this->config->getRevisionTableName(), array('timestamp' => $date));
-        $revisionId = $this->conn->lastInsertId();
-        $this->createRevision($revisionId, $class, $this->uow->getOriginalEntityData($entity), 'INS');
+        $this->saveRevisionEntityData($class, $this->uow->getOriginalEntityData($entity), 'INS');
     }
 
     public function postUpdate(LifecycleEventArgs $eventArgs)
@@ -85,11 +84,8 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $date = date_create("now")->format($this->platform->getDateFormatString());
-        $this->conn->insert($this->config->getRevisionTableName(), array('timestamp' => $date));
-        $revisionId = $this->conn->lastInsertId();
         $entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
-        $this->createRevision($revisionId, $class, $entityData, 'UPD');
+        $this->saveRevisionEntityData($class, $entityData, 'UPD');
     }
 
     public function onFlush(OnFlushEventArgs $eventArgs)
@@ -98,32 +94,35 @@ class LogRevisionsListener implements EventSubscriber
         $this->conn = $this->em->getConnection();
         $this->uow = $this->em->getUnitOfWork();
         $this->platform = $this->conn->getDatabasePlatform();
-
-        $date = date_create("now")->format($this->platform->getDateFormatString());
+        $this->revisionId = null; // reset revision
 
         foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
             $class = $this->em->getClassMetadata(get_class($entity));
             if (!$this->metadataFactory->isAudited($class->name)) {
                 return;
             }
-
-            $this->conn->insert($this->config->getRevisionTableName(), array('timestamp' => $date));
-            $revisionId = $this->conn->lastInsertId();
             $entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
-            $this->createRevision($revisionId, $class, $entityData, 'DEL');
+            $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
     }
 
-    /**
-     *
-     * @param int $revisionId
-     * @param ClassMetadata $class
-     * @param array $entityData
-     * @param string $revType
-     */
-    private function createRevision($revisionId, $class, $entityData, $revType)
+    private function getRevisionId()
     {
-        if (!isset($this->insertRevisionSql[$class->name])) {
+        if ($this->revisionId === null) {
+            $date = date_create("now")->format($this->platform->getDateFormatString());
+            $this->conn->insert($this->config->getRevisionTableName(), array(
+                'timestamp' => $date,
+                'username' => '',
+                'change_comment' => '',
+            ));
+            $this->revisionId = $this->conn->lastInsertId();
+        }
+        return $this->revisionId;
+    }
+
+    private function getInsertRevisionSQL($class)
+    {
+        if (!isset($this->insertRevisionSQL[$class->name])) {
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
             $sql = "INSERT INTO " . $tableName . " (" .
                     $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
@@ -140,10 +139,19 @@ class LogRevisionsListener implements EventSubscriber
                 }
             }
             $sql .= ") VALUES (" . implode(", ", array_fill(0, count($class->fieldNames)+$assocs+2, '?')) . ")";
-            $this->insertRevisionSql[$class->name] = $sql;
+            $this->insertRevisionSQL[$class->name] = $sql;
         }
-       
-        $params = array($revisionId, $revType);
+        return $this->insertRevisionSQL[$class->name];
+    }
+
+    /**
+     * @param ClassMetadata $class
+     * @param array $entityData
+     * @param string $revType
+     */
+    private function saveRevisionEntityData($class, $entityData, $revType)
+    {
+        $params = array($this->getRevisionId(), $revType);
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
         foreach ($class->fieldNames AS $field) {
             $params[] = $entityData[$field];
@@ -171,6 +179,6 @@ class LogRevisionsListener implements EventSubscriber
             }
         }
 
-        $this->conn->executeUpdate($this->insertRevisionSql[$class->name], $params, $types);
+        $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
     }
 }

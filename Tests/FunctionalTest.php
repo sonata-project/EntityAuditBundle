@@ -45,7 +45,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->em->persist($article);
         $this->em->flush();
 
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
+        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
         $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
         $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
 
@@ -53,14 +53,14 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->em->flush();
 
-        $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
+        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
         $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
 
         $this->em->remove($user);
         $this->em->remove($article);
         $this->em->flush();
 
-        $this->assertEquals(5, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
+        $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
         $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
         $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
     }
