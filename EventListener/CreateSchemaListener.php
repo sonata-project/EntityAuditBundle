@@ -24,7 +24,7 @@
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\ORM\Tools\ToolEvents;
-use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
@@ -41,10 +41,10 @@ class CreateSchemaListener implements EventSubscriber
      */
     private $metadataFactory;
 
-    public function __construct(AuditConfiguration $config, $metadataFactory)
+    public function __construct(AuditManager $auditManager)
     {
-        $this->config = $config;
-        $this->metadataFactory = $metadataFactory;
+        $this->config = $auditManager->getConfiguration();
+        $this->metadataFactory = $auditManager->getMetadataFactory();
     }
 
     public function getSubscribedEvents()

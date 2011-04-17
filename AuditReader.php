@@ -23,9 +23,34 @@
 
 namespace SimpleThings\EntityAudit;
 
+use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+
 class AuditReader
 {
-    public function __construct(EntityManager $em, AuditConfiguration $config)
+    private $em;
+
+    private $config;
+
+    private $metadataFactory;
+
+    /**
+     * @param EntityManager $em
+     * @param AuditConfiguration $config
+     * @param MetadataFactory $factory
+     */
+    public function __construct(EntityManager $em, AuditConfiguration $config, MetadataFactory $factory)
+    {
+        $this->em = $em;
+        $this->config = $config;
+        $this->metadataFactory = $factory;
+    }
+
+    public function find($class, $id, $revision)
+    {
+        throw new \BadMethodCallException("not yet implemented.");
+    }
+
+    public function findRevisions($class, $id)
     {
         
     }

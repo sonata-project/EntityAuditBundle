@@ -30,6 +30,7 @@ class AuditConfiguration
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
+    private $auditedEntityClasses = array();
 
     public function getTablePrefix()
     {
@@ -79,5 +80,15 @@ class AuditConfiguration
     public function setRevisionTableName($revisionTableName)
     {
         $this->revisionTableName = $revisionTableName;
+    }
+
+    public function setAuditedEntityClasses(array $classes)
+    {
+        $this->auditedEntityClasses = $classes;
+    }
+
+    public function createMetadataFactory()
+    {
+        return new Metadata\MetadataFactory($this->auditedEntityClasses);
     }
 }

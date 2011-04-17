@@ -23,10 +23,10 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use SimpleThings\EntityAudit\AuditManager;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\OnFlushEventArgs;
-use SimpleThings\EntityAudit\AuditConfiguration;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
@@ -50,10 +50,10 @@ class LogRevisionsListener implements EventSubscriber
 
     private $revisionId;
 
-    public function __construct(AuditConfiguration $config, $metadataFactory)
+    public function __construct(AuditManager $auditManager)
     {
-        $this->config = $config;
-        $this->metadataFactory = $metadataFactory;
+        $this->config = $auditManager->getConfiguration();
+        $this->metadataFactory = $auditManager->getMetadataFactory();
     }
 
     public function getSubscribedEvents()

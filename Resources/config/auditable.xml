@@ -9,16 +9,24 @@
     </parameters>
 
     <services>
-        <service id="simplethings.entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
+        <service id="simplethings.entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
             <argument id="simplethings.entityaudit.config" type="service" />
-            <argument id="simplethings.entityaudit.metadatafactory" type="service" />
+        </service>
+
+        <service id="simplethings.entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
+            <argument id="simplethings.entityaudit.manager" type="service" />
             <tag name="doctrine.dbal.default_event_subscriber" />
         </service>
 
-        <service id="simplethings.entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration" />
+        <service id="simplethings.entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
+            <argument id="simplethings.entityaudit.manager" type="service" />
+            <tag name="doctrine.dbal.default_event_subscriber" />
+        </service>
 
-        <service id="simplethings.entityaudit.metadatafactory" class="SimpleThings\EntityAudit\Metadata\MetadataFactory">
-            <argument>%simplethings.entityaudit.audited_entities%</argument>
+        <service id="simplethings.entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
+            <call method="setAuditedEntityClasses">
+                <argument>%simplethings.entityaudit.audited_entities%</argument>
+            </call>
         </service>
     </services>
 </container>

@@ -28,6 +28,7 @@ use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
 
 class FunctionalTest extends \PHPUnit_Framework_TestCase
 {
@@ -79,11 +80,10 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
             'memory' => true,
         );
 
-        $auditconfig = new AuditConfiguration();
-        $metadataFactory = new MetadataFactory(array('SimpleThings\EntityAudit\Tests\ArticleAudit', 'SimpleThings\EntityAudit\Tests\UserAudit'));
-        $evm = new EventManager();
-        $evm->addEventSubscriber(new CreateSchemaListener($auditconfig, $metadataFactory));
-        $evm->addEventSubscriber(new LogRevisionsListener($auditconfig, $metadataFactory));
+        $auditConfig = new AuditConfiguration();
+        $auditConfig->setAuditedEntityClasses(array('SimpleThings\EntityAudit\Tests\ArticleAudit', 'SimpleThings\EntityAudit\Tests\UserAudit'));
+        $auditManager = new AuditManager($auditConfig);
+        $auditManager->registerEvents($evm = new EventManager());
 
         #$config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
 

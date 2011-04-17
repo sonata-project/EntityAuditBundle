@@ -12,7 +12,7 @@ of the audited entity there are two additional fields:
 * rev - Contains the global revision number generated from a "revisions" table.
 * revtype - Contains one of 'INS', 'UPD' or 'DEL' as an information to which type of database operation caused this revision log entry.
 
-The global revision table contains an id and a timestamp field.
+The global revision table contains an id, timestamp, username and change comment field.
 
 With this approach it is possible to version an application with its changes to associations at the particular
 points in time. All the querying logic is not implemented in the extension yet, only the writing
@@ -53,18 +53,18 @@ instance and configure the two event listeners.
     use Doctrine\Common\EventManager;
     use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
     use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
-    use SimpleThings\EntityAudit\Metadata\MetadataFactory;
     use SimpleThings\EntityAudit\AuditConfiguration;
+    use SimpleThings\EntityAudit\AuditManager;
 
     $auditconfig = new AuditConfiguration();
-    $metadataFactory = new MetadataFactory(array(
+    $auditconfig->setAuditedEntityClasses(array(
         'SimpleThings\EntityAudit\Tests\ArticleAudit', 'SimpleThings\EntityAudit\Tests\UserAudit'
     ));
     $evm = new EventManager();
-    $evm->addEventSubscriber(new CreateSchemaListener($auditconfig, $metadataFactory));
-    $evm->addEventSubscriber(new LogRevisionsListener($auditconfig, $metadataFactory));
+    $auditManager = new AuditManager($auditconfig);
+    $auditManager->registerEvents($evm);
 
-    $this->em = EntityManager::create($conn, $config, $evm);
+    $em = EntityManager::create($conn, $config, $evm);
 
 ## TODOS
 
