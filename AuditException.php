@@ -21,24 +21,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Metadata;
+namespace SimpleThings\EntityAudit;
 
-class MetadataFactory
+class AuditException
 {
-    private $auditedEntities = array();
-
-    public function __construct($auditedEntities)
+    static public function notAudited($className)
     {
-        $this->auditedEntities = array_flip($auditedEntities);
-    }
-
-    public function isAudited($entity)
-    {
-        return isset($this->auditedEntities[$entity]);
+        return new self("Entities of class '" . $className . "' are not audited.");
     }
     
-    public function getAllClassNames()
+    static public function noRevisionFound($className, $id, $revision)
     {
-        return array_flip($this->auditedEntities);
+        return new self("No revision of class '" . $className . "' (".implode(", ", $id).") was found ".
+            "at revision " . $revision . " or before. The entity did not exist at the specified revision yet.");
     }
 }

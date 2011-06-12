@@ -21,24 +21,62 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Metadata;
+namespace SimpleThings\EntityAudit;
 
-class MetadataFactory
+class ChangedEntity
 {
-    private $auditedEntities = array();
-
-    public function __construct($auditedEntities)
+    private $className;
+    private $id;
+    private $mode;
+    private $entity;
+    
+    public function __construct($className, array $id, $mode, $entity)
     {
-        $this->auditedEntities = array_flip($auditedEntities);
-    }
-
-    public function isAudited($entity)
-    {
-        return isset($this->auditedEntities[$entity]);
+        $this->className = $className;
+        $this->id = $id;
+        $this->mode = $mode;
+        $this->revision = $revision;
+        $this->auditReader = $reader;
     }
     
-    public function getAllClassNames()
+    /**
+     * @return string
+     */
+    public function getClassName()
     {
-        return array_flip($this->auditedEntities);
+        return $this->className;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMode()
+    {
+        return $this->mode;
+    }
+    
+    /**
+     * @return int
+     */
+    public function getRevision()
+    {
+        return $this->revision;
+    }
+
+    /**
+     * @return object
+     */
+    public function getEntity()
+    {
+        return $this->entity;
     }
 }
