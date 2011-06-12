@@ -15,12 +15,12 @@
 
         <service id="simplethings.entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
             <argument id="simplethings.entityaudit.manager" type="service" />
-            <tag name="doctrine.dbal.default_event_subscriber" />
+            <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
         <service id="simplethings.entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
             <argument id="simplethings.entityaudit.manager" type="service" />
-            <tag name="doctrine.dbal.default_event_subscriber" />
+            <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
         <service id="simplethings.entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
