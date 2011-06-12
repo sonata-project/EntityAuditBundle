@@ -134,6 +134,21 @@ A changed entity has the API:
         public function getEntity();
     }
 
+## Setting the Current Username
+
+Each revision automatically saves the username that changes it. For this to work you have to set the username.
+In the Symfony2 web context the username is automatically set to the one in the current security token.
+
+In a standalone app or Symfony command you have to set the username to a specific value using the `AuditConfiguration`:
+
+    <?php
+    // Symfony2 Context
+    $container->get('simplethings_entityaudit.config')->setCurrentUsername( "beberlei" );
+
+    // Standalone App
+    $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
+    $auditConfig->setCurrentUsername( "beberlei" );
+
 ## TODOS
 
 * Currently only works with auto-increment databases
