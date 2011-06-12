@@ -30,15 +30,13 @@ class Revision
 {
     private $rev;
     private $timestamp;
-    private $username = null;
-    private $comment = null;
+    private $username;
 
-    function __construct($rev, $timestamp, $username, $comment)
+    function __construct($rev, $timestamp, $username)
     {
         $this->rev = $rev;
         $this->timestamp = $timestamp;
         $this->username = $username;
-        $this->comment = $comment;
     }
 
     public function getRev()
@@ -54,10 +52,5 @@ class Revision
     public function getUsername()
     {
         return $this->username;
-    }
-
-    public function getComment()
-    {
-        return $this->comment;
     }
 }

@@ -3,6 +3,7 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\EventManager;
+use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 

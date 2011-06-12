@@ -23,11 +23,11 @@
 
 namespace SimpleThings\EntityAudit;
 
-class AuditException
+class AuditException extends \Exception
 {
     static public function notAudited($className)
     {
-        return new self("Entities of class '" . $className . "' are not audited.");
+        return new self("Class '" . $className . "' is not audited.");
     }
     
     static public function noRevisionFound($className, $id, $revision)

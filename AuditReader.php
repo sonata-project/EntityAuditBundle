@@ -24,6 +24,8 @@
 namespace SimpleThings\EntityAudit;
 
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
 class AuditReader
 {
@@ -43,6 +45,7 @@ class AuditReader
         $this->em = $em;
         $this->config = $config;
         $this->metadataFactory = $factory;
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
     }
 
     /**
@@ -69,10 +72,10 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
         
-        $whereSQL = "e." . $this->config->getRevisionTypeFieldName() ." <= ?";
-        foreach ($class->identifier AS $idField => $value) {
+        $whereSQL = "e." . $this->config->getRevisionFieldName() ." <= ?";
+        foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
-                $whereSQL .= " AND " . $class->fieldMappings[$idField]['column'] . " = ?";
+                $whereSQL .= " AND " . $class->fieldMappings[$idField]['columnName'] . " = ?";
             } else if (isset($class->associationMappings[$idField])) {
                 $whereSQL .= " AND " . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
             }
@@ -98,13 +101,11 @@ class AuditReader
         
         $values = array_merge(array($revision), array_values($id));
         
-        $platform = $this->em->getConnection()->getDatabasePlatform();
         $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
-        $platform->modifyLimitQuery($query, 1);
-        $revision = $this->em->getConnection()->executeQuery($query, $values);
+        $revisionData = $this->em->getConnection()->fetchAll($query, $values);
         
-        if ($revision) {
-            return $this->createEntity($class->name, $revision[0]);
+        if ($revisionData) {
+            return $this->createEntity($class->name, $revisionData[0]);
         } else {
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
@@ -178,23 +179,30 @@ class AuditReader
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
-        $platform = $this->em->getConnection()->getDatabasePlatform();
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
         
-        $query = $platform->modifyLimitQuery("SELECT * FROM " . $this->config->getRevisionTableName(), $limit, $offset);
-        $revisionsData = $this->em->getConnection()->executeQuery($query);
+        $query = $this->platform->modifyLimitQuery(
+            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
+        );
+        $revisionsData = $this->em->getConnection()->fetchAll($query);
         
         $revisions = array();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
                 $row['id'],
-                DateTime::createFromFormat($platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username'],
-                $row['change_comment']
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
+                $row['username']
             );
         }
         return $revisions;
     }
     
+    /**
+     * Return a list of ChangedEntity instances created at the given revision.
+     * 
+     * @param int $revision
+     * @return ChangedEntity[]
+     */
     public function findEntitesChangedAtRevision($revision)
     {        
         $auditedEntities = $this->metadataFactory->getAllClassNames();
@@ -204,8 +212,8 @@ class AuditReader
             $class = $this->em->getClassMetadata($className);
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
             
-            $whereSQL = "e." . $this->config->getRevisionTypeFieldName() ." = ?";
-            $columnList = "e." . $this->config->getRevisionTypeFieldName() .", ";
+            $whereSQL = "e." . $this->config->getRevisionFieldName() ." = ?";
+            $columnList = "e." . $this->config->getRevisionTypeFieldName();
             foreach ($class->fieldNames AS $field) {
                 $columnList .= ', ' . $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
             }
@@ -217,7 +225,7 @@ class AuditReader
                 }
             }
 
-            $platform = $this->em->getConnection()->getDatabasePlatform();
+            $this->platform = $this->em->getConnection()->getDatabasePlatform();
             $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL;
             $revisionsData = $this->em->getConnection()->executeQuery($query, array($revision));
 
@@ -256,32 +264,31 @@ class AuditReader
         }
         
         $whereSQL = "";
-        foreach ($class->identifier AS $idField => $value) {
+        foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
                 if ($whereSQL) {
                     $whereSQL .= " AND ";
                 }
-                $whereSQL .= $class->fieldMappings[$idField]['column'] . " = ?";
+                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
             } else if (isset($class->associationMappings[$idField])) {
                 if ($whereSQL) {
                     $whereSQL .= " AND ";
                 }
-                $whereSQL .= $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
             }
         }
         
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " . 
-                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id ASC";
-        $revisionsData = $this->em->getConnection()->executeQuery($query, array_values($id));
+                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
+        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
         
         $revisions = array();
-        $platform = $this->em->getConnection()->getDatabasePlatform();
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
                 $row['id'],
-                DateTime::createFromFormat($platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username'],
-                $row['change_comment']
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
+                $row['username']
             );
         }
         

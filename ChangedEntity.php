@@ -27,16 +27,15 @@ class ChangedEntity
 {
     private $className;
     private $id;
-    private $mode;
+    private $revType;
     private $entity;
     
-    public function __construct($className, array $id, $mode, $entity)
+    public function __construct($className, array $id, $revType, $entity)
     {
         $this->className = $className;
         $this->id = $id;
-        $this->mode = $mode;
-        $this->revision = $revision;
-        $this->auditReader = $reader;
+        $this->revType = $revType;
+        $this->entity = $entity;
     }
     
     /**
@@ -59,9 +58,9 @@ class ChangedEntity
     /**
      * @return string
      */
-    public function getMode()
+    public function getRevisionType()
     {
-        return $this->mode;
+        return $this->revType;
     }
     
     /**
