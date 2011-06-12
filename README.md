@@ -68,7 +68,6 @@ instance and configure the two event listeners.
     $config = new \Doctrine\ORM\Configuration();
     // $config ...
     $conn = array();
-
     $em = EntityManager::create($conn, $config, $evm);
 
 ## Usage 
