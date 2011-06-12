@@ -23,7 +23,7 @@ create the necessary DDL statements for your audited entities.
 
 ## Installation (In Symfony2 Application)
 
-1. Register Bundle in AppKernel.php
+Register Bundle in AppKernel.php
 
     public function registerBundles()
     {
@@ -35,14 +35,14 @@ create the necessary DDL statements for your audited entities.
         return $bundles;
     }
 
-2. Load extension "simple_things_entity_audit" and specify the audited entities (yes, that ugly for now!)
+Load extension "simple_things_entity_audit" and specify the audited entities (yes, that ugly for now!)
 
     simple_things_entity_audit:
         audited_entities:
             - MyBundle\Entity\MyEntity
             - MyBundle\Entity\MyEntity2
 
-3. Call ./app/console doctrine:schema:update --dump-sql to see the new tables in the update schema queue.
+Call ./app/console doctrine:schema:update --dump-sql to see the new tables in the update schema queue.
 
 ## Installation (Standalone)
 
