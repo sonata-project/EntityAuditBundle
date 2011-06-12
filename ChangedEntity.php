@@ -62,14 +62,6 @@ class ChangedEntity
     {
         return $this->revType;
     }
-    
-    /**
-     * @return int
-     */
-    public function getRevision()
-    {
-        return $this->revision;
-    }
 
     /**
      * @return object
