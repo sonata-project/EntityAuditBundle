@@ -50,8 +50,45 @@ class AuditReader
         throw new \BadMethodCallException("not yet implemented.");
     }
 
-    public function findRevisions($class, $id)
+    public function findRevisions($className, $id)
     {
+        $class = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
         
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
+        }
+        
+        $whereSQL = "";
+        foreach ($class->identifier AS $idField => $value) {
+            if (isset($class->fieldMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= $class->fieldMappings[$idField]['column'] . " = ?";
+            } else if (isset($class->associationMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+            }
+        }
+        
+        $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " . 
+                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id ASC";
+        $revisionData = $this->em->getConnection()->executeQuery($query, array_values($id));
+        
+        $revisions = array();
+        $platform = $this->em->getConnection()->getDatabasePlatform();
+        foreach ($revisionsData AS $row) {
+            $revisions[] = new Revision(
+                $row['id'],
+                DateTime::createFromFormat($platform->getDateTimeFormatString(), $row['timestamp']),
+                $row['username'],
+                $row['change_comment']
+            );
+        }
+        
+        return $revisions;
     }
 }

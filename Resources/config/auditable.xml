@@ -9,24 +9,30 @@
     </parameters>
 
     <services>
-        <service id="simplethings.entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
-            <argument id="simplethings.entityaudit.config" type="service" />
+        <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
+            <argument id="simplethings_entityaudit.config" type="service" />
         </service>
 
-        <service id="simplethings.entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
-            <argument id="simplethings.entityaudit.manager" type="service" />
+        <service id="simplethings_entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
+            <argument id="simplethings_entityaudit.manager" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
-        <service id="simplethings.entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
-            <argument id="simplethings.entityaudit.manager" type="service" />
+        <service id="simplethings_entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
+            <argument id="simplethings_entityaudit.manager" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
-        <service id="simplethings.entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
+        <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
             </call>
+        </service>
+        
+        <service id="simplethings_entityaudit.request.current_user_listener" class="SimpleThings\EntityAudit\Request\CurrentUserListener">
+            <tag name="kernel.listener" event="core.request" method="handle" />
+            <argument type="service" id="simplethings_entityaudit.config" />
+            <argument type="service" id="security.context" on-invalid="NULL" />
         </service>
     </services>
 </container>

@@ -31,6 +31,7 @@ class AuditConfiguration
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
+    private $currentUsername = '';
 
     public function getTablePrefix()
     {
@@ -90,5 +91,15 @@ class AuditConfiguration
     public function createMetadataFactory()
     {
         return new Metadata\MetadataFactory($this->auditedEntityClasses);
+    }
+    
+    public function setCurrentUsername($username)
+    {
+        $this->currentUsername = $username;
+    }
+    
+    public function getCurrentUsername()
+    {
+        return $this->currentUsername;
     }
 }

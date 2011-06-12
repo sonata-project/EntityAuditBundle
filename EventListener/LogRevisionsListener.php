@@ -42,12 +42,34 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $metadataFactory;
 
+    /**
+     * @var Doctrine\DBAL\Connection
+     */
     private $conn;
+    
+    /**
+     * @var Doctrine\DBAL\Platforms\AbstractPlatform
+     */
     private $platform;
+    
+    /**
+     * @var Doctrine\ORM\EntityManager
+     */
     private $em;
+    
+    /**
+     * @var array
+     */
     private $insertRevisionSQL = array();
+    
+    /**
+     * @var Doctrine\ORM\UnitOfWork
+     */
     private $uow;
 
+    /**
+     * @var int
+     */
     private $revisionId;
 
     public function __construct(AuditManager $auditManager)
@@ -109,11 +131,10 @@ class LogRevisionsListener implements EventSubscriber
     private function getRevisionId()
     {
         if ($this->revisionId === null) {
-            $date = date_create("now")->format($this->platform->getDateFormatString());
+            $date = date_create("now")->format($this->platform->getDateTimeFormatString());
             $this->conn->insert($this->config->getRevisionTableName(), array(
-                'timestamp' => $date,
-                'username' => '',
-                'change_comment' => '',
+                'timestamp'     => $date,
+                'username'      => $this->config->getCurrentUsername(),
             ));
             $this->revisionId = $this->conn->lastInsertId();
         }
