@@ -65,6 +65,10 @@ instance and configure the two event listeners.
     $auditManager = new AuditManager($auditconfig);
     $auditManager->registerEvents($evm);
 
+    $config = new \Doctrine\ORM\Configuration();
+    // $config ...
+    $conn = array();
+
     $em = EntityManager::create($conn, $config, $evm);
 
 ## Usage 
