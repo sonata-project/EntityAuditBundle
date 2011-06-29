@@ -253,7 +253,7 @@ class AuditReader
     public function findRevision($rev)
     {
         $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($rev));
+        $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
         
         if (count($revisionsData) == 1) {
             return new Revision(
