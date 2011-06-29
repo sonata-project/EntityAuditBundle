@@ -243,6 +243,28 @@ class AuditReader
         }
         return $changedEntities;
     }
+    
+    /**
+     * Return the revision object for a particular revision.
+     * 
+     * @param  int $rev
+     * @return Revision 
+     */
+    public function findRevision($rev)
+    {
+        $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
+        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($rev));
+        
+        if (count($revisionsData) == 1) {
+            return new Revision(
+                $revisionsData[0]['id'],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
+                $revisionsData[0]['username']
+            );
+        } else {
+            throw AuditException::invalidRevision($rev);
+        }
+    }
 
     /**
      * Find all revisions that were made of entity class with given id.
