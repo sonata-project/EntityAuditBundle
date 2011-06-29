@@ -26,6 +26,7 @@ namespace SimpleThings\EntityAudit;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class AuditReader
 {
