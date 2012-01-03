@@ -15,7 +15,7 @@ of the audited entity there are two additional fields:
 The global revision table contains an id, timestamp, username and change comment field.
 
 With this approach it is possible to version an application with its changes to associations at the particular
-points in time. 
+points in time.
 
 This extension hooks into the SchemaTool generation process so that it will automatically
 create the necessary DDL statements for your audited entities.
@@ -70,7 +70,7 @@ instance and configure the two event listeners.
     $conn = array();
     $em = EntityManager::create($conn, $config, $evm);
 
-## Usage 
+## Usage
 
 Querying the auditing information is done using a `SimpleThings\EntityAudit\AuditReader` instance.
 
@@ -148,6 +148,28 @@ In a standalone app or Symfony command you have to set the username to a specifi
     // Standalone App
     $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
     $auditConfig->setCurrentUsername( "beberlei" );
+
+## Viewing auditing
+
+A default Symfony2 controller is provided that gives basic viewing capabilities of audited data.
+
+To use the controller, import the routing **(dont forget to secure the prefix you set so that
+only appropriate users can get access)**
+
+    # app/config/routing.yml
+
+    simple_things_entity_audit:
+        resource: "@SimpleThingsEntityAuditBundle/Resources/config/routing.yml"
+        prefix: /audit
+
+This provides you with a few different routes:
+
+ * simple_things_entity_audit_home -- Displays a paginated list of revisions, their timestamps and the user who performed the revision
+ * simple_things_entity_audit_viewrevision -- Displays the classes that were modified in a specific revision
+ * simple_things_entity_audit_viewentity -- Displays the revisions where the specified entity was modified
+ * simple_things_entity_audit_viewentity_detail -- Displays the data for the specified entity at the specified revision
+ * simple_things_entity_audit_compare -- Allows you to compare the changes of an entity between 2 revisions
+
 
 ## TODOS
 
