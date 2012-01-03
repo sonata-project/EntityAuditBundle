@@ -20,9 +20,6 @@
 
 namespace SimpleThings\EntityAudit\Utils;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\ORM\Mapping\ClassMetadata;
-
 /**
  * Class of the SimpleDiff PHP library by Paul Butler
  *
