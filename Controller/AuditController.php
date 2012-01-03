@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit\Controller;
 
 use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -106,14 +107,22 @@ class AuditController extends ContainerAware
         ));
     }
 
-    public function compareAction($className, $id, $oldRev, $newRev)
+    public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)
     {
+        $em = $this->container->get('doctrine')->getEntityManagerForClass($className);
+        $metadata = $em->getClassMetadata($className);
+
+        if (null === $oldRev) {
+            $oldRev = $request->query->get('oldRev');
+        }
+
+        if (null === $newRev) {
+            $newRev = $request->query->get('newRev');
+        }
+
         $ids = explode(',', $id);
         $oldEntity = $this->getAuditReader()->find($className, $ids, $oldRev);
         $newEntity = $this->getAuditReader()->find($className, $ids, $newRev);
-
-        $em = $this->container->get('doctrine')->getEntityManagerForClass($className);
-        $metadata = $em->getClassMetadata($className);
 
         $fields = $metadata->getFieldNames();
         sort($fields);
@@ -133,8 +142,6 @@ class AuditController extends ContainerAware
             'id' => $id,
             'oldRev' => $oldRev,
             'newRev' => $newRev,
-            'oldEntity' => $oldEntity,
-            'newEntity' => $newEntity,
             'diff' => $diff,
         ));
     }

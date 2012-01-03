@@ -20,6 +20,9 @@
 
 namespace SimpleThings\EntityAudit\Utils;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\ORM\Mapping\ClassMetadata;
+
 /**
  * Class of the SimpleDiff PHP library by Paul Butler
  *
@@ -64,11 +67,9 @@ class SimpleDiff
 
     public function entityDiff(array $oldFields, array $newFields)
     {
-        $fields = array_keys($oldFields);
-
         $diff = $this->diff(array_values($oldFields), array_values($newFields));
         $diff = array_slice($diff, 1, -1);
 
-        return array_combine($fields, $diff);
+        return array_combine(array_keys($oldFields), $diff);
     }
 }

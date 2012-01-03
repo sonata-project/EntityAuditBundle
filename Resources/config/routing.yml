@@ -29,3 +29,5 @@ simple_things_entity_audit_compare:
     pattern: /compare/{className}/{id}/{oldRev}/{newRev}
     defaults:
         _controller: SimpleThingsEntityAuditBundle:Audit:compare
+        oldRev: ~
+        newRev: ~
