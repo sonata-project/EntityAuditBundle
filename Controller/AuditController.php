@@ -70,6 +70,13 @@ class AuditController extends ContainerAware
         ));
     }
 
+    /**
+     * Shows entities changed in the specified revision.
+     * 
+     * @param integer $rev
+     * @return Response
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
     public function viewRevisionAction($rev)
     {
         $revision = $this->getAuditReader()->findRevision($rev);
@@ -85,6 +92,13 @@ class AuditController extends ContainerAware
         ));
     }
 
+    /**
+     * Lists revisions for the supplied entity.
+     *
+     * @param string $className
+     * @param string $id
+     * @return Response
+     */
     public function viewEntityAction($className, $id)
     {
         $ids = explode(',', $id);
@@ -97,6 +111,14 @@ class AuditController extends ContainerAware
         ));
     }
 
+    /**
+     * Shows the data for an entity at the specified revision.
+     *
+     * @param string $className
+     * @param string $id Comma separated list of identifiers
+     * @param int $rev
+     * @return Response
+     */
     public function viewDetailAction($className, $id, $rev)
     {
         $ids = explode(',', $id);
@@ -107,6 +129,16 @@ class AuditController extends ContainerAware
         ));
     }
 
+    /**
+     * Compares an entity at 2 different revisions.
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param string $className
+     * @param string $id Comma separated list of identifiers
+     * @param null|int $oldRev if null, pulled from the query string
+     * @param null|int $newRev if null, pulled from the query string
+     * @return Response
+     */
     public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)
     {
         $em = $this->container->get('doctrine')->getEntityManagerForClass($className);
