@@ -1,0 +1,25 @@
+{% extends "SimpleThingsEntityAuditBundle::layout.html.twig" %}
+
+{% block simplethings_entityaudit_content %}
+<h1>Change history for {{ className }} </h1>
+
+<p><a href="{{ path('simple_things_entity_audit_home') }}">Home</a></p>
+
+<table>
+    <thead><tr>
+        <th>Revision</th>
+        <th>Date</th>
+        <th>User</th>
+    </tr></thead>
+    <tbody>
+{% for revision in revisions %}
+    <tr>
+        <td><a href="{{ path('simple_things_entity_audit_viewentity_detail', { 'rev': revision.rev, 'entity': className, 'id': id })}}">{{ revision.rev }}</a></td>
+        <td>{{ revision.timestamp | date('r') }}</td>
+        <td>{{ revision.username|default('Anonymous') }}</td>
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+{% endblock simplethings_entityaudit_content %}

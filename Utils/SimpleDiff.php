@@ -62,4 +62,13 @@ class SimpleDiff
         return $ret;
     }
 
+    public function entityDiff(array $oldFields, array $newFields)
+    {
+        $fields = array_keys($oldFields);
+
+        $diff = $this->diff(array_values($oldFields), array_values($newFields));
+        $diff = array_slice($diff, 1, -1);
+
+        return array_combine($fields, $diff);
+    }
 }
