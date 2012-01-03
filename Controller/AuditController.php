@@ -24,26 +24,22 @@
 namespace SimpleThings\EntityAudit\Controller;
 
 use SimpleThings\EntityAudit\Utils\EntityDiff;
-use Symfony\Component\DependencyInjection\ContainerAware;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Controller for listing auditing information
  *
  * @author Tim Nagel <tim@nagel.com.au>
  */
-class AuditController extends ContainerAware
+class AuditController extends Controller
 {
     /**
      * @return \SimpleThings\EntityAudit\AuditReader
      */
     protected function getAuditReader()
     {
-        return $this->container->get('simplethings_entityaudit.reader');
+        return $this->get('simplethings_entityaudit.reader');
     }
 
     /**
@@ -51,7 +47,7 @@ class AuditController extends ContainerAware
      */
     protected function getAuditManager()
     {
-        return $this->container->get('simplethings_entityaudit.manager');
+        return $this->get('simplethings_entityaudit.manager');
     }
 
     /**
@@ -65,7 +61,7 @@ class AuditController extends ContainerAware
         $reader = $this->getAuditReader();
         $revisions = $reader->findRevisionHistory(20, 20 * ($page - 1));
 
-        return $this->container->get('templating')->renderResponse('SimpleThingsEntityAuditBundle:Audit:index.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:index.html.twig', array(
             'revisions' => $revisions,
         ));
     }
@@ -81,12 +77,12 @@ class AuditController extends ContainerAware
     {
         $revision = $this->getAuditReader()->findRevision($rev);
         if (!$revision) {
-            throw new NotFoundHttpException(sprintf('Revision %i not found', $rev));
+            throw $this->createNotFoundException(sprintf('Revision %i not found', $rev));
         }
 
         $changedEntities = $this->getAuditReader()->findEntitesChangedAtRevision($rev);
 
-        return $this->container->get('templating')->renderResponse('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', array(
             'revision' => $revision,
             'changedEntities' => $changedEntities,
         ));
@@ -104,7 +100,7 @@ class AuditController extends ContainerAware
         $ids = explode(',', $id);
         $revisions = $this->getAuditReader()->findRevisions($className, $ids);
 
-        return $this->container->get('templating')->renderResponse('SimpleThingsEntityAuditBundle:Audit:view_entity.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_entity.html.twig', array(
             'id' => $id,
             'className' => $className,
             'revisions' => $revisions,
@@ -124,7 +120,7 @@ class AuditController extends ContainerAware
         $ids = explode(',', $id);
         $entity = $this->getAuditReader()->find($className, $ids, $rev);
 
-        return $this->container->get('templating')->renderResponse('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', array(
             'entity' => $entity,
         ));
     }
@@ -141,7 +137,7 @@ class AuditController extends ContainerAware
      */
     public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)
     {
-        $em = $this->container->get('doctrine')->getEntityManagerForClass($className);
+        $em = $this->getDoctrine()->getEntityManagerForClass($className);
         $metadata = $em->getClassMetadata($className);
 
         if (null === $oldRev) {
@@ -159,7 +155,7 @@ class AuditController extends ContainerAware
         $differ = new EntityDiff();
         $diff = $differ->entityDiff($metadata, $oldEntity, $newEntity);
 
-        return $this->container->get('templating')->renderResponse('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', array(
             'className' => $className,
             'id' => $id,
             'oldRev' => $oldRev,
