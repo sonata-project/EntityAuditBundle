@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Controller;
 
+use SimpleThings\EntityAudit\Utils\EntityDiff;
 use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +72,7 @@ class AuditController extends ContainerAware
 
     /**
      * Shows entities changed in the specified revision.
-     * 
+     *
      * @param integer $rev
      * @return Response
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
@@ -155,18 +156,8 @@ class AuditController extends ContainerAware
         $oldEntity = $this->getAuditReader()->find($className, $ids, $oldRev);
         $newEntity = $this->getAuditReader()->find($className, $ids, $newRev);
 
-        $fields = $metadata->getFieldNames();
-        sort($fields);
-
-        $oldValues =
-        $newValues = array();
-        foreach ($fields AS $fieldName) {
-            $oldValues[$fieldName] = $metadata->getFieldValue($oldEntity, $fieldName);
-            $newValues[$fieldName] = $metadata->getFieldValue($newEntity, $fieldName);
-        }
-
-        $SimpleDiff = new \SimpleThings\EntityAudit\Utils\SimpleDiff();
-        $diff = $SimpleDiff->entityDiff($oldValues, $newValues);
+        $differ = new EntityDiff();
+        $diff = $differ->entityDiff($metadata, $oldEntity, $newEntity);
 
         return $this->container->get('templating')->renderResponse('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', array(
             'className' => $className,
