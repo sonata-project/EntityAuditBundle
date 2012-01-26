@@ -46,5 +46,16 @@ class SimpleThingsEntityAuditExtension extends Extension
         }
         $auditedEntities = array_unique($auditedEntities);
         $container->setParameter('simplethings.entityaudit.audited_entities', $auditedEntities);
+        
+        $params = array(
+            'table_prefix' => '',
+            'table_suffix' => '_audit',
+            'revision_field_name' => 'rev',
+            'revision_type_field_name' => 'revtype',
+            'revision_table_name' => 'revisions'
+        );
+        foreach($params as $key=>$val) {
+            $container->setParameter('simplethings.entityaudit.' . $key , isset($config[$key]) ? $config[$key] : $val);
+        }
     }
 }
