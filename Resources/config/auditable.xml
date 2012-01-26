@@ -6,6 +6,11 @@
 
     <parameters>
         <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
+        <parameter key="simplethings.entityaudit.table_prefix" type="string" />
+        <parameter key="simplethings.entityaudit.table_suffix" type="string" />
+        <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
     </parameters>
 
     <services>
@@ -31,7 +36,22 @@
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
             </call>
-        </service>
+            <call method="setTablePrefix">
+                <argument>%simplethings.entityaudit.table_prefix%</argument>
+            </call>
+            <call method="setTableSuffix">
+                <argument>%simplethings.entityaudit.table_suffix%</argument>
+            </call>
+            <call method="setRevisionFieldName">
+                <argument>%simplethings.entityaudit.revision_field_name%</argument>
+            </call>
+            <call method="setRevisionTypeFieldName">
+                <argument>%simplethings.entityaudit.revision_type_field_name%</argument>
+            </call>
+            <call method="setRevisionTableName">
+                <argument>%simplethings.entityaudit.revision_table_name%</argument>
+            </call>
+        </service> 
         
         <service id="simplethings_entityaudit.request.current_user_listener" class="SimpleThings\EntityAudit\Request\CurrentUserListener">
             <tag name="kernel.event_listener" event="kernel.request" method="handle" />
