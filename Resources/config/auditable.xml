@@ -11,6 +11,7 @@
         <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
     </parameters>
 
     <services>
@@ -51,6 +52,9 @@
             <call method="setRevisionTableName">
                 <argument>%simplethings.entityaudit.revision_table_name%</argument>
             </call>
+            <call method="setRevisionIdFieldType">
+                <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
+            </call>
         </service> 
         
         <service id="simplethings_entityaudit.request.current_user_listener" class="SimpleThings\EntityAudit\Request\CurrentUserListener">
@@ -60,3 +64,4 @@
         </service>
     </services>
 </container>
+
