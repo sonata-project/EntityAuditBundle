@@ -32,6 +32,7 @@ class AuditConfiguration
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
     private $currentUsername = '';
+    private $revisionIdFieldType = 'integer';
 
     public function getTablePrefix()
     {
@@ -101,5 +102,15 @@ class AuditConfiguration
     public function getCurrentUsername()
     {
         return $this->currentUsername;
+    }
+
+    public function setRevisionIdFieldType($revisionIdFieldType)
+    {
+        $this->revisionIdFieldType = $revisionIdFieldType;
+    }
+
+    public function getRevisionIdFieldType()
+    {
+        return $this->revisionIdFieldType;
     }
 }
