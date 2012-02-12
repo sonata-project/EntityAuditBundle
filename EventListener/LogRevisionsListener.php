@@ -121,7 +121,7 @@ class LogRevisionsListener implements EventSubscriber
         foreach ($this->uow->getScheduledEntityDeletions() AS $entity) {
             $class = $this->em->getClassMetadata(get_class($entity));
             if (!$this->metadataFactory->isAudited($class->name)) {
-                return;
+                continue;
             }
             $entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
             $this->saveRevisionEntityData($class, $entityData, 'DEL');

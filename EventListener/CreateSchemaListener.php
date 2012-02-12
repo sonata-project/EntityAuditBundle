@@ -71,7 +71,7 @@ class CreateSchemaListener implements EventSubscriber
                     array('notnull' => false, 'autoincrement' => false)
                 ));
             }
-            $revisionTable->addColumn($this->config->getRevisionFieldName(), 'integer');
+            $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
             $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
             $pkColumns = $entityTable->getPrimaryKey()->getColumns();
             $pkColumns[] = $this->config->getRevisionFieldName();
@@ -83,7 +83,7 @@ class CreateSchemaListener implements EventSubscriber
     {
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $revisionsTable->addColumn('id', 'integer', array(
+        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
             'autoincrement' => true,
         ));
         $revisionsTable->addColumn('timestamp', 'datetime');
