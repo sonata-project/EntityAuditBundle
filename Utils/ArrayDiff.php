@@ -26,32 +26,25 @@ namespace SimpleThings\EntityAudit\Utils;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
- * Creates a diff between persisted fields of 2 entities of the same type.
+ * Creates a diff between 2 arrays.
  *
  * @author Tim Nagel <tim@nagel.com.au>
  */
-class EntityDiff extends SimpleDiff
+class ArrayDiff
 {
-    public function entityDiff(ClassMetadata $metadata, $oldEntity, $newEntity)
+    public function diff($oldData, $newData)
     {
-        if (get_class($oldEntity) !== get_class($newEntity)) {
-            throw new \InvalidArgumentException('Both entities must be of the same type');
+        $diff = array();
+        foreach ($oldData as $field => $value) {
+            if ($value === $newData[$field]) {
+                $row = array('old' => '', 'new' => '', 'same' => $value);
+            } else {
+                $row = array('old' => $value, 'new' => $newData[$field], 'same' => '');
+            }
+
+            $diff[$field] = $row;
         }
 
-        $fields = $metadata->getFieldNames();
-        sort($fields);
-
-        $oldValues =
-        $newValues = array();
-
-        foreach ($fields AS $fieldName) {
-            $oldValues[$fieldName] = $metadata->getFieldValue($oldEntity, $fieldName);
-            $newValues[$fieldName] = $metadata->getFieldValue($newEntity, $fieldName);
-        }
-
-        $diff = $this->diff(array_values($oldValues), array_values($newValues));
-        $diff = array_slice($diff, 1, -1);
-
-        return array_combine($fields, $diff);
+        return $diff;
     }
 }

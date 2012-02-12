@@ -23,7 +23,8 @@
 
 namespace SimpleThings\EntityAudit\Controller;
 
-use SimpleThings\EntityAudit\Utils\EntityDiff;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use SimpleThings\EntityAudit\Utils\ArrayDiff;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -117,11 +118,21 @@ class AuditController extends Controller
      */
     public function viewDetailAction($className, $id, $rev)
     {
+        $em = $this->getDoctrine()->getEntityManagerForClass($className);
+        $metadata = $em->getClassMetadata($className);
+
         $ids = explode(',', $id);
         $entity = $this->getAuditReader()->find($className, $ids, $rev);
 
+        $data = $this->getEntityValues($metadata, $entity);
+        krsort($data);
+
         return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', array(
+            'id' => $id,
+            'rev' => $rev,
+            'className' => $className,
             'entity' => $entity,
+            'data' => $data,
         ));
     }
 
@@ -150,10 +161,13 @@ class AuditController extends Controller
 
         $ids = explode(',', $id);
         $oldEntity = $this->getAuditReader()->find($className, $ids, $oldRev);
-        $newEntity = $this->getAuditReader()->find($className, $ids, $newRev);
+        $oldData = $this->getEntityValues($metadata, $oldEntity);
 
-        $differ = new EntityDiff();
-        $diff = $differ->entityDiff($metadata, $oldEntity, $newEntity);
+        $newEntity = $this->getAuditReader()->find($className, $ids, $newRev);
+        $newData = $this->getEntityValues($metadata, $newEntity);
+
+        $differ = new ArrayDiff();
+        $diff = $differ->diff($oldData, $newData);
 
         return $this->render('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', array(
             'className' => $className,
@@ -162,5 +176,17 @@ class AuditController extends Controller
             'newRev' => $newRev,
             'diff' => $diff,
         ));
+    }
+
+    protected function getEntityValues(ClassMetadata $metadata, $entity)
+    {
+        $fields = $metadata->getFieldNames();
+
+        $return = array();
+        foreach ($fields AS $fieldName) {
+            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+        }
+
+        return $return;
     }
 }
