@@ -50,14 +50,14 @@ class AuditReader
     }
 
     /**
-     * Find a class at the specific revision. 
-     * 
+     * Find a class at the specific revision.
+     *
      * This method does not require the revision to be exact but it also searches for an earlier revision
      * of this entity and always returns the latest revision below or equal the given revision
-     * 
+     *
      * @param string $className
      * @param mixed $id
-     * @param int $revision 
+     * @param int $revision
      * @return object
      */
     public function find($className, $id, $revision)
@@ -65,14 +65,14 @@ class AuditReader
         if (!$this->metadataFactory->isAudited($className)) {
             throw AuditException::notAudited($className);
         }
-        
+
         $class = $this->em->getClassMetadata($className);
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
-        
+
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
         }
-        
+
         $whereSQL = "e." . $this->config->getRevisionFieldName() ." <= ?";
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
@@ -81,7 +81,7 @@ class AuditReader
                 $whereSQL .= " AND " . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
             }
         }
-        
+
         $columnList = "";
         foreach ($class->fieldNames AS $field) {
             if ($columnList) {
@@ -99,24 +99,24 @@ class AuditReader
                 }
             }
         }
-        
+
         $values = array_merge(array($revision), array_values($id));
-        
+
         $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
         $revisionData = $this->em->getConnection()->fetchAll($query, $values);
-        
+
         if ($revisionData) {
             return $this->createEntity($class->name, $revisionData[0]);
         } else {
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
     }
-    
+
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
-     * 
+     *
      * NOTICE: Creates an old version of the entity, HOWEVER related associations are all managed entities!!
-     * 
+     *
      * @param string $className
      * @param array $data
      * @return object
@@ -131,7 +131,7 @@ class AuditReader
                 $class->reflFields[$field]->setValue($entity, $value);
             }
         }
-            
+
         foreach ($class->associationMappings as $field => $assoc) {
             // Check if the association is not among the fetch-joined associations already.
             if (isset($hints['fetched'][$className][$field])) {
@@ -159,10 +159,10 @@ class AuditReader
                 } else {
                     // Inverse side of x-to-one can never be lazy
                     $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                            ->loadOneToOneEntity($assoc, $entity, null));
+                            ->loadOneToOneEntity($assoc, $entity));
                 }
             } else {
-                // Inject collection                        
+                // Inject collection
                 $reflField = $class->reflFields[$field];
                 $reflField->setValue($entity, new ArrayCollection);
             }
@@ -170,10 +170,10 @@ class AuditReader
 
         return $entity;
     }
-    
+
     /**
      * Return a list of all revisions.
-     * 
+     *
      * @param int $limit
      * @param int $offset
      * @return Revision[]
@@ -181,12 +181,12 @@ class AuditReader
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
-        
+
         $query = $this->platform->modifyLimitQuery(
             "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
         );
         $revisionsData = $this->em->getConnection()->fetchAll($query);
-        
+
         $revisions = array();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
@@ -197,22 +197,22 @@ class AuditReader
         }
         return $revisions;
     }
-    
+
     /**
      * Return a list of ChangedEntity instances created at the given revision.
-     * 
+     *
      * @param int $revision
      * @return ChangedEntity[]
      */
     public function findEntitesChangedAtRevision($revision)
-    {        
+    {
         $auditedEntities = $this->metadataFactory->getAllClassNames();
-        
+
         $changedEntities = array();
         foreach ($auditedEntities AS $className) {
             $class = $this->em->getClassMetadata($className);
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
-            
+
             $whereSQL = "e." . $this->config->getRevisionFieldName() ." = ?";
             $columnList = "e." . $this->config->getRevisionTypeFieldName();
             foreach ($class->fieldNames AS $field) {
@@ -236,25 +236,25 @@ class AuditReader
                     // TODO: doesnt work with composite foreign keys yet.
                     $id[$idField] = $row[$idField];
                 }
-                
+
                 $entity = $this->createEntity($className, $row);
                 $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
             }
         }
         return $changedEntities;
     }
-    
+
     /**
      * Return the revision object for a particular revision.
-     * 
+     *
      * @param  int $rev
-     * @return Revision 
+     * @return Revision
      */
     public function findRevision($rev)
     {
         $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
         $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
-        
+
         if (count($revisionsData) == 1) {
             return new Revision(
                 $revisionsData[0]['id'],
@@ -268,7 +268,7 @@ class AuditReader
 
     /**
      * Find all revisions that were made of entity class with given id.
-     * 
+     *
      * @param string $className
      * @param mixed $id
      * @return Revision[]
@@ -278,14 +278,14 @@ class AuditReader
         if (!$this->metadataFactory->isAudited($className)) {
             throw AuditException::notAudited($className);
         }
-        
+
         $class = $this->em->getClassMetadata($className);
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
-        
+
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
         }
-        
+
         $whereSQL = "";
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
@@ -300,11 +300,11 @@ class AuditReader
                 $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
             }
         }
-        
-        $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " . 
+
+        $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
                  "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
         $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
-        
+
         $revisions = array();
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
         foreach ($revisionsData AS $row) {
@@ -314,7 +314,13 @@ class AuditReader
                 $row['username']
             );
         }
-        
+
         return $revisions;
+    }
+
+    protected function getEntityPersister($entity)
+    {
+        $uow = $this->em->getUnitOfWork();
+        return $uow->getEntityPersister($entity);
     }
 }

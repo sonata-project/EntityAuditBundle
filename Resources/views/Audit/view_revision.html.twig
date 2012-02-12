@@ -14,7 +14,7 @@
     <tbody>
 {% for changedEntity in changedEntities %}
     <tr>
-        <td><a href="{{ path('simple_things_entity_audit_viewentity_detail', { 'rev': revision.rev, 'entity': changedEntity.className, 'id': changedEntity.id | join(',') }) }}">{{ changedEntity.className }}</a></td>
+        <td><a href="{{ path('simple_things_entity_audit_viewentity_detail', { 'rev': revision.rev, 'className': changedEntity.className, 'id': changedEntity.id | join(',') }) }}">{{ changedEntity.className }}</a></td>
         <td>{{ changedEntity.id | join(', ') }}</td>
         <td>{{ changedEntity.revisionType }}</td>
     </tr>
