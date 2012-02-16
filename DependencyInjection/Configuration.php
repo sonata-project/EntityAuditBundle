@@ -16,7 +16,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('audited_entities')
                     ->prototype('scalar')->end()
                 ->end()
-                ->scalarNode('table_prefix')->end()
+                ->scalarNode('table_prefix')->defaultValue('')->end()
                 ->scalarNode('table_suffix')->defaultValue('_audit')->end()
                 ->scalarNode('revision_field_name')->defaultValue('rev')->end()
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
