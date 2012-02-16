@@ -30,23 +30,16 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Definition\Processor;
 
 class SimpleThingsEntityAuditExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {
-        $processor = new Processor();
-        $configuration = new Configuration();
-        $config = $processor->processConfiguration($configuration, $configs);
+        $config = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('auditable.xml');
 
-        $this->updateParameters($config, $container);
-    }
-
-    private function updateParameters($config, ContainerBuilder $container) {
         foreach ($config as $key => $value) {
             $container->setParameter("simplethings.entityaudit.{$key}", $value);
         }
