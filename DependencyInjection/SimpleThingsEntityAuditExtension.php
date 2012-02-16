@@ -41,7 +41,7 @@ class SimpleThingsEntityAuditExtension extends Extension
         $loader->load('auditable.xml');
 
         foreach ($config as $key => $value) {
-            $container->setParameter("simplethings.entityaudit.{$key}", $value);
+            $container->setParameter("simplethings.entityaudit." . $key, $value);
         }
     }
 }
