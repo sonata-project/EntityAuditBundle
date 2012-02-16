@@ -1,24 +1,24 @@
 <?xml version="1.0" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
         <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
         <parameter key="simplethings.entityaudit.table_prefix" type="string" />
-        <parameter key="simplethings.entityaudit.table_suffix" type="string" />
-        <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
-        <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
-        <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
-        <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
+        <parameter key="simplethings.entityaudit.table_suffix" type="string">_audit</parameter>
+        <parameter key="simplethings.entityaudit.revision_field_name" type="string">rev</parameter>
+        <parameter key="simplethings.entityaudit.revision_type_field_name" type="string">revtype</parameter>
+        <parameter key="simplethings.entityaudit.revision_table_name" type="string">revisions</parameter>
+        <parameter key="simplethings.entityaudit.revision_id_field_type" type="string">integer</parameter>
     </parameters>
 
     <services>
         <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
             <argument id="simplethings_entityaudit.config" type="service" />
         </service>
-        
+
         <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader" factory-service="simplethings_entityaudit.manager" factory-method="createAuditReader">
             <argument type="service" id="doctrine.orm.default_entity_manager" />
         </service>
@@ -55,8 +55,8 @@
             <call method="setRevisionIdFieldType">
                 <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
             </call>
-        </service> 
-        
+        </service>
+
         <service id="simplethings_entityaudit.request.current_user_listener" class="SimpleThings\EntityAudit\Request\CurrentUserListener">
             <tag name="kernel.event_listener" event="kernel.request" method="handle" />
             <argument type="service" id="simplethings_entityaudit.config" />
@@ -64,4 +64,3 @@
         </service>
     </services>
 </container>
-
