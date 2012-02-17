@@ -34,6 +34,12 @@ Register Bundle in AppKernel.php
         return $bundles;
     }
 
+
+Autoload
+
+    'SimpleThings\\EntityAudit' => __DIR__.'/../vendor/bundles/',
+
+
 Load extension "simple_things_entity_audit" and specify the audited entities (yes, that ugly for now!)
 
     simple_things_entity_audit:
