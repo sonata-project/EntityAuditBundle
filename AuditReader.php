@@ -23,10 +23,11 @@
 
 namespace SimpleThings\EntityAudit;
 
-use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
+use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class AuditReader
 {
@@ -128,6 +129,8 @@ class AuditReader
 
         foreach ($data as $field => $value) {
             if (isset($class->fieldMappings[$field])) {
+                $type = Type::getType($class->fieldMappings[$field]['type']);
+                $value = $type->convertToPHPValue($value, $this->platform);
                 $class->reflFields[$field]->setValue($entity, $value);
             }
         }
