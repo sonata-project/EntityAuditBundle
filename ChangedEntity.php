@@ -29,15 +29,17 @@ class ChangedEntity
     private $id;
     private $revType;
     private $entity;
-    
-    public function __construct($className, array $id, $revType, $entity)
+    private $revision;
+
+    public function __construct($className, array $id, $revType, $revision, $entity)
     {
         $this->className = $className;
         $this->id = $id;
         $this->revType = $revType;
+        $this->revision = $revision;
         $this->entity = $entity;
     }
-    
+
     /**
      * @return string
      */
@@ -69,5 +71,13 @@ class ChangedEntity
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRevision()
+    {
+        return $this->revision;
     }
 }

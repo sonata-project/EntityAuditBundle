@@ -202,6 +202,53 @@ class AuditReader
     }
 
     /**
+     * Returns an array of ChangedEntity objects, one for each entity
+     * with their latest revision.
+     *
+     * @param string $className
+     * @param int $limit
+     * @param int $offset
+     * @return array
+     */
+    public function findLatestRevisionForEntities($className, $limit = 20, $offset = 0)
+    {
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+
+        $class = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+
+        $columnList = "e." . $this->config->getRevisionTypeFieldName();
+        $columnList .= ", e." . $this->config->getRevisionFieldName();
+        foreach ($class->fieldNames AS $field) {
+            $columnList .= ', e.' . $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
+        }
+
+        $query = $this->platform->modifyLimitQuery("
+            SELECT {$columnList}
+            FROM {$tableName} AS e
+            LEFT OUTER JOIN {$tableName} AS e2 ON (e.id = e2.id AND e.rev < e2.rev)
+            WHERE e2.id IS NULL
+            ORDER BY e.rev DESC",
+            $limit, $offset
+        );
+        $entityData = $this->em->getConnection()->fetchAll($query);
+
+        $entities = array();
+        foreach($entityData AS $row) {
+            $id = array();
+            foreach ($class->identifier AS $idField) {
+                // TODO: doesnt work with composite foreign keys yet.
+                $id[$idField] = $row[$idField];
+            }
+
+            $entity = $this->createEntity($className, $row);
+            $entities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $row[$this->config->getRevisionFieldName()], $entity);
+        }
+
+        return $entities;
+    }
+
+    /**
      * Return a list of ChangedEntity instances created at the given revision.
      *
      * @param int $revision
@@ -241,7 +288,7 @@ class AuditReader
                 }
 
                 $entity = $this->createEntity($className, $row);
-                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
+                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $row[$this->config->getRevisionFieldName()], $entity);
             }
         }
         return $changedEntities;
