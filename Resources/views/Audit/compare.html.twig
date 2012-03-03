@@ -1,4 +1,5 @@
 {% extends "SimpleThingsEntityAuditBundle::layout.html.twig" %}
+{% import "SimpleThingsEntityAuditBundle::macros.html.twig" as macros %}
 
 {% block simplethings_entityaudit_content %}
 <h1>Comparing {{ className }} with identifiers of {{ id }} between revisions {{ oldRev }} and {{ newRev }}</h1>
@@ -12,11 +13,12 @@
     </tr></thead>
     <tbody>
     {% for field, value in diff %}
+    {% set type = metadata.fieldMappings[field].type %}
     <tr>
         <td>{{ field }}</td>
-        <td>{{ value.old }}</td>
-        <td>{{ value.same }}</td>
-        <td>{{ value.new }}</td>
+        <td>{{ macros.format(value.old, type) }}</td>
+        <td>{{ macros.format(value.same, type) }}</td>
+        <td>{{ macros.format(value.new, type) }}</td>
     </tr>
     {% endfor %}
     </tbody>

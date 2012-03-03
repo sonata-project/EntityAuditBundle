@@ -120,8 +120,8 @@ class AuditController extends Controller
     {
         $em = $this->getDoctrine()->getEntityManagerForClass($className);
         $metadata = $em->getClassMetadata($className);
+        $ids = array_combine($metadata->identifier, explode(',', $id));
 
-        $ids = explode(',', $id);
         $entity = $this->getAuditReader()->find($className, $ids, $rev);
 
         $data = $this->getEntityValues($metadata, $entity);
@@ -131,6 +131,7 @@ class AuditController extends Controller
             'id' => $id,
             'rev' => $rev,
             'className' => $className,
+            'metadata' => $metadata,
             'entity' => $entity,
             'data' => $data,
         ));
@@ -159,7 +160,7 @@ class AuditController extends Controller
             $newRev = $request->query->get('newRev');
         }
 
-        $ids = explode(',', $id);
+        $ids = array_combine($metadata->identifier, explode(',', $id));
         $oldEntity = $this->getAuditReader()->find($className, $ids, $oldRev);
         $oldData = $this->getEntityValues($metadata, $oldEntity);
 
@@ -174,6 +175,7 @@ class AuditController extends Controller
             'id' => $id,
             'oldRev' => $oldRev,
             'newRev' => $newRev,
+            'metadata' => $metadata,
             'diff' => $diff,
         ));
     }
