@@ -1,0 +1,10 @@
+{
+    "name": "simplethings/entity-audit-bundle",
+    "license": "New BSD",
+    "keywords": ["Persistence", "Database", "Audit"],
+    "description": "Audit for Doctrine Entities",
+    "require": {
+        "doctrine/orm": ">=2.1.0"
+    }
+}
+
