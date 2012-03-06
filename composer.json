@@ -5,6 +5,10 @@
     "description": "Audit for Doctrine Entities",
     "require": {
         "doctrine/orm": ">=2.1.0"
-    }
+    },
+    "autoload": {
+        "psr-0": {"SimpleThings\\EntityAudit": "" }
+    },
+    "target-dir": "SimpleThings/EntityAudit"
 }
 
