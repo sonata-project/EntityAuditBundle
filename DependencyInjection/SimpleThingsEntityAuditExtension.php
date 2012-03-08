@@ -35,29 +35,13 @@ class SimpleThingsEntityAuditExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {
+        $config = $this->processConfiguration(new Configuration(), $configs);
+
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('auditable.xml');
 
-        $auditedEntities = array();
-        foreach ($configs AS $config) {
-            if (isset($config['audited_entities'])) {
-                $auditedEntities = array_merge($auditedEntities, $config['audited_entities']);
-            }
-        }
-        $auditedEntities = array_unique($auditedEntities);
-        $container->setParameter('simplethings.entityaudit.audited_entities', $auditedEntities);
-        
-        $params = array(
-            'table_prefix' => '',
-            'table_suffix' => '_audit',
-            'revision_field_name' => 'rev',
-            'revision_type_field_name' => 'revtype',
-            'revision_table_name' => 'revisions',
-            'revision_id_field_type' => 'integer'
-        );
-        foreach($params as $key=>$val) {
-            $container->setParameter('simplethings.entityaudit.' . $key , isset($config[$key]) ? $config[$key] : $val);
+        foreach ($config as $key => $value) {
+            $container->setParameter("simplethings.entityaudit." . $key, $value);
         }
     }
 }
-
