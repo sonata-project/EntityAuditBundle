@@ -36,7 +36,7 @@ class ArrayDiff
     {
         $diff = array();
         foreach ($oldData as $field => $value) {
-            if ($value === $newData[$field]) {
+            if ($value == $newData[$field]) {
                 $row = array('old' => '', 'new' => '', 'same' => $value);
             } else {
                 $row = array('old' => $value, 'new' => $newData[$field], 'same' => '');

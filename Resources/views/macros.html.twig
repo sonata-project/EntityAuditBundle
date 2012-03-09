@@ -1,0 +1,11 @@
+{% macro format(value, type) -%}
+{% if type == 'datetime' %}
+    {% if value %}{{ value | date('r') }}{% endif %}
+{% elseif type == 'date' %}
+    {% if value %}{{ value | date('r') }}{% endif %}
+{% elseif type == 'time' %}
+    {{ value | date('H:i:s') }}
+{% else %}
+    {{ value }}
+{% endif %}
+{%- endmacro %}

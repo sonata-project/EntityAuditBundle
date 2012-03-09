@@ -51,17 +51,17 @@ class AuditReader
     }
 
     /**
-     * Find a class at the specific revision.
-     *
-     * This method does not require the revision to be exact but it also searches for an earlier revision
-     * of this entity and always returns the latest revision below or equal the given revision
+     * Finds entities at the highest revision up to the specific revision, identified by
+     * the supplied criteria.
      *
      * @param string $className
-     * @param mixed $id
+     * @param array $criteria
      * @param int $revision
-     * @return object
+     * @param int $depth
+     * @return array
+     * @throws AuditException
      */
-    public function find($className, $id, $revision)
+    public function findBy($className, array $criteria, $revision, $depth = 0)
     {
         if (!$this->metadataFactory->isAudited($className)) {
             throw AuditException::notAudited($className);
@@ -70,16 +70,12 @@ class AuditReader
         $class = $this->em->getClassMetadata($className);
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
-        if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
-        }
-
         $whereSQL = "e." . $this->config->getRevisionFieldName() ." <= ?";
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $whereSQL .= " AND " . $class->fieldMappings[$idField]['columnName'] . " = ?";
-            } else if (isset($class->associationMappings[$idField])) {
-                $whereSQL .= " AND " . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+        foreach ($criteria as $criterion => $value) {
+            if (isset($class->fieldMappings[$criterion])) {
+                $whereSQL .= " AND " . $class->fieldMappings[$criterion]['columnName'] . " = ?";
+            } else if (isset($class->associationMappings[$criterion])) {
+                $whereSQL .= " AND " . $class->associationMappings[$criterion]['joinColumns'][0]['name'] . " = ?";
             }
         }
 
@@ -90,6 +86,7 @@ class AuditReader
             }
             $columnList .= $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
         }
+
         foreach ($class->associationMappings AS $assoc) {
             if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                 foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
@@ -101,16 +98,67 @@ class AuditReader
             }
         }
 
-        $values = array_merge(array($revision), array_values($id));
-
+        $values = array_merge(array($revision), array_values($criteria));
         $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+
         $revisionData = $this->em->getConnection()->fetchAll($query, $values);
 
-        if ($revisionData) {
-            return $this->createEntity($class->name, $revisionData[0]);
-        } else {
-            throw AuditException::noRevisionFound($class->name, $id, $revision);
+        $entities = array();
+        foreach ($revisionData as &$row) {
+            $ids = array();
+            foreach ($class->identifier as $identifier) {
+                $ids[$identifier] = $row[$identifier];
+            }
+
+            $idKey = implode(',', $ids);
+            if (isset($entities[$idKey])) {
+                continue;
+            }
+
+            if ($depth > 0) {
+                foreach ($class->associationMappings AS $assoc) {
+                    if (($assoc['type'] & ClassMetadata::ONE_TO_MANY) > 0) {
+                        $inverseAssoc = $this->em->getClassMetadata($assoc['targetEntity'])->getAssociationMapping($assoc['mappedBy']);
+
+                        $assocConditions = array();
+                        foreach ($inverseAssoc['joinColumns'] as $joinColumn) {
+                            $assocConditions[$inverseAssoc['fieldName']] = $ids[$joinColumn['referencedColumnName']];
+                        }
+
+                        $row[$assoc['fieldName']] = $this->findBy($assoc['targetEntity'], $assocConditions, $revision, $depth - 1);
+                    }
+                }
+            }
+
+            $entities[$idKey] = $this->createEntity($class->name, $row);
         }
+
+        return $entities;
+    }
+
+    /**
+     * Find a class at the specific revision.
+     *
+     * This method does not require the revision to be exact but it also searches for an earlier revision
+     * of this entity and always returns the latest revision below or equal the given revision
+     *
+     * @param string $className
+     * @param mixed $id
+     * @param int $revision
+     * @param int $depth
+     * @return object
+     */
+    public function find($className, $id, $revision, $depth = 0)
+    {
+        $class = $this->em->getClassMetadata($className);
+
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
+        }
+
+        $result = $this->findBy($className, $id, $revision, $depth);
+
+        return reset($result);
     }
 
     /**
@@ -136,11 +184,6 @@ class AuditReader
         }
 
         foreach ($class->associationMappings as $field => $assoc) {
-            // Check if the association is not among the fetch-joined associations already.
-            if (isset($hints['fetched'][$className][$field])) {
-                continue;
-            }
-
             $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
@@ -167,7 +210,14 @@ class AuditReader
             } else {
                 // Inject collection
                 $reflField = $class->reflFields[$field];
-                $reflField->setValue($entity, new ArrayCollection);
+
+                if ($assoc['type'] & ClassMetadata::ONE_TO_MANY && isset($data[$field])) {
+                    $collection = new ArrayCollection($data[$field]);
+                } else {
+                    $collection = new ArrayCollection;
+                }
+
+                $reflField->setValue($entity, $collection);
             }
         }
 
@@ -218,6 +268,7 @@ class AuditReader
 
             $whereSQL = "e." . $this->config->getRevisionFieldName() ." = ?";
             $columnList = "e." . $this->config->getRevisionTypeFieldName();
+            $columnList .= ", e." . $this->config->getRevisionFieldName();
             foreach ($class->fieldNames AS $field) {
                 $columnList .= ', ' . $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
             }

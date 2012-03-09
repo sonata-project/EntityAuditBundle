@@ -1,4 +1,5 @@
 {% extends "SimpleThingsEntityAuditBundle::layout.html.twig" %}
+{% import "SimpleThingsEntityAuditBundle::macros.html.twig" as macros %}
 
 {% block simplethings_entityaudit_content %}
 <h1>Detail of {{ className }} with identifiers of {{ id }} at revisions {{ rev }}</h1>
@@ -13,7 +14,10 @@
     {% for field, value in data %}
     <tr>
         <td>{{ field }}</td>
-        <td>{{ value }}</td>
+        <td>
+            {% set type = metadata.fieldMappings[field].type %}
+            {{ macros.format(value, type) }}
+        </td>
     </tr>
     {% endfor %}
     </tbody>
