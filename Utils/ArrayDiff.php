@@ -35,11 +35,16 @@ class ArrayDiff
     public function diff($oldData, $newData)
     {
         $diff = array();
-        foreach ($oldData as $field => $value) {
-            if ($value === $newData[$field]) {
-                $row = array('old' => '', 'new' => '', 'same' => $value);
+
+        $keys = array_keys($oldData + $newData);
+        foreach ($keys as $field) {
+            $old = array_key_exists($field, $oldData) ? $oldData[$field] : null;
+            $new = array_key_exists($field, $newData) ? $newData[$field] : null;
+
+            if ($old === $new) {
+                $row = array('old' => '', 'new' => '', 'same' => $old);
             } else {
-                $row = array('old' => $value, 'new' => $newData[$field], 'same' => '');
+                $row = array('old' => $old, 'new' => $new, 'same' => '');
             }
 
             $diff[$field] = $row;
