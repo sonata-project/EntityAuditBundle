@@ -22,6 +22,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
                 ->scalarNode('revision_timestamp_column_name')->defaultValue('timestamp')->end()
+                ->scalarNode('revision_sequence_name')->defaultValue('revisions_seq')->end()
                 ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
             ->end();
         return $builder;
