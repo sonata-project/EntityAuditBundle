@@ -86,15 +86,11 @@ class CreateSchemaListener implements EventSubscriber
         $this->platform = $this->conn->getDatabasePlatform();
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $autoincrement = true;
         if ($this->platform->getName() === 'oracle') {
             $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
                 'autoincrement' => false,
             ));
-            /**
-             * @todo : extends the sequence name
-             */
-            $schema->createSequence($this->config->getRevisionTableName() . '_SEQ');
+            $schema->createSequence($this->config->getRevisionSequenceName());
         } else {
             $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
                 'autoincrement' => true,
