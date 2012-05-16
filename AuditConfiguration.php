@@ -30,6 +30,8 @@ class AuditConfiguration
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
+    private $revisionTimestampColumnName = 'timestamp';
+    private $revisionSequenceName = 'revisions_seq';
     private $auditedEntityClasses = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
@@ -93,12 +95,12 @@ class AuditConfiguration
     {
         return new Metadata\MetadataFactory($this->auditedEntityClasses);
     }
-    
+
     public function setCurrentUsername($username)
     {
         $this->currentUsername = $username;
     }
-    
+
     public function getCurrentUsername()
     {
         return $this->currentUsername;
@@ -112,5 +114,25 @@ class AuditConfiguration
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
+    }
+
+    public function setRevisionTimestampColumnName($revisionsUpdatedOnColumnName)
+    {
+        $this->revisionTimestampColumnName = $revisionsUpdatedOnColumnName;
+    }
+
+    public function getRevisionTimestampColumnName()
+    {
+        return $this->revisionTimestampColumnName;
+    }
+
+    public function setRevisionSequenceName($revisionSequenceName)
+    {
+        $this->revisionSequenceName = $revisionSequenceName;
+    }
+
+    public function getRevisionSequenceName()
+    {
+        return $this->revisionSequenceName;
     }
 }

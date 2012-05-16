@@ -81,12 +81,23 @@ class CreateSchemaListener implements EventSubscriber
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
     {
+        $this->em = $eventArgs->getEntityManager();
+        $this->conn = $this->em->getConnection();
+        $this->platform = $this->conn->getDatabasePlatform();
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
-            'autoincrement' => true,
-        ));
-        $revisionsTable->addColumn('timestamp', 'datetime');
+        if ($this->platform->getName() === 'oracle') {
+            $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
+                'autoincrement' => false,
+            ));
+            $schema->createSequence($this->config->getRevisionSequenceName());
+        } else {
+            $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
+                'autoincrement' => true,
+            ));
+        }
+
+        $revisionsTable->addColumn($this->config->getRevisionTimestampColumnName(), 'datetime');
         $revisionsTable->addColumn('username', 'string');
         $revisionsTable->setPrimaryKey(array('id'));
     }

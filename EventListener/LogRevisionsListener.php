@@ -46,22 +46,22 @@ class LogRevisionsListener implements EventSubscriber
      * @var Doctrine\DBAL\Connection
      */
     private $conn;
-    
+
     /**
      * @var Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
-    
+
     /**
      * @var Doctrine\ORM\EntityManager
      */
     private $em;
-    
+
     /**
      * @var array
      */
     private $insertRevisionSQL = array();
-    
+
     /**
      * @var Doctrine\ORM\UnitOfWork
      */
@@ -127,10 +127,10 @@ class LogRevisionsListener implements EventSubscriber
             $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
     }
-    
+
     /**
      * get original entity data, including versioned field, if "version" constraint is used
-     * 
+     *
      * @param mixed $entity
      * @return array
      */
@@ -149,11 +149,25 @@ class LogRevisionsListener implements EventSubscriber
     {
         if ($this->revisionId === null) {
             $date = date_create("now")->format($this->platform->getDateTimeFormatString());
-            $this->conn->insert($this->config->getRevisionTableName(), array(
-                'timestamp'     => $date,
+
+            $insertData = array(
+                $this->config->getRevisionTimestampColumnName()     => $date,
                 'username'      => $this->config->getCurrentUsername(),
-            ));
-            $this->revisionId = $this->conn->lastInsertId();
+            );
+
+            // Perhaps, we should use change this test for something more precise
+            if ( $this->platform->getName() == 'oracle') {
+                // For Oracle, we do not use trigger and use a sequence
+                $insertData['id'] = (int)$this->conn->fetchColumn(
+                    $this->platform->getSequenceNextValSQL($this->config->getRevisionSequenceName())
+                );
+                $this->conn->insert($this->config->getRevisionTableName(), $insertData);
+                $this->revisionId = $this->conn->lastInsertId($this->config->getRevisionSequenceName());
+            } else {
+                $this->conn->insert($this->config->getRevisionTableName(), $insertData);
+                $this->revisionId = $this->conn->lastInsertId();
+            }
+
         }
         return $this->revisionId;
     }
