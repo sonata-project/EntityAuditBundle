@@ -46,22 +46,22 @@ class LogRevisionsListener implements EventSubscriber
      * @var Doctrine\DBAL\Connection
      */
     private $conn;
-    
+
     /**
      * @var Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
-    
+
     /**
      * @var Doctrine\ORM\EntityManager
      */
     private $em;
-    
+
     /**
      * @var array
      */
     private $insertRevisionSQL = array();
-    
+
     /**
      * @var Doctrine\ORM\UnitOfWork
      */
@@ -127,10 +127,10 @@ class LogRevisionsListener implements EventSubscriber
             $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
     }
-    
+
     /**
      * get original entity data, including versioned field, if "version" constraint is used
-     * 
+     *
      * @param mixed $entity
      * @return array
      */
@@ -150,7 +150,7 @@ class LogRevisionsListener implements EventSubscriber
         if ($this->revisionId === null) {
             $date = date_create("now")->format($this->platform->getDateTimeFormatString());
             $this->conn->insert($this->config->getRevisionTableName(), array(
-                'timestamp'     => $date,
+                $this->config->getRevisionTimestampColumnName()     => $date,
                 'username'      => $this->config->getCurrentUsername(),
             ));
             $this->revisionId = $this->conn->lastInsertId();

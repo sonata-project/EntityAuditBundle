@@ -86,7 +86,7 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
             'autoincrement' => true,
         ));
-        $revisionsTable->addColumn('timestamp', 'datetime');
+        $revisionsTable->addColumn($this->config->getRevisionTimestampColumnName(), 'datetime');
         $revisionsTable->addColumn('username', 'string');
         $revisionsTable->setPrimaryKey(array('id'));
     }
