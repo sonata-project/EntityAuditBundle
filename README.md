@@ -176,6 +176,27 @@ This provides you with a few different routes:
  * simple_things_entity_audit_viewentity_detail -- Displays the data for the specified entity at the specified revision
  * simple_things_entity_audit_compare -- Allows you to compare the changes of an entity between 2 revisions
 
+## Configuration Reference
+
+This following configuration example shows all the configuration defaults :
+
+    # app/config/config.yml
+    simple_things_entity_audit:
+        audited_entities : # see above - collection
+        table_prefix :
+        table_suffix : _audit
+
+        revision_table_name : revisions
+        revision_id_field_name : id
+        revision_id_field_type : integer
+        revision_timestamp_field_name : timestamp
+        revision_username_field_name : username
+
+        hist_type_field_name : revtype
+        hist_revision_field_name : rev
+
+        revision_sequence_name: revision_seq
+
 
 ## TODOS
 

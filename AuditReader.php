@@ -74,7 +74,7 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereSQL = "e." . $this->config->getRevisionFieldName() ." <= ?";
+        $whereSQL = "e." . $this->config->getHistRevisionFieldName() ." <= ?";
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
                 $whereSQL .= " AND " . $class->fieldMappings[$idField]['columnName'] . " = ?";
@@ -103,7 +103,7 @@ class AuditReader
 
         $values = array_merge(array($revision), array_values($id));
 
-        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e." . $this->config->getHistRevisionFieldName() . " DESC";
         $revisionData = $this->em->getConnection()->fetchAll($query, $values);
 
         if ($revisionData) {
@@ -186,16 +186,16 @@ class AuditReader
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
 
         $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
+            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY " . $this->config->getRevisionIdFieldName() . " DESC", $limit, $offset
         );
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                $row[$this->config->getRevisionIdFieldName()],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row[$this->config->getRevisionTimestampFieldName()]),
+                $row[$this->config->getRevisionUsernameFieldName()]
             );
         }
         return $revisions;
@@ -216,8 +216,8 @@ class AuditReader
             $class = $this->em->getClassMetadata($className);
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
-            $whereSQL = "e." . $this->config->getRevisionFieldName() ." = ?";
-            $columnList = "e." . $this->config->getRevisionTypeFieldName();
+            $whereSQL = "e." . $this->config->getHistRevisionFieldName() ." = ?";
+            $columnList = "e." . $this->config->getHistTypeFieldName();
             foreach ($class->fieldNames AS $field) {
                 $columnList .= ', ' . $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
             }
@@ -241,7 +241,7 @@ class AuditReader
                 }
 
                 $entity = $this->createEntity($className, $row);
-                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
+                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getHistTypeFieldName()], $entity);
             }
         }
         return $changedEntities;
@@ -255,14 +255,14 @@ class AuditReader
      */
     public function findRevision($rev)
     {
-        $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
+        $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r." . $this->config->getRevisionIdFieldName() . " = ?";
         $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
 
         if (count($revisionsData) == 1) {
             return new Revision(
-                $revisionsData[0]['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
-                $revisionsData[0]['username']
+                $revisionsData[0][$this->config->getRevisionIdFieldName()],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0][$this->config->getRevisionTimestampFieldName()]),
+                $revisionsData[0][$this->config->getRevisionUsernameFieldName()]
             );
         } else {
             throw AuditException::invalidRevision($rev);
@@ -305,16 +305,16 @@ class AuditReader
         }
 
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
-                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
+                 "INNER JOIN " . $tableName . " e ON r." . $this->config->getRevisionIdFieldName() ." = e." . $this->config->getHistRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r." . $this->config->getRevisionIdFieldName() ." DESC";
         $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
 
         $revisions = array();
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                $row[$this->config->getRevisionIdFieldName()],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row[$this->config->getRevisionTimestampFieldName()]),
+                $row[$this->config->getRevisionUsernameFieldName()]
             );
         }
 

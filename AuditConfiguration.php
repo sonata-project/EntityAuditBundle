@@ -25,14 +25,19 @@ namespace SimpleThings\EntityAudit;
 
 class AuditConfiguration
 {
-    private $prefix = '';
-    private $suffix = '_audit';
-    private $revisionFieldName = 'rev';
-    private $revisionTypeFieldName = 'revtype';
+    private $tablePrefix = '';
+    private $tableSuffix = '_audit';
     private $revisionTableName = 'revisions';
+    private $revisionIdFieldName = 'id';
+    private $revisionIdFieldType = 'integer';
+    private $revisionTimestampFieldName = 'timestamp';
+    private $revisionUsernameFieldName = 'username';
+    private $revisionSequenceName = 'revisions_seq';
+    private $histRevisionFieldName = 'rev';
+    private $histTypeFieldName = 'revtype';
     private $auditedEntityClasses = array();
     private $currentUsername = '';
-    private $revisionIdFieldType = 'integer';
+
 
     public function getTablePrefix()
     {
@@ -54,26 +59,6 @@ class AuditConfiguration
         $this->suffix = $suffix;
     }
 
-    public function getRevisionFieldName()
-    {
-        return $this->revisionFieldName;
-    }
-
-    public function setRevisionFieldName($revisionFieldName)
-    {
-        $this->revisionFieldName = $revisionFieldName;
-    }
-
-    public function getRevisionTypeFieldName()
-    {
-        return $this->revisionTypeFieldName;
-    }
-
-    public function setRevisionTypeFieldName($revisionTypeFieldName)
-    {
-        $this->revisionTypeFieldName = $revisionTypeFieldName;
-    }
-
     public function getRevisionTableName()
     {
         return $this->revisionTableName;
@@ -93,12 +78,12 @@ class AuditConfiguration
     {
         return new Metadata\MetadataFactory($this->auditedEntityClasses);
     }
-    
+
     public function setCurrentUsername($username)
     {
         $this->currentUsername = $username;
     }
-    
+
     public function getCurrentUsername()
     {
         return $this->currentUsername;
@@ -112,5 +97,65 @@ class AuditConfiguration
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
+    }
+
+    public function setHistRevisionFieldName($histRevisionFieldName)
+    {
+        $this->histRevisionFieldName = $histRevisionFieldName;
+    }
+
+    public function getHistRevisionFieldName()
+    {
+        return $this->histRevisionFieldName;
+    }
+
+    public function setHistTypeFieldName($histTypeFieldName)
+    {
+        $this->histTypeFieldName = $histTypeFieldName;
+    }
+
+    public function getHistTypeFieldName()
+    {
+        return $this->histTypeFieldName;
+    }
+
+    public function setRevisionIdFieldName($revisionIdFieldName)
+    {
+        $this->revisionIdFieldName = $revisionIdFieldName;
+    }
+
+    public function getRevisionIdFieldName()
+    {
+        return $this->revisionIdFieldName;
+    }
+
+    public function setRevisionSequenceName($revisionSequenceName)
+    {
+        $this->revisionSequenceName = $revisionSequenceName;
+    }
+
+    public function getRevisionSequenceName()
+    {
+        return $this->revisionSequenceName;
+    }
+
+    public function setRevisionTimestampFieldName($revisionTimestampFieldName)
+    {
+        $this->revisionTimestampFieldName = $revisionTimestampFieldName;
+    }
+
+    public function getRevisionTimestampFieldName()
+    {
+        return $this->revisionTimestampFieldName;
+    }
+
+    public function setRevisionUsernameFieldName($revisionUsernameFieldName)
+    {
+        $this->revisionUsernameFieldName = $revisionUsernameFieldName;
+    }
+
+    public function getRevisionUsernameFieldName()
+    {
+        return $this->revisionUsernameFieldName;
     }
 }
