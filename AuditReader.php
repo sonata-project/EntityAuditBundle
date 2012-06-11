@@ -28,6 +28,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
@@ -326,4 +327,31 @@ class AuditReader
         $uow = $this->em->getUnitOfWork();
         return $uow->getEntityPersister($entity);
     }
+
+    public function diff($className, $id, $oldRevision, $newRevision)
+    {
+        $class = $this->em->getClassMetadata($className);
+
+        $oldObject = $this->find($className, $id, $oldRevision);
+        $object = $this->find($className, $id, $newRevision);
+        
+        $oldValues = $this->getEntityValues($class, $oldObject);
+        $values = $this->getEntityValues($class, $object);
+
+        $differ = new ArrayDiff();
+        return $differ->diff($oldValues, $values);
+    }
+
+    protected function getEntityValues(ClassMetadata $metadata, $entity)
+    {
+        $fields = $metadata->getFieldNames();
+
+        $return = array();
+        foreach ($fields AS $fieldName) {
+            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+        }
+
+        return $return;
+    }
+
 }
