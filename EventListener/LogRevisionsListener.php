@@ -29,6 +29,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\DBAL\Types\Type;
 
 class LogRevisionsListener implements EventSubscriber
 {
@@ -176,7 +177,19 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 }
             }
-            $sql .= ") VALUES (" . implode(", ", array_fill(0, count($class->fieldNames)+$assocs+2, '?')) . ")";
+            $placeholders = array('?', '?');
+            foreach($class->fieldNames as $fieldName) {
+                if(!empty($class->fieldMappings[$fieldName]['requireSQLConversion'])) {
+                    $type = Type::getType($class->fieldMappings[$fieldName]['type']);
+                    $placeholders[] = $type->convertToDatabaseValueSQL('?', $this->platform);
+                } else {
+                    $placeholders[] = '?';
+                }
+            }
+            for($i = 0; $i < $assocs; $i++) {
+                $placeholders[] = '?';
+            }
+            $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
             $this->insertRevisionSQL[$class->name] = $sql;
         }
         return $this->insertRevisionSQL[$class->name];
