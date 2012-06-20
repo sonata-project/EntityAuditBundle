@@ -191,7 +191,6 @@ class LogRevisionsListener implements EventSubscriber
             }
             $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
             $this->insertRevisionSQL[$class->name] = $sql;
-            $this->insertRevisionSQL[$class->name] = $sql;
         }
         return $this->insertRevisionSQL[$class->name];
     }
