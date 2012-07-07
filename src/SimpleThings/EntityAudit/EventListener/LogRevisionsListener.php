@@ -93,7 +93,7 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $this->saveRevisionEntityData($class, $this->uow->getOriginalEntityData($entity), 'INS');
+        $this->saveRevisionEntityData($class, $this->getOriginalEntityData($entity), 'INS');
     }
 
     public function postUpdate(LifecycleEventArgs $eventArgs)
@@ -106,7 +106,7 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
+        $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
         $this->saveRevisionEntityData($class, $entityData, 'UPD');
     }
 
@@ -123,9 +123,26 @@ class LogRevisionsListener implements EventSubscriber
             if (!$this->metadataFactory->isAudited($class->name)) {
                 continue;
             }
-            $entityData = array_merge($this->uow->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
+            $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
             $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
+    }
+    
+    /**
+     * get original entity data, including versioned field, if "version" constraint is used
+     * 
+     * @param mixed $entity
+     * @return array
+     */
+    private function getOriginalEntityData($entity)
+    {
+        $class = $this->em->getClassMetadata(get_class($entity));
+        $data = $this->uow->getOriginalEntityData($entity);
+        if( $class->isVersioned ){
+            $versionField = $class->versionField;
+            $data[$versionField] = $class->reflFields[$versionField]->getValue($entity);
+        }
+        return $data;
     }
 
     private function getRevisionId()
