@@ -25,10 +25,10 @@ class SimpleDiffTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('Foo', 'foo', '<del>Foo</del> <ins>foo</ins> '),
-            array('Foo Foo', 'Foo', 'Foo <del>Foo</del>'),
-            array('Foo', 'Foo Foo', 'Foo <ins>Foo</ins>'),
-            array('Foo Bar Baz', 'Foo Foo Foo', 'Foo <del>Bar Baz</del> <ins>Foo Foo</ins>'),
-            array('Foo Bar Baz', 'Foo Baz', 'Foo <del>Bar</del> Baz'),
+            array('Foo Foo', 'Foo', 'Foo <del>Foo</del> '),
+            array('Foo', 'Foo Foo', 'Foo <ins>Foo</ins> '),
+            array('Foo Bar Baz', 'Foo Foo Foo', 'Foo <del>Bar Baz</del> <ins>Foo Foo</ins> '),
+            array('Foo Bar Baz', 'Foo Baz', 'Foo <del>Bar</del> Baz '),
         );
     }
 }
