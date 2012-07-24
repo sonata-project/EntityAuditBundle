@@ -4,7 +4,7 @@
     "keywords": ["Persistence", "Database", "Audit"],
     "description": "Audit for Doctrine Entities",
     "require": {
-        "doctrine/orm": ">=2.1.0,<2.3"
+        "doctrine/orm": ">=2.1.0,<2.4"
     },
     "autoload": {
         "psr-0": {"SimpleThings\\EntityAudit": "src/"}
