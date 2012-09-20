@@ -216,7 +216,7 @@ class LogRevisionsListener implements EventSubscriber
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
-                if ($entityData[$field] !== null) {
+                if ($entityData[$field] !== null && $this->uow->isInIdentityMap($entityData[$field])) {
                     $relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
                 }
 
