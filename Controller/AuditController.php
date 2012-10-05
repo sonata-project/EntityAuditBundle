@@ -23,7 +23,6 @@
 
 namespace SimpleThings\EntityAudit\Controller;
 
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -117,13 +116,10 @@ class AuditController extends Controller
      */
     public function viewDetailAction($className, $id, $rev)
     {
-        $em = $this->getDoctrine()->getEntityManagerForClass($className);
-        $metadata = $em->getClassMetadata($className);
-
         $ids = explode(',', $id);
         $entity = $this->getAuditReader()->find($className, $ids, $rev);
 
-        $data = $this->getEntityValues($metadata, $entity);
+        $data = $this->getAuditReader()->getEntityValues($className, $entity);
         krsort($data);
 
         return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', array(
@@ -167,15 +163,4 @@ class AuditController extends Controller
         ));
     }
 
-    protected function getEntityValues(ClassMetadata $metadata, $entity)
-    {
-        $fields = $metadata->getFieldNames();
-
-        $return = array();
-        foreach ($fields AS $fieldName) {
-            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
-        }
-
-        return $return;
-    }
 }
