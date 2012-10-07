@@ -6,6 +6,9 @@
     "require": {
         "doctrine/orm": ">=2.1.0,<2.4"
     },
+    "require-dev": {
+        "symfony/framework-bundle": "*"
+    },
     "autoload": {
         "psr-0": {"SimpleThings\\EntityAudit": "src/"}
     }

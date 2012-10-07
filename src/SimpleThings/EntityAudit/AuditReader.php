@@ -74,43 +74,61 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereSQL = "e." . $this->config->getRevisionFieldName() ." <= ?";
+        $whereSQL  = "e." . $this->config->getRevisionFieldName() ." <= ?";
+
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
-                $whereSQL .= " AND " . $class->fieldMappings[$idField]['columnName'] . " = ?";
+                $columnName = $class->fieldMappings[$idField]['columnName'];
             } else if (isset($class->associationMappings[$idField])) {
-                $whereSQL .= " AND " . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
             }
+
+            $whereSQL .= " AND " . $columnName . " = ?";
         }
 
         $columnList = "";
-        foreach ($class->fieldNames AS $field) {
+        $columnMap  = array();
+
+        foreach ($class->fieldNames as $columnName => $field) {
             if ($columnList) {
                 $columnList .= ', ';
             }
+
             $columnList .= $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
+            $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
+
         foreach ($class->associationMappings AS $assoc) {
-            if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                    if ($columnList) {
-                        $columnList .= ', ';
-                    }
-                    $columnList .= $sourceCol;
+            if ( ($assoc['type'] & ClassMetadata::TO_ONE) == 0 || !$assoc['isOwningSide']) {
+                continue;
+            }
+
+            foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                if ($columnList) {
+                    $columnList .= ', ';
                 }
+
+                $columnList .= $sourceCol;
+                $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
             }
         }
 
         $values = array_merge(array($revision), array_values($id));
 
         $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
-        $revisionData = $this->em->getConnection()->fetchAll($query, $values);
+        $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
-        if ($revisionData) {
-            return $this->createEntity($class->name, $revisionData[0]);
-        } else {
+        if (!$row) {
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
+
+        $revisionData = array();
+
+        foreach ($columnMap as $fieldName => $resultColumn) {
+            $revisionData[$fieldName] = $row[$resultColumn];
+        }
+
+        return $this->createEntity($class->name, $revisionData);
     }
 
     /**
@@ -216,15 +234,20 @@ class AuditReader
             $class = $this->em->getClassMetadata($className);
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
-            $whereSQL = "e." . $this->config->getRevisionFieldName() ." = ?";
+            $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
             $columnList = "e." . $this->config->getRevisionTypeFieldName();
-            foreach ($class->fieldNames AS $field) {
+            $columnMap  = array();
+
+            foreach ($class->fieldNames as $columnName => $field) {
                 $columnList .= ', ' . $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
+                $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
+
             foreach ($class->associationMappings AS $assoc) {
                 if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $columnList .= ', ' . $sourceCol;
+                        $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
                     }
                 }
             }
@@ -234,10 +257,15 @@ class AuditReader
             $revisionsData = $this->em->getConnection()->executeQuery($query, array($revision));
 
             foreach ($revisionsData AS $row) {
-                $id = array();
+                $id   = array();
+                $data = array();
+
                 foreach ($class->identifier AS $idField) {
-                    // TODO: doesnt work with composite foreign keys yet.
                     $id[$idField] = $row[$idField];
+                }
+
+                foreach ($columnMap as $fieldName => $resultName) {
+                    $data[$fieldName] = $row[$resultName];
                 }
 
                 $entity = $this->createEntity($className, $row);
