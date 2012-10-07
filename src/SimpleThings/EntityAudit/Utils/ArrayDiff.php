@@ -41,7 +41,7 @@ class ArrayDiff
             $old = array_key_exists($field, $oldData) ? $oldData[$field] : null;
             $new = array_key_exists($field, $newData) ? $newData[$field] : null;
 
-            if ($old === $new) {
+            if ($old == $new) {
                 $row = array('old' => '', 'new' => '', 'same' => $old);
             } else {
                 $row = array('old' => $old, 'new' => $new, 'same' => '');
