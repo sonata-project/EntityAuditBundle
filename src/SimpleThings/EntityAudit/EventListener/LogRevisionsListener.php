@@ -29,6 +29,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\DBAL\Types\Type;
 
 class LogRevisionsListener implements EventSubscriber
 {
@@ -161,24 +162,33 @@ class LogRevisionsListener implements EventSubscriber
     private function getInsertRevisionSQL($class)
     {
         if (!isset($this->insertRevisionSQL[$class->name])) {
-            $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+            $placeholders = array('?', '?');
+            $tableName    = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+
             $sql = "INSERT INTO " . $tableName . " (" .
                     $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
+
             foreach ($class->fieldNames AS $field) {
+                $type = Type::getType($class->fieldMappings[$field]['type']);
+                $placeholders[] = (!empty($class->fieldMappings[$field]['requireSQLConversion']))
+                    ? $type->convertToDatabaseValueSQL('?', $this->platform)
+                    : '?';
                 $sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
             }
-            $assocs = 0;
+
             foreach ($class->associationMappings AS $assoc) {
                 if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $sql .= ', ' . $sourceCol;
-                        $assocs++;
+                        $placeholders[] = '?';
                     }
                 }
             }
-            $sql .= ") VALUES (" . implode(", ", array_fill(0, count($class->fieldNames)+$assocs+2, '?')) . ")";
+
+            $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
             $this->insertRevisionSQL[$class->name] = $sql;
         }
+
         return $this->insertRevisionSQL[$class->name];
     }
 
@@ -191,10 +201,12 @@ class LogRevisionsListener implements EventSubscriber
     {
         $params = array($this->getRevisionId(), $revType);
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
+
         foreach ($class->fieldNames AS $field) {
             $params[] = $entityData[$field];
             $types[] = $class->fieldMappings[$field]['type'];
         }
+
         foreach ($class->associationMappings AS $field => $assoc) {
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
