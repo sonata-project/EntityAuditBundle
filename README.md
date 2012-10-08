@@ -127,7 +127,7 @@ A revision has the following API:
 ### Find Changed Entities at a specific revision
 
     <?php
-    $changedEntities = $auditReader->findEntitesChangedAtRevision( 10 );
+    $changedEntities = $auditReader->findEntitiesChangedAtRevision( 10 );
 
 A changed entity has the API:
 

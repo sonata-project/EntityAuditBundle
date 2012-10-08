@@ -227,7 +227,7 @@ class AuditReader
      * @param int $revision
      * @return ChangedEntity[]
      */
-    public function findEntitesChangedAtRevision($revision)
+    public function findEntitiesChangedAtRevision($revision)
     {
         $auditedEntities = $this->metadataFactory->getAllClassNames();
 
@@ -272,7 +272,7 @@ class AuditReader
                     $data[$fieldName] = $row[$resultName];
                 }
 
-                $entity = $this->createEntity($className, $row);
+                $entity = $this->createEntity($className, $data);
                 $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
             }
         }
