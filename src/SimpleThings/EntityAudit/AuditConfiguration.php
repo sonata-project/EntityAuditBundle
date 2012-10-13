@@ -29,6 +29,7 @@ class AuditConfiguration
     private $suffix = '_audit';
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
+    private $revisionDiffFieldName = 'diff';
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
     private $currentUsername = '';
@@ -72,6 +73,16 @@ class AuditConfiguration
     public function setRevisionTypeFieldName($revisionTypeFieldName)
     {
         $this->revisionTypeFieldName = $revisionTypeFieldName;
+    }
+
+    public function getRevisionDiffFieldName()
+    {
+        return $this->revisionDiffFieldName;
+    }
+
+    public function setRevisionDiffFieldName($revisionDiffFieldName)
+    {
+        $this->revisionDiffFieldName = $revisionDiffFieldName;
     }
 
     public function getRevisionTableName()

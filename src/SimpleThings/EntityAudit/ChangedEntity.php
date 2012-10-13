@@ -29,13 +29,25 @@ class ChangedEntity
     private $id;
     private $revType;
     private $entity;
+    private $diff;
     
-    public function __construct($className, array $id, $revType, $entity)
+    public function __construct($className, array $id, $revType, $entity, $diff)
     {
         $this->className = $className;
         $this->id = $id;
         $this->revType = $revType;
         $this->entity = $entity;
+        $this->diff = null;
+
+        if (isset($diff) && null !== $diff && strlen($diff) > 0)
+        {
+            $this->diff = unserialize($diff);
+
+            if ($this->diff === false)
+            {
+                $this->diff = null;
+            }
+        }
     }
     
     /**
@@ -69,5 +81,14 @@ class ChangedEntity
     public function getEntity()
     {
         return $this->entity;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getDiff()
+    {
+        return $this->diff;
     }
 }

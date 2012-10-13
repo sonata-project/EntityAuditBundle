@@ -238,6 +238,7 @@ class AuditReader
 
             $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
             $columnList = "e." . $this->config->getRevisionTypeFieldName();
+            $columnList .= ', e.' . $this->config->getRevisionDiffFieldName(); 
             $columnMap  = array();
 
             foreach ($class->fieldNames as $columnName => $field) {
@@ -273,7 +274,7 @@ class AuditReader
                 }
 
                 $entity = $this->createEntity($className, $data);
-                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
+                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity, $row[$this->config->getRevisionDiffFieldName()]);
             }
         }
         return $changedEntities;
