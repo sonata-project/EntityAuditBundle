@@ -73,6 +73,7 @@ class CreateSchemaListener implements EventSubscriber
             }
             $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
             $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+            $revisionTable->addColumn($this->config->getRevisionDiffFieldName(), 'text', array('notnull' => false));
             $pkColumns = $entityTable->getPrimaryKey()->getColumns();
             $pkColumns[] = $this->config->getRevisionFieldName();
             $revisionTable->setPrimaryKey($pkColumns);
