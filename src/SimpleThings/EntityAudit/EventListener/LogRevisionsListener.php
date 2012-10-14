@@ -179,6 +179,8 @@ class LogRevisionsListener implements EventSubscriber
             $this->conn->insert($this->config->getRevisionTableName(), array(
                 'timestamp'     => $date,
                 'username'      => $this->config->getCurrentUsername(),
+                $this->config->getRevisionDescriptionFieldName()
+                                => $this->config->getCurrentDescription(),
             ));
             if ($this->platform->getName() == 'postgresql'){
                 // this assumes that the sequences name is 'revisions_id_seq'

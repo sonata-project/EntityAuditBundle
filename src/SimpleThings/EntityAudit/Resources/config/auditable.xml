@@ -13,6 +13,8 @@
         <parameter key="simplethings.entityaudit.revision_diff_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
+        <parameter key="simplethings.entityaudit.revision_description_field_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_description_field_type" type="string" />
     </parameters>
 
     <services>
@@ -58,6 +60,12 @@
             </call>
             <call method="setRevisionIdFieldType">
                 <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
+            </call>
+            <call method="setRevisionDescriptionFieldName">
+                <argument>%simplethings.entityaudit.revision_description_field_name%</argument>
+            </call>
+            <call method="setRevisionDescriptionFieldType">
+                <argument>%simplethings.entityaudit.revision_description_field_type%</argument>
             </call>
         </service> 
         

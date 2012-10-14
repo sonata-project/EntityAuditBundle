@@ -34,6 +34,9 @@ class AuditConfiguration
     private $auditedEntityClasses = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
+    private $revisionDescriptionFieldName = 'description';
+    private $revisionDescriptionFieldType = 'text';
+    private $currentDescription = '';
 
     public function getTablePrefix()
     {
@@ -123,5 +126,35 @@ class AuditConfiguration
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
+    }
+
+    public function getRevisionDescriptionFieldName()
+    {
+        return $this->revisionDescriptionFieldName;
+    }
+
+    public function setRevisionDescriptionFieldName($revisionDescriptionFieldName)
+    {
+        $this->revisionDescriptionFieldName = $revisionDescriptionFieldName;
+    }
+
+    public function getRevisionDescriptionFieldType()
+    {
+        return $this->revisionDescriptionFieldType;
+    }
+
+    public function setRevisionDescriptionFieldType($revisionDescriptionFieldType)
+    {
+        $this->revisionDescriptionFieldType = $revisionDescriptionFieldType;
+    }
+
+    public function setCurrentDescription($description)
+    {
+        $this->currentDescription = $description;
+    }
+    
+    public function getCurrentDescription()
+    {
+        return $this->currentDescription;
     }
 }

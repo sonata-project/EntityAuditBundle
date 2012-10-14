@@ -215,7 +215,8 @@ class AuditReader
             $revisions[] = new Revision(
                 $row['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                $row['username'],
+                $row[$this->config->getRevisionDescriptionFieldName()]
             );
         }
         return $revisions;
@@ -295,7 +296,8 @@ class AuditReader
             return new Revision(
                 $revisionsData[0]['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
-                $revisionsData[0]['username']
+                $revisionsData[0]['username'],
+                $revisionsData[0][$this->config->getRevisionDescriptionFieldName()]
             );
         } else {
             throw AuditException::invalidRevision($rev);
@@ -347,7 +349,8 @@ class AuditReader
             $revisions[] = new Revision(
                 $row['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                $row['username'],
+                $row[$this->config->getRevisionDescriptionFieldName()]
             );
         }
 

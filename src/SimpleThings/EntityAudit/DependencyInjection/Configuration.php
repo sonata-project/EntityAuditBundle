@@ -23,6 +23,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_diff_field_name')->defaultValue('diff')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
                 ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
+                ->scalarNode('revision_description_field_name')->defaultValue('description')->end()
+                ->scalarNode('revision_description_field_type')->defaultValue('text')->end()
             ->end();
         return $builder;
     }
