@@ -50,6 +50,9 @@
             <call method="setRevisionTypeFieldName">
                 <argument>%simplethings.entityaudit.revision_type_field_name%</argument>
             </call>
+            <call method="setRevisionDiffFieldName">
+                <argument>%simplethings.entityaudit.revision_diff_field_name%</argument>
+            </call>
             <call method="setRevisionTableName">
                 <argument>%simplethings.entityaudit.revision_table_name%</argument>
             </call>
