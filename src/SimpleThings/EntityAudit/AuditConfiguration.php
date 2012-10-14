@@ -29,10 +29,16 @@ class AuditConfiguration
     private $suffix = '_audit';
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
+    private $revisionDiffFieldName = 'diff';
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
+    private $revisionDescriptionFieldName = 'description';
+    private $revisionDescriptionFieldType = 'text';
+    private $currentDescription = '';
+    private $revisionProcessedFieldName = 'processed_at';
+    private $revisionProcessedFieldType = 'datetime';
 
     public function getTablePrefix()
     {
@@ -74,6 +80,16 @@ class AuditConfiguration
         $this->revisionTypeFieldName = $revisionTypeFieldName;
     }
 
+    public function getRevisionDiffFieldName()
+    {
+        return $this->revisionDiffFieldName;
+    }
+
+    public function setRevisionDiffFieldName($revisionDiffFieldName)
+    {
+        $this->revisionDiffFieldName = $revisionDiffFieldName;
+    }
+
     public function getRevisionTableName()
     {
         return $this->revisionTableName;
@@ -112,5 +128,55 @@ class AuditConfiguration
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
+    }
+
+    public function getRevisionDescriptionFieldName()
+    {
+        return $this->revisionDescriptionFieldName;
+    }
+
+    public function setRevisionDescriptionFieldName($revisionDescriptionFieldName)
+    {
+        $this->revisionDescriptionFieldName = $revisionDescriptionFieldName;
+    }
+
+    public function getRevisionDescriptionFieldType()
+    {
+        return $this->revisionDescriptionFieldType;
+    }
+
+    public function setRevisionDescriptionFieldType($revisionDescriptionFieldType)
+    {
+        $this->revisionDescriptionFieldType = $revisionDescriptionFieldType;
+    }
+
+    public function setCurrentDescription($description)
+    {
+        $this->currentDescription = $description;
+    }
+    
+    public function getCurrentDescription()
+    {
+        return $this->currentDescription;
+    }
+
+    public function getRevisionProcessedFieldName()
+    {
+        return $this->revisionProcessedFieldName;
+    }
+
+    public function setRevisionProcessedFieldName($revisionProcessedFieldName)
+    {
+        $this->revisionProcessedFieldName = $revisionProcessedFieldName;
+    }
+
+    public function getRevisionProcessedFieldType()
+    {
+        return $this->revisionProcessedFieldType;
+    }
+
+    public function setRevisionProcessedFieldType($revisionProcessedFieldType)
+    {
+        $this->revisionProcessedFieldType = $revisionProcessedFieldType;
     }
 }

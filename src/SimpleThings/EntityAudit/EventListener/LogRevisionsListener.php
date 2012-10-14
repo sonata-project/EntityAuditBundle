@@ -81,7 +81,33 @@ class LogRevisionsListener implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return array(Events::onFlush, Events::postPersist, Events::postUpdate);
+        return array(Events::preUpdate, Events::onFlush, Events::postPersist, Events::postUpdate);
+    }
+
+    // Keep track of changesets so we can use it in the post events
+    protected $changeSetIndex = array();
+
+    public function preUpdate(LifecycleEventArgs $eventArgs)
+    {
+        $entity = $eventArgs->getEntity();
+
+        $class = $this->em->getClassMetadata(get_class($entity));
+        if (!$this->metadataFactory->isAudited($class->name)) {
+            return;
+        }
+
+        $changes = $eventArgs->getEntityChangeSet();
+
+        $id = $class->getIdentifierValues($entity);
+        $identifierColumnName = $class->getSingleIdentifierColumnName();
+        $classname = $class->getName();
+
+        if (!isset($changeSetIndex[$classname]))
+        {
+            $changeSetIndex[$classname] = array();
+        }
+
+        $this->changeSetIndex[$classname][$id[$identifierColumnName]] = $changes;
     }
 
     public function postPersist(LifecycleEventArgs $eventArgs)
@@ -153,8 +179,15 @@ class LogRevisionsListener implements EventSubscriber
             $this->conn->insert($this->config->getRevisionTableName(), array(
                 'timestamp'     => $date,
                 'username'      => $this->config->getCurrentUsername(),
+                $this->config->getRevisionDescriptionFieldName()
+                                => $this->config->getCurrentDescription(),
             ));
-            $this->revisionId = $this->conn->lastInsertId();
+            if ($this->platform->getName() == 'postgresql'){
+                // this assumes that the sequences name is 'revisions_id_seq'
+                $this->revisionId = $this->conn->lastInsertId("revisions_id_seq");
+            } else {
+                $this->revisionId = $this->conn->lastInsertId();
+            }
         }
         return $this->revisionId;
     }
@@ -162,11 +195,11 @@ class LogRevisionsListener implements EventSubscriber
     private function getInsertRevisionSQL($class)
     {
         if (!isset($this->insertRevisionSQL[$class->name])) {
-            $placeholders = array('?', '?');
+            $placeholders = array('?', '?', '?');
             $tableName    = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
             $sql = "INSERT INTO " . $tableName . " (" .
-                    $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
+                    $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName() . ", " . $this->config->getRevisionDiffFieldName();
 
             foreach ($class->fieldNames AS $field) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
@@ -199,8 +232,15 @@ class LogRevisionsListener implements EventSubscriber
      */
     private function saveRevisionEntityData($class, $entityData, $revType)
     {
-        $params = array($this->getRevisionId(), $revType);
-        $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
+        $classname = $class->getName();
+        $identifierColumnName = $class->getSingleIdentifierColumnName();
+        $id = $entityData[$identifierColumnName];
+
+        $changeset = (isset($this->changeSetIndex[$classname]) && isset($this->changeSetIndex[$classname][$id])) ? $this->changeSetIndex[$classname][$id] : null;
+        $diff = $changeset !== null ? serialize($changeset) : null;
+
+        $params = array($this->getRevisionId(), $revType, $diff);
+        $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR, \PDO::PARAM_STR);
 
         foreach ($class->fieldNames AS $field) {
             $params[] = $entityData[$field];

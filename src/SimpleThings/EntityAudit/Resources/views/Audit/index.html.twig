@@ -5,7 +5,7 @@
 
 <ul>
 {% for revision in revisions %}
-    <li><a href="{{ path('simple_things_entity_audit_viewrevision', { 'rev': revision.rev }) }}">{{ revision.timestamp|date('r') }} -- {{ revision.username|default('Anonymous') }}</a></li>
+    <li><a href="{{ path('simple_things_entity_audit_viewrevision', { 'rev': revision.rev }) }}">{{ revision.timestamp|date('r') }} -- {{ revision.username|default('Anonymous') }} -- {{ revision.description|default('No description') }}</a></li>
 {% endfor %}
 </ul>
 {% endblock simplethings_entityaudit_content %}

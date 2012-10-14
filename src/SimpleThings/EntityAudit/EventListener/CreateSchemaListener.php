@@ -73,6 +73,7 @@ class CreateSchemaListener implements EventSubscriber
             }
             $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
             $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+            $revisionTable->addColumn($this->config->getRevisionDiffFieldName(), 'text', array('notnull' => false));
             $pkColumns = $entityTable->getPrimaryKey()->getColumns();
             $pkColumns[] = $this->config->getRevisionFieldName();
             $revisionTable->setPrimaryKey($pkColumns);
@@ -88,6 +89,8 @@ class CreateSchemaListener implements EventSubscriber
         ));
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string');
+        $revisionsTable->addColumn($this->config->getRevisionDescriptionFieldName(), $this->config->getRevisionDescriptionFieldType(), array('notnull' => false));
+        $revisionsTable->addColumn($this->config->getRevisionProcessedFieldName(), $this->config->getRevisionProcessedFieldType(), array('notnull' => false));
         $revisionsTable->setPrimaryKey(array('id'));
     }
 }

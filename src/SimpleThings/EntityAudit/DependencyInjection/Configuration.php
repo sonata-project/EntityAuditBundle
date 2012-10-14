@@ -20,8 +20,13 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('table_suffix')->defaultValue('_audit')->end()
                 ->scalarNode('revision_field_name')->defaultValue('rev')->end()
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
+                ->scalarNode('revision_diff_field_name')->defaultValue('diff')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
                 ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
+                ->scalarNode('revision_description_field_name')->defaultValue('description')->end()
+                ->scalarNode('revision_description_field_type')->defaultValue('text')->end()
+                ->scalarNode('revision_processed_field_name')->defaultValue('processed_at')->end()
+                ->scalarNode('revision_processed_field_type')->defaultValue('datetime')->end()
             ->end();
         return $builder;
     }
