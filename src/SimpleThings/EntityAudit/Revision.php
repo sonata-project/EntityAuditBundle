@@ -32,13 +32,15 @@ class Revision
     private $timestamp;
     private $username;
     private $description;
+    private $processed;
 
-    function __construct($rev, $timestamp, $username, $description)
+    function __construct($rev, $timestamp, $username, $description, $processed)
     {
         $this->rev = $rev;
         $this->timestamp = $timestamp;
         $this->username = $username;
         $this->description = $description;
+        $this->processed = $processed;
     }
 
     public function getRev()
@@ -59,5 +61,10 @@ class Revision
     public function getDescription()
     {
         return $this->description;
+    }
+
+    public function getProcessed()
+    {
+        return $this->processed;
     }
 }

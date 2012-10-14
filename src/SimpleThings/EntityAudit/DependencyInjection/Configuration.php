@@ -25,6 +25,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
                 ->scalarNode('revision_description_field_name')->defaultValue('description')->end()
                 ->scalarNode('revision_description_field_type')->defaultValue('text')->end()
+                ->scalarNode('revision_processed_field_name')->defaultValue('processed_at')->end()
+                ->scalarNode('revision_processed_field_type')->defaultValue('datetime')->end()
             ->end();
         return $builder;
     }

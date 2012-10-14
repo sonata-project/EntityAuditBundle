@@ -208,6 +208,36 @@ class AuditReader
         $query = $this->platform->modifyLimitQuery(
             "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
         );
+
+        return $this->retrieveRevisions($query);
+    }
+
+    /**
+     * Return a list of all revisions that have not been processed.
+     *
+     * @param int $limit
+     * @param int $offset
+     * @return Revision[]
+     */
+    public function findUnprocessedRevisions($limit = 20, $offset = 0)
+    {
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+
+        $query = $this->platform->modifyLimitQuery(
+            "SELECT * FROM " . $this->config->getRevisionTableName() . " WHERE " . $this->config->getRevisionProcessedFieldName() . " IS NULL ORDER BY id DESC", $limit, $offset
+        );
+
+        return $this->retrieveRevisions($query);
+    }
+
+    /**
+     * Return a list of revisions based on a query
+     *
+     * @param int $query
+     * @return Revision[]
+     */
+    protected function retrieveRevisions($query)
+    {
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
         $revisions = array();
@@ -216,7 +246,8 @@ class AuditReader
                 $row['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
                 $row['username'],
-                $row[$this->config->getRevisionDescriptionFieldName()]
+                $row[$this->config->getRevisionDescriptionFieldName()],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row[$this->config->getRevisionProcessedFieldName()])
             );
         }
         return $revisions;
@@ -297,7 +328,8 @@ class AuditReader
                 $revisionsData[0]['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
                 $revisionsData[0]['username'],
-                $revisionsData[0][$this->config->getRevisionDescriptionFieldName()]
+                $revisionsData[0][$this->config->getRevisionDescriptionFieldName()],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0][$this->config->getRevisionProcessedFieldName()])
             );
         } else {
             throw AuditException::invalidRevision($rev);
@@ -350,7 +382,8 @@ class AuditReader
                 $row['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
                 $row['username'],
-                $row[$this->config->getRevisionDescriptionFieldName()]
+                $row[$this->config->getRevisionDescriptionFieldName()],
+                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row[$this->config->getRevisionProcessedFieldName()])
             );
         }
 
@@ -362,4 +395,24 @@ class AuditReader
         $uow = $this->em->getUnitOfWork();
         return $uow->getEntityPersister($entity);
     }
+
+    public function setRevisionProcessed($revision, $timestamp="now")
+    {
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+
+        $date = date_create($timestamp)->format($this->platform->getDateTimeFormatString());
+
+        $this->em->getConnection()->executeUpdate(
+                sprintf(
+                    "UPDATE %s SET %s = ? WHERE %s = ?", 
+                    $this->config->getRevisionTableName(), 
+                    $this->config->getRevisionProcessedFieldName(),
+                    'id'
+                ),
+                array($date, $revision->getRev()),
+                array(\PDO::PARAM_STR, \PDO::PARAM_STR)
+                );
+
+    }
+
 }

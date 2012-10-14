@@ -37,6 +37,8 @@ class AuditConfiguration
     private $revisionDescriptionFieldName = 'description';
     private $revisionDescriptionFieldType = 'text';
     private $currentDescription = '';
+    private $revisionProcessedFieldName = 'processed_at';
+    private $revisionProcessedFieldType = 'datetime';
 
     public function getTablePrefix()
     {
@@ -156,5 +158,25 @@ class AuditConfiguration
     public function getCurrentDescription()
     {
         return $this->currentDescription;
+    }
+
+    public function getRevisionProcessedFieldName()
+    {
+        return $this->revisionProcessedFieldName;
+    }
+
+    public function setRevisionProcessedFieldName($revisionProcessedFieldName)
+    {
+        $this->revisionProcessedFieldName = $revisionProcessedFieldName;
+    }
+
+    public function getRevisionProcessedFieldType()
+    {
+        return $this->revisionProcessedFieldType;
+    }
+
+    public function setRevisionProcessedFieldType($revisionProcessedFieldType)
+    {
+        $this->revisionProcessedFieldType = $revisionProcessedFieldType;
     }
 }
