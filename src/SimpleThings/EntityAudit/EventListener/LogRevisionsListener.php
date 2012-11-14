@@ -154,7 +154,12 @@ class LogRevisionsListener implements EventSubscriber
                 'timestamp'     => $date,
                 'username'      => $this->config->getCurrentUsername(),
             ));
-            $this->revisionId = $this->conn->lastInsertId('REVISIONS_ID_SEQ');
+
+            $sequenceName = $this->platform->supportsSequences()
+                ? 'REVISIONS_ID_SEQ'
+                : null;
+
+            $this->revisionId = $this->conn->lastInsertId($sequenceName);
         }
         return $this->revisionId;
     }
