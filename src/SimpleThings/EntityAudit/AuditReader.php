@@ -313,6 +313,86 @@ class AuditReader
     }
 
     /**
+     * Return a ChangedEntity instance for a given revision, $classname and entity id
+     * Similar to find() but returns a ChangedEntity instead of the actual entity
+     *
+     * @param string $className
+     * @param mixed $id
+     * @param int $revision
+     * @return ChangedEntity
+     */
+    public function getEntityChangedAtRevision($className, $id, $revision)
+    {
+        if (!$this->metadataFactory->isAudited($className)) {
+            throw AuditException::notAudited($className);
+        }
+
+        $class = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
+        }
+
+        $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
+
+        foreach ($class->identifier AS $idField) {
+            if (isset($class->fieldMappings[$idField])) {
+                $columnName = $class->fieldMappings[$idField]['columnName'];
+            } else if (isset($class->associationMappings[$idField])) {
+                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
+            }
+
+            $whereSQL .= " AND " . $columnName . " = ?";
+        }
+
+        $columnList = "e." . $this->config->getRevisionTypeFieldName();
+        $columnList .= ', e.' . $this->config->getRevisionDiffFieldName(); 
+        $columnMap  = array();
+
+        foreach ($class->fieldNames as $columnName => $field) {
+            $type = Type::getType($class->fieldMappings[$field]['type']);
+            $columnList .= ', ' . $type->convertToPHPValueSQL(
+                $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $field;
+            $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
+        }
+
+        foreach ($class->associationMappings AS $assoc) {
+            if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                    $columnList .= ', ' . $sourceCol;
+                    $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
+                }
+            }
+        }
+
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+        $values = array_merge(array($revision), array_values($id));
+        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL;
+        $revisionsData = $this->em->getConnection()->executeQuery($query, $values);
+
+        $changedEntities = array();
+
+        foreach ($revisionsData AS $row) {
+            $id   = array();
+            $data = array();
+
+            foreach ($class->identifier AS $idField) {
+                $id[$idField] = $row[$idField];
+            }
+
+            foreach ($columnMap as $fieldName => $resultName) {
+                $data[$fieldName] = $row[$resultName];
+            }
+
+            $entity = $this->createEntity($className, $data);
+            $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity, $row[$this->config->getRevisionDiffFieldName()]);
+        }
+
+        return count($changedEntities) == 1 ? $changedEntities[0] : $changedEntities;
+    }
+
+    /**
      * Return the revision object for a particular revision.
      *
      * @param  int $rev
