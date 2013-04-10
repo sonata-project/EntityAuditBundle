@@ -39,6 +39,7 @@ class AuditConfiguration
     private $currentDescription = '';
     private $revisionProcessedFieldName = 'processed_at';
     private $revisionProcessedFieldType = 'datetime';
+    private $datetimeToStringFormat = 'Y-m-d H:i:s';
 
     public function getTablePrefix()
     {
@@ -178,5 +179,15 @@ class AuditConfiguration
     public function setRevisionProcessedFieldType($revisionProcessedFieldType)
     {
         $this->revisionProcessedFieldType = $revisionProcessedFieldType;
+    }
+
+    public function getDatetimeToStringFormat()
+    {
+        return $this->datetimeToStringFormat;
+    }
+
+    public function setDatetimeToStringFormat($datetimeToStringFormat)
+    {
+        $this->datetimeToStringFormat = $datetimeToStringFormat;
     }
 }

@@ -225,6 +225,46 @@ class LogRevisionsListener implements EventSubscriber
         return $this->insertRevisionSQL[$class->name];
     }
 
+    private function changesetToSimpleArray($changeset)
+    {
+        if (!is_array($changeset))
+        {
+            return array();
+        }
+
+        $res = array();
+
+        foreach (array_keys($changeset) as $key)
+        {
+            $valueArray = $changeset[$key];
+
+            $old = $valueArray[0];
+            $new = $valueArray[1];
+            $res[$key] = array($this->changesetItemToString($old), $this->changesetItemToString($new));
+        }
+
+        return $res;
+    }
+
+    private function changesetItemToString($item)
+    {
+        $type = gettype($item);
+        if ($type != 'object')
+        {
+            return $item;
+        }
+
+        $class = get_class($item);
+        if ($class == 'DateTime')
+        {
+            return $item->format($this->config->getDatetimeAsStringFormat());
+        }
+        else
+        {
+            return (string)$item;
+        }
+    }
+
     /**
      * @param ClassMetadata $class
      * @param array $entityData
@@ -237,6 +277,9 @@ class LogRevisionsListener implements EventSubscriber
         $id = $entityData[$identifierColumnName];
 
         $changeset = (isset($this->changeSetIndex[$classname]) && isset($this->changeSetIndex[$classname][$id])) ? $this->changeSetIndex[$classname][$id] : null;
+
+        $changeset = $this->changesetToSimpleArray($changeset);
+
         $diff = $changeset !== null ? serialize($changeset) : null;
 
         $params = array($this->getRevisionId(), $revType, $diff);

@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_description_field_type')->defaultValue('text')->end()
                 ->scalarNode('revision_processed_field_name')->defaultValue('processed_at')->end()
                 ->scalarNode('revision_processed_field_type')->defaultValue('datetime')->end()
+                ->scalarNode('datetime_to_string_format')->defaultValue('Y-m-d H:i:s')->end()
             ->end();
         return $builder;
     }

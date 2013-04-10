@@ -185,6 +185,11 @@ class AuditController extends Controller
         $return = array();
         foreach ($fields AS $fieldName) {
             $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+
+            if (gettype($return[$fieldName]) == 'object' && get_class($return[$fieldName]) == 'DateTime')
+            {
+                $return[$fieldName] = $return[$fieldName]->format($this->getAuditManager()->getConfiguration()->getDatetimeToStringFormat());
+            }
         }
 
         return $return;
