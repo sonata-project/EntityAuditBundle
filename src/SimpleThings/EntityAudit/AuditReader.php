@@ -388,11 +388,9 @@ class AuditReader
     		}
     	}
     
-//     	$query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
-//     			"INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
     	
     	$query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
-    			" WHERE " . $whereSQL . " ORDER BY e.id DESC";
+    			" WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
     	
     	$revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
     
