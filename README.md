@@ -123,6 +123,10 @@ A revision has the following API:
         public function getTimestamp();
         public function getUsername();
     }
+### Find Current Revision of an audited Entity
+
+    <?php
+    $revision = $auditReader->getCurrentRevision('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 3);
 
 ### Find Changed Entities at a specific revision
 
