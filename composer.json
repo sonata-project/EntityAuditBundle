@@ -1,5 +1,5 @@
 {
-    "name": "broncha/entity-audit",
+    "name": "simplethings/entity-audit-bundle",
     "license": "New BSD",
     "keywords": ["Persistence", "Database", "Audit"],
     "description": "Audit for Doctrine Entities",
