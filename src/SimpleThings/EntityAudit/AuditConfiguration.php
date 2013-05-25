@@ -40,6 +40,7 @@ class AuditConfiguration
     private $revisionProcessedFieldName = 'processed_at';
     private $revisionProcessedFieldType = 'datetime';
     private $datetimeToStringFormat = 'Y-m-d H:i:s';
+    private $lockedTimestamp = null;
 
     public function getTablePrefix()
     {
@@ -189,5 +190,15 @@ class AuditConfiguration
     public function setDatetimeToStringFormat($datetimeToStringFormat)
     {
         $this->datetimeToStringFormat = $datetimeToStringFormat;
+    }
+
+    public function setLockedTimestamp($timestamp)
+    {
+        $this->lockedTimestamp = $timestamp;
+    }
+
+    public function getLockedTimestamp()
+    {
+        return $this->lockedTimestamp;
     }
 }

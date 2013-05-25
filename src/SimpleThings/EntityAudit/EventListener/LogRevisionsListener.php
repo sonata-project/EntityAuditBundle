@@ -175,7 +175,17 @@ class LogRevisionsListener implements EventSubscriber
     private function getRevisionId()
     {
         if ($this->revisionId === null) {
-            $date = date_create("now")->format($this->platform->getDateTimeFormatString());
+
+            $date = date_create("now");
+            $lockedTimestamp = $this->config->getLockedTimestamp();
+
+            if ($lockedTimestamp !== null && get_class($lockedTimestamp) == 'DateTime')
+            {
+                $date = $lockedTimestamp;
+            }
+
+            $date = $date->format($this->platform->getDateTimeFormatString());
+
             $this->conn->insert($this->config->getRevisionTableName(), array(
                 'timestamp'     => $date,
                 'username'      => $this->config->getCurrentUsername(),
