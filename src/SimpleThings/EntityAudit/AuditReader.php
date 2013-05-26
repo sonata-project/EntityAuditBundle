@@ -224,7 +224,7 @@ class AuditReader
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
 
         $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " WHERE " . $this->config->getRevisionProcessedFieldName() . " IS NULL ORDER BY id DESC", $limit, $offset
+            "SELECT * FROM " . $this->config->getRevisionTableName() . " WHERE " . $this->config->getRevisionProcessedFieldName() . " IS NULL ORDER BY id ASC", $limit, $offset
         );
 
         return $this->retrieveRevisions($query);
