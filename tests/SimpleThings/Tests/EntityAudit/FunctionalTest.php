@@ -217,6 +217,28 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
             $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\UserAudit'),
         ));
     }
+
+    public function testFindCurrentRevision()
+    {
+        $user = new UserAudit('Broncha');
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        $user->setName("Rajesh");
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $revision = $reader->getCurrentRevision(get_class($user), $user->getId());
+        $this->assertEquals(2, $revision);
+
+        $user->setName("David");
+        $this->em->flush();
+
+        $revision = $reader->getCurrentRevision(get_class($user), $user->getId());
+        $this->assertEquals(3, $revision);
+    }
 }
 
 /**

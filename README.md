@@ -140,6 +140,11 @@ A changed entity has the API:
         public function getEntity();
     }
 
+### Find Current Revision of an audited Entity
+
+    <?php
+    $revision = $auditReader->getCurrentRevision('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 3);
+
 ## Setting the Current Username
 
 Each revision automatically saves the username that changes it. For this to work you have to set the username.
