@@ -124,13 +124,7 @@ class AuditReader
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
 
-        $revisionData = array();
-
-        foreach ($columnMap as $fieldName => $resultColumn) {
-            $revisionData[$fieldName] = $row[$resultColumn];
-        }
-
-        return $this->createEntity($class->name, $revisionData);
+        return $this->createEntity($class->name, $row);
     }
 
     /**
@@ -266,10 +260,6 @@ class AuditReader
 
                 foreach ($class->identifier AS $idField) {
                     $id[$idField] = $row[$idField];
-                }
-
-                foreach ($columnMap as $fieldName => $resultName) {
-                    $data[$fieldName] = $row[$resultName];
                 }
 
                 $entity = $this->createEntity($className, $row);

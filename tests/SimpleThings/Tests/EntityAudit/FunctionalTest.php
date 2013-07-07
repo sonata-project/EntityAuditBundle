@@ -227,7 +227,7 @@ class ArticleAudit
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
     private $id;
 
-    /** @ORM\Column(type="string") */
+    /** @ORM\Column(type="string", name="my_title_column") */
     private $title;
 
     /** @ORM\Column(type="text") */
