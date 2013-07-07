@@ -1,25 +1,25 @@
 <?php
 /*
  * (c) 2011 SimpleThings GmbH
- *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+*
+* @package SimpleThings\EntityAudit
+* @author Benjamin Eberlei <eberlei@simplethings.de>
+* @link http://www.simplethings.de
+*
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
 namespace SimpleThings\EntityAudit;
 
@@ -96,7 +96,7 @@ class AuditReader
 
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList .= $type->convertToPHPValueSQL(
-                $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
+                            $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
@@ -176,7 +176,7 @@ class AuditReader
                 } else {
                     // Inverse side of x-to-one can never be lazy
                     $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                            ->loadOneToOneEntity($assoc, $entity));
+                                    ->loadOneToOneEntity($assoc, $entity));
                 }
             } else {
                 // Inject collection
@@ -200,16 +200,16 @@ class AuditReader
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
 
         $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
+                        "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
         );
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                            $row['id'],
+                            \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
+                            $row['username']
             );
         }
         return $revisions;
@@ -237,7 +237,7 @@ class AuditReader
             foreach ($class->fieldNames as $columnName => $field) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $columnList .= ', ' . $type->convertToPHPValueSQL(
-                    $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $field;
+                                $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $field;
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
@@ -282,9 +282,9 @@ class AuditReader
 
         if (count($revisionsData) == 1) {
             return new Revision(
-                $revisionsData[0]['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
-                $revisionsData[0]['username']
+                            $revisionsData[0]['id'],
+                            \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
+                            $revisionsData[0]['username']
             );
         } else {
             throw AuditException::invalidRevision($rev);
@@ -327,20 +327,64 @@ class AuditReader
         }
 
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
-                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
+                        "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
         $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
 
         $revisions = array();
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                            $row['id'],
+                            \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
+                            $row['username']
             );
         }
 
         return $revisions;
+    }
+
+    /**
+     * Gets the current revision of the entity with given ID.
+     *
+     * @param string $className
+     * @param mixed $id
+     * @return integer
+     */
+    public function getCurrentRevision($className, $id)
+    {
+        if (!$this->metadataFactory->isAudited($className)) {
+            throw AuditException::notAudited($className);
+        }
+
+        $class = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
+        }
+
+        $whereSQL = "";
+        foreach ($class->identifier AS $idField) {
+            if (isset($class->fieldMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
+            } else if (isset($class->associationMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+            }
+        }
+
+         
+        $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
+                        " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
+         
+        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
+
+        return $revision;
     }
 
     protected function getEntityPersister($entity)
