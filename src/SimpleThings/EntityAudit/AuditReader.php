@@ -28,6 +28,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
@@ -390,4 +391,47 @@ class AuditReader
         $uow = $this->em->getUnitOfWork();
         return $uow->getEntityPersister($entity);
     }
+
+    /**
+     * Get an array with the differences of between two specific revisions of
+     * an object with a given id.
+     *
+     * @param string $className
+     * @param int $id
+     * @param int $oldRevision
+     * @param int $newRevision
+     * @return array
+     */
+    public function diff($className, $id, $oldRevision, $newRevision)
+    {
+        $oldObject = $this->find($className, $id, $oldRevision);
+        $newObject = $this->find($className, $id, $newRevision);
+        
+        $oldValues = $this->getEntityValues($className, $oldObject);
+        $newValues = $this->getEntityValues($className, $newObject);
+
+        $differ = new ArrayDiff();
+        return $differ->diff($oldValues, $newValues);
+    }
+
+    /**
+     * Get the values for a specific entity as an associative array
+     *
+     * @param string $className
+     * @param object $entity
+     * @return array
+     */
+    public function getEntityValues($className, $entity)
+    {
+        $metadata = $this->em->getClassMetadata($className);
+        $fields = $metadata->getFieldNames();
+
+        $return = array();
+        foreach ($fields AS $fieldName) {
+            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+        }
+
+        return $return;
+    }
+
 }
