@@ -103,7 +103,7 @@ class LogRevisionsListener implements EventSubscriber
         $entity = $eventArgs->getEntity();
 
         $class = $this->em->getClassMetadata(get_class($entity));
-        if (!$this->metadataFactory->isAudited($class->name)) {
+        if (!$this->metadataFactory->isAudited($class->name) || !$this->isChanged($entity)) {
             return;
         }
 
@@ -236,4 +236,24 @@ class LogRevisionsListener implements EventSubscriber
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
     }
+    
+    /**
+     * checks if any of the entity's fields values been changed
+     *
+     * @param mixed $entity
+     * @return boolean
+     */    
+    private function isChanged($entity)
+    {
+        $isChanged = FALSE;
+        $this->uow->computeChangeSets();
+        $changeset = $this->uow->getEntityChangeSet($entity);
+        
+        foreach ($changeset as $fieldName => $value) {
+            if($value[0] != $value[1]) {
+                $isChanged = TRUE;
+            }
+        }
+        return $isChanged;
+    }    
 }
