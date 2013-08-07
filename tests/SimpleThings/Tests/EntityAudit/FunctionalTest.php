@@ -143,7 +143,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->em->flush();
 
         $reader = $this->auditManager->createAuditReader($this->em);
-        $changedEntities = $reader->findEntitesChangedAtRevision(1);
+        $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
         $this->assertEquals(2, count($changedEntities));
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
