@@ -79,7 +79,7 @@ class AuditController extends Controller
             throw $this->createNotFoundException(sprintf('Revision %i not found', $rev));
         }
 
-        $changedEntities = $this->getAuditReader()->findEntitesChangedAtRevision($rev);
+        $changedEntities = $this->getAuditReader()->findEntitiesChangedAtRevision($rev);
 
         return $this->render('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', array(
             'revision' => $revision,
