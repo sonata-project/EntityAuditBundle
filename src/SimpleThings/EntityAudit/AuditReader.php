@@ -217,6 +217,15 @@ class AuditReader
     }
 
     /**
+     * @deprecated this function name is misspelled.
+     * Suggest using findEntitiesChangedAtRevision instead.
+     */
+    public function findEntitesChangedAtRevision($revision)
+    {
+        $this->findEntitiesChangedAtRevision($revision);
+    }
+
+    /**
      * Return a list of ChangedEntity instances created at the given revision.
      *
      * @param int $revision
