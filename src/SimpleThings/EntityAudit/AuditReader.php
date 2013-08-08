@@ -294,10 +294,6 @@ class AuditReader
             $ent = $rev->getEntity();
             $class = get_class($ent);
 
-            if (!array_key_exists($class, $result)) {
-                $result[$class] = array();
-            }
-
             $result[$class][] = $ent;
         }
 
