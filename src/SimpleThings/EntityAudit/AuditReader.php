@@ -222,7 +222,7 @@ class AuditReader
      */
     public function findEntitesChangedAtRevision($revision)
     {
-        $this->findEntitiesChangedAtRevision($revision);
+        return $this->findEntitiesChangedAtRevision($revision);
     }
 
     /**
