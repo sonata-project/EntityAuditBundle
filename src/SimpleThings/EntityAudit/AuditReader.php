@@ -280,6 +280,31 @@ class AuditReader
     }
 
     /**
+     * Return a list of ChangedEntity instances created at the given revision,
+     * sorted as an array.
+     *
+     * @param int $revision
+     * @return ChangedEntity[]
+     */
+    public function findEntitiesChangedAtRevisionSorted($revision)
+    {
+        $result = array();
+
+        foreach ($this->findEntitiesChangedAtRevision($revision) as $rev) {
+            $ent = $rev->getEntity();
+            $class = get_class($ent);
+
+            if (!array_key_exists($class, $result)) {
+                $result[$class] = array();
+            }
+
+            $result[$class][] = $ent;
+        }
+
+        return $result;
+    }
+
+    /**
      * Return the revision object for a particular revision.
      *
      * @param  int $rev
