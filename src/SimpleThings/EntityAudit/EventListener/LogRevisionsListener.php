@@ -267,7 +267,7 @@ class LogRevisionsListener implements EventSubscriber
         $class = get_class($item);
         if ($class == 'DateTime')
         {
-            return $item->format($this->config->getDatetimeAsStringFormat());
+            return $item->format($this->config->getDatetimeToStringFormat());
         }
         else
         {
