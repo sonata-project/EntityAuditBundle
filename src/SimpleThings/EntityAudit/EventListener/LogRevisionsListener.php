@@ -222,7 +222,7 @@ class LogRevisionsListener implements EventSubscriber
                     null;
 
                 $relatedId = array();
-                if ($entityData[$field] !== null && $this->uow->isInIdentityMap($data)) {
+                if ($data !== null && $this->uow->isInIdentityMap($data)) {
                     $relatedId = $this->uow->getEntityIdentifier($data);
                 }
 
