@@ -208,23 +208,26 @@ class LogRevisionsListener implements EventSubscriber
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
 
         foreach ($class->fieldNames AS $field) {
-            $params[] = $entityData[$field];
+            $params[] = array_key_exists($field, $entityData) ?
+                $entityData[$field] :
+                null;
             $types[] = $class->fieldMappings[$field]['type'];
         }
 
         foreach ($class->associationMappings AS $field => $assoc) {
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+                $data = array_key_exists($field, $entityData) ?
+                    $entityData[$field] :
+                    null;
 
                 $relatedId = array();
-                if ($entityData[$field] !== null && $this->uow->isInIdentityMap($entityData[$field])) {
-                    $relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
+                if ($entityData[$field] !== null && $this->uow->isInIdentityMap($data)) {
+                    $relatedId = $this->uow->getEntityIdentifier($data);
                 }
 
-                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-                foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                    if ($entityData[$field] === null) {
+                foreach ($assoc['sourceToTargetKeyColumns'] as $targetColumn) {
+                    if ($data === null) {
                         $params[] = null;
                         $types[] = \PDO::PARAM_STR;
                     } else {

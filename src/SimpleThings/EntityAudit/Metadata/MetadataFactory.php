@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit\Metadata;
 
+use Doctrine\Common\Util\ClassUtils;
+
 class MetadataFactory
 {
     private $auditedEntities = array();
@@ -34,9 +36,9 @@ class MetadataFactory
 
     public function isAudited($entity)
     {
-        return isset($this->auditedEntities[$entity]);
+        return isset($this->auditedEntities[ClassUtils::getRealClass($entity)]);
     }
-    
+
     public function getAllClassNames()
     {
         return array_flip($this->auditedEntities);
