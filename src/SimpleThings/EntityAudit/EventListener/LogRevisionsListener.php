@@ -190,6 +190,12 @@ class LogRevisionsListener implements EventSubscriber
                 }
             }
 
+            if($class->isInheritanceTypeSingleTable())
+            {
+                $sql .= ', ' .  $class->discriminatorColumn['fieldName'];
+                $placeholders[] = '?';
+            }
+
             $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
             $this->insertRevisionSQL[$class->name] = $sql;
         }
@@ -232,6 +238,12 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 }
             }
+        }
+
+        if($class->isInheritanceTypeSingleTable())
+        {
+            $params[] = $class->discriminatorValue;
+            $types[] = $class->discriminatorColumn['type'];
         }
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
