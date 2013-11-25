@@ -12,7 +12,7 @@
     <tbody>
     {% for field, value in data %}
     <tr>
-      <td>{{ field }}</td>
+    <td>{{ field }}</td>
       {% if value.timestamp is defined %}
       <td>{{ value|date('m/d/Y') }}</td>
       {% else %}
