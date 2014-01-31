@@ -12,6 +12,7 @@
         <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
+        <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />        
     </parameters>
 
     <services>
@@ -36,6 +37,7 @@
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
+                <argument>%simplethings.entityaudit.excluded_entities%</argument>
             </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>

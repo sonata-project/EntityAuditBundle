@@ -31,6 +31,7 @@ class AuditConfiguration
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
+    private $excludedEntityClasses = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
 
@@ -84,14 +85,15 @@ class AuditConfiguration
         $this->revisionTableName = $revisionTableName;
     }
 
-    public function setAuditedEntityClasses(array $classes)
+    public function setAuditedEntityClasses(array $auditedClasses, array $excludedClasses)
     {
-        $this->auditedEntityClasses = $classes;
+        $this->auditedEntityClasses = $auditedClasses;
+        $this->excludedEntityClasses = $excludedClasses;
     }
 
     public function createMetadataFactory()
     {
-        return new Metadata\MetadataFactory($this->auditedEntityClasses);
+        return new Metadata\MetadataFactory($this->auditedEntityClasses, $this->excludedEntityClasses);
     }
     
     public function setCurrentUsername($username)
