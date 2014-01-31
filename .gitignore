@@ -1,3 +1,5 @@
 .svn
 composer.lock
 vendor
+/nbproject/private/
+/nbproject/

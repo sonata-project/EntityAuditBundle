@@ -36,7 +36,7 @@ class MetadataFactory
 
     public function isAudited($entity)
     {
-        return isset($this->auditedEntities[$entity]) && !isset($this->excludedEntities);
+        return isset($this->auditedEntities[$entity]) && !isset($this->excludedEntities[$entity]);
     }
     
     public function getAllClassNames()
