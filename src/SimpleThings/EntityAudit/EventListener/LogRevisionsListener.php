@@ -149,11 +149,14 @@ class LogRevisionsListener implements EventSubscriber
     private function getRevisionId()
     {
         if ($this->revisionId === null) {
-            $date = date_create("now")->format($this->platform->getDateTimeFormatString());
             $this->conn->insert($this->config->getRevisionTableName(), array(
-                'timestamp'     => $date,
-                'username'      => $this->config->getCurrentUsername(),
-            ));
+                    'timestamp'     => date_create('now'),
+                    'username'      => $this->config->getCurrentUsername(),
+                ), array(
+                    Type::DATETIME,
+                    Type::STRING
+                )
+            );
 
             $sequenceName = $this->platform->supportsSequences()
                 ? 'REVISIONS_ID_SEQ'
