@@ -11,6 +11,7 @@
         <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_sequence_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
     </parameters>
 
@@ -51,6 +52,9 @@
             </call>
             <call method="setRevisionTableName">
                 <argument>%simplethings.entityaudit.revision_table_name%</argument>
+            </call>
+            <call method="setRevisionSequenceName">
+                <argument>%simplethings.entityaudit.revision_sequence_name%</argument>
             </call>
             <call method="setRevisionIdFieldType">
                 <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
