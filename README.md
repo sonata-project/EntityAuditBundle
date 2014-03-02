@@ -127,7 +127,7 @@ A revision has the following API:
 ### Find Changed Entities at a specific revision
 
     <?php
-    $changedEntities = $auditReader->findEntitesChangedAtRevision( 10 );
+    $changedEntities = $auditReader->findEntitiesChangedAtRevision( 10 );
 
 A changed entity has the API:
 
@@ -139,6 +139,11 @@ A changed entity has the API:
         public function getRevisionType();
         public function getEntity();
     }
+
+### Find Current Revision of an audited Entity
+
+    <?php
+    $revision = $auditReader->getCurrentRevision('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 3);
 
 ## Setting the Current Username
 

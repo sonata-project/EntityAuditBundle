@@ -9,4 +9,10 @@ EOT
     );
 }
 
-\Doctrine\Common\Annotations\AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
+if (version_compare(\Doctrine\ORM\Version::VERSION, '2.2.0') < 0) {
+    require_once __DIR__ . '/../vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php';
+}
+
+\Doctrine\Common\Annotations\AnnotationRegistry::registerLoader(function ($class) use ($loader) {
+    return $loader->loadClass($class);
+});

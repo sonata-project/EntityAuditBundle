@@ -23,8 +23,6 @@
 
 namespace SimpleThings\EntityAudit\Controller;
 
-use Doctrine\ORM\Mapping\ClassMetadata;
-use SimpleThings\EntityAudit\Utils\ArrayDiff;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -81,7 +79,7 @@ class AuditController extends Controller
             throw $this->createNotFoundException(sprintf('Revision %i not found', $rev));
         }
 
-        $changedEntities = $this->getAuditReader()->findEntitesChangedAtRevision($rev);
+        $changedEntities = $this->getAuditReader()->findEntitiesChangedAtRevision($rev);
 
         return $this->render('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', array(
             'revision' => $revision,
@@ -118,13 +116,10 @@ class AuditController extends Controller
      */
     public function viewDetailAction($className, $id, $rev)
     {
-        $em = $this->getDoctrine()->getEntityManagerForClass($className);
-        $metadata = $em->getClassMetadata($className);
-
         $ids = explode(',', $id);
         $entity = $this->getAuditReader()->find($className, $ids, $rev);
 
-        $data = $this->getEntityValues($metadata, $entity);
+        $data = $this->getAuditReader()->getEntityValues($className, $entity);
         krsort($data);
 
         return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', array(
@@ -148,9 +143,6 @@ class AuditController extends Controller
      */
     public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)
     {
-        $em = $this->getDoctrine()->getEntityManagerForClass($className);
-        $metadata = $em->getClassMetadata($className);
-
         if (null === $oldRev) {
             $oldRev = $request->query->get('oldRev');
         }
@@ -160,14 +152,7 @@ class AuditController extends Controller
         }
 
         $ids = explode(',', $id);
-        $oldEntity = $this->getAuditReader()->find($className, $ids, $oldRev);
-        $oldData = $this->getEntityValues($metadata, $oldEntity);
-
-        $newEntity = $this->getAuditReader()->find($className, $ids, $newRev);
-        $newData = $this->getEntityValues($metadata, $newEntity);
-
-        $differ = new ArrayDiff();
-        $diff = $differ->diff($oldData, $newData);
+        $diff = $this->getAuditReader()->diff($className, $ids, $oldRev, $newRev);
 
         return $this->render('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', array(
             'className' => $className,
@@ -178,15 +163,4 @@ class AuditController extends Controller
         ));
     }
 
-    protected function getEntityValues(ClassMetadata $metadata, $entity)
-    {
-        $fields = $metadata->getFieldNames();
-
-        $return = array();
-        foreach ($fields AS $fieldName) {
-            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
-        }
-
-        return $return;
-    }
 }

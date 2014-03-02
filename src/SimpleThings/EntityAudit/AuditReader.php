@@ -28,6 +28,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
@@ -124,13 +125,7 @@ class AuditReader
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
 
-        $revisionData = array();
-
-        foreach ($columnMap as $fieldName => $resultColumn) {
-            $revisionData[$fieldName] = $row[$resultColumn];
-        }
-
-        return $this->createEntity($class->name, $revisionData);
+        return $this->createEntity($class->name, $row);
     }
 
     /**
@@ -222,12 +217,21 @@ class AuditReader
     }
 
     /**
+     * @deprecated this function name is misspelled.
+     * Suggest using findEntitiesChangedAtRevision instead.
+     */
+    public function findEntitesChangedAtRevision($revision)
+    {
+        return $this->findEntitiesChangedAtRevision($revision);
+    }
+
+    /**
      * Return a list of ChangedEntity instances created at the given revision.
      *
      * @param int $revision
      * @return ChangedEntity[]
      */
-    public function findEntitesChangedAtRevision($revision)
+    public function findEntitiesChangedAtRevision($revision)
     {
         $auditedEntities = $this->metadataFactory->getAllClassNames();
 
@@ -266,10 +270,6 @@ class AuditReader
 
                 foreach ($class->identifier AS $idField) {
                     $id[$idField] = $row[$idField];
-                }
-
-                foreach ($columnMap as $fieldName => $resultName) {
-                    $data[$fieldName] = $row[$resultName];
                 }
 
                 $entity = $this->createEntity($className, $row);
@@ -353,9 +353,94 @@ class AuditReader
         return $revisions;
     }
 
+    /**
+     * Gets the current revision of the entity with given ID.
+     *
+     * @param string $className
+     * @param mixed $id
+     * @return integer
+     */
+    public function getCurrentRevision($className, $id)
+    {
+        if (!$this->metadataFactory->isAudited($className)) {
+            throw AuditException::notAudited($className);
+        }
+
+        $class = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
+        }
+
+        $whereSQL = "";
+        foreach ($class->identifier AS $idField) {
+            if (isset($class->fieldMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
+            } else if (isset($class->associationMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+            }
+        }
+
+        $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
+                        " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
+        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
+
+        return $revision;
+    }
+
     protected function getEntityPersister($entity)
     {
         $uow = $this->em->getUnitOfWork();
         return $uow->getEntityPersister($entity);
     }
+
+    /**
+     * Get an array with the differences of between two specific revisions of
+     * an object with a given id.
+     *
+     * @param string $className
+     * @param int $id
+     * @param int $oldRevision
+     * @param int $newRevision
+     * @return array
+     */
+    public function diff($className, $id, $oldRevision, $newRevision)
+    {
+        $oldObject = $this->find($className, $id, $oldRevision);
+        $newObject = $this->find($className, $id, $newRevision);
+        
+        $oldValues = $this->getEntityValues($className, $oldObject);
+        $newValues = $this->getEntityValues($className, $newObject);
+
+        $differ = new ArrayDiff();
+        return $differ->diff($oldValues, $newValues);
+    }
+
+    /**
+     * Get the values for a specific entity as an associative array
+     *
+     * @param string $className
+     * @param object $entity
+     * @return array
+     */
+    public function getEntityValues($className, $entity)
+    {
+        $metadata = $this->em->getClassMetadata($className);
+        $fields = $metadata->getFieldNames();
+
+        $return = array();
+        foreach ($fields AS $fieldName) {
+            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+        }
+
+        return $return;
+    }
+
 }
