@@ -107,6 +107,19 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
+        // get changes => should be already computed here (is a listener)
+        $changeset = $this->uow->getEntityChangeSet($entity);
+        foreach ( $this->config->getGlobalIgnoreColumns() as $column ) {
+            if ( isset($changeset[$column]) ) {
+                unset($changeset[$column]);
+            }
+        }
+
+        // if we have no changes left => don't create revision log
+        if ( count($changeset) == 0 ) {
+            return;
+        }
+
         $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
         $this->saveRevisionEntityData($class, $entityData, 'UPD');
     }

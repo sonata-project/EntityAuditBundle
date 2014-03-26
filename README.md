@@ -47,6 +47,14 @@ Load extension "simple_things_entity_audit" and specify the audited entities (ye
             - MyBundle\Entity\MyEntity
             - MyBundle\Entity\MyEntity2
 
+If you need to exclude some entity properties from triggering a revision use:
+
+    simple_things_entity_audit:
+        global_ignore_columns:
+            - created_at
+            - updated_at
+
+
 Call ./app/console doctrine:schema:update --dump-sql to see the new tables in the update schema queue.
 
 Notice: EntityAudit currently only works with a DBAL Connection and EntityManager named "default".
@@ -66,6 +74,10 @@ instance and configure the two event listeners.
     $auditconfig->setAuditedEntityClasses(array(
         'SimpleThings\EntityAudit\Tests\ArticleAudit',
         'SimpleThings\EntityAudit\Tests\UserAudit'
+    ));
+    $auditconfig->setGlobalIgnoreColumns(array(
+        'created_at',
+        'updated_at'
     ));
     $evm = new EventManager();
     $auditManager = new AuditManager($auditconfig);

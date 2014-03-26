@@ -6,6 +6,7 @@
 
     <parameters>
         <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
+        <parameter key="simplethings.entityaudit.global_ignore_columns" type="collection" />
         <parameter key="simplethings.entityaudit.table_prefix" type="string" />
         <parameter key="simplethings.entityaudit.table_suffix" type="string" />
         <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
@@ -18,7 +19,7 @@
         <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
             <argument id="simplethings_entityaudit.config" type="service" />
         </service>
-        
+
         <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader" factory-service="simplethings_entityaudit.manager" factory-method="createAuditReader">
             <argument type="service" id="doctrine.orm.default_entity_manager" />
         </service>
@@ -36,6 +37,9 @@
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
+            </call>
+            <call method="setGlobalIgnoreColumns">
+                <argument>%simplethings.entityaudit.global_ignore_columns%</argument>
             </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
@@ -55,8 +59,8 @@
             <call method="setRevisionIdFieldType">
                 <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
             </call>
-        </service> 
-        
+        </service>
+
         <service id="simplethings_entityaudit.request.current_user_listener" class="SimpleThings\EntityAudit\Request\CurrentUserListener">
             <tag name="kernel.event_listener" event="kernel.request" method="handle" />
             <argument type="service" id="simplethings_entityaudit.config" />
