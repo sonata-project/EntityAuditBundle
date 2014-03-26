@@ -47,7 +47,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     public function testAuditable()
     {
         $user = new UserAudit("beberlei");
-        $article = new ArticleAudit("test", "yadda!", $user);
+        $article = new ArticleAudit("test", "yadda!", $user, 'text');
 
         $this->em->persist($user);
         $this->em->persist($article);
@@ -113,7 +113,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->em->persist($user);
         $this->em->flush();
 
-        $article = new ArticleAudit("test", "yadda!", $user);
+        $article = new ArticleAudit("test", "yadda!", $user, 'text');
 
         $this->em->persist($article);
         $this->em->flush();
@@ -136,7 +136,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     public function testFindEntitesChangedAtRevision()
     {
         $user = new UserAudit("beberlei");
-        $article = new ArticleAudit("test", "yadda!", $user);
+        $article = new ArticleAudit("test", "yadda!", $user, 'text');
 
         $this->em->persist($user);
         $this->em->persist($article);
@@ -203,6 +203,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername("beberlei");
         $auditConfig->setAuditedEntityClasses(array('SimpleThings\EntityAudit\Tests\ArticleAudit', 'SimpleThings\EntityAudit\Tests\UserAudit'));
+        $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
 
         $this->auditManager = new AuditManager($auditConfig);
         $this->auditManager->registerEvents($evm = new EventManager());
@@ -239,6 +240,32 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $revision = $reader->getCurrentRevision(get_class($user), $user->getId());
         $this->assertEquals(3, $revision);
     }
+
+    public function testGlobalIgnoreColumns()
+    {
+        $user = new UserAudit("welante");
+        $article = new ArticleAudit("testcolumn", "yadda!", $user, 'text');
+
+        $this->em->persist($user);
+        $this->em->persist($article);
+        $this->em->flush();
+
+        $article->setText("testcolumn2");
+        $this->em->persist($article);
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
+        $this->assertEquals(2, $revision);
+
+        $article->setIgnoreme("textnew");
+        $this->em->persist($article);
+        $this->em->flush();
+
+        $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
+        $this->assertEquals(2, $revision);
+    }
 }
 
 /**
@@ -255,19 +282,33 @@ class ArticleAudit
     /** @ORM\Column(type="text") */
     private $text;
 
+    /** @ORM\Column(type="text") */
+    private $ignoreme;
+
     /** @ORM\ManyToOne(targetEntity="UserAudit") */
     private $author;
 
-    function __construct($title, $text, $author)
+    function __construct($title, $text, $author, $ignoreme)
     {
         $this->title = $title;
         $this->text = $text;
         $this->author = $author;
+        $this->ignoreme = $ignoreme;
+    }
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     public function setText($text)
     {
         $this->text = $text;
+    }
+
+    public function setIgnoreme($ignoreme)
+    {
+        $this->ignoreme = $ignoreme;
     }
 }
 
