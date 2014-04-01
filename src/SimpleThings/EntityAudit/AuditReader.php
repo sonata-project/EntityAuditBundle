@@ -118,6 +118,11 @@ class AuditReader
 
         $values = array_merge(array($revision), array_values($id));
 
+        if($class->isInheritanceTypeSingleTable()) {
+            $whereSQL .= " AND e." . $class->discriminatorColumn['fieldName'] ." = ?";
+            $values[] = $class->discriminatorValue;
+        }
+
         $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
         $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
@@ -238,10 +243,16 @@ class AuditReader
         $changedEntities = array();
         foreach ($auditedEntities AS $className) {
             $class = $this->em->getClassMetadata($className);
+
+            if($class->isInheritanceTypeSingleTable() && count($class->subClasses) > 0){
+                continue;
+            }
+
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
             $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
             $columnList = "e." . $this->config->getRevisionTypeFieldName();
+            $params = array($revision);
             $columnMap  = array();
 
             foreach ($class->fieldNames as $columnName => $field) {
@@ -260,9 +271,14 @@ class AuditReader
                 }
             }
 
+            if($class->isInheritanceTypeSingleTable()) {
+                $whereSQL .= " AND e." . $class->discriminatorColumn['fieldName'] ." = ?";
+                $params[] = $class->discriminatorValue;
+            }
+
             $this->platform = $this->em->getConnection()->getDatabasePlatform();
             $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL;
-            $revisionsData = $this->em->getConnection()->executeQuery($query, array($revision));
+            $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
 
             foreach ($revisionsData AS $row) {
                 $id   = array();
@@ -336,9 +352,19 @@ class AuditReader
             }
         }
 
+        $values = array_values($id);
+
+        if($class->isInheritanceTypeSingleTable() && count($class->subClasses) == 0) {
+            if ($whereSQL) {
+                $whereSQL .= " AND ";
+            }
+            $whereSQL .= "e." . $class->discriminatorColumn['fieldName'] ." = ?";
+            $values[] = $class->discriminatorValue;
+        }
+
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
                  "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
+        $revisionsData = $this->em->getConnection()->fetchAll($query, $values);
 
         $revisions = array();
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
@@ -388,9 +414,19 @@ class AuditReader
             }
         }
 
+        $values = array_values($id);
+
+        if($class->isInheritanceTypeSingleTable() && count($class->subClasses) == 0) {
+            if ($whereSQL) {
+                $whereSQL .= " AND ";
+            }
+            $whereSQL .= "e." . $class->discriminatorColumn['fieldName'] ." = ?";
+            $values[] = $class->discriminatorValue;
+        }
+
         $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
                         " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
-        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
+        $revision = $this->em->getConnection()->fetchColumn($query, $values);
 
         return $revision;
     }
