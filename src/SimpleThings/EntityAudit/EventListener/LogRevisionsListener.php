@@ -173,7 +173,7 @@ class LogRevisionsListener implements EventSubscriber
             $sql = "INSERT INTO " . $tableName . " (" .
                     $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
 
-            $fields = [];
+            $fields = array();
 
             foreach ($class->associationMappings AS $assoc) {
                 if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
@@ -213,7 +213,7 @@ class LogRevisionsListener implements EventSubscriber
         $params = array($this->getRevisionId(), $revType);
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
 
-        $fields = [];
+        $fields = array();
 
         foreach ($class->associationMappings AS $field => $assoc) {
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
