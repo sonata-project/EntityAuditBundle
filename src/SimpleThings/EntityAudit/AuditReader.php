@@ -27,6 +27,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
@@ -443,4 +444,72 @@ class AuditReader
         return $return;
     }
 
+    public function getEntityHistory($className, $id)
+    {
+        if (!$this->metadataFactory->isAudited($className)) {
+            throw AuditException::notAudited($className);
+        }
+
+        $class = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
+        }
+
+        $whereId = array();
+        foreach ($class->identifier AS $idField) {
+            if (isset($class->fieldMappings[$idField])) {
+                $columnName = $class->fieldMappings[$idField]['columnName'];
+            } else if (isset($class->associationMappings[$idField])) {
+                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
+            } else {
+                continue;
+            }
+
+            $whereId[] = "{$columnName} = ?";
+        }
+
+        $whereSQL  = implode(' AND ', $whereId);
+        $columnList = "";
+        $columnMap  = array();
+
+        foreach ($class->fieldNames as $columnName => $field) {
+            if ($columnList) {
+                $columnList .= ', ';
+            }
+
+            $type = Type::getType($class->fieldMappings[$field]['type']);
+            $columnList .= $type->convertToPHPValueSQL(
+                               $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
+            $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
+        }
+
+        foreach ($class->associationMappings AS $assoc) {
+            if ( ($assoc['type'] & ClassMetadata::TO_ONE) == 0 || !$assoc['isOwningSide']) {
+                continue;
+            }
+
+            foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                if ($columnList) {
+                    $columnList .= ', ';
+                }
+
+                $columnList .= $sourceCol;
+                $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
+            }
+        }
+
+        $values = array_values($id);
+
+        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $stmt = $this->em->getConnection()->executeQuery($query, $values);
+
+        $result = array();
+        while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
+            $result[] = $this->createEntity($class->name, $row);
+        }
+
+        return $result;
+    }
 }
