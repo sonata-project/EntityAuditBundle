@@ -457,7 +457,7 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereId = [];
+        $whereId = array();
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
