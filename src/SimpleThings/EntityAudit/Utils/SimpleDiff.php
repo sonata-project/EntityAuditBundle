@@ -30,6 +30,8 @@ class SimpleDiff
     public function diff(array $old, array $new)
     {
         $maxlen = 0;
+        $nmax = 0;
+        $omax = 0;
         foreach ($old as $oindex => $ovalue) {
             $nkeys = array_keys($new, $ovalue);
             foreach ($nkeys as $nindex) {
