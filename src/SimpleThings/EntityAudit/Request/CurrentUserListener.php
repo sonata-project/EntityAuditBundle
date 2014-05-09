@@ -38,7 +38,7 @@ class CurrentUserListener
      */
     private $auditConfiguration;
     /**
-     * @var SecuritYcontext
+     * @var SecurityContext
      */
     private $securityContext;
     
