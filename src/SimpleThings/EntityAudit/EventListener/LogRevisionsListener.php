@@ -44,17 +44,17 @@ class LogRevisionsListener implements EventSubscriber
     private $metadataFactory;
 
     /**
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     private $conn;
 
     /**
-     * @var Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
 
     /**
-     * @var Doctrine\ORM\EntityManager
+     * @var \Doctrine\ORM\EntityManager
      */
     private $em;
 
@@ -64,7 +64,7 @@ class LogRevisionsListener implements EventSubscriber
     private $insertRevisionSQL = array();
 
     /**
-     * @var Doctrine\ORM\UnitOfWork
+     * @var \Doctrine\ORM\UnitOfWork
      */
     private $uow;
 
