@@ -38,7 +38,7 @@ class CurrentUserListener
      */
     private $auditConfiguration;
     /**
-     * @var SecuritYcontext
+     * @var SecurityContext
      */
     private $securityContext;
     
@@ -51,7 +51,7 @@ class CurrentUserListener
     /**
      * Handles access authorization.
      *
-     * @param Event $event An Event instance
+     * @param GetResponseEvent $event An Event instance
      */
     public function handle(GetResponseEvent $event)
     {
@@ -62,7 +62,7 @@ class CurrentUserListener
         if ($this->securityContext) {
             $token = $this->securityContext->getToken();
             if ($token && $token->isAuthenticated()) {
-                $this->auditConfiguration->setCurrentUsername( $token->getUsername() );
+                $this->auditConfiguration->setCurrentUsername($token->getUsername());
             }
         }
     }
