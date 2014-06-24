@@ -188,7 +188,7 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             foreach ($class->fieldNames AS $field) {
-                if (array_key_exists($field, $fields)) {
+                if (array_key_exists($class->fieldMappings[$field]['columnName'], $fields)) {
                     continue;
                 }
                 $type = Type::getType($class->fieldMappings[$field]['type']);
@@ -241,7 +241,7 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($class->fieldNames AS $field) {
-            if (array_key_exists($field, $fields)) {
+            if (array_key_exists($class->fieldMappings[$field]['columnName'], $fields)) {
                 continue;
             }
             $params[] = $entityData[$field];
