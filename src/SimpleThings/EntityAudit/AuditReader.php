@@ -98,7 +98,7 @@ class AuditReader
 
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList .= $type->convertToPHPValueSQL(
-                $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
+                $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS "' . $field . '"';
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
@@ -248,7 +248,7 @@ class AuditReader
             foreach ($class->fieldNames as $columnName => $field) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $columnList .= ', ' . $type->convertToPHPValueSQL(
-                    $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $field;
+                    $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS "' . $field . '"';
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
