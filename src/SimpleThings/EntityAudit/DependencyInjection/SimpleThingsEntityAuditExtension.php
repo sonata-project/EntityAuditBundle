@@ -40,6 +40,25 @@ class SimpleThingsEntityAuditExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('auditable.xml');
 
+        foreach ($config['connections'] as $connection) {
+            $container->setDefinition('simplethings_entityaudit.reader.'.$connection,
+                new Definition('SimpleThings\EntityAudit\AuditReader', array(new Reference('doctrine.orm.'.$connection.'_entity_manager')))
+                    ->setFactoryService('simplethings_entityaudit.manager')
+                    ->setFactoryMethod('createAuditReader')
+            );
+
+            $container->setDefinition('simplethings_entityaudit.log_revifions_listener.'.$connection,
+                new Definition('SimpleThings\EntityAudit\EventListener\LogRevisionsListener', array(new Reference('simplethings_entityaudit.manager')))
+                    ->addTag('doctrine.event_subscriber', array('connection' => $connection))
+            );
+
+            $container->setDefinition('simplethings_entityaudit.create_schema_listener.'.$connection,
+                new Definition('SimpleThings\EntityAudit\EventListener\CreateSchemaListener', array(new Reference('simplethings_entityaudit.manager')))
+                    ->addTag('doctrine.event_subscriber', array('connection' => $connection))
+            );
+        }
+
+
         $configurables = array(
             'audited_entities',
             'table_prefix',
@@ -47,6 +66,7 @@ class SimpleThingsEntityAuditExtension extends Extension
             'revision_field_name',
             'revision_type_field_name',
             'revision_table_name',
+            'revision_sequence_name',
             'revision_id_field_type'
         );
 
