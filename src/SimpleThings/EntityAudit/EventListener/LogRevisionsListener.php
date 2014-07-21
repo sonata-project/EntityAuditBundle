@@ -44,17 +44,17 @@ class LogRevisionsListener implements EventSubscriber
     private $metadataFactory;
 
     /**
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     private $conn;
 
     /**
-     * @var Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
 
     /**
-     * @var Doctrine\ORM\EntityManager
+     * @var \Doctrine\ORM\EntityManager
      */
     private $em;
 
@@ -64,7 +64,7 @@ class LogRevisionsListener implements EventSubscriber
     private $insertRevisionSQL = array();
 
     /**
-     * @var Doctrine\ORM\UnitOfWork
+     * @var \Doctrine\ORM\UnitOfWork
      */
     private $uow;
 
@@ -149,10 +149,12 @@ class LogRevisionsListener implements EventSubscriber
     private function getRevisionId()
     {
         if ($this->revisionId === null) {
-            $date = date_create("now")->format($this->platform->getDateTimeFormatString());
             $this->conn->insert($this->config->getRevisionTableName(), array(
-                'timestamp'     => $date,
+                'timestamp'     => date_create('now'),
                 'username'      => $this->config->getCurrentUsername(),
+            ), array(
+                Type::DATETIME,
+                Type::STRING
             ));
 
             $sequenceName = $this->platform->supportsSequences()
@@ -173,21 +175,27 @@ class LogRevisionsListener implements EventSubscriber
             $sql = "INSERT INTO " . $tableName . " (" .
                     $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
 
+            $fields = array();
+
+            foreach ($class->associationMappings AS $assoc) {
+                if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                    foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                        $fields[$sourceCol] = true;
+                        $sql .= ', ' . $sourceCol;
+                        $placeholders[] = '?';
+                    }
+                }
+            }
+
             foreach ($class->fieldNames AS $field) {
+                if (array_key_exists($field, $fields)) {
+                    continue;
+                }
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $placeholders[] = (!empty($class->fieldMappings[$field]['requireSQLConversion']))
                     ? $type->convertToDatabaseValueSQL('?', $this->platform)
                     : '?';
                 $sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
-            }
-
-            foreach ($class->associationMappings AS $assoc) {
-                if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                    foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                        $sql .= ', ' . $sourceCol;
-                        $placeholders[] = '?';
-                    }
-                }
             }
 
             $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
@@ -207,10 +215,7 @@ class LogRevisionsListener implements EventSubscriber
         $params = array($this->getRevisionId(), $revType);
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
 
-        foreach ($class->fieldNames AS $field) {
-            $params[] = $entityData[$field];
-            $types[] = $class->fieldMappings[$field]['type'];
-        }
+        $fields = array();
 
         foreach ($class->associationMappings AS $field => $assoc) {
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
@@ -223,6 +228,7 @@ class LogRevisionsListener implements EventSubscriber
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
                 foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                    $fields[$sourceColumn] = true;
                     if ($entityData[$field] === null) {
                         $params[] = null;
                         $types[] = \PDO::PARAM_STR;
@@ -232,6 +238,14 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 }
             }
+        }
+
+        foreach ($class->fieldNames AS $field) {
+            if (array_key_exists($field, $fields)) {
+                continue;
+            }
+            $params[] = $entityData[$field];
+            $types[] = $class->fieldMappings[$field]['type'];
         }
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
