@@ -42,20 +42,20 @@ class SimpleThingsEntityAuditExtension extends Extension
 
         foreach ($config['connections'] as $connection) {
             $container->setDefinition('simplethings_entityaudit.reader.'.$connection,
-                new Definition('SimpleThings\EntityAudit\AuditReader', array(new Reference('doctrine.orm.'.$connection.'_entity_manager')))
-                    ->setFactoryService('simplethings_entityaudit.manager')
-                    ->setFactoryMethod('createAuditReader')
-            );
+                new Definition('SimpleThings\EntityAudit\AuditReader', array(new Reference('doctrine.orm.'.$connection.'_entity_manager'))))
+                ->setFactoryService('simplethings_entityaudit.manager')
+                ->setFactoryMethod('createAuditReader')
+            ;
 
             $container->setDefinition('simplethings_entityaudit.log_revifions_listener.'.$connection,
-                new Definition('SimpleThings\EntityAudit\EventListener\LogRevisionsListener', array(new Reference('simplethings_entityaudit.manager')))
-                    ->addTag('doctrine.event_subscriber', array('connection' => $connection))
-            );
+                new Definition('SimpleThings\EntityAudit\EventListener\LogRevisionsListener', array(new Reference('simplethings_entityaudit.manager'))))
+                ->addTag('doctrine.event_subscriber', array('connection' => $connection))
+            ;
 
             $container->setDefinition('simplethings_entityaudit.create_schema_listener.'.$connection,
-                new Definition('SimpleThings\EntityAudit\EventListener\CreateSchemaListener', array(new Reference('simplethings_entityaudit.manager')))
-                    ->addTag('doctrine.event_subscriber', array('connection' => $connection))
-            );
+                new Definition('SimpleThings\EntityAudit\EventListener\CreateSchemaListener', array(new Reference('simplethings_entityaudit.manager'))))
+                ->addTag('doctrine.event_subscriber', array('connection' => $connection))
+            ;
         }
 
 
