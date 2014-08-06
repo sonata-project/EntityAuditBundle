@@ -6,6 +6,7 @@
 
     <parameters>
         <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
+        <parameter key="simplethings.entityaudit.global_ignore_columns" type="collection" />
         <parameter key="simplethings.entityaudit.table_prefix" type="string" />
         <parameter key="simplethings.entityaudit.table_suffix" type="string" />
         <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
@@ -36,6 +37,9 @@
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
+            </call>
+            <call method="setGlobalIgnoreColumns">
+                <argument>%simplethings.entityaudit.global_ignore_columns%</argument>
             </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
