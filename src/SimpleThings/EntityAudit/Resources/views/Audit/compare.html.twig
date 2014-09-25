@@ -14,9 +14,39 @@
     {% for field, value in diff %}
     <tr>
         <td>{{ field }}</td>
-        <td>{{ value.old }}</td>
-        <td>{{ value.same }}</td>
-        <td>{{ value.new }}</td>
+        <td>
+            {% if value.old.timestamp is defined %}
+                {{ value.old|date('m/d/Y') }}
+            {% elseif value.old is iterable %}
+                {% for element in value.old %}
+                    {{ element }}
+                {% endfor %}
+            {% else %}
+                {{ value.old }}
+            {% endif %}
+        </td>
+        <td>
+            {% if value.same.timestamp is defined %}
+                {{ value.same|date('m/d/Y') }}
+            {% elseif value.same is iterable %}
+                {% for element in value.same %}
+                    {{ element }}
+                {% endfor %}
+            {% else %}
+                {{ value.same }}
+            {% endif %}
+        </td>
+        <td>
+            {% if value.new.timestamp is defined %}
+                {{ value.new|date('m/d/Y') }}
+            {% elseif value.new is iterable %}
+                {% for element in value.new %}
+                    {{ element }}
+                {% endfor %}
+            {% else %}
+                {{ value.new }}
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
     </tbody>
