@@ -22,7 +22,7 @@ create the necessary DDL statements for your audited entities.
 
 ## Installation (In Symfony2 Application)
 
-###Install bundle
+###Installing the bundle
 
 Simply run assuming you have installed composer.phar or composer binary:
 
