@@ -1,5 +1,21 @@
 {% extends "SimpleThingsEntityAuditBundle::layout.html.twig" %}
 
+{% macro showValue(value) %}
+    {% if value.timestamp is defined %}
+        {{ value|date('m/d/Y') }}
+    {% elseif value is iterable %}
+        <ul>
+        {% for element in value %}
+            <li>{{ element }}</li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        {{ value }}
+    {% endif %}
+{% endmacro %}
+
+{% import _self as helper %}
+
 {% block simplethings_entityaudit_content %}
 <h1>Comparing {{ className }} with identifiers of {{ id }} between revisions {{ oldRev }} and {{ newRev }}</h1>
 
@@ -14,9 +30,15 @@
     {% for field, value in diff %}
     <tr>
         <td>{{ field }}</td>
-        <td>{{ value.old }}</td>
-        <td>{{ value.same }}</td>
-        <td>{{ value.new }}</td>
+        <td>
+            {{ helper.showValue(value.old) }}
+        </td>
+        <td>
+            {{ helper.showValue(value.same) }}
+        </td>
+        <td>
+            {{ helper.showValue(value.new) }}
+        </td>
     </tr>
     {% endfor %}
     </tbody>
