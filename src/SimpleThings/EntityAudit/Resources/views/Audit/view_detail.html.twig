@@ -17,9 +17,11 @@
         <td>{{ value|date('m/d/Y') }}</td>
         {% elseif value is iterable %}
         <td>
-            {% for element in value %}
-                {{ element }}
-            {% endfor %}
+            <ul>
+                {% for element in value %}
+                    <li>{{ element }}</li>
+                {% endfor %}
+            </ul>
         </td>
         {% else %}
         <td>{{ value }}</td>
@@ -30,3 +32,4 @@
 </table>
 
 {% endblock simplethings_entityaudit_content %}
+
