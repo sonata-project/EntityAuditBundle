@@ -192,7 +192,10 @@ class ChangedEntity
 ### Find Current Revision of an audited Entity
 
 ```php
-    $revision = $auditReader->getCurrentRevision('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 3);
+    $revision = $auditReader->getCurrentRevision(
+        'SimpleThings\EntityAudit\Tests\ArticleAudit',
+        $id = 3
+    );
 ```
 
 ## Setting the Current Username
