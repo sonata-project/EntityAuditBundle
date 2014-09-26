@@ -140,7 +140,11 @@ This command also returns the state of the entity at the given revision, even if
 to that entity was made in a revision before the given one:
 
 ```php
-    $articleAudit = $auditReader->find('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 1, $rev = 10);
+    $articleAudit = $auditReader->find(
+        'SimpleThings\EntityAudit\Tests\ArticleAudit',
+        $id = 1,
+        $rev = 10
+    );
 ```
 
 Instances created through `AuditReader#find()` are *NOT* injected into the EntityManagers UnitOfWork,
@@ -150,7 +154,10 @@ in that old version.
 ### Find Revision History of an audited entity
 
 ```php
-    $revisions = $auditReader->findRevisions('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 1);
+    $revisions = $auditReader->findRevisions(
+        'SimpleThings\EntityAudit\Tests\ArticleAudit',
+        $id = 1
+    );
 ```
 
 A revision has the following API:
