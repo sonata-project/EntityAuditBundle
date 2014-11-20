@@ -73,6 +73,11 @@ class CreateSchemaListener implements EventSubscriber
             }
             $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
             $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+            if ($cm->isInheritanceTypeSingleTable()) {
+                //disc column is present anyway
+            } elseif (!$cm->isInheritanceTypeNone()) {
+                throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
+            }
             $pkColumns = $entityTable->getPrimaryKey()->getColumns();
             $pkColumns[] = $this->config->getRevisionFieldName();
             $revisionTable->setPrimaryKey($pkColumns);
