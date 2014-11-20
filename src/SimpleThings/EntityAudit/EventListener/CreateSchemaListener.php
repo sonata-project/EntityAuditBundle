@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
@@ -73,10 +74,27 @@ class CreateSchemaListener implements EventSubscriber
             }
             $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
             $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
-            if ($cm->isInheritanceTypeSingleTable()) {
-                //disc column is present anyway
-            } elseif (!$cm->isInheritanceTypeNone()) {
+            if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
                 throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
+            }
+            if ($cm->isInheritanceTypeJoined() && !$cm->isRootEntity()) {
+                //we need to copy parent table fields
+                $rootMetadata = $eventArgs->getClassMetadata($cm->rootEntityName);
+
+                foreach ($rootMetadata->fieldMappings as $mapping) {
+                    if ($revisionTable->hasColumn($mapping['columnName'])) {
+                        continue;
+                    }
+
+                    $revisionTable->addColumn($mapping['columnName'], $mapping['type'], array_merge(
+                        array(
+                            'length' => $mapping['length'],
+                            'scale' => $mapping['scale'],
+                            'precision' => $mapping['precision']
+                        ),
+                        array('notnull' => false, 'autoincrement' => false)
+                    ));
+                }
             }
             $pkColumns = $entityTable->getPrimaryKey()->getColumns();
             $pkColumns[] = $this->config->getRevisionFieldName();
