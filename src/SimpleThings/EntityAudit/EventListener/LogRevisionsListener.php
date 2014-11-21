@@ -179,6 +179,11 @@ class LogRevisionsListener implements EventSubscriber
         return $this->revisionId;
     }
 
+    /**
+     * @param ClassMetadata $class
+     * @return string
+     * @throws \Doctrine\DBAL\DBALException
+     */
     private function getInsertRevisionSQL($class)
     {
         if (!isset($this->insertRevisionSQL[$class->name])) {
@@ -209,6 +214,11 @@ class LogRevisionsListener implements EventSubscriber
                     ? $type->convertToDatabaseValueSQL('?', $this->platform)
                     : '?';
                 $sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
+            }
+
+            if ($class->isInheritanceTypeSingleTable()) {
+                $sql .= ', ' . $class->discriminatorColumn['fieldName'];
+                $placeholders[] = '?';
             }
 
             $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
@@ -259,6 +269,11 @@ class LogRevisionsListener implements EventSubscriber
             }
             $params[] = $entityData[$field];
             $types[] = $class->fieldMappings[$field]['type'];
+        }
+
+        if ($class->isInheritanceTypeSingleTable()) {
+            $params[] = $class->discriminatorValue;
+            $types[] = $class->discriminatorColumn['type'];
         }
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);

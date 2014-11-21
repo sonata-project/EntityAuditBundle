@@ -48,36 +48,57 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     {
         $user = new UserAudit("beberlei");
         $article = new ArticleAudit("test", "yadda!", $user, 'text');
+        $rabbit = new Rabbit('rabbit', 'white');
+        $foxy = new Fox('foxy', 60);
+        $doggy = new Dog('woof', 80);
+        $cat = new Cat('pusheen', '#b5a89f');
 
         $this->em->persist($user);
         $this->em->persist($article);
+        $this->em->persist($rabbit);
+        $this->em->persist($foxy);
+        $this->em->persist($doggy);
+        $this->em->persist($cat);
         $this->em->flush();
 
         $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
         $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
         $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
+        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit')));
 
         $article->setText("oeruoa");
+        $rabbit->setName('Rabbit');
+        $rabbit->setColor('gray');
+        $foxy->setName('Foxy');
+        $foxy->setTailLength(55);
 
         $this->em->flush();
 
         $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
         $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
+        $this->assertEquals(4, count($this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit')));
 
         $this->em->remove($user);
         $this->em->remove($article);
+        $this->em->remove($rabbit);
+        $this->em->remove($foxy);
         $this->em->flush();
 
         $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
         $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
         $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
+        $this->assertEquals(6, count($this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit')));
     }
 
     public function testFind()
     {
         $user = new UserAudit("beberlei");
+        $foxy = new Fox('foxy', 55);
+        $cat = new Cat('pusheen', '#b5a89f');
 
+        $this->em->persist($cat);
         $this->em->persist($user);
+        $this->em->persist($foxy);
         $this->em->flush();
 
         $reader = $this->auditManager->createAuditReader($this->em);
@@ -88,6 +109,24 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($user->getName(), $auditUser->getName(), "Name of audited user and real user should be the same.");
         $this->assertFalse($this->em->contains($auditUser), "Audited User should not be in the identity map.");
         $this->assertNotSame($user, $auditUser, "User and Audited User instances are not the same.");
+
+        $auditFox = $reader->find(get_class($foxy), $foxy->getId(), 1);
+
+        $this->assertInstanceOf(get_class($foxy), $auditFox, "Audited SINGLE_TABLE class keeps it's class.");
+        $this->assertEquals($foxy->getId(), $auditFox->getId(), "Ids of audited SINGLE_TABLE class and real SINGLE_TABLE class should be the same.");
+        $this->assertEquals($foxy->getName(), $auditFox->getName(), "Loaded and original attributes should be the same for SINGLE_TABLE inheritance.");
+        $this->assertEquals($foxy->getTailLength(), $auditFox->getTailLength(), "Loaded and original attributes should be the same for SINGLE_TABLE inheritance.");
+        $this->assertFalse($this->em->contains($auditFox), "Audited SINGLE_TABLE inheritance class should not be in the identity map.");
+        $this->assertNotSame($this, $auditFox, "Audited and new entities should not be the same object for SINGLE_TABLE inheritance.");
+
+        $auditCat = $reader->find(get_class($cat), $cat->getId(), 1);
+
+        $this->assertInstanceOf(get_class($cat), $auditCat, "Audited JOINED class keeps it's class.");
+        $this->assertEquals($cat->getId(), $auditCat->getId(), "Ids of audited JOINED class and real JOINED class should be the same.");
+        $this->assertEquals($cat->getName(), $auditCat->getName(), "Loaded and original attributes should be the same for JOINED inheritance.");
+        $this->assertEquals($cat->getColor(), $auditCat->getColor(), "Loaded and original attributes should be the same for JOINED inheritance.");
+        $this->assertFalse($this->em->contains($auditCat), "Audited JOINED inheritance class should not be in the identity map.");
+        $this->assertNotSame($this, $auditCat, "Audited and new entities should not be the same object for JOINED inheritance.");
     }
 
     public function testFindNoRevisionFound()
@@ -137,7 +176,15 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     {
         $user = new UserAudit("beberlei");
         $article = new ArticleAudit("test", "yadda!", $user, 'text');
+        $foxy = new Fox('foxy', 50);
+        $rabbit = new Rabbit('rabbit', 'white');
+        $cat = new Cat('pusheen', '#b5a89f');
+        $dog = new Dog('doggy', 80);
 
+        $this->em->persist($dog);
+        $this->em->persist($cat);
+        $this->em->persist($foxy);
+        $this->em->persist($rabbit);
         $this->em->persist($user);
         $this->em->persist($article);
         $this->em->flush();
@@ -145,7 +192,8 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
-        $this->assertEquals(2, count($changedEntities));
+        //duplicated entries means a bug with discriminators
+        $this->assertEquals(6, count($changedEntities));
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
 
         $this->assertEquals('SimpleThings\EntityAudit\Tests\ArticleAudit', $changedEntities[0]->getClassName());
@@ -162,10 +210,20 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
     public function testFindRevisions()
     {
         $user = new UserAudit("beberlei");
+        $foxy = new Fox('foxy', 30);
+        $rabbit = new Rabbit('rabbit', 'white');
+        $cat = new Cat('pusheen', '#b5a89f');
+        $dog = new Dog('doggy', 80);
 
+        $this->em->persist($dog);
+        $this->em->persist($cat);
         $this->em->persist($user);
+        $this->em->persist($foxy);
+        $this->em->persist($rabbit);
         $this->em->flush();
 
+        $foxy->setName('Foxy');
+        $dog->setName('doge');
         $user->setName("beberlei2");
         $this->em->flush();
 
@@ -182,6 +240,13 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
         $this->assertEquals('beberlei', $revisions[1]->getUsername());
+
+        //SINGLE_TABLE should have separate revision history
+        $this->assertEquals(2, count($reader->findRevisions(get_class($foxy), $foxy->getId())));
+        $this->assertEquals(1, count($reader->findRevisions(get_class($rabbit), $rabbit->getId())));
+        //JOINED too
+        $this->assertEquals(2, count($reader->findRevisions(get_class($dog), $dog->getId())));
+        $this->assertEquals(1, count($reader->findRevisions(get_class($cat), $cat->getId())));
     }
 
     public function setUp()
@@ -202,13 +267,23 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername("beberlei");
-        $auditConfig->setAuditedEntityClasses(array('SimpleThings\EntityAudit\Tests\ArticleAudit', 'SimpleThings\EntityAudit\Tests\UserAudit'));
+        $auditConfig->setAuditedEntityClasses(
+            array(
+                'SimpleThings\EntityAudit\Tests\ArticleAudit',
+                'SimpleThings\EntityAudit\Tests\UserAudit',
+                //needs to be added to create table
+                'SimpleThings\EntityAudit\Tests\AnimalAudit',
+                'SimpleThings\EntityAudit\Tests\Rabbit',
+                'SimpleThings\EntityAudit\Tests\Fox',
+                'SimpleThings\EntityAudit\Tests\Cat',
+                'SimpleThings\EntityAudit\Tests\Dog',
+            ));
         $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
 
         $this->auditManager = new AuditManager($auditConfig);
         $this->auditManager->registerEvents($evm = new EventManager());
 
-        #$config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
+        $config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
 
         $this->em = \Doctrine\ORM\EntityManager::create($conn, $config, $evm);
 
@@ -216,6 +291,14 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $schemaTool->createSchema(array(
             $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\ArticleAudit'),
             $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\UserAudit'),
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\AnimalAudit'),
+            //just to make sure there are no extra tables
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Fox'),
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Rabbit'),
+            //end of "just to make sure"
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\PetAudit'),
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Cat'),
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Dog'),
         ));
     }
 
@@ -340,5 +423,175 @@ class UserAudit
     public function getName()
     {
         return $this->name;
+    }
+}
+
+/**
+ * @ORM\Entity
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"rabbit" = "Rabbit", "fox" = "Fox"})
+ */
+class AnimalAudit
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    private $id;
+
+    /** @ORM\Column(type="string") */
+    private $name;
+
+    function __construct($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Rabbit extends AnimalAudit
+{
+    /** @ORM\Column(type="string", name="cute_rabbit_color") */
+    private $color;
+
+    function __construct($name, $color)
+    {
+        $this->color = $color;
+        parent::__construct($name);
+    }
+
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    public function setColor($color)
+    {
+        $this->color = $color;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Fox extends AnimalAudit
+{
+    /** @ORM\Column(type="integer", name="fox_tail_length") */
+    private $tailLength;
+
+    function __construct($name, $tailLength)
+    {
+        $this->tailLength = $tailLength;
+        parent::__construct($name);
+    }
+
+    public function getTailLength()
+    {
+        return $this->tailLength;
+    }
+
+    public function setTailLength($tailLength)
+    {
+        $this->tailLength = $tailLength;
+    }
+}
+
+/**
+ * @ORM\Entity
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"cat" = "Cat", "dog" = "Dog"})
+ */
+class PetAudit
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    private $id;
+
+    /** @ORM\Column(type="string") */
+    private $name;
+
+    function __construct($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Cat extends PetAudit
+{
+    /** @ORM\Column(type="string", name="cute_cat_color") */
+    private $color;
+
+    function __construct($name, $color)
+    {
+        $this->color = $color;
+        parent::__construct($name);
+    }
+
+    public function getColor()
+    {
+        return $this->color;
+    }
+
+    public function setColor($color)
+    {
+        $this->color = $color;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Dog extends PetAudit
+{
+    /** @ORM\Column(type="integer", name="dog_tail_length") */
+    private $tailLength;
+
+    function __construct($name, $tailLength)
+    {
+        $this->tailLength = $tailLength;
+        parent::__construct($name);
+    }
+
+    public function getTailLength()
+    {
+        return $this->tailLength;
+    }
+
+    public function setTailLength($tailLength)
+    {
+        $this->tailLength = $tailLength;
     }
 }
