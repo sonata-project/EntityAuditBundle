@@ -32,17 +32,28 @@ use SimpleThings\EntityAudit\AuditManager;
 
 use Doctrine\ORM\Mapping AS ORM;
 
-class FunctionalTest extends \PHPUnit_Framework_TestCase
+class CoreTest extends BaseTest
 {
-    /**
-     * @var EntityManager
-     */
-    private $em = null;
+    protected $schemaEntities = array(
+        'SimpleThings\EntityAudit\Tests\ArticleAudit',
+        'SimpleThings\EntityAudit\Tests\UserAudit',
+        'SimpleThings\EntityAudit\Tests\AnimalAudit',
+        'SimpleThings\EntityAudit\Tests\Fox',
+        'SimpleThings\EntityAudit\Tests\Rabbit',
+        'SimpleThings\EntityAudit\Tests\PetAudit',
+        'SimpleThings\EntityAudit\Tests\Cat',
+        'SimpleThings\EntityAudit\Tests\Dog'
+    );
 
-    /**
-     * @var AuditManager
-     */
-    private $auditManager = null;
+    protected $auditedEntities = array(
+        'SimpleThings\EntityAudit\Tests\ArticleAudit',
+        'SimpleThings\EntityAudit\Tests\UserAudit',
+        'SimpleThings\EntityAudit\Tests\AnimalAudit',
+        'SimpleThings\EntityAudit\Tests\Rabbit',
+        'SimpleThings\EntityAudit\Tests\Fox',
+        'SimpleThings\EntityAudit\Tests\Cat',
+        'SimpleThings\EntityAudit\Tests\Dog'
+    );
 
     public function testAuditable()
     {
@@ -247,59 +258,6 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         //JOINED too
         $this->assertEquals(2, count($reader->findRevisions(get_class($dog), $dog->getId())));
         $this->assertEquals(1, count($reader->findRevisions(get_class($cat), $cat->getId())));
-    }
-
-    public function setUp()
-    {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $driver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader);
-        $config = new \Doctrine\ORM\Configuration();
-        $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
-        $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
-        $config->setProxyDir(sys_get_temp_dir());
-        $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
-        $config->setMetadataDriverImpl($driver);
-
-        $conn = array(
-            'driver' => 'pdo_sqlite',
-            'memory' => true,
-        );
-
-        $auditConfig = new AuditConfiguration();
-        $auditConfig->setCurrentUsername("beberlei");
-        $auditConfig->setAuditedEntityClasses(
-            array(
-                'SimpleThings\EntityAudit\Tests\ArticleAudit',
-                'SimpleThings\EntityAudit\Tests\UserAudit',
-                //needs to be added to create table
-                'SimpleThings\EntityAudit\Tests\AnimalAudit',
-                'SimpleThings\EntityAudit\Tests\Rabbit',
-                'SimpleThings\EntityAudit\Tests\Fox',
-                'SimpleThings\EntityAudit\Tests\Cat',
-                'SimpleThings\EntityAudit\Tests\Dog',
-            ));
-        $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
-
-        $this->auditManager = new AuditManager($auditConfig);
-        $this->auditManager->registerEvents($evm = new EventManager());
-
-        $config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
-
-        $this->em = \Doctrine\ORM\EntityManager::create($conn, $config, $evm);
-
-        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
-        $schemaTool->createSchema(array(
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\ArticleAudit'),
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\UserAudit'),
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\AnimalAudit'),
-            //just to make sure there are no extra tables
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Fox'),
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Rabbit'),
-            //end of "just to make sure"
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\PetAudit'),
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Cat'),
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Dog'),
-        ));
     }
 
     public function testFindCurrentRevision()
