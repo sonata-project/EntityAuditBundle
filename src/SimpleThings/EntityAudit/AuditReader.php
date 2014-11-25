@@ -177,7 +177,7 @@ class AuditReader
                         // Foreign key is NULL
                         $class->reflFields[$field]->setValue($entity, null);
                     } else {
-                        $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
+                        $associatedEntity = $this->getEntityPersister($targetClass->name)->load($associatedId, $entity, $assoc);
                         $class->reflFields[$field]->setValue($entity, $associatedEntity);
                     }
                 } else {
