@@ -41,6 +41,12 @@ class AuditReader
     private $metadataFactory;
 
     /**
+     * Entity cache to prevent circular references
+     * @var array
+     */
+    private $entityCache;
+
+    /**
      * @param EntityManager $em
      * @param AuditConfiguration $config
      * @param MetadataFactory $factory
@@ -147,7 +153,27 @@ class AuditReader
     private function createEntity($className, array $data, $revision)
     {
         $class = $this->em->getClassMetadata($className);
+
+        //lookup revisioned entity cache
+        $keyParts = array();
+
+        foreach($class->getIdentifierColumnNames() as $name) {
+            $keyParts[] = $data[$name];
+        }
+
+        $key = implode(':', $keyParts);
+
+        if (isset($this->entityCache[$className]) &&
+            isset($this->entityCache[$className][$key]) &&
+            isset($this->entityCache[$className][$key][$revision])
+        ) {
+            return $this->entityCache[$className][$key][$revision];
+        }
+
         $entity = $class->newInstance();
+
+        //cache the entity to prevent circular references
+        $this->entityCache[$className][$key][$revision] = $entity;
 
         foreach ($data as $field => $value) {
             if (isset($class->fieldMappings[$field])) {
@@ -166,25 +192,35 @@ class AuditReader
             $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
-                if ($assoc['isOwningSide']) {
-                    $associatedId = array();
-                    foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                        $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
-                        if ($joinColumnValue !== null) {
-                            $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
-                        }
+                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                    //there is no difference for lazy loading, it won't work
+                    $pk = array();
+                    foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
+                        $pk[$foreign] = $data[$local];
                     }
-                    if (!$associatedId) {
-                        // Foreign key is NULL
-                        $class->reflFields[$field]->setValue($entity, null);
-                    } else {
-                        $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
-                        $class->reflFields[$field]->setValue($entity, $associatedEntity);
-                    }
+
+                    $class->reflFields[$field]->setValue($entity, $this->find($targetClass->name, $pk, $revision));
                 } else {
-                    // Inverse side of x-to-one can never be lazy
-                    $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                        ->loadOneToOneEntity($assoc, $entity));
+                    if ($assoc['isOwningSide']) {
+                        $associatedId = array();
+                        foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
+                            $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
+                            if ($joinColumnValue !== null) {
+                                $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
+                            }
+                        }
+                        if (!$associatedId) {
+                            // Foreign key is NULL
+                            $class->reflFields[$field]->setValue($entity, null);
+                        } else {
+                            $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
+                            $class->reflFields[$field]->setValue($entity, $associatedEntity);
+                        }
+                    } else {
+                        // Inverse side of x-to-one can never be lazy
+                        $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
+                            ->loadOneToOneEntity($assoc, $entity));
+                    }
                 }
             } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
@@ -329,7 +365,7 @@ class AuditReader
                     $id[$idField] = $row[$idField];
                 }
 
-                $entity = $this->createEntity($className, $row);
+                $entity = $this->createEntity($className, $row, $revision);
                 $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
             }
         }

@@ -155,6 +155,41 @@ class RelationTest extends BaseTest
         $this->assertCount(1, $audited->getOwned2());
         $this->assertEquals('changed#7', $audited->getOwned1()[0]->getTitle());
         $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+
+        //todo: test detaching of entities
+    }
+
+    public function testOneXRelations()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner = new OwnerEntity();
+        $owner->setTitle('owner');
+
+        $owned = new OwnedEntity1();
+        $owned->setTitle('owned');
+        $owned->setOwner($owner);
+
+        $this->em->persist($owner);
+        $this->em->persist($owned);
+
+        $this->em->flush();
+        //first revision done
+
+        $owner->setTitle('changed#2');
+        $owned->setTitle('changed#2');
+        $this->em->flush();
+
+        //checking first revision
+        $audited = $auditReader->find(get_class($owned), $owner->getId(), 1);
+        $this->assertEquals('owned', $audited->getTitle());
+        $this->assertEquals('owner', $audited->getOwner()->getTitle());
+
+        //checking second revision
+        $audited = $auditReader->find(get_class($owned), $owner->getId(), 2);
+
+        $this->assertEquals('changed#2', $audited->getTitle());
+        $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
     }
 }
 
