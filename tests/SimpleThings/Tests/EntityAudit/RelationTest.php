@@ -176,20 +176,20 @@ class RelationTest extends BaseTest
         $this->em->flush();
         //first revision done
 
-//        $owner->setTitle('changed#2');
-//        $owned->setTitle('changed#2');
-//        $this->em->flush();
-//
-//        //checking first revision
-//        $audited = $auditReader->find(get_class($owned), $owner->getId(), 1);
-//        $this->assertEquals('owned', $audited->getTitle());
-//        $this->assertEquals('owner', $audited->getOwner()->getTitle());
-//
-//        //checking second revision
-//        $audited = $auditReader->find(get_class($owned), $owner->getId(), 2);
-//
-//        $this->assertEquals('changed#2', $audited->getTitle());
-//        $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
+        $owner->setTitle('changed#2');
+        $owned->setTitle('changed#2');
+        $this->em->flush();
+
+        //checking first revision
+        $audited = $auditReader->find(get_class($owned), $owner->getId(), 1);
+        $this->assertEquals('owned', $audited->getTitle());
+        $this->assertEquals('owner', $audited->getOwner()->getTitle());
+
+        //checking second revision
+        $audited = $auditReader->find(get_class($owned), $owner->getId(), 2);
+
+        $this->assertEquals('changed#2', $audited->getTitle());
+        $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
     }
 }
 
@@ -256,6 +256,9 @@ class OwnedEntity1
     /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name") */
     protected $owner;
 
+    /** @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner1") @ORM\JoinColumn(name="well_just_a_foreign_key", referencedColumnName="strange_owned_id_name") */
+    protected $owned2;
+
     public function getId()
     {
         return $this->id;
@@ -279,6 +282,16 @@ class OwnedEntity1
     public function setOwner($owner)
     {
         $this->owner = $owner;
+    }
+
+    public function getOwned2()
+    {
+        return $this->owned2;
+    }
+
+    public function addOwned2($owned2)
+    {
+        $this->owned2[] = $owned2;
     }
 }
 
@@ -291,8 +304,11 @@ class OwnedEntity2
     /** @ORM\Column(type="string", name="even_strangier_column_name") */
     protected $title;
 
-    /** @ORM\ManyToOne(targetEntity="OwnerEntity") */
+    /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name")*/
     protected $owner;
+
+    /** @ORM\ManyToOne(targetEntity="OwnedEntity1") @ORM\JoinColumn(name="another_strange_owned_id_name", referencedColumnName="strange_owned_id_name") */
+    protected $owner1;
 
     public function getId()
     {
@@ -317,5 +333,15 @@ class OwnedEntity2
     public function setOwner($owner)
     {
         $this->owner = $owner;
+    }
+
+    public function getOwner1()
+    {
+        return $this->owner1;
+    }
+
+    public function setOwner1($owner1)
+    {
+        $this->owner1 = $owner1;
     }
 }

@@ -157,7 +157,7 @@ class AuditReader
         //lookup revisioned entity cache
         $keyParts = array();
 
-        foreach($class->getIdentifierColumnNames() as $name) {
+        foreach($class->getIdentifierFieldNames() as $name) {
             $keyParts[] = $data[$name];
         }
 
