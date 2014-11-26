@@ -83,7 +83,7 @@ class RelationTest extends BaseTest
         $this->assertCount(1, $auditReader->findRevisions(get_class($owned11), $owner->getId()));
 
         //should not mess foreign keys
-        $this->assertEquals($owner->getId(), $this->em->getConnection()->fetchAll('SELECT owner_id FROM OwnedEntity1')[0]['owner_id']);
+        $this->assertEquals($owner->getId(), $this->em->getConnection()->fetchAll('SELECT strange_owned_id_name FROM OwnedEntity1')[0]['strange_owned_id_name']);
         $this->em->refresh($owner);
         $this->assertCount(1, $owner->getOwned1());
         $this->assertCount(1, $owner->getOwned2());
