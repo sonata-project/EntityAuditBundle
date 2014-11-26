@@ -23,13 +23,6 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use Doctrine\Common\EventManager;
-use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
-use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
-use SimpleThings\EntityAudit\Metadata\MetadataFactory;
-use SimpleThings\EntityAudit\AuditConfiguration;
-use SimpleThings\EntityAudit\AuditManager;
-
 use Doctrine\ORM\Mapping AS ORM;
 
 class CoreTest extends BaseTest

@@ -27,6 +27,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
@@ -131,7 +132,7 @@ class AuditReader
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
 
-        return $this->createEntity($class->name, $row);
+        return $this->createEntity($class->name, $row, $revision);
     }
 
     /**
@@ -143,7 +144,7 @@ class AuditReader
      * @param array $data
      * @return object
      */
-    private function createEntity($className, array $data)
+    private function createEntity($className, array $data, $revision)
     {
         $class = $this->em->getClassMetadata($className);
         $entity = $class->newInstance();
@@ -173,7 +174,7 @@ class AuditReader
                             $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
                         }
                     }
-                    if ( ! $associatedId) {
+                    if (!$associatedId) {
                         // Foreign key is NULL
                         $class->reflFields[$field]->setValue($entity, null);
                     } else {
@@ -183,12 +184,50 @@ class AuditReader
                 } else {
                     // Inverse side of x-to-one can never be lazy
                     $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                            ->loadOneToOneEntity($assoc, $entity));
+                        ->loadOneToOneEntity($assoc, $entity));
+                }
+            } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
+                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                    //todo: this should be checked with composite keys
+                    $params = array();
+                    $sql = 'SELECT MAX('.$this->config->getRevisionFieldName().') as rev, ';
+                    $sql .= $this->config->getRevisionTypeFieldName().', ';
+                    $sql .= implode(', ', $targetClass->getIdentifierColumnNames()).' ';
+                    $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
+                    $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision.' ';
+
+                    //master entity query
+                    foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
+                        $sql .= 'AND '.$local.' = ? ';
+                        $field = $class->getFieldForColumn($foreign);
+                        $params[] = $class->reflFields[$field]->getValue($entity);
+                    }
+
+                    $sql .= 'GROUP BY '.implode(', ', $targetClass->getIdentifierColumnNames()).' ';
+                    $sql .= 'HAVING '.$this->config->getRevisionTypeFieldName().' <> ?';
+                    //add rev type parameter
+                    $params[] = 'DEL';
+
+                    $rows = $this->em->getConnection()->fetchAll($sql, $params);
+
+                    $entities = array();
+
+                    foreach ($rows as $row) {
+                        $pk = array();
+                        foreach ($targetClass->getIdentifierColumnNames() as $name) {
+                            $pk[$name] = $row[$name];
+                        }
+
+                        $entities[] = $this->find($targetClass->name, $pk, $revision);
+                    }
+
+                    $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection($entities));
+                } else {
+                    $class->reflFields[$assoc['fieldName']]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
+                        ->loadOneToManyCollection($assoc, $entity, new PersistentCollection($this->em, $targetClass, new ArrayCollection())));
                 }
             } else {
-                // Inject collection
-                $reflField = $class->reflFields[$field];
-                $reflField->setValue($entity, new ArrayCollection);
+                throw new \Exception(sprintf('Association type %d is not yet supported', $assoc['type']));
             }
         }
 
