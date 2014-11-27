@@ -155,8 +155,80 @@ class RelationTest extends BaseTest
         $this->assertCount(1, $audited->getOwned2());
         $this->assertEquals('changed#7', $audited->getOwned1()[0]->getTitle());
         $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+    }
 
-        //todo: test detaching of entities
+    public function testDetaching()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner = new OwnerEntity();
+        $owner->setTitle('created#1');
+
+        $owned = new OwnedEntity1();
+        $owned->setTitle('created#1');
+
+        $this->em->persist($owner);
+        $this->em->persist($owned);
+
+        $this->em->flush();
+
+        $ownerId1 = $owner->getId();
+        $ownedId1 = $owned->getId();
+
+        $owned->setTitle('associated#2');
+        $owned->setOwner($owner);
+
+        $this->em->flush();
+
+        $owned->setTitle('deassociated#3');
+        $owned->setOwner(null);
+
+        $this->em->flush();
+
+        $owned->setTitle('associated#4');
+        $owned->setOwner($owner);
+
+        $this->em->flush();
+
+        $this->em->remove($owned);
+
+        $this->em->flush();
+
+        $owned = new OwnedEntity1();
+        $owned->setTitle('recreated#6');
+        $owned->setOwner($owner);
+
+        $this->em->persist($owned);
+        $this->em->flush();
+
+        $ownedId2 = $owned->getId();
+
+        $this->em->remove($owner);
+        $this->em->flush();
+
+        $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 1);
+        $this->assertEquals('created#1', $auditedEntity->getTitle());
+        $this->assertCount(0, $auditedEntity->getOwned1());
+
+        $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 2);
+        $this->assertCount(1, $auditedEntity->getOwned1());
+        $this->assertEquals($ownedId1, $auditedEntity->getOwned1()[0]->getId());
+
+        $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 3);
+        $this->assertCount(0, $auditedEntity->getOwned1());
+
+        $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 4);
+        $this->assertCount(1, $auditedEntity->getOwned1());
+
+        $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 5);
+        $this->assertCount(0, $auditedEntity->getOwned1());
+
+        $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 6);
+        $this->assertCount(1, $auditedEntity->getOwned1());
+        $this->assertEquals($ownedId2, $auditedEntity->getOwned1()[0]->getId());
+
+        $auditedEntity = $auditReader->find(get_class($owned), $ownedId2, 7);
+        $this->assertEquals(null, $auditedEntity->getOwner());
     }
 
     public function testOneXRelations()
@@ -256,9 +328,6 @@ class OwnedEntity1
     /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name") */
     protected $owner;
 
-    /** @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner1") @ORM\JoinColumn(name="well_just_a_foreign_key", referencedColumnName="strange_owned_id_name") */
-    protected $owned2;
-
     public function getId()
     {
         return $this->id;
@@ -282,16 +351,6 @@ class OwnedEntity1
     public function setOwner($owner)
     {
         $this->owner = $owner;
-    }
-
-    public function getOwned2()
-    {
-        return $this->owned2;
-    }
-
-    public function addOwned2($owned2)
-    {
-        $this->owned2[] = $owned2;
     }
 }
 
@@ -307,9 +366,6 @@ class OwnedEntity2
     /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name")*/
     protected $owner;
 
-    /** @ORM\ManyToOne(targetEntity="OwnedEntity1") @ORM\JoinColumn(name="another_strange_owned_id_name", referencedColumnName="strange_owned_id_name") */
-    protected $owner1;
-
     public function getId()
     {
         return $this->id;
@@ -333,15 +389,5 @@ class OwnedEntity2
     public function setOwner($owner)
     {
         $this->owner = $owner;
-    }
-
-    public function getOwner1()
-    {
-        return $this->owner1;
-    }
-
-    public function setOwner1($owner1)
-    {
-        $this->owner1 = $owner1;
     }
 }

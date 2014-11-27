@@ -137,7 +137,10 @@ class CoreTest extends BaseTest
     {
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $this->setExpectedException("SimpleThings\EntityAudit\AuditException", "No revision of class 'SimpleThings\EntityAudit\Tests\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.");
+        $this->setExpectedException(
+            "SimpleThings\EntityAudit\Exception\NoRevisionFoundException",
+            "No revision of class 'SimpleThings\EntityAudit\Tests\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet."
+        );
         $auditUser = $reader->find("SimpleThings\EntityAudit\Tests\UserAudit", 1, 1);
     }
 
@@ -145,7 +148,10 @@ class CoreTest extends BaseTest
     {
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $this->setExpectedException("SimpleThings\EntityAudit\AuditException", "Class 'stdClass' is not audited.");
+        $this->setExpectedException(
+            "SimpleThings\EntityAudit\Exception\NotAuditedException",
+            "Class 'stdClass' is not audited."
+        );
         $auditUser = $reader->find("stdClass", 1, 1);
     }
 

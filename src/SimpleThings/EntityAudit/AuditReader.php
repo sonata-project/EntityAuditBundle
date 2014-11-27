@@ -29,6 +29,9 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
+use SimpleThings\EntityAudit\Exception\DeletedException;
+use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
+use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
@@ -60,6 +63,14 @@ class AuditReader
     }
 
     /**
+     * Clears entity cache. Call this if you are fetching subsequent revisions using same AuditManager.
+     */
+    public function clearEntityCache()
+    {
+        $this->entityCache = array();
+    }
+
+    /**
      * Find a class at the specific revision.
      *
      * This method does not require the revision to be exact but it also searches for an earlier revision
@@ -70,10 +81,10 @@ class AuditReader
      * @param int $revision
      * @return object
      */
-    public function find($className, $id, $revision)
+    public function find($className, $id, $revision, $threatDeletionAsException = false)
     {
         if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
+            throw new NotAuditedException($className);
         }
 
         $class = $this->em->getClassMetadata($className);
@@ -95,16 +106,12 @@ class AuditReader
             $whereSQL .= " AND " . $columnName . " = ?";
         }
 
-        $columnList = "";
+        $columnList = array($this->config->getRevisionTypeFieldName());
         $columnMap  = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
-            if ($columnList) {
-                $columnList .= ', ';
-            }
-
             $type = Type::getType($class->fieldMappings[$field]['type']);
-            $columnList .= $type->convertToPHPValueSQL(
+            $columnList[] = $type->convertToPHPValueSQL(
                 $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
@@ -115,11 +122,7 @@ class AuditReader
             }
 
             foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                if ($columnList) {
-                    $columnList .= ', ';
-                }
-
-                $columnList .= $sourceCol;
+                $columnList[] = $sourceCol;
                 $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
             }
         }
@@ -131,12 +134,19 @@ class AuditReader
             $values[] = $class->discriminatorValue;
         }
 
-        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+
         $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
         if (!$row) {
-            throw AuditException::noRevisionFound($class->name, $id, $revision);
+            throw new NoRevisionFoundException($class->name, $id, $revision);
         }
+
+        if ($threatDeletionAsException && $row[$this->config->getRevisionTypeFieldName()] == 'DEL') {
+            throw new DeletedException($class->name, $id, $revision);
+        }
+
+        unset($row[$this->config->getRevisionTypeFieldName()]);
 
         return $this->createEntity($class->name, $row, $revision);
     }
@@ -199,7 +209,21 @@ class AuditReader
                         $pk[$foreign] = $data[$local];
                     }
 
-                    $class->reflFields[$field]->setValue($entity, $this->find($targetClass->name, $pk, $revision));
+                    $pk = array_filter($pk, function($value) {
+                        return !is_null($value);
+                    });
+
+                    if (!$pk) {
+                        $class->reflFields[$field]->setValue($entity, null);
+                    } else {
+                        try {
+                            $value = $this->find($targetClass->name, $pk, $revision, true);
+                        } catch (DeletedException $e) {
+                            $value = null;
+                        }
+
+                        $class->reflFields[$field]->setValue($entity, $value);
+                    }
                 } else {
                     if ($assoc['isOwningSide']) {
                         $associatedId = array();
@@ -252,6 +276,33 @@ class AuditReader
                         $pk = array();
                         foreach ($targetClass->getIdentifierColumnNames() as $name) {
                             $pk[$name] = $row[$name];
+                        }
+
+                        //if revison is smaller than requested revision it might be possible that the entity was moved to
+                        //another owner. we check this by finding entity with the same id but different foreign keys
+                        if ($row[$this->config->getRevisionFieldName()] != $revision) {
+                            $params = array();
+                            $sql = 'SELECT COUNT(*) AS cnt ';
+                            $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
+                            $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision.' ';
+                            $sql .= 'AND '.$this->config->getRevisionFieldName().' > '.$row[$this->config->getRevisionFieldName()].' AND ((';
+
+                            //master entity query, not equals
+                            $notEqualParts = $nullParts = array();
+                            foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
+                                $notEqualParts[] = $local.' <> ?';
+                                $nullParts[] = $local.' IS NULL';
+                                $field = $class->getFieldForColumn($foreign);
+                                $params[] = $class->reflFields[$field]->getValue($entity);
+                            }
+
+                            $sql .= implode(' AND ', $notEqualParts).') OR ('.implode(' AND ', $nullParts).'))';
+
+                            $count = $this->em->getConnection()->fetchAll($sql, $params)[0]['cnt'];
+
+                            if ($count > 0) {
+                                continue;
+                            }
                         }
 
                         $entities[] = $this->find($targetClass->name, $pk, $revision);

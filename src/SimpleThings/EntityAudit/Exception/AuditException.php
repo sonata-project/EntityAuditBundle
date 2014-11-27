@@ -21,23 +21,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit;
+namespace SimpleThings\EntityAudit\Exception;
 
-class AuditException extends \Exception
+abstract class AuditException extends \Exception
 {
-    static public function notAudited($className)
+    protected $className;
+
+    protected $id;
+
+    protected $revision;
+
+    public function __construct($className, $id, $revision)
     {
-        return new self("Class '" . $className . "' is not audited.");
-    }
-    
-    static public function noRevisionFound($className, $id, $revision)
-    {
-        return new self("No revision of class '" . $className . "' (".implode(", ", $id).") was found ".
-            "at revision " . $revision . " or before. The entity did not exist at the specified revision yet.");
-    }
-    
-    static public function invalidRevision($rev)
-    {
-        return new self("No revision '".$rev."' exists.");
+        $this->className = $className;
+        $this->id = $id;
+        $this->revision = $revision;
     }
 }
