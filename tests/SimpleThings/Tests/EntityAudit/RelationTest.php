@@ -81,7 +81,7 @@ class RelationTest extends BaseTest
         $this->em->remove($audited);
 
         $this->em->flush(); //#6
-        
+
         $audited = $auditReader->find(get_class($master), $master->getId(), 1);
         $this->assertEquals('master#1', $audited->getTitle());
         $this->assertEquals(null, $audited->getAudited());

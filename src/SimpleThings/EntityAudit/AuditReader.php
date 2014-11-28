@@ -74,11 +74,19 @@ class AuditReader
      * Find a class at the specific revision.
      *
      * This method does not require the revision to be exact but it also searches for an earlier revision
-     * of this entity and always returns the latest revision below or equal the given revision
+     * of this entity and always returns the latest revision below or equal the given revision. Commonly, it
+     * returns last revision INCLUDING "DEL" revision. If you want to throw exception instead, set
+     * $threatDeletionAsException to true.
      *
      * @param string $className
      * @param mixed $id
      * @param int $revision
+     * @param bool $threatDeletionAsException
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Exception
      * @return object
      */
     public function find($className, $id, $revision, $threatDeletionAsException = false)
@@ -154,10 +162,16 @@ class AuditReader
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
-     * NOTICE: Creates an old version of the entity, HOWEVER related associations are all managed entities!!
-     *
      * @param string $className
      * @param array $data
+     * @param $revision
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      * @return object
      */
     private function createEntity($className, array $data, $revision)
