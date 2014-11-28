@@ -312,7 +312,9 @@ class AuditReader
 
                             $sql .= implode(' AND ', $notEqualParts).') OR ('.implode(' AND ', $nullParts).'))';
 
-                            $count = $this->em->getConnection()->fetchAll($sql, $params)[0]['cnt'];
+                            $result = $this->em->getConnection()->fetchAll($sql, $params);
+
+                            $count = $result[0]['cnt'];
 
                             if ($count > 0) {
                                 continue;

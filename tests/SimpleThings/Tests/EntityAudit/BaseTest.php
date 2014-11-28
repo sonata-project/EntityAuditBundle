@@ -75,8 +75,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $this->em = \Doctrine\ORM\EntityManager::create($conn, $config, $evm);
 
         $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
-        $schemaTool->createSchema(array_map(function ($value) {
-            return $this->em->getClassMetadata($value);
+        $em = $this->em;
+        $schemaTool->createSchema(array_map(function ($value) use ($em) {
+            return $em->getClassMetadata($value);
         }, $this->schemaEntities));
     }
 }
