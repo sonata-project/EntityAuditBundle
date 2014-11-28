@@ -30,13 +30,88 @@ class RelationTest extends BaseTest
     protected $schemaEntities = array(
         'SimpleThings\EntityAudit\Tests\OwnerEntity',
         'SimpleThings\EntityAudit\Tests\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\OwnedEntity2'
+        'SimpleThings\EntityAudit\Tests\OwnedEntity2',
+        'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity',
+        'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
+        'SimpleThings\EntityAudit\Tests\OneToOneNotAuditedEntity'
     );
 
     protected $auditedEntities = array(
         'SimpleThings\EntityAudit\Tests\OwnerEntity',
         'SimpleThings\EntityAudit\Tests\OwnedEntity1',
+        'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
+        'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity'
     );
+
+    public function testOneToOne()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $master = new OneToOneMasterEntity();
+        $master->setTitle('master#1');
+
+        $this->em->persist($master);
+        $this->em->flush(); //#1
+
+        $notAudited = new OneToOneNotAuditedEntity();
+        $notAudited->setTitle('notaudited');
+
+        $this->em->persist($notAudited);
+
+        $master->setNotAudited($notAudited);
+
+        $this->em->flush(); //#2
+
+        $audited = new OneToOneAuditedEntity();
+        $audited->setTitle('audited');
+        $master->setAudited($audited);
+
+        $this->em->persist($audited);
+
+        $this->em->flush(); //#3
+
+        $audited->setTitle('changed#4');
+
+        $this->em->flush(); //#4
+
+        $master->setTitle('changed#5');
+
+        $this->em->flush(); //#5
+
+        $this->em->remove($audited);
+
+        $this->em->flush(); //#6
+        
+        $audited = $auditReader->find(get_class($master), $master->getId(), 1);
+        $this->assertEquals('master#1', $audited->getTitle());
+        $this->assertEquals(null, $audited->getAudited());
+        $this->assertEquals(null, $audited->getNotAudited());
+
+        $audited = $auditReader->find(get_class($master), $master->getId(), 2);
+        $this->assertEquals('master#1', $audited->getTitle());
+        $this->assertEquals(null, $audited->getAudited());
+        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+
+        $audited = $auditReader->find(get_class($master), $master->getId(), 3);
+        $this->assertEquals('master#1', $audited->getTitle());
+        $this->assertEquals('audited', $audited->getAudited()->getTitle());
+        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+
+        $audited = $auditReader->find(get_class($master), $master->getId(), 4);
+        $this->assertEquals('master#1', $audited->getTitle());
+        $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
+        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+
+        $audited = $auditReader->find(get_class($master), $master->getId(), 5);
+        $this->assertEquals('changed#5', $audited->getTitle());
+        $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
+        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+
+        $audited = $auditReader->find(get_class($master), $master->getId(), 6);
+        $this->assertEquals('changed#5', $audited->getTitle());
+        $this->assertEquals(null, $audited->getAudited());
+        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+    }
 
     public function testRelations()
     {
@@ -262,6 +337,133 @@ class RelationTest extends BaseTest
 
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
+    }
+}
+
+/** @ORM\Entity */
+class OneToOneMasterEntity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\Column(type="string") */
+    protected $title;
+
+    /** @ORM\OneToOne(targetEntity="OneToOneAuditedEntity") */
+    protected $audited;
+
+    /** @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity") */
+    protected $notAudited;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getAudited()
+    {
+        return $this->audited;
+    }
+
+    public function setAudited($audited)
+    {
+        $this->audited = $audited;
+    }
+
+    public function getNotAudited()
+    {
+        return $this->notAudited;
+    }
+
+    public function setNotAudited($notAudited)
+    {
+        $this->notAudited = $notAudited;
+    }
+}
+
+/** @ORM\Entity */
+class OneToOneAuditedEntity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\Column(type="string") */
+    protected $title;
+
+    /** @ORM\OneToOne(targetEntity="OneToOneMasterEntity") */
+    protected $master;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getMaster()
+    {
+        return $this->master;
+    }
+
+    public function setMaster($master)
+    {
+        $this->master = $master;
+    }
+}
+
+/** @ORM\Entity */
+class OneToOneNotAuditedEntity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\Column(type="string") */
+    protected $title;
+
+    /** @ORM\OneToOne(targetEntity="OneToOneMasterEntity") */
+    protected $master;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getMaster()
+    {
+        return $this->master;
+    }
+
+    public function setMaster($master)
+    {
+        $this->master = $master;
     }
 }
 
