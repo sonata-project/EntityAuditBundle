@@ -241,6 +241,10 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#7', $o1[0]->getTitle());
         $o2 = $audited->getOwned2();
         $this->assertEquals('owned21', $o2[0]->getTitle());
+
+        $history = $auditReader->getEntityHistory(get_class($owner), $owner->getId());
+
+        $this->assertCount(5, $history);
     }
 
     public function testDetaching()
