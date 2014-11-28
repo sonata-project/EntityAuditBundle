@@ -158,7 +158,8 @@ class RelationTest extends BaseTest
         $this->assertCount(1, $auditReader->findRevisions(get_class($owned11), $owner->getId()));
 
         //should not mess foreign keys
-        $this->assertEquals($owner->getId(), $this->em->getConnection()->fetchAll('SELECT strange_owned_id_name FROM OwnedEntity1')[0]['strange_owned_id_name']);
+        $rows = $this->em->getConnection()->fetchAll('SELECT strange_owned_id_name FROM OwnedEntity1');
+        $this->assertEquals($owner->getId(), $rows[0]['strange_owned_id_name']);
         $this->em->refresh($owner);
         $this->assertCount(1, $owner->getOwned1());
         $this->assertCount(1, $owner->getOwned2());
@@ -193,43 +194,53 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
-        $this->assertEquals('created#3', $audited->getOwned1()[0]->getTitle());
-        $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+        $o1 =  $audited->getOwned1();
+        $this->assertEquals('created#3', $o1[0]->getTitle());
+        $o2 = $audited->getOwned2();
+        $this->assertEquals('owned21', $o2[0]->getTitle());
 
         //checking forth revision
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 4);
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
-        $this->assertEquals('created#3', $audited->getOwned1()[0]->getTitle());
-        $this->assertEquals('created#4', $audited->getOwned1()[1]->getTitle());
-        $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+        $o1 = $audited->getOwned1();
+        $this->assertEquals('created#3', $o1[0]->getTitle());
+        $this->assertEquals('created#4', $o1[1]->getTitle());
+        $o2 = $audited->getOwned2();
+        $this->assertEquals('owned21', $o2[0]->getTitle());
 
         //checking fifth revision
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 5);
         $this->assertEquals('changed#5', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
-        $this->assertEquals('created#3', $audited->getOwned1()[0]->getTitle());
-        $this->assertEquals('created#4', $audited->getOwned1()[1]->getTitle());
-        $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+        $o1 = $audited->getOwned1();
+        $this->assertEquals('created#3', $o1[0]->getTitle());
+        $this->assertEquals('created#4', $o1[1]->getTitle());
+        $o2 = $audited->getOwned2();
+        $this->assertEquals('owned21', $o2[0]->getTitle());
 
         //checking sixth revision
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 6);
         $this->assertEquals('changed#6', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
-        $this->assertEquals('created#3', $audited->getOwned1()[0]->getTitle());
-        $this->assertEquals('changed#6', $audited->getOwned1()[1]->getTitle());
-        $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+        $o1 = $audited->getOwned1();
+        $this->assertEquals('created#3', $o1[0]->getTitle());
+        $this->assertEquals('changed#6', $o1[1]->getTitle());
+        $o2 = $audited->getOwned2();
+        $this->assertEquals('owned21', $o2[0]->getTitle());
 
         //checking seventh revision
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 7);
         $this->assertEquals('changed#7', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
-        $this->assertEquals('changed#7', $audited->getOwned1()[0]->getTitle());
-        $this->assertEquals('owned21', $audited->getOwned2()[0]->getTitle());
+        $o1 = $audited->getOwned1();
+        $this->assertEquals('changed#7', $o1[0]->getTitle());
+        $o2 = $audited->getOwned2();
+        $this->assertEquals('owned21', $o2[0]->getTitle());
     }
 
     public function testDetaching()
@@ -286,8 +297,9 @@ class RelationTest extends BaseTest
         $this->assertCount(0, $auditedEntity->getOwned1());
 
         $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 2);
-        $this->assertCount(1, $auditedEntity->getOwned1());
-        $this->assertEquals($ownedId1, $auditedEntity->getOwned1()[0]->getId());
+        $o1 = $auditedEntity->getOwned1();
+        $this->assertCount(1, $o1);
+        $this->assertEquals($ownedId1, $o1[0]->getId());
 
         $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 3);
         $this->assertCount(0, $auditedEntity->getOwned1());
@@ -299,8 +311,9 @@ class RelationTest extends BaseTest
         $this->assertCount(0, $auditedEntity->getOwned1());
 
         $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 6);
-        $this->assertCount(1, $auditedEntity->getOwned1());
-        $this->assertEquals($ownedId2, $auditedEntity->getOwned1()[0]->getId());
+        $o1 = $auditedEntity->getOwned1();
+        $this->assertCount(1, $o1);
+        $this->assertEquals($ownedId2, $o1[0]->getId());
 
         $auditedEntity = $auditReader->find(get_class($owned), $ownedId2, 7);
         $this->assertEquals(null, $auditedEntity->getOwner());
