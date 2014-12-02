@@ -27,7 +27,12 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
+use SimpleThings\EntityAudit\Exception\DeletedException;
+use SimpleThings\EntityAudit\Exception\InvalidRevisionException;
+use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
+use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
@@ -38,6 +43,12 @@ class AuditReader
     private $config;
 
     private $metadataFactory;
+
+    /**
+     * Entity cache to prevent circular references
+     * @var array
+     */
+    private $entityCache;
 
     /**
      * @param EntityManager $em
@@ -53,20 +64,36 @@ class AuditReader
     }
 
     /**
+     * Clears entity cache. Call this if you are fetching subsequent revisions using same AuditManager.
+     */
+    public function clearEntityCache()
+    {
+        $this->entityCache = array();
+    }
+
+    /**
      * Find a class at the specific revision.
      *
      * This method does not require the revision to be exact but it also searches for an earlier revision
-     * of this entity and always returns the latest revision below or equal the given revision
+     * of this entity and always returns the latest revision below or equal the given revision. Commonly, it
+     * returns last revision INCLUDING "DEL" revision. If you want to throw exception instead, set
+     * $threatDeletionAsException to true.
      *
      * @param string $className
      * @param mixed $id
      * @param int $revision
+     * @param bool $threatDeletionAsException
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Exception
      * @return object
      */
-    public function find($className, $id, $revision)
+    public function find($className, $id, $revision, $threatDeletionAsException = false)
     {
         if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
+            throw new NotAuditedException($className);
         }
 
         $class = $this->em->getClassMetadata($className);
@@ -88,16 +115,12 @@ class AuditReader
             $whereSQL .= " AND " . $columnName . " = ?";
         }
 
-        $columnList = "";
+        $columnList = array($this->config->getRevisionTypeFieldName());
         $columnMap  = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
-            if ($columnList) {
-                $columnList .= ', ';
-            }
-
             $type = Type::getType($class->fieldMappings[$field]['type']);
-            $columnList .= $type->convertToPHPValueSQL(
+            $columnList[] = $type->convertToPHPValueSQL(
                 $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
@@ -108,11 +131,7 @@ class AuditReader
             }
 
             foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                if ($columnList) {
-                    $columnList .= ', ';
-                }
-
-                $columnList .= $sourceCol;
+                $columnList[] = $sourceCol;
                 $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
             }
         }
@@ -124,29 +143,62 @@ class AuditReader
             $values[] = $class->discriminatorValue;
         }
 
-        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+
         $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
         if (!$row) {
-            throw AuditException::noRevisionFound($class->name, $id, $revision);
+            throw new NoRevisionFoundException($class->name, $id, $revision);
         }
 
-        return $this->createEntity($class->name, $row);
+        if ($threatDeletionAsException && $row[$this->config->getRevisionTypeFieldName()] == 'DEL') {
+            throw new DeletedException($class->name, $id, $revision);
+        }
+
+        unset($row[$this->config->getRevisionTypeFieldName()]);
+
+        return $this->createEntity($class->name, $row, $revision);
     }
 
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
-     * NOTICE: Creates an old version of the entity, HOWEVER related associations are all managed entities!!
-     *
      * @param string $className
      * @param array $data
+     * @param $revision
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws \Doctrine\DBAL\DBALException
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Exception
      * @return object
      */
-    private function createEntity($className, array $data)
+    private function createEntity($className, array $data, $revision)
     {
         $class = $this->em->getClassMetadata($className);
+
+        //lookup revisioned entity cache
+        $keyParts = array();
+
+        foreach($class->getIdentifierFieldNames() as $name) {
+            $keyParts[] = $data[$name];
+        }
+
+        $key = implode(':', $keyParts);
+
+        if (isset($this->entityCache[$className]) &&
+            isset($this->entityCache[$className][$key]) &&
+            isset($this->entityCache[$className][$key][$revision])
+        ) {
+            return $this->entityCache[$className][$key][$revision];
+        }
+
         $entity = $class->newInstance();
+
+        //cache the entity to prevent circular references
+        $this->entityCache[$className][$key][$revision] = $entity;
 
         foreach ($data as $field => $value) {
             if (isset($class->fieldMappings[$field])) {
@@ -165,30 +217,121 @@ class AuditReader
             $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
-                if ($assoc['isOwningSide']) {
-                    $associatedId = array();
-                    foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                        $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
-                        if ($joinColumnValue !== null) {
-                            $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
-                        }
+                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                    //there is no difference for lazy loading, it won't work
+                    $pk = array();
+                    foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
+                        $pk[$foreign] = $data[$local];
                     }
-                    if ( ! $associatedId) {
-                        // Foreign key is NULL
+
+                    $pk = array_filter($pk, function($value) {
+                        return !is_null($value);
+                    });
+
+                    if (!$pk) {
                         $class->reflFields[$field]->setValue($entity, null);
                     } else {
-                        $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
-                        $class->reflFields[$field]->setValue($entity, $associatedEntity);
+                        try {
+                            $value = $this->find($targetClass->name, $pk, $revision, true);
+                        } catch (DeletedException $e) {
+                            $value = null;
+                        }
+
+                        $class->reflFields[$field]->setValue($entity, $value);
                     }
                 } else {
-                    // Inverse side of x-to-one can never be lazy
-                    $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
+                    if ($assoc['isOwningSide']) {
+                        $associatedId = array();
+                        foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
+                            $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
+                            if ($joinColumnValue !== null) {
+                                $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
+                            }
+                        }
+                        if (!$associatedId) {
+                            // Foreign key is NULL
+                            $class->reflFields[$field]->setValue($entity, null);
+                        } else {
+                            $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
+                            $class->reflFields[$field]->setValue($entity, $associatedEntity);
+                        }
+                    } else {
+                        // Inverse side of x-to-one can never be lazy
+                        $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
                             ->loadOneToOneEntity($assoc, $entity));
+                    }
+                }
+            } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
+                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                    //todo: this should be checked with composite keys
+                    $params = array();
+                    $sql = 'SELECT MAX('.$this->config->getRevisionFieldName().') as rev, ';
+                    $sql .= $this->config->getRevisionTypeFieldName().', ';
+                    $sql .= implode(', ', $targetClass->getIdentifierColumnNames()).' ';
+                    $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
+                    $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision.' ';
+
+                    //master entity query
+                    foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
+                        $sql .= 'AND '.$local.' = ? ';
+                        $field = $class->getFieldForColumn($foreign);
+                        $params[] = $class->reflFields[$field]->getValue($entity);
+                    }
+
+                    $sql .= 'GROUP BY '.implode(', ', $targetClass->getIdentifierColumnNames()).' ';
+                    $sql .= 'HAVING '.$this->config->getRevisionTypeFieldName().' <> ?';
+                    //add rev type parameter
+                    $params[] = 'DEL';
+
+                    $rows = $this->em->getConnection()->fetchAll($sql, $params);
+
+                    $entities = array();
+
+                    foreach ($rows as $row) {
+                        $pk = array();
+                        foreach ($targetClass->getIdentifierColumnNames() as $name) {
+                            $pk[$name] = $row[$name];
+                        }
+
+                        //if revison is smaller than requested revision it might be possible that the entity was moved to
+                        //another owner. we check this by finding entity with the same id but different foreign keys
+                        if ($row[$this->config->getRevisionFieldName()] != $revision) {
+                            $params = array();
+                            $sql = 'SELECT COUNT(*) AS cnt ';
+                            $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
+                            $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision.' ';
+                            $sql .= 'AND '.$this->config->getRevisionFieldName().' > '.$row[$this->config->getRevisionFieldName()].' AND ((';
+
+                            //master entity query, not equals
+                            $notEqualParts = $nullParts = array();
+                            foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
+                                $notEqualParts[] = $local.' <> ?';
+                                $nullParts[] = $local.' IS NULL';
+                                $field = $class->getFieldForColumn($foreign);
+                                $params[] = $class->reflFields[$field]->getValue($entity);
+                            }
+
+                            $sql .= implode(' AND ', $notEqualParts).') OR ('.implode(' AND ', $nullParts).'))';
+
+                            $result = $this->em->getConnection()->fetchAll($sql, $params);
+
+                            $count = $result[0]['cnt'];
+
+                            if ($count > 0) {
+                                continue;
+                            }
+                        }
+
+                        $entities[] = $this->find($targetClass->name, $pk, $revision);
+                    }
+
+                    $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection($entities));
+                } else {
+                    $class->reflFields[$assoc['fieldName']]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
+                        ->loadOneToManyCollection($assoc, $entity, new PersistentCollection($this->em, $targetClass, new ArrayCollection())));
                 }
             } else {
-                // Inject collection
-                $reflField = $class->reflFields[$field];
-                $reflField->setValue($entity, new ArrayCollection);
+                throw new \Exception(sprintf('Association type %d is not yet supported', $assoc['type']));
             }
         }
 
@@ -290,7 +433,7 @@ class AuditReader
                     $id[$idField] = $row[$idField];
                 }
 
-                $entity = $this->createEntity($className, $row);
+                $entity = $this->createEntity($className, $row, $revision);
                 $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
             }
         }
@@ -301,6 +444,7 @@ class AuditReader
      * Return the revision object for a particular revision.
      *
      * @param  int $rev
+     * @throws InvalidRevisionException
      * @return Revision
      */
     public function findRevision($rev)
@@ -315,7 +459,7 @@ class AuditReader
                 $revisionsData[0]['username']
             );
         } else {
-            throw AuditException::invalidRevision($rev);
+            throw new InvalidRevisionException($rev);
         }
     }
 
@@ -324,12 +468,13 @@ class AuditReader
      *
      * @param string $className
      * @param mixed $id
+     * @throws NotAuditedException
      * @return Revision[]
      */
     public function findRevisions($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
+            throw new NotAuditedException($className);
         }
 
         $class = $this->em->getClassMetadata($className);
@@ -376,12 +521,13 @@ class AuditReader
      *
      * @param string $className
      * @param mixed $id
+     * @throws NotAuditedException
      * @return integer
      */
     public function getCurrentRevision($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
+            throw new NotAuditedException($className);
         }
 
         $class = $this->em->getClassMetadata($className);
@@ -464,7 +610,7 @@ class AuditReader
     public function getEntityHistory($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
+            throw new NotAuditedException($className);
         }
 
         $class = $this->em->getClassMetadata($className);
@@ -488,16 +634,12 @@ class AuditReader
         }
 
         $whereSQL  = implode(' AND ', $whereId);
-        $columnList = "";
+        $columnList = array($this->config->getRevisionFieldName());
         $columnMap  = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
-            if ($columnList) {
-                $columnList .= ', ';
-            }
-
             $type = Type::getType($class->fieldMappings[$field]['type']);
-            $columnList .= $type->convertToPHPValueSQL(
+            $columnList[] = $type->convertToPHPValueSQL(
                                $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
@@ -508,23 +650,21 @@ class AuditReader
             }
 
             foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                if ($columnList) {
-                    $columnList .= ', ';
-                }
-
-                $columnList .= $sourceCol;
+                $columnList[] = $sourceCol;
                 $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
             }
         }
 
         $values = array_values($id);
 
-        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
         $result = array();
         while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
-            $result[] = $this->createEntity($class->name, $row);
+            $rev = $row[$this->config->getRevisionFieldName()];
+            unset($row[$this->config->getRevisionFieldName()]);
+            $result[] = $this->createEntity($class->name, $row, $rev);
         }
 
         return $result;
