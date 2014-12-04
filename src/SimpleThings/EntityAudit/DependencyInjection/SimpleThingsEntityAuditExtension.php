@@ -42,6 +42,7 @@ class SimpleThingsEntityAuditExtension extends Extension
 
         $configurables = array(
             'audited_entities',
+            'metadata_enabled_entities',
             'table_prefix',
             'table_suffix',
             'revision_field_name',

@@ -73,8 +73,14 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $revisionId;
 
+    /**
+     * @var AuditManager
+     */
+    private $auditManager;
+
     public function __construct(AuditManager $auditManager)
     {
+        $this->auditManager = $auditManager;
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
     }
@@ -95,6 +101,8 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         $this->saveRevisionEntityData($class, $this->getOriginalEntityData($entity), 'INS');
+
+        $this->saveEntityMeta($entity);
     }
 
     public function postUpdate(LifecycleEventArgs $eventArgs)
@@ -122,6 +130,8 @@ class LogRevisionsListener implements EventSubscriber
 
         $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
         $this->saveRevisionEntityData($class, $entityData, 'UPD');
+
+        $this->saveEntityMeta($entity);
     }
 
     public function onFlush(OnFlushEventArgs $eventArgs)
@@ -159,6 +169,48 @@ class LogRevisionsListener implements EventSubscriber
         return $data;
     }
 
+    /**
+     * Saves entity meta
+     *
+     * @param $entity
+     */
+    private function saveEntityMeta($entity)
+    {
+        $meta = $this->auditManager->getEntityMeta($entity);
+
+        if ($meta) {
+            $class = $this->em->getClassMetadata(get_class($entity));
+
+            $table = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getMetaTableSuffix();
+
+            $params = array('revision' => $this->getRevisionId());
+            $types = array($this->config->getRevisionIdFieldType());
+
+            foreach ($class->getIdentifierColumnNames() as $name) {
+                $params[$name] = $class->getFieldValue($entity, $class->getFieldName($name));
+                $types[] = $class->getTypeOfColumn($name);
+            }
+
+            foreach ($meta as $name => $data) {
+                $this->conn->insert($table, $params + array(
+                    'name' => $name,
+                    'data' => $data
+                ), $types + array(
+                    Type::STRING,
+                    Type::TEXT
+                ));
+            }
+
+
+            $this->auditManager->removeEntityMeta($entity);
+        }
+    }
+
+    /**
+     * Creates new revision or returns current revision id, also saving revision metadata.
+     *
+     * @return int|string
+     */
     private function getRevisionId()
     {
         if ($this->revisionId === null) {
@@ -175,6 +227,21 @@ class LogRevisionsListener implements EventSubscriber
                 : null;
 
             $this->revisionId = $this->conn->lastInsertId($sequenceName);
+
+            //we also persist revision meta data
+            foreach ($this->auditManager->getRevisionMeta() as $name => $data) {
+                $this->conn->insert($this->config->getRevisionMetaTableName(), array(
+                    'id' => $this->revisionId,
+                    'name' => $name,
+                    'data' => $data
+                ), array(
+                    $this->config->getRevisionIdFieldType(),
+                    Type::STRING,
+                    Type::TEXT
+                ));
+            }
+
+            $this->auditManager->setRevisionMeta(array());
         }
         return $this->revisionId;
     }

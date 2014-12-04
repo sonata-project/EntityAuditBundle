@@ -32,6 +32,7 @@ use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
 use SimpleThings\EntityAudit\Exception\DeletedException;
 use SimpleThings\EntityAudit\Exception\InvalidRevisionException;
+use SimpleThings\EntityAudit\Exception\NoMetadataException;
 use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
@@ -174,6 +175,114 @@ class AuditReader
     public function clearEntityCache()
     {
         $this->entityCache = array();
+    }
+
+    public function findRevisionsByMeta($meta, $all = true)
+    {
+        $query = 'SELECT DISTINCT id FROM '.$this->config->getRevisionMetaTableName();
+        $query .= ' WHERE 1=1 AND (';
+
+        $params = array();
+
+        if (is_string($meta)) {
+            $query .= ' '.$meta;
+        } elseif (is_array($meta)) {
+            $parts = array();
+
+            foreach ($meta as $name => $data) {
+                $parts[] = sprintf('(name = ? AND data = ?)');
+                $params[] = $name;
+                $params[] = $data;
+            }
+
+            $query .= implode($all ? ' AND ' : ' OR ', $parts);
+        }
+
+        $query .= ')';
+
+        $ids = $this->em->getConnection()->fetchAll($query, $params);
+
+        $revisions = array();
+
+        foreach ($ids as $id) {
+            $revisions[] = $this->findRevision($id['id']);
+        }
+
+        return $revisions;
+    }
+
+    /**
+     * Returns clean array of revision meta
+     *
+     * @param $revision
+     * @return array
+     */
+    public function getRevisionMeta($revision)
+    {
+        $data = $this->em->getConnection()->fetchAll(
+            'SELECT name, data FROM '.$this->config->getRevisionMetaTableName().' WHERE id = ?',
+            array($revision),
+            array(in_array($this->config->getRevisionIdFieldType(), array('integer', 'bigint', 'smallint')) ? \PDO::PARAM_INT : \PDO::PARAM_STR)
+        );
+
+        $return = array();
+
+        foreach ($data as $item) {
+            $return[$item['name']] = $item['data'];
+        }
+
+        return $return;
+    }
+
+    /**
+     * Retrieves entity metadata at specific revision
+     *
+     * @param string $class
+     * @param mixed $id
+     * @param mixed $revision
+     * @return array
+     */
+    public function getEntityMeta($class, $id, $revision)
+    {
+        if (!$this->metadataFactory->isMetadataEnabled($class)) {
+            throw new NoMetadataException($class);
+        }
+
+        $meta = $this->em->getClassMetadata($class);
+
+        if (!is_array($id)) {
+            $id = array($meta->identifier[0] => $id);
+        }
+
+        $params = array(); $types = array();
+
+        $sql = 'SELECT name, data FROM '.$this->config->getTablePrefix().$meta->table['name'].$this->config->getMetaTableSuffix();
+        $sql .= ' WHERE revision = ?';
+        $params[] = $revision;
+        $types[] = in_array($this->config->getRevisionIdFieldType(), array('integer', 'bigint', 'smallint')) ? \PDO::PARAM_INT : \PDO::PARAM_STR;
+
+        foreach ($meta->identifier AS $idField) {
+            if (isset($meta->fieldMappings[$idField])) {
+                $columnName = $meta->fieldMappings[$idField]['columnName'];
+            } else if (isset($meta->associationMappings[$idField])) {
+                $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
+            } else {
+                continue;
+            }
+
+            $sql .= " AND {$columnName} = ?";
+            $params[] = $id[$idField];
+        }
+
+        $data = $this->em->getConnection()->fetchAll($sql, $params, $types);
+
+        $return = array();
+
+        foreach ($data as $item) {
+            $return[$item['name']] = $item['data'];
+        }
+
+        return $return;
     }
 
     /**
@@ -499,7 +608,8 @@ class AuditReader
             $revisions[] = new Revision(
                 $row['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                $row['username'],
+                $this->getRevisionMeta($row['id'])
             );
         }
         return $revisions;
@@ -610,7 +720,8 @@ class AuditReader
             return new Revision(
                 $revisionsData[0]['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
-                $revisionsData[0]['username']
+                $revisionsData[0]['username'],
+                $this->getRevisionMeta($revisionsData[0]['id'])
             );
         } else {
             throw new InvalidRevisionException($rev);
@@ -663,7 +774,8 @@ class AuditReader
             $revisions[] = new Revision(
                 $row['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
+                $row['username'],
+                $this->getRevisionMeta($row['id'])
             );
         }
 

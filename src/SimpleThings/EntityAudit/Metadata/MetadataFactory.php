@@ -26,19 +26,31 @@ namespace SimpleThings\EntityAudit\Metadata;
 class MetadataFactory
 {
     private $auditedEntities = array();
+    private $metadataEnabledEntities = array();
 
-    public function __construct($auditedEntities)
+    public function __construct($auditedEntities, $metadataEnabledEntities)
     {
         $this->auditedEntities = array_flip($auditedEntities);
+        $this->metadataEnabledEntities = array_flip($metadataEnabledEntities);
     }
 
     public function isAudited($entity)
     {
         return isset($this->auditedEntities[$entity]);
     }
+
+    public function isMetadataEnabled($entity)
+    {
+        return isset($this->metadataEnabledEntities[$entity]);
+    }
     
     public function getAllClassNames()
     {
         return array_flip($this->auditedEntities);
+    }
+
+    public function getMetadataEnabledClassNames()
+    {
+        return array_flip($this->metadataEnabledEntities);
     }
 }

@@ -44,6 +44,8 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     protected $auditedEntities = array();
 
+    protected $metadataEnabledEntities = array();
+
     public function setUp()
     {
         $reader = new \Doctrine\Common\Annotations\AnnotationReader();
@@ -67,6 +69,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername("beberlei");
         $auditConfig->setAuditedEntityClasses($this->auditedEntities);
+        $auditConfig->setMetadataEnabledEntityClasses($this->metadataEnabledEntities);
         $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
 
         $this->auditManager = new AuditManager($auditConfig);
