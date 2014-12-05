@@ -43,6 +43,47 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity'
     );
 
+    public function testIssue92()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner1 = new OwnerEntity();
+        $owner1->setTitle('test');
+        $owner2 = new OwnerEntity();
+        $owner2->setTitle('test');
+
+        $this->em->persist($owner1);
+        $this->em->persist($owner2);
+
+        $this->em->flush();
+
+        $owned1 = new OwnedEntity1();
+        $owned1->setOwner($owner1);
+        $owned1->setTitle('test');
+
+        $owned2 = new OwnedEntity1();
+        $owned2->setOwner($owner1);
+        $owned2->setTitle('test');
+
+        $owned3 = new OwnedEntity1();
+        $owned3->setOwner($owner2);
+        $owned3->setTitle('test');
+
+        $this->em->persist($owned1);
+        $this->em->persist($owned2);
+        $this->em->persist($owned3);
+
+        $this->em->flush();
+
+        $owned2->setOwner($owner2);
+
+        $this->em->flush(); //3
+
+        $audited = $auditReader->find(get_class($owner1), $owner1->getId(), 3);
+
+        $this->assertCount(1, $audited->getOwned1());
+    }
+
     public function testOneToOne()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);

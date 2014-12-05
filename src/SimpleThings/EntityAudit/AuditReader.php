@@ -299,8 +299,15 @@ class AuditReader
                             $params = array();
                             $sql = 'SELECT COUNT(*) AS cnt ';
                             $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
-                            $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision.' ';
-                            $sql .= 'AND '.$this->config->getRevisionFieldName().' > '.$row[$this->config->getRevisionFieldName()].' AND ((';
+                            $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision;
+                            $sql .= ' AND '.$this->config->getRevisionFieldName().' > '.$row[$this->config->getRevisionFieldName()];
+
+                            foreach ($pk as $name => $value) {
+                                $sql .= (' AND ' . $name . ' = ?');
+                                $params[] = $value;
+                            }
+
+                            $sql .= ' AND ((';
 
                             //master entity query, not equals
                             $notEqualParts = $nullParts = array();
