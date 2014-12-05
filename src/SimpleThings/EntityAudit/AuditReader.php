@@ -112,16 +112,21 @@ class AuditReader
                 $columnName = $class->associationMappings[$idField]['joinColumns'][0];
             }
 
-            $whereSQL .= " AND " . $columnName . " = ?";
+            $whereSQL .= " AND e." . $columnName . " = ?";
         }
 
-        $columnList = array($this->config->getRevisionTypeFieldName());
+        $columnList = array('e.'.$this->config->getRevisionTypeFieldName());
         $columnMap  = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
+            $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
+                ? 're' // root entity
+                : 'e';
+
             $type = Type::getType($class->fieldMappings[$field]['type']);
-            $columnList[] = $type->convertToPHPValueSQL(
-                $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
+            $columnList[] = $tableAlias.'.'.$type->convertToPHPValueSQL(
+                $class->getQuotedColumnName($field, $this->platform), $this->platform) .
+                ' AS ' . $this->em->getConnection()->quote($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
@@ -131,19 +136,35 @@ class AuditReader
             }
 
             foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                $columnList[] = $sourceCol;
+                $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
+                    ? 're' // root entity
+                    : 'e';
+                $columnList[] = $tableAlias.'.'.$sourceCol;
                 $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
             }
         }
 
-        $values = array_merge(array($revision), array_values($id));
-
-        if ($class->isInheritanceTypeSingleTable()) {
-            $whereSQL .= " AND " . $class->discriminatorColumn['fieldName'] . " = ?";
-            $values[] = $class->discriminatorValue;
+        $joinSql = '';
+        if ($class->isInheritanceTypeJoined()
+            && !$class->isRootEntity()) {
+            $rootClass = $this->em->getClassMetadata($class->rootEntityName);
+            $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
+            $joinSql = "INNER JOIN {$rootTableName} re ON re.id = e.id AND re.rev = e.rev";
         }
 
-        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $values = array_merge(array($revision), array_values($id));
+
+        if (!$class->isInheritanceTypeNone()) {
+            $columnList[] = $class->discriminatorColumn['name'];
+            if ($class->isInheritanceTypeSingleTable()
+                && $class->discriminatorValue !== null) {
+
+                $whereSQL .= " AND " . $class->discriminatorColumn['name'] . " = ?";
+                $values[] = $class->discriminatorValue;
+            }
+        }
+
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL . " ORDER BY e.rev DESC";
 
         $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
@@ -195,7 +216,19 @@ class AuditReader
             return $this->entityCache[$className][$key][$revision];
         }
 
-        $entity = $class->newInstance();
+        if (!$class->isInheritanceTypeNone()) {
+            if (!isset($data[$class->discriminatorColumn['name']])) {
+                throw new \RuntimeException('Expecting discriminator value in data set.');
+            }
+            $discriminator = $data[$class->discriminatorColumn['name']];
+            if (!isset($class->discriminatorMap[$discriminator])) {
+                throw new \RuntimeException("No mapping found for [{$discriminator}].");
+            }
+            $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
+                ->newInstance();
+        } else {
+            $entity = $class->newInstance();
+        }
 
         //cache the entity to prevent circular references
         $this->entityCache[$className][$key][$revision] = $entity;
@@ -329,7 +362,14 @@ class AuditReader
                             }
                         }
 
-                        $entities[] = $this->find($targetClass->name, $pk, $revision);
+                        $targetEntity = $this->find($targetClass->name, $pk, $revision);
+
+                        if (isset($assoc['indexBy'])) {
+                            $key = $targetClass->reflFields[$assoc['indexBy']]->getValue($targetEntity);
+                            $entities[$key] = $targetEntity;
+                        } else {
+                            $entities[] = $targetEntity;
+                        }
                     }
 
                     $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection($entities));
@@ -409,7 +449,10 @@ class AuditReader
 
             foreach ($class->fieldNames as $columnName => $field) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
-                $columnList .= ', ' . $type->convertToPHPValueSQL(
+                $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field)	&& ! $class->isIdentifier($field)
+                    ? 're' // root entity
+                    : 'e';
+                $columnList .= ', ' . $tableAlias.'.'.$type->convertToPHPValueSQL(
                     $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $field;
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
@@ -423,13 +466,20 @@ class AuditReader
                 }
             }
 
+            $joinSql = '';
             if ($class->isInheritanceTypeSingleTable()) {
+                $columnList .= ', e.' . $class->discriminatorColumn['name'];
                 $whereSQL .= " AND e." . $class->discriminatorColumn['fieldName'] . " = ?";
                 $params[] = $class->discriminatorValue;
+            } elseif ($class->isInheritanceTypeJoined() && ! $class->isRootEntity()) {
+                $columnList .= ', re.' . $class->discriminatorColumn['name'];
+                $rootClass = $this->em->getClassMetadata($class->rootEntityName);
+                $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
+                $joinSql = "INNER JOIN {$rootTableName} re ON re.id = e.id AND re.rev = e.rev";
             }
 
             $this->platform = $this->em->getConnection()->getDatabasePlatform();
-            $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL;
+            $query = "SELECT " . $columnList . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL;
             $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
 
             foreach ($revisionsData AS $row) {

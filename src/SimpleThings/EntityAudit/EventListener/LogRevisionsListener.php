@@ -195,8 +195,13 @@ class LogRevisionsListener implements EventSubscriber
 
             $fields = array();
 
-            foreach ($class->associationMappings AS $assoc) {
-                if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+            foreach ($class->associationMappings as $field => $assoc) {
+                if ($class->isInheritanceTypeJoined()
+                    && $class->isInheritedAssociation($field)) {
+                    continue;
+                }
+
+                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', ' . $sourceCol;
@@ -205,10 +210,17 @@ class LogRevisionsListener implements EventSubscriber
                 }
             }
 
-            foreach ($class->fieldNames AS $field) {
+            foreach ($class->fieldNames as $field) {
                 if (array_key_exists($field, $fields)) {
                     continue;
                 }
+
+                if ($class->isInheritanceTypeJoined()
+                    && $class->isInheritedField($field)
+                    && ! $class->isIdentifier($field)) {
+                    continue;
+                }
+
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $placeholders[] = (!empty($class->fieldMappings[$field]['requireSQLConversion']))
                     ? $type->convertToDatabaseValueSQL('?', $this->platform)
@@ -216,8 +228,8 @@ class LogRevisionsListener implements EventSubscriber
                 $sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
             }
 
-            if ($class->isInheritanceTypeSingleTable()) {
-                $sql .= ', ' . $class->discriminatorColumn['fieldName'];
+            if (($class->isInheritanceTypeJoined() && $class->isRootEntity()) || $class->isInheritanceTypeSingleTable()) {
+                $sql .= ', ' . $class->discriminatorColumn['name'];
                 $placeholders[] = '?';
             }
 
@@ -241,9 +253,12 @@ class LogRevisionsListener implements EventSubscriber
         $fields = array();
 
         foreach ($class->associationMappings AS $field => $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+            if ($class->isInheritanceTypeJoined()
+                && $class->isInheritedAssociation($field)) {
+                continue;
+            }
 
+            if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                 if ($entityData[$field] !== null) {
                     $relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
                 }
@@ -267,6 +282,13 @@ class LogRevisionsListener implements EventSubscriber
             if (array_key_exists($field, $fields)) {
                 continue;
             }
+
+            if ($class->isInheritanceTypeJoined()
+                && $class->isInheritedField($field)
+                && !$class->isIdentifier($field)) {
+                continue;
+            }
+
             $params[] = $entityData[$field];
             $types[] = $class->fieldMappings[$field]['type'];
         }
@@ -274,6 +296,20 @@ class LogRevisionsListener implements EventSubscriber
         if ($class->isInheritanceTypeSingleTable()) {
             $params[] = $class->discriminatorValue;
             $types[] = $class->discriminatorColumn['type'];
+        } elseif ($class->isInheritanceTypeJoined()
+            && $class->isRootEntity()) {
+            $params[] = $entityData[$class->discriminatorColumn['name']];
+            $types[] = $class->discriminatorColumn['type'];
+        }
+
+        if ($class->isInheritanceTypeJoined()
+            && !$class->isRootEntity()) {
+            $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
+            $this->saveRevisionEntityData(
+                $this->em->getClassMetadata($class->rootEntityName),
+                $entityData,
+                $revType
+            );
         }
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);

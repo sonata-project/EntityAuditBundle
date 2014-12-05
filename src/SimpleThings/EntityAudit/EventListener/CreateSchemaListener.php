@@ -59,47 +59,42 @@ class CreateSchemaListener implements EventSubscriber
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
     {
         $cm = $eventArgs->getClassMetadata();
-        if ($this->metadataFactory->isAudited($cm->name)) {
-            $schema = $eventArgs->getSchema();
-            $entityTable = $eventArgs->getClassTable();
-            $revisionTable = $schema->createTable(
-                $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
-            );
-            foreach ($entityTable->getColumns() AS $column) {
-                /* @var $column Column */
-                $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
-                    $column->toArray(),
-                    array('notnull' => false, 'autoincrement' => false)
-                ));
-            }
-            $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-            $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
-            if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
-                throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
-            }
-            if ($cm->isInheritanceTypeJoined() && !$cm->isRootEntity()) {
-                //we need to copy parent table fields
-                $rootMetadata = $eventArgs->getClassMetadata($cm->rootEntityName);
 
-                foreach ($rootMetadata->fieldMappings as $mapping) {
-                    if ($revisionTable->hasColumn($mapping['columnName'])) {
-                        continue;
+        if (!$this->metadataFactory->isAudited($cm->name)) {
+            $audited = false;
+            if ($cm->isInheritanceTypeJoined() && $cm->isRootEntity()) {
+                foreach ($cm->subClasses as $subClass) {
+                    if ($this->metadataFactory->isAudited($subClass)) {
+                        $audited = true;
                     }
-
-                    $revisionTable->addColumn($mapping['columnName'], $mapping['type'], array_merge(
-                        array(
-                            'length' => $mapping['length'],
-                            'scale' => $mapping['scale'],
-                            'precision' => $mapping['precision']
-                        ),
-                        array('notnull' => false, 'autoincrement' => false)
-                    ));
                 }
             }
-            $pkColumns = $entityTable->getPrimaryKey()->getColumns();
-            $pkColumns[] = $this->config->getRevisionFieldName();
-            $revisionTable->setPrimaryKey($pkColumns);
+            if (!$audited) {
+                return;
+            }
         }
+
+        $schema = $eventArgs->getSchema();
+        $entityTable = $eventArgs->getClassTable();
+        $revisionTable = $schema->createTable(
+            $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
+        );
+        foreach ($entityTable->getColumns() AS $column) {
+            /* @var $column Column */
+            $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
+                $column->toArray(),
+                array('notnull' => false, 'autoincrement' => false)
+            ));
+        }
+        $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
+        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+        if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
+            throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
+        }
+
+        $pkColumns = $entityTable->getPrimaryKey()->getColumns();
+        $pkColumns[] = $this->config->getRevisionFieldName();
+        $revisionTable->setPrimaryKey($pkColumns);
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
