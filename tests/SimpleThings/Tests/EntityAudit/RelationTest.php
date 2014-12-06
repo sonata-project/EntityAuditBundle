@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 class RelationTest extends BaseTest
@@ -33,15 +34,70 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\OwnedEntity2',
         'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity',
         'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\OneToOneNotAuditedEntity'
+        'SimpleThings\EntityAudit\Tests\OneToOneNotAuditedEntity',
+        'SimpleThings\EntityAudit\Tests\Category',
+        'SimpleThings\EntityAudit\Tests\FoodCategory',
+        'SimpleThings\EntityAudit\Tests\Product',
+        'SimpleThings\EntityAudit\Tests\WineProduct',
+        'SimpleThings\EntityAudit\Tests\CheeseProduct',
+        'SimpleThings\EntityAudit\Tests\Page',
+        'SimpleThings\EntityAudit\Tests\PageLocalization'
     );
 
     protected $auditedEntities = array(
         'SimpleThings\EntityAudit\Tests\OwnerEntity',
         'SimpleThings\EntityAudit\Tests\OwnedEntity1',
         'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity'
+        'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity',
+        'SimpleThings\EntityAudit\Tests\Category',
+        'SimpleThings\EntityAudit\Tests\FoodCategory',
+        'SimpleThings\EntityAudit\Tests\Product',
+        'SimpleThings\EntityAudit\Tests\WineProduct',
+        'SimpleThings\EntityAudit\Tests\CheeseProduct',
+        'SimpleThings\EntityAudit\Tests\Page',
+        'SimpleThings\EntityAudit\Tests\PageLocalization',
     );
+
+    public function testIssue92()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner1 = new OwnerEntity();
+        $owner1->setTitle('test');
+        $owner2 = new OwnerEntity();
+        $owner2->setTitle('test');
+
+        $this->em->persist($owner1);
+        $this->em->persist($owner2);
+
+        $this->em->flush();
+
+        $owned1 = new OwnedEntity1();
+        $owned1->setOwner($owner1);
+        $owned1->setTitle('test');
+
+        $owned2 = new OwnedEntity1();
+        $owned2->setOwner($owner1);
+        $owned2->setTitle('test');
+
+        $owned3 = new OwnedEntity1();
+        $owned3->setOwner($owner2);
+        $owned3->setTitle('test');
+
+        $this->em->persist($owned1);
+        $this->em->persist($owned2);
+        $this->em->persist($owned3);
+
+        $this->em->flush();
+
+        $owned2->setOwner($owner2);
+
+        $this->em->flush(); //3
+
+        $audited = $auditReader->find(get_class($owner1), $owner1->getId(), 3);
+
+        $this->assertCount(1, $audited->getOwned1());
+    }
 
     public function testOneToOne()
     {
@@ -355,6 +411,141 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
     }
+
+    public function testOneToManyJoinedInheritance()
+    {
+        $food = new FoodCategory();
+        $this->em->persist($food);
+
+        $parmesanCheese = new CheeseProduct('Parmesan');
+        $this->em->persist($parmesanCheese);
+
+        $cheddarCheese = new CheeseProduct('Cheddar');
+        $this->em->persist($cheddarCheese);
+
+        $vine = new WineProduct('Champagne');
+        $this->em->persist($vine);
+
+        $food->addProduct($parmesanCheese);
+        $food->addProduct($cheddarCheese);
+        $food->addProduct($vine);
+
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $auditedFood = $reader->find(
+            get_class($food),
+            $food->getId(),
+            $reader->getCurrentRevision(get_class($food), $food->getId())
+        );
+
+        $this->assertInstanceOf(get_class($food), $auditedFood);
+        $this->assertCount(3, $auditedFood->getProducts());
+
+        list($productOne, $productTwo, $productThree) = $auditedFood->getProducts()->toArray();
+
+        $this->assertInstanceOf(get_class($parmesanCheese), $productOne);
+        $this->assertInstanceOf(get_class($cheddarCheese), $productTwo);
+        $this->assertInstanceOf(get_class($vine), $productThree);
+
+        $this->assertEquals($parmesanCheese->getId(), $productOne->getId());
+        $this->assertEquals($cheddarCheese->getId(), $productTwo->getId());
+    }
+
+    public function testOneToManyWithIndexBy()
+    {
+        $page = new Page();
+        $this->em->persist($page);
+
+        $gbLocalization = new PageLocalization('en-GB');
+        $this->em->persist($gbLocalization);
+
+        $usLocalization = new PageLocalization('en-US');
+        $this->em->persist($usLocalization);
+
+        $page->addLocalization($gbLocalization);
+        $page->addLocalization($usLocalization);
+
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $auditedPage = $reader->find(
+            get_class($page),
+            $page->getId(),
+            $reader->getCurrentRevision(get_class($page), $page->getId())
+        );
+
+        $this->assertNotEmpty($auditedPage->getLocalizations());
+
+        $this->assertCount(2, $auditedPage->getLocalizations());
+
+        $this->assertNotEmpty($auditedPage->getLocalizations()->get('en-US'));
+        $this->assertNotEmpty($auditedPage->getLocalizations()->get('en-GB'));
+    }
+
+    public function testOneToManyCollectionDeletedElements()
+    {
+        $owner = new OwnerEntity();
+        $this->em->persist($owner);
+
+        $ownedOne = new OwnedEntity1();
+        $ownedOne->setTitle('Owned#1');
+        $ownedOne->setOwner($owner);
+        $this->em->persist($ownedOne);
+
+        $ownedTwo = new OwnedEntity1();
+        $ownedTwo->setTitle('Owned#2');
+        $ownedTwo->setOwner($owner);
+        $this->em->persist($ownedTwo);
+
+        $ownedThree = new OwnedEntity1();
+        $ownedThree->setTitle('Owned#3');
+        $ownedThree->setOwner($owner);
+        $this->em->persist($ownedThree);
+
+        $ownedFour = new OwnedEntity1();
+        $ownedFour->setTitle('Owned#4');
+        $ownedFour->setOwner($owner);
+        $this->em->persist($ownedFour);
+
+        $owner->addOwned1($ownedOne);
+        $owner->addOwned1($ownedTwo);
+        $owner->addOwned1($ownedThree);
+        $owner->addOwned1($ownedFour);
+
+        $owner->setTitle('Owner with four owned elements.');
+        $this->em->flush();
+
+        $owner->setTitle('Owner with three owned elements.');
+        $this->em->remove($ownedTwo);
+
+        $this->em->flush();
+
+        $owner->setTitle('Just another revision.');
+
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $auditedOwner = $reader->find(
+            get_class($owner),
+            $owner->getId(),
+            $reader->getCurrentRevision(get_class($owner), $owner->getId())
+        );
+
+        $this->assertCount(3, $auditedOwner->getOwned1());
+
+        $ids = array();
+        foreach ($auditedOwner->getOwned1() as $ownedElement) {
+            $ids[] = $ownedElement->getId();
+        }
+
+        $this->assertTrue(in_array($ownedOne->getId(), $ids));
+        $this->assertTrue(in_array($ownedThree->getId(), $ids));
+        $this->assertTrue(in_array($ownedFour->getId(), $ids));
+    }
 }
 
 /** @ORM\Entity */
@@ -608,5 +799,161 @@ class OwnedEntity2
     public function setOwner($owner)
     {
         $this->owner = $owner;
+    }
+}
+
+/**
+ * @ORM\MappedSuperclass()
+ */
+abstract class SomeEntity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    private $id;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+/**
+ * @ORM\Entity
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"food" = "FoodCategory", "books" = "BookCategory"})
+ */
+abstract class Category extends SomeEntity
+{
+    /** @ORM\OneToMany(targetEntity="Product", mappedBy="category") */
+    private $products;
+
+    public function __construct()
+    {
+        $this->products = new ArrayCollection();
+    }
+
+    public function addProduct(Product $product)
+    {
+        $product->setCategory($this);
+        $this->products->add($product);
+    }
+
+    public function getProducts()
+    {
+        return $this->products;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class FoodCategory extends Category {}
+
+/**
+ * @ORM\Entity
+ */
+class BookCategory extends Category {}
+
+/**
+ * @ORM\Entity
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({"cheese" = "CheeseProduct", "wine" = "WineProduct"})
+ */
+abstract class Product extends SomeEntity
+{
+    /** @ORM\Column(type="string") */
+    private $name;
+
+    /** @ORM\ManyToOne(targetEntity="Category", inversedBy="products") */
+    private $category;
+
+    public function __construct($name)
+    {
+        $this->name = $name;
+    }
+
+    public function setCategory(Category $category)
+    {
+        $this->category = $category;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class CheeseProduct extends Product {}
+
+/**
+ * @ORM\Entity
+ */
+class WineProduct extends Product {}
+
+
+/**
+ * @ORM\Entity
+ */
+class Page
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    private $id;
+
+    /** @ORM\OneToMany(targetEntity="PageLocalization", mappedBy="page", indexBy="locale") */
+    private $localizations;
+
+    public function __construct()
+    {
+        $this->localizations = new ArrayCollection();
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getLocalizations()
+    {
+        return $this->localizations;
+    }
+
+    public function addLocalization(PageLocalization $localization)
+    {
+        $localization->setPage($this);
+        $this->localizations->set($localization->getLocale(), $localization);
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class PageLocalization
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\Column(type="string") */
+    private $locale;
+
+    /** @ORM\ManyToOne(targetEntity="Page", inversedBy="localizations") */
+    private $page;
+
+    public function __construct($locale)
+    {
+        $this->locale = $locale;
+    }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setPage(Page $page)
+    {
+        $this->page = $page;
+    }
+
+    public function getLocale()
+    {
+        return $this->locale;
     }
 }
