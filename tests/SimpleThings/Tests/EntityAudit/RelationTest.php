@@ -58,6 +58,13 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\PageLocalization',
     );
 
+    public function testAbc()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+
+    }
+
     public function testIssue92()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
@@ -247,6 +254,7 @@ class RelationTest extends BaseTest
 
         //checking third revision
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 3);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $audited->getOwned2());
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
@@ -956,4 +964,13 @@ class PageLocalization
     {
         return $this->locale;
     }
+}
+
+/**
+ * Class UnManagedIndexByOwner
+ * @package SimpleThings\EntityAudit\Tests
+ */
+class UnManagedIndexByOwner
+{
+
 }
