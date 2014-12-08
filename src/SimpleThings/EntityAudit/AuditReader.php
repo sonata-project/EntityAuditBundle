@@ -374,8 +374,12 @@ class AuditReader
 
                     $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection($entities));
                 } else {
-                    $class->reflFields[$assoc['fieldName']]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                        ->loadOneToManyCollection($assoc, $entity, new PersistentCollection($this->em, $targetClass, new ArrayCollection())));
+                    $collection = new PersistentCollection($this->em, $targetClass, new ArrayCollection());
+
+                    $this->getEntityPersister($assoc['targetEntity'])
+                        ->loadOneToManyCollection($assoc, $entity, $collection);
+
+                    $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
                 }
             } else {
                 throw new \Exception(sprintf('Association type %d is not yet supported', $assoc['type']));

@@ -247,6 +247,7 @@ class RelationTest extends BaseTest
 
         //checking third revision
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 3);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $audited->getOwned2());
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
@@ -956,4 +957,13 @@ class PageLocalization
     {
         return $this->locale;
     }
+}
+
+/**
+ * Class UnManagedIndexByOwner
+ * @package SimpleThings\EntityAudit\Tests
+ */
+class UnManagedIndexByOwner
+{
+
 }
