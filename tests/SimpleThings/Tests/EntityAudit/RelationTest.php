@@ -58,13 +58,6 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\PageLocalization',
     );
 
-    public function testAbc()
-    {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
-
-
-    }
-
     public function testIssue92()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
