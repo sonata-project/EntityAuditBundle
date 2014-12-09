@@ -211,7 +211,7 @@ class RelationTest extends BaseTest
         //should not add a revision for owner
         $this->assertCount(2, $auditReader->findRevisions(get_class($owner), $owner->getId()));
         //should add a revision for owned
-        $this->assertCount(1, $auditReader->findRevisions(get_class($owned11), $owner->getId()));
+        $this->assertCount(1, $auditReader->findRevisions(get_class($owned11), $owned11->getId()));
 
         //should not mess foreign keys
         $rows = $this->em->getConnection()->fetchAll('SELECT strange_owned_id_name FROM OwnedEntity1');
