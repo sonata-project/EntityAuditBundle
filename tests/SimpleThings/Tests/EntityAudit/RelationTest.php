@@ -32,6 +32,7 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\OwnerEntity',
         'SimpleThings\EntityAudit\Tests\OwnedEntity1',
         'SimpleThings\EntityAudit\Tests\OwnedEntity2',
+        'SimpleThings\EntityAudit\Tests\OwnedEntity3',
         'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity',
         'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
         'SimpleThings\EntityAudit\Tests\OneToOneNotAuditedEntity',
@@ -167,6 +168,37 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#5', $audited->getTitle());
         $this->assertEquals(null, $audited->getAudited());
         $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+    }
+
+    /**
+     * This test verifies the temporary behaviour of audited entities with M-M relationships
+     * until https://github.com/simplethings/EntityAudit/issues/85 is implemented
+     */
+    public function testManyToMany()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner = new OwnerEntity();
+        $owner->setTitle('owner#1');
+
+        $owned31 = new OwnedEntity3();
+        $owned31->setTitle('owned3#1');
+        $owner->addOwned3($owned31);
+
+        $owned32 = new OwnedEntity3();
+        $owned32->setTitle('owned3#2');
+        $owner->addOwned3($owned32);
+
+        $this->em->persist($owner);
+        $this->em->persist($owned31);
+        $this->em->persist($owned32);
+
+        $this->em->flush(); //#1
+
+        //checking that getOwned3() returns an empty collection
+        $audited = $auditReader->find(get_class($owner), $owner->getId(), 1);
+        $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $audited->getOwned3());
+        $this->assertCount(0, $audited->getOwned3());
     }
 
     public function testRelations()
@@ -691,6 +723,9 @@ class OwnerEntity
     /** @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner") */
     protected $owned2;
 
+    /** @ORM\ManyToMany(targetEntity="OwnedEntity3", mappedBy="owner") */
+    protected $owned3;
+
     public function getId()
     {
         return $this->id;
@@ -724,6 +759,16 @@ class OwnerEntity
     public function addOwned2($owned2)
     {
         $this->owned2[] = $owned2;
+    }
+
+    public function getOwned3()
+    {
+        return $this->owned3;
+    }
+
+    public function addOwned3($owned3)
+    {
+        $this->owned3[] = $owned3;
     }
 }
 
@@ -775,6 +820,44 @@ class OwnedEntity2
     protected $title;
 
     /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name")*/
+    protected $owner;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    public function setOwner($owner)
+    {
+        $this->owner = $owner;
+    }
+}
+
+/** @ORM\Entity */
+class OwnedEntity3
+{
+    /** @ORM\Id @ORM\Column(type="integer", name="strange_owned_id_name") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\Column(type="string", name="even_strangier_column_name") */
+    protected $title;
+
+    /** @ORM\ManyToMany(targetEntity="OwnerEntity", inversedBy="owned3")*/
     protected $owner;
 
     public function getId()

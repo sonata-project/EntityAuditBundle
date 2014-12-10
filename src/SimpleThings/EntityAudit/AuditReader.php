@@ -382,7 +382,9 @@ class AuditReader
                     $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
                 }
             } else {
-                throw new \Exception(sprintf('Association type %d is not yet supported', $assoc['type']));
+                // Inject collection
+                $reflField = $class->reflFields[$field];
+                $reflField->setValue($entity, new ArrayCollection);
             }
         }
 
