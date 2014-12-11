@@ -306,6 +306,30 @@ class CoreTest extends BaseTest
         $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
         $this->assertEquals(2, $revision);
     }
+
+    public function testDeleteUnInitProxy()
+    {
+        $user = new UserAudit("beberlei");
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        unset($user);
+        $this->em->clear();
+
+        $user = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\UserAudit", 1);
+        $this->em->remove($user);
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+        $changedEntities = $reader->findEntitiesChangedAtRevision(2);
+
+        $this->assertEquals(1, count($changedEntities));
+        $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\UserAudit', $changedEntities[0]->getClassName());
+        $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
+        $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
+    }
 }
 
 /**

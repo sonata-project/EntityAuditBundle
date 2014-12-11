@@ -259,19 +259,22 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                if ($entityData[$field] !== null) {
-                    $relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
+                $data = isset($entityData[$field]) ? $entityData[$field] : null;
+                $relatedId = false;
+
+                if ($data !== null && $this->uow->isInIdentityMap($data)) {
+                    $relatedId = $this->uow->getEntityIdentifier($data);
                 }
 
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
                 foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
                     $fields[$sourceColumn] = true;
-                    if ($entityData[$field] === null) {
+                    if ($data === null) {
                         $params[] = null;
                         $types[] = \PDO::PARAM_STR;
                     } else {
-                        $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]];
+                        $params[] = $relatedId ? $relatedId[$targetClass->fieldNames[$targetColumn]] : null;
                         $types[] = $targetClass->getTypeOfColumn($targetColumn);
                     }
                 }
@@ -289,7 +292,7 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $params[] = $entityData[$field];
+            $params[] = isset($entityData[$field]) ? $entityData[$field] : null;
             $types[] = $class->fieldMappings[$field]['type'];
         }
 
