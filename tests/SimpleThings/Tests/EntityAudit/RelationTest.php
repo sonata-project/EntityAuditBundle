@@ -59,6 +59,56 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\PageLocalization',
     );
 
+    public function testUndefinedIndexesInUOWForRelations()
+    {
+        $owner = new OwnerEntity();
+        $owner->setTitle('owner');
+        $owned1 = new OwnedEntity1();
+        $owned1->setTitle('owned1');
+        $owned1->setOwner($owner);
+        $owned2 = new OwnedEntity2();
+        $owned2->setTitle('owned2');
+        $owned2->setOwner($owner);
+
+        $this->em->persist($owner);
+        $this->em->persist($owned1);
+        $this->em->persist($owned2);
+
+        $this->em->flush();
+
+        unset($owner); unset($owned1); unset($owned2);
+        $this->em->clear();
+
+        $owner = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\OwnerEntity", 1);
+        $this->em->remove($owner);
+        $owned1 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\OwnedEntity1", 1);
+        $this->em->remove($owned1);
+        $owned2 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\OwnedEntity2", 1);
+        $this->em->remove($owned2);
+
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+        $changedEntities = $reader->findEntitiesChangedAtRevision(2);
+
+        $this->assertEquals(2, count($changedEntities));
+        $changedOwner = $changedEntities[0]->getEntity();
+        $changedOwned = $changedEntities[1]->getEntity();
+
+        $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\OwnerEntity', $changedEntities[0]->getClassName());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\OwnerEntity', get_class($changedOwner));
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\OwnedEntity1', get_class($changedOwned));
+        $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
+        $this->assertEquals('DEL', $changedEntities[1]->getRevisionType());
+        $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
+        $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
+        //uninit proxy messes up ids, it is fine
+        $this->assertCount(0, $changedOwner->getOwned1());
+        $this->assertCount(0, $changedOwner->getOwned2());
+        $this->assertNull($changedOwned->getOwner());
+    }
+
     public function testIssue92()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
