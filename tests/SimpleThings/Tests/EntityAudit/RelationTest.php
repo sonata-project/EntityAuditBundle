@@ -386,6 +386,70 @@ class RelationTest extends BaseTest
         $this->assertCount(5, $history);
     }
 
+    public function testRemoval()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner1 = new OwnerEntity();
+        $owner1->setTitle('owner1');
+
+        $owner2 = new OwnerEntity();
+        $owner2->setTitle('owner2');
+
+        $owned1 = new OwnedEntity1();
+        $owned1->setTitle('owned1');
+        $owned1->setOwner($owner1);
+
+        $owned2 = new OwnedEntity1();
+        $owned2->setTitle('owned2');
+        $owned2->setOwner($owner1);
+
+        $owned3 = new OwnedEntity1();
+        $owned3->setTitle('owned3');
+        $owned3->setOwner($owner1);
+
+        $this->em->persist($owner1);
+        $this->em->persist($owner2);
+        $this->em->persist($owned1);
+        $this->em->persist($owned2);
+        $this->em->persist($owned3);
+
+        $this->em->flush(); //#1
+
+        $owned1->setOwner($owner2);
+        $this->em->flush(); //#2
+
+        $this->em->remove($owned1);
+        $this->em->flush(); //#3
+
+        $owned2->setTitle('updated owned2');
+        $this->em->flush(); //#4
+
+        $this->em->remove($owned2);
+        $this->em->flush(); //#5
+
+        $this->em->remove($owned3);
+        $this->em->flush(); //#6
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 1);
+        $this->assertCount(3, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 2);
+        $this->assertCount(2, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 3);
+        $this->assertCount(2, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 4);
+        $this->assertCount(2, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 5);
+        $this->assertCount(1, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 6);
+        $this->assertCount(0, $owner->getOwned1());
+    }
+
     public function testDetaching()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
