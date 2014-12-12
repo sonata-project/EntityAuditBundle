@@ -385,7 +385,9 @@ class AuditedCollection implements Collection
      */
     public function getIterator()
     {
-        //this call forcibly loads all collection
+        $this->initialize();
+
+        //this call forcibly load all collection
         foreach ($this->entities as $key => $entity) {
             if (is_array($entity)) {
                 $this->entities[$key] = $this->resolve($entity);
