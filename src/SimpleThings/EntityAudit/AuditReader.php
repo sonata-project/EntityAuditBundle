@@ -52,6 +52,94 @@ class AuditReader
     private $entityCache;
 
     /**
+     * Decides if audited ToMany collections are loaded
+     * @var bool
+     */
+    private $loadAuditedCollections = true;
+
+    /**
+     * Decides if audited ToOne collections are loaded
+     * @var bool
+     */
+    private $loadAuditedEntities = true;
+
+    /**
+     * Decides if native (not audited) ToMany collections are loaded
+     * @var bool
+     */
+    private $loadNativeCollections = true;
+
+    /**
+     * Decides if native (not audited) ToOne collections are loaded
+     * @var bool
+     */
+    private $loadNativeEntities = true;
+
+    /**
+     * @return boolean
+     */
+    public function isLoadAuditedCollections()
+    {
+        return $this->loadAuditedCollections;
+    }
+
+    /**
+     * @param boolean $loadAuditedCollections
+     */
+    public function setLoadAuditedCollections($loadAuditedCollections)
+    {
+        $this->loadAuditedCollections = $loadAuditedCollections;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isLoadAuditedEntities()
+    {
+        return $this->loadAuditedEntities;
+    }
+
+    /**
+     * @param boolean $loadAuditedEntities
+     */
+    public function setLoadAuditedEntities($loadAuditedEntities)
+    {
+        $this->loadAuditedEntities = $loadAuditedEntities;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isLoadNativeCollections()
+    {
+        return $this->loadNativeCollections;
+    }
+
+    /**
+     * @param boolean $loadNativeCollections
+     */
+    public function setLoadNativeCollections($loadNativeCollections)
+    {
+        $this->loadNativeCollections = $loadNativeCollections;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isLoadNativeEntities()
+    {
+        return $this->loadNativeEntities;
+    }
+
+    /**
+     * @param boolean $loadNativeEntities
+     */
+    public function setLoadNativeEntities($loadNativeEntities)
+    {
+        $this->loadNativeEntities = $loadNativeEntities;
+    }
+
+    /**
      * @param EntityManager $em
      * @param AuditConfiguration $config
      * @param MetadataFactory $factory
@@ -274,67 +362,82 @@ class AuditReader
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
-                    //there is no difference for lazy loading, it won't work
-                    $pk = array();
-                    foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                        $pk[$foreign] = $data[$local];
-                    }
-
-                    $pk = array_filter($pk, function($value) {
-                        return !is_null($value);
-                    });
-
-                    if (!$pk) {
-                        $class->reflFields[$field]->setValue($entity, null);
-                    } else {
-                        try {
-                            $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
-                        } catch (DeletedException $e) {
-                            $value = null;
+                    if ($this->loadAuditedEntities) {
+                        $pk = array();
+                        foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
+                            $pk[$foreign] = $data[$local];
                         }
 
-                        $class->reflFields[$field]->setValue($entity, $value);
-                    }
-                } else {
-                    if ($assoc['isOwningSide']) {
-                        $associatedId = array();
-                        foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                            $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
-                            if ($joinColumnValue !== null) {
-                                $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
-                            }
-                        }
-                        if (!$associatedId) {
-                            // Foreign key is NULL
+                        $pk = array_filter($pk, function ($value) {
+                            return !is_null($value);
+                        });
+
+                        if (!$pk) {
                             $class->reflFields[$field]->setValue($entity, null);
                         } else {
-                            $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
-                            $class->reflFields[$field]->setValue($entity, $associatedEntity);
+                            try {
+                                $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
+                            } catch (DeletedException $e) {
+                                $value = null;
+                            }
+
+                            $class->reflFields[$field]->setValue($entity, $value);
                         }
                     } else {
-                        // Inverse side of x-to-one can never be lazy
-                        $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                            ->loadOneToOneEntity($assoc, $entity));
+                        $class->reflFields[$field]->setValue($entity, null);
+                    }
+                } else {
+                    if ($this->loadNativeEntities) {
+                        if ($assoc['isOwningSide']) {
+                            $associatedId = array();
+                            foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
+                                $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
+                                if ($joinColumnValue !== null) {
+                                    $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
+                                }
+                            }
+                            if (!$associatedId) {
+                                // Foreign key is NULL
+                                $class->reflFields[$field]->setValue($entity, null);
+                            } else {
+                                $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
+                                $class->reflFields[$field]->setValue($entity, $associatedEntity);
+                            }
+                        } else {
+                            // Inverse side of x-to-one can never be lazy
+                            $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
+                                ->loadOneToOneEntity($assoc, $entity));
+                        }
+                    } else {
+                        $class->reflFields[$field]->setValue($entity, null);
                     }
                 }
             } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
-                    $foreignKeys = array();
-                    foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
-                        $field = $class->getFieldForColumn($foreign);
-                        $foreignKeys[$local] = $class->reflFields[$field]->getValue($entity);
+                    if ($this->loadAuditedCollections) {
+                        $foreignKeys = array();
+                        foreach ($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
+                            $field = $class->getFieldForColumn($foreign);
+                            $foreignKeys[$local] = $class->reflFields[$field]->getValue($entity);
+                        }
+
+                        $collection = new AuditedCollection($this, $targetClass->name, $targetClass, $assoc, $foreignKeys, $revision);
+
+                        $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
+                    } else {
+                        $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection());
                     }
-
-                    $collection = new AuditedCollection($this, $targetClass->name, $targetClass, $assoc, $foreignKeys, $revision);
-
-                    $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
                 } else {
-                    $collection = new PersistentCollection($this->em, $targetClass, new ArrayCollection());
+                    if ($this->loadNativeCollections) {
+                        $collection = new PersistentCollection($this->em, $targetClass, new ArrayCollection());
 
-                    $this->getEntityPersister($assoc['targetEntity'])
-                        ->loadOneToManyCollection($assoc, $entity, $collection);
+                        $this->getEntityPersister($assoc['targetEntity'])
+                            ->loadOneToManyCollection($assoc, $entity, $collection);
 
-                    $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
+                        $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
+                    } else {
+                        $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection());
+                    }
                 }
             } else {
                 // Inject collection
