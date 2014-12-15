@@ -102,75 +102,71 @@ class AuditedCollection implements Collection
         $this->associationDefinition = $associationDefinition;
     }
 
-    function add($element)
+    /**
+     * {@inheritdoc}
+     */
+    public function add($element)
     {
         throw new AuditedCollectionException('The AuditedCollection is read-only');
     }
 
     /**
-     * Clears the collection, removing all elements.
-     *
-     * @return void
+     * {@inheritdoc}
      */
-    function clear()
+    public function clear()
     {
         $this->entities = array();
         $this->initialized = false;
     }
 
     /**
-     * Checks whether an element is contained in the collection.
-     * This is an O(n) operation, where n is the size of the collection.
-     *
-     * @param mixed $element The element to search for.
-     *
-     * @return boolean TRUE if the collection contains the element, FALSE otherwise.
+     * {@inheritdoc}
      */
-    function contains($element)
+    public function contains($element)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return (bool)array_search($element, $this->entities);
     }
 
     /**
-     * Checks whether the collection is empty (contains no elements).
-     *
-     * @return boolean TRUE if the collection is empty, FALSE otherwise.
+     * {@inheritdoc}
      */
-    function isEmpty()
+    public function isEmpty()
     {
         $this->initialize();
+
         return count($this->entities) == 0;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function remove($key)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function removeElement($element)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
 
     /**
-     * Checks whether the collection contains an element with the specified key/index.
-     *
-     * @param string|integer $key The key/index to check for.
-     *
-     * @return boolean TRUE if the collection contains an element with the specified key/index,
-     *                 FALSE otherwise.
+     * {@inheritdoc}
      */
-    function containsKey($key)
+    public function containsKey($key)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->initialize();
+
+        return array_key_exists($key, $this->entities);
     }
 
     /**
-     * Gets the element at the specified key/index.
-     *
-     * @param string|integer $key The key/index of the element to retrieve.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
     public function get($key)
     {
@@ -178,250 +174,207 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * Gets all keys/indices of the collection.
-     *
-     * @return array The keys/indices of the collection, in the order of the corresponding
-     *               elements in the collection.
+     * {@inheritdoc}
      */
-    function getKeys()
+    public function getKeys()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->initialize();
+
+        return array_keys($this->entities);
     }
 
     /**
-     * Gets all values of the collection.
-     *
-     * @return array The values of all elements in the collection, in the order they
-     *               appear in the collection.
+     * {@inheritdoc}
      */
-    function getValues()
+    public function getValues()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return array_values($this->entities);
     }
 
     /**
-     * Sets an element in the collection at the specified key/index.
-     *
-     * @param string|integer $key The key/index of the element to set.
-     * @param mixed $value The element to set.
-     *
-     * @return void
+     * {@inheritdoc}
      */
-    function set($key, $value)
+    public function set($key, $value)
     {
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
 
     /**
-     * Gets a native PHP array representation of the collection.
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function toArray()
     {
-        $this->initialize();
-
-        foreach ($this->entities as $key => $entity) {
-            if (is_array($entity)) {
-                $this->entities[$key] = $this->resolve($entity);
-            }
-        }
+        $this->forceLoad();
 
         return $this->entities;
     }
 
     /**
-     * Sets the internal iterator to the first element in the collection and returns this element.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
-    function first()
+    public function first()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return reset($this->entities);
     }
 
     /**
-     * Sets the internal iterator to the last element in the collection and returns this element.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
-    function last()
+    public function last()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return end($this->entities);
     }
 
     /**
-     * Gets the key/index of the element at the current iterator position.
-     *
-     * @return int|string
+     * {@inheritdoc}
      */
-    function key()
+    public function key()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return key($this->entities);
     }
 
     /**
-     * Gets the element of the collection at the current iterator position.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
-    function current()
+    public function current()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return current($this->entities);
     }
 
     /**
-     * Moves the internal iterator position to the next element and returns this element.
-     *
-     * @return mixed
+     * {@inheritdoc}
      */
-    function next()
+    public function next()
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return next($this->entities);
     }
 
     /**
-     * Tests for the existence of an element that satisfies the given predicate.
-     *
-     * @param Closure $p The predicate.
-     *
-     * @return boolean TRUE if the predicate is TRUE for at least one element, FALSE otherwise.
+     * {@inheritdoc}
      */
-    function exists(Closure $p)
+    public function exists(Closure $p)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        foreach ($this->entities as $entity) {
+            if ($p($entity)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Returns all the elements of this collection that satisfy the predicate p.
-     * The order of the elements is preserved.
-     *
-     * @param Closure $p The predicate used for filtering.
-     *
-     * @return Collection A collection with the results of the filter operation.
+     * {@inheritdoc}
      */
-    function filter(Closure $p)
+    public function filter(Closure $p)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return array_filter($this->entities, $p);
     }
 
     /**
-     * Tests whether the given predicate p holds for all elements of this collection.
-     *
-     * @param Closure $p The predicate.
-     *
-     * @return boolean TRUE, if the predicate yields TRUE for all elements, FALSE otherwise.
+     * {@inheritdoc}
      */
-    function forAll(Closure $p)
+    public function forAll(Closure $p)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        foreach ($this->entities as $entity) {
+            if (!$p($entity)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
-     * Applies the given function to each element in the collection and returns
-     * a new collection with the elements returned by the function.
-     *
-     * @param Closure $func
-     *
-     * @return Collection
+     * {@inheritdoc}
      */
-    function map(Closure $func)
+    public function map(Closure $func)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return array_map($func, $this->entities);
     }
 
     /**
-     * Partitions this collection in two collections according to a predicate.
-     * Keys are preserved in the resulting collections.
-     *
-     * @param Closure $p The predicate on which to partition.
-     *
-     * @return array An array with two elements. The first element contains the collection
-     *               of elements where the predicate returned TRUE, the second element
-     *               contains the collection of elements where the predicate returned FALSE.
+     * {@inheritdoc}
      */
-    function partition(Closure $p)
+    public function partition(Closure $p)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        $true = $false = array();
+
+        foreach ($this->entities as $entity) {
+            if ($p($entity)) {
+                $true[] = $entity;
+            } else {
+                $false[] = $entity;
+            }
+        }
+
+        return array($true, $false);
     }
 
     /**
-     * Gets the index/key of a given element. The comparison of two elements is strict,
-     * that means not only the value but also the type must match.
-     * For objects this means reference equality.
-     *
-     * @param mixed $element The element to search for.
-     *
-     * @return int|string|bool The key/index of the element or FALSE if the element was not found.
+     * {@inheritdoc}
      */
-    function indexOf($element)
+    public function indexOf($element)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return array_search($element, $this->entities, true);
     }
 
     /**
-     * Extracts a slice of $length elements starting at position $offset from the Collection.
-     *
-     * If $length is null it returns all elements from $offset to the end of the Collection.
-     * Keys have to be preserved by this method. Calling this method will only return the
-     * selected slice and NOT change the elements contained in the collection slice is called on.
-     *
-     * @param int $offset The offset to start from.
-     * @param int|null $length The maximum number of elements to return, or null for no limit.
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    function slice($offset, $length = null)
+    public function slice($offset, $length = null)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return array_slice($this->entities, $offset, $length);
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Retrieve an external iterator
-     * @link http://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
+     * {@inheritdoc}
      */
     public function getIterator()
     {
-        $this->initialize();
-
-        //this call forcibly load all collection
-        foreach ($this->entities as $key => $entity) {
-            if (is_array($entity)) {
-                $this->entities[$key] = $this->resolve($entity);
-            }
-        }
+        $this->forceLoad();
 
         return new \ArrayIterator($this->entities);
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Whether a offset exists
-     * @link http://php.net/manual/en/arrayaccess.offsetexists.php
-     * @param mixed $offset <p>
-     * An offset to check for.
-     * </p>
-     * @return boolean true on success or false on failure.
-     * </p>
-     * <p>
-     * The return value will be casted to boolean if non-boolean was returned.
+     * {@inheritdoc}
      */
     public function offsetExists($offset)
     {
-        throw new \Exception(__METHOD__ . ' is not yet implemented');
+        $this->forceLoad();
+
+        return array_key_exists($offset, $this->entities);
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to retrieve
-     * @link http://php.net/manual/en/arrayaccess.offsetget.php
-     * @param mixed $offset <p>
-     * The offset to retrieve.
-     * </p>
-     * @return mixed Can return all value types.
+     * {@inheritdoc}
      */
     public function offsetGet($offset)
     {
@@ -441,16 +394,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to set
-     * @link http://php.net/manual/en/arrayaccess.offsetset.php
-     * @param mixed $offset <p>
-     * The offset to assign the value to.
-     * </p>
-     * @param mixed $value <p>
-     * The value to set.
-     * </p>
-     * @return void
+     * {@inheritdoc}
      */
     public function offsetSet($offset, $value)
     {
@@ -458,13 +402,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * (PHP 5 &gt;= 5.0.0)<br/>
-     * Offset to unset
-     * @link http://php.net/manual/en/arrayaccess.offsetunset.php
-     * @param mixed $offset <p>
-     * The offset to unset.
-     * </p>
-     * @return void
+     * {@inheritdoc}
      */
     public function offsetUnset($offset)
     {
@@ -472,13 +410,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Count elements of an object
-     * @link http://php.net/manual/en/countable.count.php
-     * @return int The custom count as an integer.
-     * </p>
-     * <p>
-     * The return value is cast to an integer.
+     * {@inheritdoc}
      */
     public function count()
     {
@@ -495,6 +427,17 @@ class AuditedCollection implements Collection
                 $entity['keys'],
                 $this->revision
             );
+    }
+
+    protected function forceLoad()
+    {
+        $this->initialize();
+
+        foreach ($this->entities as $key => $entity) {
+            if (is_array($entity)) {
+                $this->entities[$key] = $this->resolve($entity);
+            }
+        }
     }
 
     protected function initialize()
