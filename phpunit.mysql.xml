@@ -17,11 +17,11 @@
     </filter>
 
     <php>
-        <var name="DOCTRINE_DRIVER" value="pdo_sqlite"/>
+        <var name="DOCTRINE_DRIVER" value="pdo_mysql"/>
         <var name="DOCTRINE_MEMORY" value="1"/>
-        <var name="DOCTRINE_DATABASE" value=""/>
-        <var name="DOCTRINE_USER" value=""/>
+        <var name="DOCTRINE_DATABASE" value="eatest"/>
+        <var name="DOCTRINE_USER" value="root"/>
         <var name="DOCTRINE_PASSWORD" value=""/>
-        <var name="DOCTRINE_HOST" value=""/>
+        <var name="DOCTRINE_HOST" value="localhost"/>
     </php>
 </phpunit>

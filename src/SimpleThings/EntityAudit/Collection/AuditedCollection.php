@@ -542,8 +542,27 @@ class AuditedCollection implements Collection
             $sql .= ' AND st.'.$this->configuration->getRevisionFieldName().' > t.'.$this->configuration->getRevisionFieldName();
 
             $sql .= ') ';
+            //end of check for for belonging to other entities
 
-            $sql .= 'GROUP BY '.implode(', ', $this->metadata->getIdentifierColumnNames()).' ';
+            //check for deleted revisions older than requested
+            $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTablePrefix().$this->metadata->table['name'].$this->configuration->getTableSuffix().' sd WHERE';
+
+            //ids
+            foreach ($this->metadata->getIdentifierColumnNames() as $name) {
+                $sql .= ' sd.'.$name.' = t.'.$name.' AND';
+            }
+
+            //revision
+            $sql .= ' sd.'.$this->configuration->getRevisionFieldName().' <= '.$this->revision;
+            $sql .= ' AND sd.'.$this->configuration->getRevisionFieldName().' > t.'.$this->configuration->getRevisionFieldName();
+
+            $sql .= ' AND sd.'.$this->configuration->getRevisionTypeFieldName().' = ?';
+            $params[] = 'DEL';
+
+            $sql .= ') ';
+            //end check for deleted revisions older than requested
+
+            $sql .= 'GROUP BY '.implode(', ', $this->metadata->getIdentifierColumnNames())./*', '.$this->configuration->getRevisionTypeFieldName().*/' ';
             $sql .= 'HAVING '.$this->configuration->getRevisionTypeFieldName().' <> ?';
             //add rev type parameter
             $params[] = 'DEL';
@@ -569,83 +588,6 @@ class AuditedCollection implements Collection
                 }
             }
 
-            //die($sql);
-            /*
-                                //todo: this should be checked with composite keys
-                                $params = array();
-                                $sql = 'SELECT MAX('.$this->config->getRevisionFieldName().') as rev, ';
-                                $sql .= $this->config->getRevisionTypeFieldName().', ';
-                                $sql .= implode(', ', $targetClass->getIdentifierColumnNames()).' ';
-                                $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
-                                $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision.' ';
-
-                                //master entity query
-                                foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
-                                    $sql .= 'AND '.$local.' = ? ';
-                                    $field = $class->getFieldForColumn($foreign);
-                                    $params[] = $class->reflFields[$field]->getValue($entity);
-                                }
-
-                                $sql .= 'GROUP BY '.implode(', ', $targetClass->getIdentifierColumnNames()).' ';
-                                $sql .= 'HAVING '.$this->config->getRevisionTypeFieldName().' <> ?';
-                                //add rev type parameter
-                                $params[] = 'DEL';
-
-                                $rows = $this->em->getConnection()->fetchAll($sql, $params);
-
-                                $entities = array();
-
-                                foreach ($rows as $row) {
-                                    $pk = array();
-                                    foreach ($targetClass->getIdentifierColumnNames() as $name) {
-                                        $pk[$name] = $row[$name];
-                                    }
-
-                                    //if revison is smaller than requested revision it might be possible that the entity was moved to
-                                    //another owner. we check this by finding entity with the same id but different foreign keys
-                                    if ($row[$this->config->getRevisionFieldName()] != $revision) {
-                                        $params = array();
-                                        $sql = 'SELECT COUNT(*) AS cnt ';
-                                        $sql .= $this->config->getTablePrefix().'FROM '.$targetClass->table['name'].$this->config->getTableSuffix().' ';
-                                        $sql .= 'WHERE '.$this->config->getRevisionFieldName().' <= '.$revision;
-                                        $sql .= ' AND '.$this->config->getRevisionFieldName().' > '.$row[$this->config->getRevisionFieldName()];
-
-                                        foreach ($pk as $name => $value) {
-                                            $sql .= (' AND ' . $name . ' = ?');
-                                            $params[] = $value;
-                                        }
-
-                                        $sql .= ' AND ((';
-
-                                        //master entity query, not equals
-                                        $notEqualParts = $nullParts = array();
-                                        foreach($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
-                                            $notEqualParts[] = $local.' <> ?';
-                                            $nullParts[] = $local.' IS NULL';
-                                            $field = $class->getFieldForColumn($foreign);
-                                            $params[] = $class->reflFields[$field]->getValue($entity);
-                                        }
-
-                                        $sql .= implode(' AND ', $notEqualParts).') OR ('.implode(' AND ', $nullParts).'))';
-
-                                        $result = $this->em->getConnection()->fetchAll($sql, $params);
-
-                                        $count = $result[0]['cnt'];
-
-                                        if ($count > 0) {
-                                            continue;
-                                        }
-                                    }
-
-                                    $targetEntity = $this->find($targetClass->name, $pk, $revision);
-
-                                    if (isset($assoc['indexBy'])) {
-                                        $key = $targetClass->reflFields[$assoc['indexBy']]->getValue($targetEntity);
-                                        $entities[$key] = $targetEntity;
-                                    } else {
-                                        $entities[] = $targetEntity;
-                                    }
-                                }*/
             $this->initialized = true;
         }
     }
