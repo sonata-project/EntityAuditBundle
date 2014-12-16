@@ -209,6 +209,21 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
         $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
 
+        $auditReader->setLoadAuditedEntities(false);
+        $auditReader->clearEntityCache();
+        $audited = $auditReader->find(get_class($master), $master->getId(), 4);
+        $this->assertEquals(null, $audited->getAudited());
+        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+
+        $auditReader->setLoadAuditedEntities(true);
+        $auditReader->setLoadNativeEntities(false);
+        $auditReader->clearEntityCache();
+        $audited = $auditReader->find(get_class($master), $master->getId(), 4);
+        $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
+        $this->assertEquals(null, $audited->getNotAudited());
+
+        $auditReader->setLoadNativeEntities(true);
+
         $audited = $auditReader->find(get_class($master), $master->getId(), 5);
         $this->assertEquals('changed#5', $audited->getTitle());
         $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
@@ -251,6 +266,9 @@ class RelationTest extends BaseTest
         $this->assertCount(0, $audited->getOwned3());
     }
 
+    /**
+     * @group mysql
+     */
     public function testRelations()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
@@ -349,7 +367,23 @@ class RelationTest extends BaseTest
         $o2 = $audited->getOwned2();
         $this->assertEquals('owned21', $o2[0]->getTitle());
 
+        //check skipping collections
+        $auditReader->setLoadAuditedCollections(false);
+        $auditReader->clearEntityCache();
+        $audited = $auditReader->find(get_class($owner), $owner->getId(), 4);
+        $this->assertCount(0, $audited->getOwned1());
+        $this->assertCount(1, $audited->getOwned2());
+
+        $auditReader->setLoadNativeCollections(false);
+        $auditReader->setLoadAuditedCollections(true);
+        $auditReader->clearEntityCache();
+        $audited = $auditReader->find(get_class($owner), $owner->getId(), 4);
+        $this->assertCount(2, $audited->getOwned1());
+        $this->assertCount(0, $audited->getOwned2());
+
         //checking fifth revision
+        $auditReader->setLoadNativeCollections(true);
+        $auditReader->clearEntityCache();
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 5);
         $this->assertEquals('changed#5', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
@@ -386,6 +420,76 @@ class RelationTest extends BaseTest
         $this->assertCount(5, $history);
     }
 
+    /**
+     * @group mysql
+     */
+    public function testRemoval()
+    {
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $owner1 = new OwnerEntity();
+        $owner1->setTitle('owner1');
+
+        $owner2 = new OwnerEntity();
+        $owner2->setTitle('owner2');
+
+        $owned1 = new OwnedEntity1();
+        $owned1->setTitle('owned1');
+        $owned1->setOwner($owner1);
+
+        $owned2 = new OwnedEntity1();
+        $owned2->setTitle('owned2');
+        $owned2->setOwner($owner1);
+
+        $owned3 = new OwnedEntity1();
+        $owned3->setTitle('owned3');
+        $owned3->setOwner($owner1);
+
+        $this->em->persist($owner1);
+        $this->em->persist($owner2);
+        $this->em->persist($owned1);
+        $this->em->persist($owned2);
+        $this->em->persist($owned3);
+
+        $this->em->flush(); //#1
+
+        $owned1->setOwner($owner2);
+        $this->em->flush(); //#2
+
+        $this->em->remove($owned1);
+        $this->em->flush(); //#3
+
+        $owned2->setTitle('updated owned2');
+        $this->em->flush(); //#4
+
+        $this->em->remove($owned2);
+        $this->em->flush(); //#5
+
+        $this->em->remove($owned3);
+        $this->em->flush(); //#6
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 1);
+        $this->assertCount(3, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 2);
+        $this->assertCount(2, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 3);
+        $this->assertCount(2, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 4);
+        $this->assertCount(2, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 5);
+        $this->assertCount(1, $owner->getOwned1());
+
+        $owner = $auditReader->find(get_class($owner1), $owner1->getId(), 6);
+        $this->assertCount(0, $owner->getOwned1());
+    }
+
+    /**
+     * @group mysql
+     */
     public function testDetaching()
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
@@ -399,7 +503,7 @@ class RelationTest extends BaseTest
         $this->em->persist($owner);
         $this->em->persist($owned);
 
-        $this->em->flush();
+        $this->em->flush(); //#1
 
         $ownerId1 = $owner->getId();
         $ownedId1 = $owned->getId();
@@ -407,33 +511,33 @@ class RelationTest extends BaseTest
         $owned->setTitle('associated#2');
         $owned->setOwner($owner);
 
-        $this->em->flush();
+        $this->em->flush(); //#2
 
         $owned->setTitle('deassociated#3');
         $owned->setOwner(null);
 
-        $this->em->flush();
+        $this->em->flush(); //#3
 
         $owned->setTitle('associated#4');
         $owned->setOwner($owner);
 
-        $this->em->flush();
+        $this->em->flush(); //#4
 
         $this->em->remove($owned);
 
-        $this->em->flush();
+        $this->em->flush(); //#5
 
         $owned = new OwnedEntity1();
         $owned->setTitle('recreated#6');
         $owned->setOwner($owner);
 
         $this->em->persist($owned);
-        $this->em->flush();
+        $this->em->flush(); //#6
 
         $ownedId2 = $owned->getId();
 
         $this->em->remove($owner);
-        $this->em->flush();
+        $this->em->flush(); //#7
 
         $auditedEntity = $auditReader->find(get_class($owner), $ownerId1, 1);
         $this->assertEquals('created#1', $auditedEntity->getTitle());
@@ -568,6 +672,9 @@ class RelationTest extends BaseTest
         $this->assertNotEmpty($auditedPage->getLocalizations()->get('en-GB'));
     }
 
+    /**
+     * @group mysql
+     */
     public function testOneToManyCollectionDeletedElements()
     {
         $owner = new OwnerEntity();
@@ -599,16 +706,16 @@ class RelationTest extends BaseTest
         $owner->addOwned1($ownedFour);
 
         $owner->setTitle('Owner with four owned elements.');
-        $this->em->flush();
+        $this->em->flush(); //#1
 
         $owner->setTitle('Owner with three owned elements.');
         $this->em->remove($ownedTwo);
 
-        $this->em->flush();
+        $this->em->flush(); //#2
 
         $owner->setTitle('Just another revision.');
 
-        $this->em->flush();
+        $this->em->flush(); //#3
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
@@ -640,7 +747,7 @@ class OneToOneMasterEntity
     /** @ORM\Column(type="string") */
     protected $title;
 
-    /** @ORM\OneToOne(targetEntity="OneToOneAuditedEntity") */
+    /** @ORM\OneToOne(targetEntity="OneToOneAuditedEntity") @ORM\JoinColumn(onDelete="SET NULL") */
     protected $audited;
 
     /** @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity") */
@@ -767,13 +874,19 @@ class OwnerEntity
     /** @ORM\Column(type="string", name="crazy_title_to_mess_up_audit") */
     protected $title;
 
-    /** @ORM\OneToMany(targetEntity="OwnedEntity1", mappedBy="owner") */
+    /** @ORM\OneToMany(targetEntity="OwnedEntity1", mappedBy="owner")*/
     protected $owned1;
 
     /** @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner") */
     protected $owned2;
 
-    /** @ORM\ManyToMany(targetEntity="OwnedEntity3", mappedBy="owner") */
+    /**
+     * @ORM\ManyToMany(targetEntity="OwnedEntity3", mappedBy="owner")
+     * @ORM\JoinTable(name="owner_owned3",
+     *   joinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")}
+     * )
+     */
     protected $owned3;
 
     public function getId()
@@ -831,7 +944,7 @@ class OwnedEntity1
     /** @ORM\Column(type="string", name="even_strangier_column_name") */
     protected $title;
 
-    /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name") */
+    /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name", onDelete="SET NULL") */
     protected $owner;
 
     public function getId()
@@ -907,7 +1020,12 @@ class OwnedEntity3
     /** @ORM\Column(type="string", name="even_strangier_column_name") */
     protected $title;
 
-    /** @ORM\ManyToMany(targetEntity="OwnerEntity", inversedBy="owned3")*/
+    /** @ORM\ManyToMany(targetEntity="OwnerEntity", inversedBy="owned3")
+     * @ORM\JoinTable(name="owner_owned3",
+     *   joinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")}
+     * )
+     */
     protected $owner;
 
     public function getId()

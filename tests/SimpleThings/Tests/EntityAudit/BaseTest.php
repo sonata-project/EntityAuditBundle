@@ -56,8 +56,12 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $config->setMetadataDriverImpl($driver);
 
         $conn = array(
-            'driver' => 'pdo_sqlite',
-            'memory' => true,
+            'driver' => $GLOBALS['DOCTRINE_DRIVER'],
+            'memory' => $GLOBALS['DOCTRINE_MEMORY'],
+            'dbname' => $GLOBALS['DOCTRINE_DATABASE'],
+            'user' => $GLOBALS['DOCTRINE_USER'],
+            'password' => $GLOBALS['DOCTRINE_PASSWORD'],
+            'host' => $GLOBALS['DOCTRINE_HOST']
         );
 
         $auditConfig = new AuditConfiguration();
@@ -76,8 +80,35 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
         $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
         $em = $this->em;
-        $schemaTool->createSchema(array_map(function ($value) use ($em) {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities));
+
+        try {
+            $schemaTool->createSchema(array_map(function ($value) use ($em) {
+                return $em->getClassMetadata($value);
+            }, $this->schemaEntities));
+        } catch (\Exception $e) {
+            if ($GLOBALS['DOCTRINE_DRIVER'] != 'pdo_mysql' ||
+                !($e instanceof \PDOException && strpos($e->getMessage(), 'Base table or view already exists') !== false)
+            ) {
+                throw $e;
+            }
+        }
+    }
+
+    public function tearDown()
+    {
+        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
+        $em = $this->em;
+
+        try {
+            $schemaTool->dropSchema(array_map(function ($value) use ($em) {
+                    return $em->getClassMetadata($value);
+                }, $this->schemaEntities));
+        } catch (\Exception $e) {
+            if ($GLOBALS['DOCTRINE_DRIVER'] != 'pdo_mysql' ||
+                !($e instanceof \PDOException && strpos($e->getMessage(), 'Base table or view already exists') !== false)
+            ) {
+                throw $e;
+            }
+        }
     }
 }
