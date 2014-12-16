@@ -31,6 +31,7 @@ class IssueTest extends BaseTest
     protected $schemaEntities = array(
         'SimpleThings\EntityAudit\Tests\EscapedColumnsEntity',
         'SimpleThings\EntityAudit\Tests\Issue87Project',
+        'SimpleThings\EntityAudit\Tests\Issue87ProjectComment',
         'SimpleThings\EntityAudit\Tests\Issue87AbstractProject',
         'SimpleThings\EntityAudit\Tests\Issue87Organization'
     );
@@ -38,6 +39,7 @@ class IssueTest extends BaseTest
     protected $auditedEntities = array(
         'SimpleThings\EntityAudit\Tests\EscapedColumnsEntity',
         'SimpleThings\EntityAudit\Tests\Issue87Project',
+        'SimpleThings\EntityAudit\Tests\Issue87ProjectComment',
         'SimpleThings\EntityAudit\Tests\Issue87AbstractProject',
         'SimpleThings\EntityAudit\Tests\Issue87Organization'
     );
@@ -60,10 +62,15 @@ class IssueTest extends BaseTest
         $org = new Issue87Organization();
         $project = new Issue87Project();
         $project->setOrganisation($org);
+        $project->setSomeProperty('some property');
         $project->setTitle('test project');
+        $comment = new Issue87ProjectComment();
+        $comment->setProject($project);
+        $comment->setText('text comment');
 
         $this->em->persist($org);
         $this->em->persist($project);
+        $this->em->persist($comment);
         $this->em->flush();
 
         $auditReader = $this->auditManager->createAuditReader($this->em);
@@ -71,6 +78,58 @@ class IssueTest extends BaseTest
         $auditedProject = $auditReader->find(get_class($project), $project->getId(), 1);
 
         $this->assertEquals($org->getId(), $auditedProject->getOrganisation()->getId());
+        $this->assertEquals('test project', $auditedProject->getTitle());
+        $this->assertEquals('some property', $auditedProject->getSomeProperty());
+
+        $auditedComment = $auditReader->find(get_class($comment), $comment->getId(), 1);
+        $this->assertEquals('test project', $auditedComment->getProject()->getTitle());
+
+        $project->setTitle('changed project title');
+        $this->em->flush();
+
+        $auditedComment = $auditReader->find(get_class($comment), $comment->getId(), 2);
+        $this->assertEquals('changed project title', $auditedComment->getProject()->getTitle());
+
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Issue87ProjectComment
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\ManytoOne(targetEntity="Issue87AbstractProject") @ORM\JoinColumn(name="a_join_column") */
+    protected $project;
+
+    /** @ORM\Column(type="text") */
+    protected $text;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getProject()
+    {
+        return $this->project;
+    }
+
+    public function setProject($project)
+    {
+        $this->project = $project;
+    }
+
+    public function getText()
+    {
+        return $this->text;
+    }
+
+    public function setText($text)
+    {
+        $this->text = $text;
     }
 }
 
@@ -137,6 +196,20 @@ abstract class Issue87AbstractProject
 /** @ORM\Entity @ORM\Table(name="project_project") */
 class Issue87Project extends Issue87AbstractProject
 {
+    /**
+     * @ORM\Column(type="string")
+     */
+    protected $someProperty;
+
+    public function getSomeProperty()
+    {
+        return $this->someProperty;
+    }
+
+    public function setSomeProperty($someProperty)
+    {
+        $this->someProperty = $someProperty;
+    }
 }
 
 /** @ORM\Entity */
