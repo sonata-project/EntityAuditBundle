@@ -135,8 +135,10 @@ class AuditReader
                 continue;
             }
 
-            foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
+            foreach ($assoc['joinColumnFieldNames'] as $sourceCol) {
+                $tableAlias = $class->isInheritanceTypeJoined() &&
+                    $class->isInheritedAssociation($assoc['fieldName']) &&
+                    !$class->isIdentifier($assoc['fieldName'])
                     ? 're' // root entity
                     : 'e';
                 $columnList[] = $tableAlias.'.'.$sourceCol;
