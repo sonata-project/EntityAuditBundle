@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\Common\Cache\CacheProvider;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -74,6 +76,13 @@ class AuditReader
      * @var bool
      */
     private $loadNativeEntities = true;
+
+    /**
+     * Instance of Doctrine Commons Cache
+     *
+     * @var CacheProvider
+     */
+    private $cache;
 
     /**
      * @return boolean
@@ -140,6 +149,22 @@ class AuditReader
     }
 
     /**
+     * @return CacheProvider
+     */
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    /**
+     * @param CacheProvider $cache
+     */
+    public function setCache(CacheProvider $cache)
+    {
+        $this->cache = $cache;
+    }
+
+    /**
      * @param EntityManager $em
      * @param AuditConfiguration $config
      * @param MetadataFactory $factory
@@ -174,6 +199,33 @@ class AuditReader
     public function clearEntityCache()
     {
         $this->entityCache = array();
+    }
+
+    /**
+     * Wrapper around native query method enabling query cache.
+     *
+     * @param $sql
+     * @param array $params
+     * @param array $types
+     * @return \Doctrine\DBAL\Driver\Statement
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function executeQuery($sql, array $params = array(), $types = array())
+    {
+        return $this->getConnection()
+            ->executeQuery($sql, $params, $types, $this->getQueryCacheProfile());
+    }
+
+    /**
+     * @return QueryCacheProfile
+     */
+    protected function getQueryCacheProfile()
+    {
+        if ($this->cache) {
+            return new QueryCacheProfile(0, 'supra_entity_audit', $this->cache);
+        }
+
+        return null;
     }
 
     /**
@@ -282,21 +334,23 @@ class AuditReader
             }
         }
 
-        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL . " ORDER BY e.rev DESC LIMIT 1";
 
-        $row = $this->em->getConnection()->fetchAssoc($query, $values);
+        $statement = $this->executeQuery($query, $values);
+        $row = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $statement->closeCursor();
 
-        if (!$row) {
+        if (!$row || !isset($row[0]) || !is_array($row[0])) {
             throw new NoRevisionFoundException($class->name, $id, $revision);
         }
 
-        if ($options['threatDeletionsAsExceptions'] && $row[$this->config->getRevisionTypeFieldName()] == 'DEL') {
+        if ($options['threatDeletionsAsExceptions'] && $row[0][$this->config->getRevisionTypeFieldName()] == 'DEL') {
             throw new DeletedException($class->name, $id, $revision);
         }
 
-        unset($row[$this->config->getRevisionTypeFieldName()]);
+        unset($row[0][$this->config->getRevisionTypeFieldName()]);
 
-        return $this->createEntity($class->name, $row, $revision);
+        return $this->createEntity($class->name, $row[0], $revision);
     }
 
     /**
@@ -490,7 +544,10 @@ class AuditReader
         $query = $this->platform->modifyLimitQuery(
             "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
         );
-        $revisionsData = $this->em->getConnection()->fetchAll($query);
+
+        $revisionsDataStmt = $this->executeQuery($query);
+        $revisionsData = $revisionsDataStmt->fetchAll();
+        $revisionsDataStmt->fetchAll();
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
@@ -574,7 +631,8 @@ class AuditReader
             }
 
             $query = "SELECT " . $columnList . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL;
-            $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
+
+            $revisionsData = $this->executeQuery($query, $params);
 
             foreach ($revisionsData AS $row) {
                 $id   = array();
@@ -587,6 +645,8 @@ class AuditReader
                 $entity = $this->createEntity($className, $row, $revision);
                 $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
             }
+
+            $revisionsData->closeCursor();
         }
         return $changedEntities;
     }
@@ -601,7 +661,10 @@ class AuditReader
     public function findRevision($rev)
     {
         $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
+
+        $revisionsDataStmt = $this->executeQuery($query, array($rev));
+        $revisionsData = $revisionsDataStmt->fetchAll();
+        $revisionsDataStmt->closeCursor();
 
         if (count($revisionsData) == 1) {
             return new Revision(
@@ -652,7 +715,10 @@ class AuditReader
 
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
                  "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
+
+        $statement = $this->executeQuery($query, array_values($id));
+        $revisionsData = $statement->fetchAll();
+        $statement->closeCursor();
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
@@ -704,7 +770,10 @@ class AuditReader
 
         $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
                         " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
-        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
+
+        $revisionStmt = $this->executeQuery($query, array_values($id));
+        $revision = $revisionStmt->fetchColumn();
+        $revisionStmt->closeCursor();
 
         return $revision;
     }
@@ -808,7 +877,8 @@ class AuditReader
         $values = array_values($id);
 
         $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
-        $stmt = $this->em->getConnection()->executeQuery($query, $values);
+
+        $stmt = $this->executeQuery($query, $values);
 
         $result = array();
         while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
@@ -816,6 +886,8 @@ class AuditReader
             unset($row[$this->config->getRevisionFieldName()]);
             $result[] = $this->createEntity($class->name, $row, $rev);
         }
+
+        $stmt->closeCursor();
 
         return $result;
     }

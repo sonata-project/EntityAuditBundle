@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping AS ORM;
+use SimpleThings\EntityAudit\AuditReader;
 
 class CoreTest extends BaseTest
 {
@@ -217,7 +218,21 @@ class CoreTest extends BaseTest
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\UserAudit', $changedEntities[1]->getEntity());
     }
 
-    public function testFindRevisions()
+    public function testFindRevisionsCached()
+    {
+        $data = $this->runCached('testFindRevisions');
+
+        $this->assertEquals(array('DoctrineNamespaceCacheKey[]', '[supra_entity_audit][1]'), array_keys($data));
+        $this->assertEquals(array(
+            'SELECT r.* FROM revisions r INNER JOIN UserAudit_audit e ON r.id = e.rev WHERE e.id = ? ORDER BY r.id DESC-a:1:{i:0;i:1;}-a:0:{}',
+            'SELECT r.* FROM revisions r INNER JOIN AnimalAudit_audit e ON r.id = e.rev WHERE e.id = ? ORDER BY r.id DESC-a:1:{i:0;i:2;}-a:0:{}',
+            'SELECT r.* FROM revisions r INNER JOIN AnimalAudit_audit e ON r.id = e.rev WHERE e.id = ? ORDER BY r.id DESC-a:1:{i:0;i:1;}-a:0:{}',
+            'SELECT r.* FROM revisions r INNER JOIN Dog_audit e ON r.id = e.rev WHERE e.id = ? ORDER BY r.id DESC-a:1:{i:0;i:2;}-a:0:{}',
+            'SELECT r.* FROM revisions r INNER JOIN Cat_audit e ON r.id = e.rev WHERE e.id = ? ORDER BY r.id DESC-a:1:{i:0;i:1;}-a:0:{}'
+            ), array_keys($data['[supra_entity_audit][1]']));
+    }
+
+    public function testFindRevisions(AuditReader $cachedReader = null)
     {
         $user = new UserAudit("beberlei");
         $foxy = new Fox('foxy', 30);
@@ -237,7 +252,7 @@ class CoreTest extends BaseTest
         $user->setName("beberlei2");
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $cachedReader ? $cachedReader : $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisions(get_class($user), $user->getId());
 
         $this->assertEquals(2, count($revisions));
@@ -368,6 +383,11 @@ class ArticleAudit
     public function setText($text)
     {
         $this->text = $text;
+    }
+
+    public function getText()
+    {
+        return $this->text;
     }
 
     public function setIgnoreme($ignoreme)

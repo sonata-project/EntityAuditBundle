@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -43,6 +44,25 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     protected $schemaEntities = array();
 
     protected $auditedEntities = array();
+
+    protected function runCached($test)
+    {
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $cache = new ArrayCache();
+
+        $reader->setCache($cache);
+
+        call_user_func(array($this, $test), $reader);
+
+        $ref = new \ReflectionClass($cache);
+
+        $dataProperty = $ref->getProperty('data');
+
+        $dataProperty->setAccessible(true);
+
+        return $dataProperty->getValue($cache);
+    }
 
     public function setUp()
     {
