@@ -63,6 +63,7 @@ class CurrentUserListener
             $token = $this->securityContext->getToken();
             if ($token && $token->isAuthenticated()) {
                 $this->auditConfiguration->setCurrentUsername($token->getUsername());
+                $this->auditConfiguration->setCurrentUserId($token->getUser()->getId());
             }
         }
     }
