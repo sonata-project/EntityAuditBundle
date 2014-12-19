@@ -33,6 +33,7 @@ class AuditConfiguration
     private $auditedEntityClasses = array();
     private $globalIgnoreColumns = array();
     private $currentUsername = '';
+    private $currentUserId = '';
     private $revisionIdFieldType = 'integer';
 
     public function getTablePrefix()
@@ -113,6 +114,15 @@ class AuditConfiguration
     public function getCurrentUsername()
     {
         return $this->currentUsername;
+    }
+    public function setCurrentUserId($user_id)
+    {
+        $this->currentUserId = $user_id;
+    }
+
+    public function getcurrentUserId()
+    {
+        return $this->currentUserId;
     }
 
     public function setRevisionIdFieldType($revisionIdFieldType)

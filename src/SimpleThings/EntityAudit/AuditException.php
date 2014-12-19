@@ -23,40 +23,21 @@
 
 namespace SimpleThings\EntityAudit;
 
-/**
- * Revision is returned from {@link AuditReader::getRevisions()}
- */
-class Revision
+class AuditException extends \Exception
 {
-    private $rev;
-    private $timestamp;
-    private $username;
-    private $user_id;
-
-    function __construct($rev, $timestamp, $username, $user_id)
+    static public function notAudited($className)
     {
-        $this->rev = $rev;
-        $this->timestamp = $timestamp;
-        $this->username = $username;
-        $this->username = $user_id;
+        return new self("Class '" . $className . "' is not audited.");
     }
-
-    public function getRev()
+    
+    static public function noRevisionFound($className, $id, $revision)
     {
-        return $this->rev;
+        return new self("No revision of class '" . $className . "' (".implode(", ", $id).") was found ".
+            "at revision " . $revision . " or before. The entity did not exist at the specified revision yet.");
     }
-
-    public function getTimestamp()
+    
+    static public function invalidRevision($rev)
     {
-        return $this->timestamp;
-    }
-
-    public function getUsername()
-    {
-        return $this->username;
-    }
-    public function getUserId()
-    {
-        return $this->user_id;
+        return new self("No revision '".$rev."' exists.");
     }
 }

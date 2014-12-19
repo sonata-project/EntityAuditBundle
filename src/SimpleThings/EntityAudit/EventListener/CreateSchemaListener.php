@@ -23,7 +23,6 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
@@ -59,42 +58,25 @@ class CreateSchemaListener implements EventSubscriber
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
     {
         $cm = $eventArgs->getClassMetadata();
-
-        if (!$this->metadataFactory->isAudited($cm->name)) {
-            $audited = false;
-            if ($cm->isInheritanceTypeJoined() && $cm->isRootEntity()) {
-                foreach ($cm->subClasses as $subClass) {
-                    if ($this->metadataFactory->isAudited($subClass)) {
-                        $audited = true;
-                    }
-                }
+        if ($this->metadataFactory->isAudited($cm->name)) {
+            $schema = $eventArgs->getSchema();
+            $entityTable = $eventArgs->getClassTable();
+            $revisionTable = $schema->createTable(
+                $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
+            );
+            foreach ($entityTable->getColumns() AS $column) {
+                /* @var $column Column */
+                $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
+                    $column->toArray(),
+                    array('notnull' => false, 'autoincrement' => false)
+                ));
             }
-            if (!$audited) {
-                return;
-            }
+            $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
+            $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+            $pkColumns = $entityTable->getPrimaryKey()->getColumns();
+            $pkColumns[] = $this->config->getRevisionFieldName();
+            $revisionTable->setPrimaryKey($pkColumns);
         }
-
-        $schema = $eventArgs->getSchema();
-        $entityTable = $eventArgs->getClassTable();
-        $revisionTable = $schema->createTable(
-            $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
-        );
-        foreach ($entityTable->getColumns() AS $column) {
-            /* @var $column Column */
-            $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
-                $column->toArray(),
-                array('notnull' => false, 'autoincrement' => false)
-            ));
-        }
-        $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
-        if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
-            throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
-        }
-
-        $pkColumns = $entityTable->getPrimaryKey()->getColumns();
-        $pkColumns[] = $this->config->getRevisionFieldName();
-        $revisionTable->setPrimaryKey($pkColumns);
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
@@ -106,6 +88,7 @@ class CreateSchemaListener implements EventSubscriber
         ));
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string');
+        $revisionsTable->addColumn('user_id', 'integer');
         $revisionsTable->setPrimaryKey(array('id'));
     }
 }
