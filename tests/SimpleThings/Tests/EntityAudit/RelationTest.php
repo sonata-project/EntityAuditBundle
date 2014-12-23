@@ -42,7 +42,10 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\WineProduct',
         'SimpleThings\EntityAudit\Tests\CheeseProduct',
         'SimpleThings\EntityAudit\Tests\Page',
-        'SimpleThings\EntityAudit\Tests\PageLocalization'
+        'SimpleThings\EntityAudit\Tests\PageLocalization',
+        'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
+        'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
+        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity'
     );
 
     protected $auditedEntities = array(
@@ -57,6 +60,9 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\CheeseProduct',
         'SimpleThings\EntityAudit\Tests\Page',
         'SimpleThings\EntityAudit\Tests\PageLocalization',
+        'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
+        'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
+        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity'
     );
 
     public function testUndefinedIndexesInUOWForRelations()
@@ -735,6 +741,110 @@ class RelationTest extends BaseTest
         $this->assertTrue(in_array($ownedOne->getId(), $ids));
         $this->assertTrue(in_array($ownedThree->getId(), $ids));
         $this->assertTrue(in_array($ownedFour->getId(), $ids));
+    }
+
+    public function testOneToOneEdgeCase()
+    {
+        $base = new RelationOneToOneEntity();
+
+        $referenced = new RelationFoobarEntity();
+        $referenced->setFoobarField('foobar');
+        $referenced->setReferencedField('referenced');
+
+        $base->setReferencedEntity($referenced);
+        $referenced->setOneToOne($base);
+
+        $this->em->persist($base);
+        $this->em->persist($referenced);
+
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $auditedBase = $reader->find(get_class($base), $base->getId(), 1);
+
+        $this->assertEquals('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
+        $this->assertEquals('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
+    }
+}
+
+/** @ORM\MappedSuperclass */
+class RelationAbstractEntityBase
+{
+    /** @ORM\Id @ORM\Column(type="integer", name="id_column") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+/**
+ * @ORM\Entity
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
+ * @ORM\DiscriminatorMap({ "foobar" = "RelationFoobarEntity" })
+ */
+abstract class RelationReferencedEntity extends RelationAbstractEntityBase
+{
+    /** @ORM\Column(type="string") */
+    protected $referencedField;
+
+    /** @ORM\OneToOne(targetEntity="RelationOneToOneEntity", mappedBy="referencedEntity") */
+    protected $oneToOne;
+
+    public function getOneToOne()
+    {
+        return $this->oneToOne;
+    }
+
+    public function setOneToOne($oneToOne)
+    {
+        $this->oneToOne = $oneToOne;
+    }
+
+    public function getReferencedField()
+    {
+        return $this->referencedField;
+    }
+
+    public function setReferencedField($referencedField)
+    {
+        $this->referencedField = $referencedField;
+    }
+}
+
+/** @ORM\Entity */
+class RelationFoobarEntity extends RelationReferencedEntity
+{
+    /** @ORM\Column(type="string") */
+    protected $foobarField;
+
+    public function getFoobarField()
+    {
+        return $this->foobarField;
+    }
+
+    public function setFoobarField($foobarField)
+    {
+        $this->foobarField = $foobarField;
+    }
+}
+
+/** @ORM\Entity */
+class RelationOneToOneEntity extends RelationAbstractEntityBase
+{
+    /** @ORM\OneToOne(targetEntity="RelationReferencedEntity", inversedBy="oneToOne") @ORM\JoinColumn(name="one_id", referencedColumnName="id_column") */
+    protected $referencedEntity;
+
+    public function getReferencedEntity()
+    {
+        return $this->referencedEntity;
+    }
+    public function setReferencedEntity($referencedEntity)
+    {
+        $this->referencedEntity = $referencedEntity;
     }
 }
 
