@@ -208,6 +208,7 @@ class AuditReader
         }
 
         $class = $this->em->getClassMetadata($className);
+
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
         if (!is_array($id)) {
@@ -236,7 +237,7 @@ class AuditReader
 
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $tableAlias.'.'.$type->convertToPHPValueSQL(
-                $class->getQuotedColumnName($field, $this->platform), $this->platform) .
+                $class->getColumnName($field, $this->platform), $this->platform) .
                 ' AS ' . $this->em->getConnection()->quote($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
@@ -262,7 +263,11 @@ class AuditReader
             && !$class->isRootEntity()) {
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
             $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
-            $joinSql = "INNER JOIN {$rootTableName} re ON re.id = e.id AND re.rev = e.rev";
+            $joinSql = "INNER JOIN {$rootTableName} re ON";
+            $joinSql .= " re.rev = e.rev";
+            foreach ($class->getIdentifierColumnNames() as $name) {
+                $joinSql .= " AND re.$name = e.$name";
+            }
         }
 
         $values = array_merge(array($revision), array_values($id));
@@ -337,8 +342,20 @@ class AuditReader
             if (!isset($class->discriminatorMap[$discriminator])) {
                 throw new \RuntimeException("No mapping found for [{$discriminator}].");
             }
-            $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
-                ->newInstance();
+
+            if ($class->discriminatorValue) {
+                $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
+                    ->newInstance();
+            } else {
+                //a complex case when ToOne binding is against AbstractEntity having no discriminator
+                $pk = array();
+
+                foreach ($class->identifier as $field) {
+                    $pk[$class->getColumnName($field)] = $data[$field];
+                }
+
+                return $this->find($class->discriminatorMap[$discriminator], $pk, $revision);
+            }
         } else {
             $entity = $class->newInstance();
         }
@@ -363,11 +380,21 @@ class AuditReader
             $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
+                //print_r($targetClass->discriminatorMap);
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
                     if ($this->loadAuditedEntities) {
                         $pk = array();
-                        foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                            $pk[$foreign] = $data[$local];
+
+                        if ($assoc['isOwningSide']) {
+                            foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
+                                $pk[$foreign] = $data[$local];
+                            }
+                        } else {
+                            $otherEntityMeta = $this->em->getClassMetadata($assoc['targetEntity']);
+
+                            foreach ($otherEntityMeta->associationMappings[$assoc['mappedBy']]['targetToSourceKeyColumns'] as $local => $foreign) {
+                                $pk[$foreign] = $data[$class->getFieldName($local)];
+                            }
                         }
 
                         $pk = array_filter($pk, function ($value) {
@@ -541,7 +568,11 @@ class AuditReader
                 $columnList .= ', re.' . $class->discriminatorColumn['name'];
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
                 $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
-                $joinSql = "INNER JOIN {$rootTableName} re ON re.id = e.id AND re.rev = e.rev";
+                $joinSql = "INNER JOIN {$rootTableName} re ON";
+                $joinSql .= " re.rev = e.rev";
+                foreach ($class->getIdentifierColumnNames() as $name) {
+                    $joinSql .= " AND re.$name = e.$name";
+                }
             }
 
             $this->platform = $this->em->getConnection()->getDatabasePlatform();
