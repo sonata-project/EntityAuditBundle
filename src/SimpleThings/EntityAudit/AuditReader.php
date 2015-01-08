@@ -547,7 +547,7 @@ class AuditReader
 
         $revisionsDataStmt = $this->executeQuery($query);
         $revisionsData = $revisionsDataStmt->fetchAll();
-        $revisionsDataStmt->fetchAll();
+        $revisionsDataStmt->closeCursor();
 
         $revisions = array();
         foreach ($revisionsData AS $row) {

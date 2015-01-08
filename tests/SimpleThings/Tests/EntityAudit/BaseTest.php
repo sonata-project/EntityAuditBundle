@@ -45,23 +45,32 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     protected $auditedEntities = array();
 
+    protected $cache = null;
+
     protected function runCached($test)
     {
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $cache = new ArrayCache();
+        $this->cache = new ArrayCache();
 
-        $reader->setCache($cache);
+        $reader->setCache($this->cache);
 
         call_user_func(array($this, $test), $reader);
 
-        $ref = new \ReflectionClass($cache);
+        $ref = new \ReflectionClass($this->cache);
 
         $dataProperty = $ref->getProperty('data');
 
         $dataProperty->setAccessible(true);
 
-        return $dataProperty->getValue($cache);
+        return $dataProperty->getValue($this->cache);
+    }
+
+    protected function clearCache()
+    {
+        if ($this->cache) {
+            $this->cache->flushAll();
+        }
     }
 
     public function setUp()
