@@ -102,40 +102,44 @@ class LogRevisionsListener implements EventSubscriber
         foreach ($extraUpdates as $update) {
             list($entity, $changeset) = $update;
 
-            if ($this->metadataFactory->isAudited(get_class($entity))) {
-                $meta = $em->getClassMetadata(get_class($entity));
+            if (!$this->metadataFactory->isAudited(get_class($entity))) {
+                continue;
+            }
 
-                $persister = new BasicEntityPersister($em, $meta);
+            $meta = $em->getClassMetadata(get_class($entity));
 
-                $persisterR = new \ReflectionClass($persister);
-                $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
-                $prepareUpdateDataR->setAccessible(true);
+            $persister = new BasicEntityPersister($em, $meta);
 
-                $updateData = $prepareUpdateDataR->invoke($persister, $entity);
+            $persisterR = new \ReflectionClass($persister);
+            $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
+            $prepareUpdateDataR->setAccessible(true);
 
-                if (isset($updateData[$meta->table['name']]) && $updateData[$meta->table['name']]) {
-                    foreach ($updateData[$meta->table['name']] as $field => $value) {
-                        $sql = 'UPDATE '.$this->config->getTablePrefix() . $meta->table['name'] . $this->config->getTableSuffix().' '.
-                            'SET '.$field.' = ? '.
-                            'WHERE '.$this->config->getRevisionFieldName().' = ? ';
+            $updateData = $prepareUpdateDataR->invoke($persister, $entity);
 
-                        $params = array($value, $this->getRevisionId());
+            if (!isset($updateData[$meta->table['name']]) || !$updateData[$meta->table['name']]) {
+                continue;
+            }
 
-                        foreach ($meta->identifier AS $idField) {
-                            if (isset($meta->fieldMappings[$idField])) {
-                                $columnName = $meta->fieldMappings[$idField]['columnName'];
-                            } else if (isset($meta->associationMappings[$idField])) {
-                                $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
-                            }
+            foreach ($updateData[$meta->table['name']] as $field => $value) {
+                $sql = 'UPDATE '.$this->config->getTablePrefix() . $meta->table['name'] . $this->config->getTableSuffix().' '.
+                    'SET '.$field.' = ? '.
+                    'WHERE '.$this->config->getRevisionFieldName().' = ? ';
 
-                            $params[] = $meta->reflFields[$idField]->getValue($entity);
+                $params = array($value, $this->getRevisionId());
 
-                            $sql .= 'AND '.$columnName.' = ?';
-                        }
-
-                        $this->em->getConnection()->executeQuery($sql, $params);
+                foreach ($meta->identifier AS $idField) {
+                    if (isset($meta->fieldMappings[$idField])) {
+                        $columnName = $meta->fieldMappings[$idField]['columnName'];
+                    } else if (isset($meta->associationMappings[$idField])) {
+                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
                     }
+
+                    $params[] = $meta->reflFields[$idField]->getValue($entity);
+
+                    $sql .= 'AND '.$columnName.' = ?';
                 }
+
+                $this->em->getConnection()->executeQuery($sql, $params);
             }
         }
     }
