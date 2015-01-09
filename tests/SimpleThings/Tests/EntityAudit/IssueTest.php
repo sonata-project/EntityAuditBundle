@@ -24,6 +24,7 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 class IssueTest extends BaseTest
@@ -33,7 +34,10 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Issue87Project',
         'SimpleThings\EntityAudit\Tests\Issue87ProjectComment',
         'SimpleThings\EntityAudit\Tests\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Issue87Organization'
+        'SimpleThings\EntityAudit\Tests\Issue87Organization',
+        'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner',
+        'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
+        'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
     );
 
     protected $auditedEntities = array(
@@ -41,7 +45,10 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Issue87Project',
         'SimpleThings\EntityAudit\Tests\Issue87ProjectComment',
         'SimpleThings\EntityAudit\Tests\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Issue87Organization'
+        'SimpleThings\EntityAudit\Tests\Issue87Organization',
+        'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner',
+        'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
+        'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
     );
 
     public function testEscapedColumns()
@@ -90,6 +97,32 @@ class IssueTest extends BaseTest
         $auditedComment = $auditReader->find(get_class($comment), $comment->getId(), 2);
         $this->assertEquals('changed project title', $auditedComment->getProject()->getTitle());
 
+    }
+
+    public function testDuplicateRevisionKeyConstraintFailure()
+    {
+        $primaryOwner = new DuplicateRevisionFailureTestPrimaryOwner();
+        $this->em->persist($primaryOwner);
+
+        $secondaryOwner = new DuplicateRevisionFailureTestSecondaryOwner();
+        $this->em->persist($secondaryOwner);
+
+        $primaryOwner->addSecondaryOwner($secondaryOwner);
+
+        $element = new DuplicateRevisionFailureTestOwnedElement();
+        $this->em->persist($element);
+
+        $primaryOwner->addElement($element);
+        $secondaryOwner->addElement($element);
+
+        $this->em->flush();
+
+        $this->em->getUnitOfWork()->clear();
+
+        $primaryOwner = $this->em->find('SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner', 1);
+
+        $this->em->remove($primaryOwner);
+        $this->em->flush();
     }
 }
 
@@ -259,5 +292,110 @@ class EscapedColumnsEntity
     public function setLft($lft)
     {
         $this->lft = $lft;
+    }
+}
+
+/**
+ * @ORM\MappedSuperclass
+ */
+abstract class DuplicateRevisionFailureTestEntity
+{
+    /** @ORM\Id @ORM\GeneratedValue() @ORM\Column(type="integer") */
+    protected $id;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+}
+
+/**
+ * NB! Object property order matters!
+ *
+ * @ORM\Entity
+ */
+class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
+{
+    /**
+     * @ORM\OneToMany(targetEntity="DuplicateRevisionFailureTestOwnedElement", mappedBy="primaryOwner", cascade={"persist", "remove"}, fetch="LAZY")
+     */
+    protected $elements;
+
+    /**
+     * @ORM\OneToMany(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", mappedBy="primaryOwner", cascade={"persist", "remove"})
+     */
+    protected $secondaryOwners;
+
+    public function __construct()
+    {
+        $this->secondaryOwners = new ArrayCollection();
+        $this->elements = new ArrayCollection();
+    }
+
+    public function addSecondaryOwner(DuplicateRevisionFailureTestSecondaryOwner $secondaryOwner)
+    {
+        $secondaryOwner->setPrimaryOwner($this);
+        $this->secondaryOwners->add($secondaryOwner);
+    }
+
+    public function addElement(DuplicateRevisionFailureTestOwnedElement $element)
+    {
+        $element->setPrimaryOwner($this);
+        $this->elements->add($element);
+    }
+}
+
+
+/** @ORM\Entity */
+class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailureTestEntity
+{
+    /**
+     * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestPrimaryOwner", inversedBy="secondaryOwners")
+     */
+    protected $primaryOwner;
+
+    /**
+     * @ORM\OneToMany(targetEntity="DuplicateRevisionFailureTestOwnedElement", mappedBy="secondaryOwner", cascade={"persist", "remove"})
+     */
+    protected $elements;
+
+    public function __construct()
+    {
+        $this->elements = new ArrayCollection();
+    }
+
+    public function setPrimaryOwner(DuplicateRevisionFailureTestPrimaryOwner $owner)
+    {
+        $this->primaryOwner = $owner;
+    }
+
+    public function addElement(DuplicateRevisionFailureTestOwnedElement $element)
+    {
+        $element->setSecondaryOwner($this);
+        $this->elements->add($element);
+    }
+}
+
+/** @ORM\Entity */
+class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureTestEntity
+{
+    /**
+     * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestPrimaryOwner", inversedBy="elements")
+     */
+    protected $primaryOwner;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", inversedBy="elements")
+     */
+    protected $secondaryOwner;
+
+    public function setPrimaryOwner(DuplicateRevisionFailureTestPrimaryOwner $owner)
+    {
+        $this->primaryOwner = $owner;
+    }
+
+    public function setSecondaryOwner(DuplicateRevisionFailureTestSecondaryOwner $owner)
+    {
+        $this->secondaryOwner = $owner;
     }
 }
