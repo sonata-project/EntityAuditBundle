@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Persisters\BasicEntityPersister;
 use SimpleThings\EntityAudit\AuditManager;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
@@ -81,7 +83,65 @@ class LogRevisionsListener implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return array(Events::onFlush, Events::postPersist, Events::postUpdate);
+        return array(Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush);
+    }
+
+    public function postFlush(PostFlushEventArgs $eventArgs)
+    {
+        $em = $eventArgs->getEntityManager();
+
+        $uow = $em->getUnitOfWork();
+
+        //well, this is awkward, it's a reflection again
+        $uowR = new \ReflectionClass($uow);
+        $extraUpdatesR = $uowR->getProperty('extraUpdates');
+        $extraUpdatesR->setAccessible(true);
+
+        $extraUpdates = $extraUpdatesR->getValue($uow);
+
+        foreach ($extraUpdates as $update) {
+            list($entity, $changeset) = $update;
+
+            if (!$this->metadataFactory->isAudited(get_class($entity))) {
+                continue;
+            }
+
+            $meta = $em->getClassMetadata(get_class($entity));
+
+            $persister = new BasicEntityPersister($em, $meta);
+
+            $persisterR = new \ReflectionClass($persister);
+            $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
+            $prepareUpdateDataR->setAccessible(true);
+
+            $updateData = $prepareUpdateDataR->invoke($persister, $entity);
+
+            if (!isset($updateData[$meta->table['name']]) || !$updateData[$meta->table['name']]) {
+                continue;
+            }
+
+            foreach ($updateData[$meta->table['name']] as $field => $value) {
+                $sql = 'UPDATE '.$this->config->getTablePrefix() . $meta->table['name'] . $this->config->getTableSuffix().' '.
+                    'SET '.$field.' = ? '.
+                    'WHERE '.$this->config->getRevisionFieldName().' = ? ';
+
+                $params = array($value, $this->getRevisionId());
+
+                foreach ($meta->identifier AS $idField) {
+                    if (isset($meta->fieldMappings[$idField])) {
+                        $columnName = $meta->fieldMappings[$idField]['columnName'];
+                    } else if (isset($meta->associationMappings[$idField])) {
+                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
+                    }
+
+                    $params[] = $meta->reflFields[$idField]->getValue($entity);
+
+                    $sql .= 'AND '.$columnName.' = ?';
+                }
+
+                $this->em->getConnection()->executeQuery($sql, $params);
+            }
+        }
     }
 
     public function postPersist(LifecycleEventArgs $eventArgs)
