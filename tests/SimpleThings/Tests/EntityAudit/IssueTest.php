@@ -35,6 +35,9 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Issue87ProjectComment',
         'SimpleThings\EntityAudit\Tests\Issue87AbstractProject',
         'SimpleThings\EntityAudit\Tests\Issue87Organization',
+        'SimpleThings\EntityAudit\Tests\Issue9Address',
+        'SimpleThings\EntityAudit\Tests\Issue9Customer',
+        'SimpleThings\EntityAudit\Tests\Issue87Organization',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
@@ -45,6 +48,9 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Issue87Project',
         'SimpleThings\EntityAudit\Tests\Issue87ProjectComment',
         'SimpleThings\EntityAudit\Tests\Issue87AbstractProject',
+        'SimpleThings\EntityAudit\Tests\Issue87Organization',
+        'SimpleThings\EntityAudit\Tests\Issue9Address',
+        'SimpleThings\EntityAudit\Tests\Issue9Customer',
         'SimpleThings\EntityAudit\Tests\Issue87Organization',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
@@ -99,6 +105,31 @@ class IssueTest extends BaseTest
 
     }
 
+    public function testIssue9()
+    {
+        $address = new Issue9Address();
+        $address->setAddressText('NY, Red Street 6');
+
+        $customer = new Issue9Customer();
+        $customer->setAddresses(array($address));
+        $customer->setPrimaryAddress($address);
+
+        $address->setCustomer($customer);
+
+        $this->em->persist($customer);
+        $this->em->persist($address);
+
+        $this->em->flush(); //#1
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $aAddress = $reader->find(get_class($address), $address->getId(), 1);
+        $this->assertEquals($customer->getId(), $aAddress->getCustomer()->getId());
+
+        $aCustomer = $reader->find(get_class($customer), $customer->getId(), 1);
+        $this->assertEquals('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
+    }
+
     public function testDuplicateRevisionKeyConstraintFailure()
     {
         $primaryOwner = new DuplicateRevisionFailureTestPrimaryOwner();
@@ -123,6 +154,94 @@ class IssueTest extends BaseTest
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Issue9Address
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /**
+     * @ORM\Column
+     */
+    protected $address_text;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Issue9Customer", inversedBy="addresses")
+     */
+    protected $customer;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAddressText()
+    {
+        return $this->address_text;
+    }
+
+    public function setAddressText($address_text)
+    {
+        $this->address_text = $address_text;
+    }
+
+    public function getCustomer()
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer($customer)
+    {
+        $this->customer = $customer;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class Issue9Customer
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Issue9Address", mappedBy="customer")
+     */
+    protected $addresses;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Issue9Address")
+     */
+    protected $primary_address;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAddresses()
+    {
+        return $this->addresses;
+    }
+
+    public function setAddresses($addresses)
+    {
+        $this->addresses = $addresses;
+    }
+
+    public function getPrimaryAddress()
+    {
+        return $this->primary_address;
+    }
+
+    public function setPrimaryAddress($primary_address)
+    {
+        $this->primary_address = $primary_address;
     }
 }
 
