@@ -238,7 +238,7 @@ class AuditReader
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $tableAlias.'.'.$type->convertToPHPValueSQL(
                 $class->getColumnName($field, $this->platform), $this->platform) .
-                ' AS ' . $this->em->getConnection()->quote($field);
+                ' AS ' . $this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
@@ -487,8 +487,6 @@ class AuditReader
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
-        $this->platform = $this->em->getConnection()->getDatabasePlatform();
-
         $query = $this->platform->modifyLimitQuery(
             "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
         );
@@ -546,7 +544,7 @@ class AuditReader
                     ? 're' // root entity
                     : 'e';
                 $columnList .= ', ' . $tableAlias.'.'.$type->convertToPHPValueSQL(
-                    $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $field;
+                    $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
@@ -575,7 +573,6 @@ class AuditReader
                 }
             }
 
-            $this->platform = $this->em->getConnection()->getDatabasePlatform();
             $query = "SELECT " . $columnList . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL;
             $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
 
@@ -658,7 +655,6 @@ class AuditReader
         $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
 
         $revisions = array();
-        $this->platform = $this->em->getConnection()->getDatabasePlatform();
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
                 $row['id'],
@@ -794,7 +790,7 @@ class AuditReader
         foreach ($class->fieldNames as $columnName => $field) {
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
-                               $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $field;
+                               $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
