@@ -45,9 +45,11 @@ class SimpleThingsEntityAuditExtension extends Extension
             'metadata_enabled_entities',
             'table_prefix',
             'table_suffix',
+            'meta_suffix',
             'revision_field_name',
             'revision_type_field_name',
             'revision_table_name',
+            'revision_meta_table_name',
             'revision_id_field_type',
             'global_ignore_columns'
         );

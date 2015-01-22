@@ -41,7 +41,7 @@
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
             </call>
-            <call method="setMedataEnabledEntityClasses">
+            <call method="setMetadataEnabledEntityClasses">
                 <argument>%simplethings.entityaudit.metadata_enabled_entities%</argument>
             </call>
             <call method="setGlobalIgnoreColumns">
