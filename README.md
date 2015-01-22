@@ -216,6 +216,23 @@ In a standalone app or Symfony command you have to set the username to a specifi
     $auditConfig->setCurrentUsername( "beberlei" );
 ```
 
+## Caching
+
+EntityAudit can, sometimes, issue quite complicated SQL queries, so you can enable caching in your application. Keep in
+mind that caching is done on SQL level (using QueryCacheProfile). Anything extending CacheProvider from Doctrine Cache 
+can serve as cache driver:
+
+```php
+    $reader = $auditManager->createAuditReader($em);
+
+    $cache = new ArrayCache();
+
+    $reader->setCache($cache);
+```
+
+This will also work for AuditedCollections used in OneToOne / ManyToOne relationships as long as related AuditReader has
+cache property set.
+
 ## Viewing auditing
 
 A default Symfony2 controller is provided that gives basic viewing capabilities of audited data.
@@ -242,5 +259,5 @@ This provides you with a few different routes:
 
 * Currently only works with auto-increment databases
 * Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
-* It does NOT work with Joined-Table-Inheritance (Single Table Inheritance should work, but not tested)
+* some methods (like findRevisionHistory) will will not work with SingleTable and JoinedInheritance
 * Many-To-Many assocations are NOT versioned
