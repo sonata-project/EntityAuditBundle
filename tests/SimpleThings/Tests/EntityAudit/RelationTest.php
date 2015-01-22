@@ -272,12 +272,49 @@ class RelationTest extends BaseTest
         $this->assertCount(0, $audited->getOwned3());
     }
 
+    public function testRelationsCached()
+    {
+        $data = $this->runCached('testRelations');
+
+        $platform = $this->em->getConnection()->getDatabasePlatform();
+
+        $this->assertEquals(array('[supra_entity_audit][1]'), array_keys($data));
+        $this->assertEquals(array (
+            0 => 'SELECT r.* FROM revisions r INNER JOIN OwnerEntity_audit e ON r.id = e.rev WHERE e.some_strange_key_name = ? ORDER BY r.id DESC-a:1:{i:0;i:1;}-a:0:{}',
+            1 => 'SELECT r.* FROM revisions r INNER JOIN OwnedEntity1_audit e ON r.id = e.rev WHERE e.strange_owned_id_name = ? ORDER BY r.id DESC-a:1:{i:0;i:1;}-a:0:{}',
+            2 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:3;i:1;i:1;}-a:0:{}',
+            3 => 'SELECT MAX(rev) as rev, revtype AS revtype, strange_owned_id_name FROM OwnedEntity1_audit t WHERE rev <= 3 AND owner_id_goes_here = ? AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit st WHERE st.strange_owned_id_name = t.strange_owned_id_name AND ((owner_id_goes_here <> ?) OR (owner_id_goes_here IS NULL)) AND st.rev <= 3 AND st.rev > t.rev) AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit sd WHERE sd.strange_owned_id_name = t.strange_owned_id_name AND sd.rev <= 3 AND sd.rev > t.rev AND sd.revtype = ?) GROUP BY strange_owned_id_name HAVING revtype <> ?-a:4:{i:0;i:1;i:1;i:1;i:2;s:3:"DEL";i:3;s:3:"DEL";}-a:0:{}',
+            4 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:3;i:1;s:1:"1";}-a:0:{}',
+            5 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:3;i:1;s:1:"1";}-a:0:{}',
+            6 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:4;i:1;i:1;}-a:0:{}',
+            7 => 'SELECT MAX(rev) as rev, revtype AS revtype, strange_owned_id_name FROM OwnedEntity1_audit t WHERE rev <= 4 AND owner_id_goes_here = ? AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit st WHERE st.strange_owned_id_name = t.strange_owned_id_name AND ((owner_id_goes_here <> ?) OR (owner_id_goes_here IS NULL)) AND st.rev <= 4 AND st.rev > t.rev) AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit sd WHERE sd.strange_owned_id_name = t.strange_owned_id_name AND sd.rev <= 4 AND sd.rev > t.rev AND sd.revtype = ?) GROUP BY strange_owned_id_name HAVING revtype <> ?-a:4:{i:0;i:1;i:1;i:1;i:2;s:3:"DEL";i:3;s:3:"DEL";}-a:0:{}',
+            8 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:4;i:1;s:1:"1";}-a:0:{}',
+            9 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:4;i:1;s:1:"1";}-a:0:{}',
+            10 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:4;i:1;s:1:"2";}-a:0:{}',
+            11 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:5;i:1;i:1;}-a:0:{}',
+            12 => 'SELECT MAX(rev) as rev, revtype AS revtype, strange_owned_id_name FROM OwnedEntity1_audit t WHERE rev <= 5 AND owner_id_goes_here = ? AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit st WHERE st.strange_owned_id_name = t.strange_owned_id_name AND ((owner_id_goes_here <> ?) OR (owner_id_goes_here IS NULL)) AND st.rev <= 5 AND st.rev > t.rev) AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit sd WHERE sd.strange_owned_id_name = t.strange_owned_id_name AND sd.rev <= 5 AND sd.rev > t.rev AND sd.revtype = ?) GROUP BY strange_owned_id_name HAVING revtype <> ?-a:4:{i:0;i:1;i:1;i:1;i:2;s:3:"DEL";i:3;s:3:"DEL";}-a:0:{}',
+            13 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:5;i:1;s:1:"1";}-a:0:{}',
+            14 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:5;i:1;s:1:"1";}-a:0:{}',
+            15 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:5;i:1;s:1:"2";}-a:0:{}',
+            16 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:6;i:1;i:1;}-a:0:{}',
+            17 => 'SELECT MAX(rev) as rev, revtype AS revtype, strange_owned_id_name FROM OwnedEntity1_audit t WHERE rev <= 6 AND owner_id_goes_here = ? AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit st WHERE st.strange_owned_id_name = t.strange_owned_id_name AND ((owner_id_goes_here <> ?) OR (owner_id_goes_here IS NULL)) AND st.rev <= 6 AND st.rev > t.rev) AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit sd WHERE sd.strange_owned_id_name = t.strange_owned_id_name AND sd.rev <= 6 AND sd.rev > t.rev AND sd.revtype = ?) GROUP BY strange_owned_id_name HAVING revtype <> ?-a:4:{i:0;i:1;i:1;i:1;i:2;s:3:"DEL";i:3;s:3:"DEL";}-a:0:{}',
+            18 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:6;i:1;s:1:"1";}-a:0:{}',
+            19 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:6;i:1;s:1:"1";}-a:0:{}',
+            20 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:6;i:1;s:1:"2";}-a:0:{}',
+            21 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:7;i:1;i:1;}-a:0:{}',
+            22 => 'SELECT MAX(rev) as rev, revtype AS revtype, strange_owned_id_name FROM OwnedEntity1_audit t WHERE rev <= 7 AND owner_id_goes_here = ? AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit st WHERE st.strange_owned_id_name = t.strange_owned_id_name AND ((owner_id_goes_here <> ?) OR (owner_id_goes_here IS NULL)) AND st.rev <= 7 AND st.rev > t.rev) AND NOT EXISTS (SELECT * FROM OwnedEntity1_audit sd WHERE sd.strange_owned_id_name = t.strange_owned_id_name AND sd.rev <= 7 AND sd.rev > t.rev AND sd.revtype = ?) GROUP BY strange_owned_id_name HAVING revtype <> ?-a:4:{i:0;i:1;i:1;i:1;i:2;s:3:"DEL";i:3;s:3:"DEL";}-a:0:{}',
+            23 => 'SELECT e.revtype, e.strange_owned_id_name AS '.$platform->quoteSingleIdentifier('id').', e.even_strangier_column_name AS '.$platform->quoteSingleIdentifier('title').', e.owner_id_goes_here FROM OwnedEntity1_audit e  WHERE e.rev <= ? AND e.strange_owned_id_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:7;i:1;s:1:"2";}-a:0:{}',
+            24 => 'SELECT e.revtype, e.some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', e.crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e  WHERE e.rev <= ? AND e.some_strange_key_name = ? ORDER BY e.rev DESC LIMIT 1-a:2:{i:0;i:7;i:1;s:1:"1";}-a:0:{}',
+            25 => 'SELECT rev, some_strange_key_name AS '.$platform->quoteSingleIdentifier('id').', crazy_title_to_mess_up_audit AS '.$platform->quoteSingleIdentifier('title').' FROM OwnerEntity_audit e WHERE some_strange_key_name = ? ORDER BY e.rev DESC-a:1:{i:0;i:1;}-a:0:{}',
+        ), array_keys($data['[supra_entity_audit][1]']));
+    }
+
     /**
      * @group mysql
      */
-    public function testRelations()
+    public function testRelations($auditReader = null)
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $auditReader ? $auditReader : $this->auditManager->createAuditReader($this->em);
 
         //create owner
         $owner = new OwnerEntity();
@@ -302,6 +339,8 @@ class RelationTest extends BaseTest
         $owner->setTitle('changed#2');
 
         $this->em->flush();
+        //this flush is needed as we
+        $this->clearCache();
 
         //should add a revision
         $this->assertCount(2, $auditReader->findRevisions(get_class($owner), $owner->getId()));
