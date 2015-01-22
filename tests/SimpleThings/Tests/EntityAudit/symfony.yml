@@ -1,0 +1,24 @@
+services:
+  doctrine.orm.default_entity_manager:
+    class: stdClass
+  security.context:
+    class: stdClass
+
+simple_things_entity_audit:
+  audited_entities:
+    - Entity1
+    - Entity2
+  metadata_enabled_entities:
+    - Entity3
+    - Entity4
+  global_ignore_columns:
+    - column1
+    - column2
+  table_prefix: test_prefix
+  table_suffix: test_suffix
+  meta_suffix: test_meta_suffix
+  revision_field_name: test_rev
+  revision_type_field_name: test_type_field_name
+  revision_table_name: test_table_name
+  revision_meta_table_name: test_meta_table_name
+  revision_id_field_type: test_id_field_type

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -21,47 +22,16 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit;
+namespace SimpleThings\EntityAudit\Exception;
 
-/**
- * Revision is returned from {@link AuditReader::getRevisions()}
- */
-class Revision
+class NoMetadataException extends AuditException
 {
-    private $rev;
-    private $timestamp;
-    private $username;
-    private $meta;
-
-    function __construct($rev, $timestamp, $username, $meta)
+    public function __construct($className)
     {
-        $this->rev = $rev;
-        $this->timestamp = $timestamp;
-        $this->username = $username;
-        $this->meta = $meta;
-    }
-
-    public function getRev()
-    {
-        return $this->rev;
-    }
-
-    public function getTimestamp()
-    {
-        return $this->timestamp;
-    }
-
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    public function getMeta($key = null)
-    {
-        if (is_null($key)) {
-            return $this->meta;
-        } else {
-            return isset($this->meta[$key]) ? $this->meta[$key] : null;
-        }
+        parent::__construct($className, null, null);
+        $this->message = sprintf(
+            "Class '$className' is not metadata-enabled.",
+            $className
+        );
     }
 }

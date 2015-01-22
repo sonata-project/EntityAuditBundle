@@ -17,6 +17,10 @@ class AuditManager
 
     private $metadataFactory;
 
+    private $revisionMeta = array();
+
+    private $entityMeta = array();
+
     /**
      * @param AuditConfiguration $config
      */
@@ -45,5 +49,48 @@ class AuditManager
     {
         $evm->addEventSubscriber(new CreateSchemaListener($this));
         $evm->addEventSubscriber(new LogRevisionsListener($this));
+    }
+
+    public function getRevisionMeta()
+    {
+        return $this->revisionMeta;
+    }
+
+    public function setRevisionMeta($revisionMeta)
+    {
+        $this->revisionMeta = $revisionMeta;
+    }
+
+    public function addRevisionMeta($name, $data)
+    {
+        $this->revisionMeta[$name] = $data;
+    }
+
+    public function getEntityMeta($entity = null)
+    {
+        if (is_null($entity)) {
+            return $this->entityMeta;
+        } elseif(isset($this->entityMeta[spl_object_hash($entity)])) {
+            return $this->entityMeta[spl_object_hash($entity)];
+        } else {
+            return array();
+        }
+    }
+
+    public function removeEntityMeta($entity = null)
+    {
+        if (isset($this->entityMeta[spl_object_hash($entity)])) {
+            unset($this->entityMeta[spl_object_hash($entity)]);
+        }
+    }
+
+    public function setEntityMeta($entityMeta)
+    {
+        $this->entityMeta = $entityMeta;
+    }
+
+    public function addEntityMeta($entity, $name, $data)
+    {
+        $this->entityMeta[spl_object_hash($entity)][$name] = $data;
     }
 }

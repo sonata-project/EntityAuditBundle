@@ -27,13 +27,41 @@ class AuditConfiguration
 {
     private $prefix = '';
     private $suffix = '_audit';
+    private $metaSuffix = '_meta';
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
+    private $revisionMetaTableName = 'revision_meta';
     private $auditedEntityClasses = array();
+    private $metadataEnabledEntityClasses = array();
     private $globalIgnoreColumns = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
+
+    public function setMetadataEnabledEntityClasses(array $classes)
+    {
+        $this->metadataEnabledEntityClasses = $classes;
+    }
+
+    public function getRevisionMetaTableName()
+    {
+        return $this->revisionMetaTableName;
+    }
+
+    public function setRevisionMetaTableName($revisionMetaTableName)
+    {
+        $this->revisionMetaTableName = $revisionMetaTableName;
+    }
+
+    public function getMetaTableSuffix()
+    {
+        return $this->metaSuffix;
+    }
+
+    public function setMetaTableSuffix($metaSuffix)
+    {
+        $this->metaSuffix = $metaSuffix;
+    }
 
     public function getTablePrefix()
     {
@@ -102,7 +130,7 @@ class AuditConfiguration
 
     public function createMetadataFactory()
     {
-        return new Metadata\MetadataFactory($this->auditedEntityClasses);
+        return new Metadata\MetadataFactory($this->auditedEntityClasses, $this->metadataEnabledEntityClasses);
     }
 
     public function setCurrentUsername($username)

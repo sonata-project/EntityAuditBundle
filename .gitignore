@@ -1,3 +1,5 @@
 .svn
 composer.lock
 vendor
+tests/SimpleThings/Tests/EntityAudit/cache
+tests/SimpleThings/Tests/EntityAudit/logs

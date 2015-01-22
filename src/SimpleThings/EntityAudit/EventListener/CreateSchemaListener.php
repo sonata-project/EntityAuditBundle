@@ -69,6 +69,7 @@ class CreateSchemaListener implements EventSubscriber
                     }
                 }
             }
+            
             if (!$audited) {
                 return;
             }
@@ -79,6 +80,25 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable = $schema->createTable(
             $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
         );
+
+        if ($this->metadataFactory->isMetadataEnabled($cm->name)) {
+            $revisionMetaTable = $schema->createTable(
+                $this->config->getTablePrefix().$entityTable->getName().$this->config->getMetaTableSuffix()
+            );
+
+            foreach ($entityTable->getPrimaryKeyColumns() as $column) {
+                $definition = $entityTable->getColumn($column);
+                $revisionMetaTable->addColumn($definition->getName(), $definition->getType()->getName(), array_merge(
+                    $definition->toArray(),
+                    array('autoincrement' => false)
+                ));
+            }
+
+            $revisionMetaTable->addColumn('revision', $this->config->getRevisionIdFieldType());
+            $revisionMetaTable->addColumn('name', 'string');
+            $revisionMetaTable->addColumn('data', 'text');
+        }
+
         foreach ($entityTable->getColumns() AS $column) {
             /* @var $column Column */
             $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
@@ -86,6 +106,7 @@ class CreateSchemaListener implements EventSubscriber
                 array('notnull' => false, 'autoincrement' => false)
             ));
         }
+
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
         $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
         if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
@@ -107,5 +128,10 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string');
         $revisionsTable->setPrimaryKey(array('id'));
+
+        $revisionMetaTable = $schema->createTable($this->config->getRevisionMetaTableName());
+        $revisionMetaTable->addColumn('id', $this->config->getRevisionIdFieldType());
+        $revisionMetaTable->addColumn('name', 'string');
+        $revisionMetaTable->addColumn('data', 'text');
     }
 }
