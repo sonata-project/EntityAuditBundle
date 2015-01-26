@@ -2,8 +2,8 @@
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\EventManager;
-use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 
@@ -17,13 +17,18 @@ class AuditManager
 
     private $metadataFactory;
 
+    private $emRevision;
+
+    private $doctrine;
+
     /**
      * @param AuditConfiguration $config
      */
-    public function __construct(AuditConfiguration $config)
+    public function __construct(AuditConfiguration $config, Registry $doctrine)
     {
-        $this->config = $config;
+        $this->config          = $config;
         $this->metadataFactory = $config->createMetadataFactory();
+        $this->doctrine = $doctrine;
     }
 
     public function getMetadataFactory()
@@ -36,14 +41,19 @@ class AuditManager
         return $this->config;
     }
 
-    public function createAuditReader(EntityManager $em)
+    public function createAuditReader(Registry $doctrine)
     {
-        return new AuditReader($em, $this->config, $this->metadataFactory);
+        return new AuditReader($doctrine->getManager($this->config->getDefaultConnection()), $doctrine->getManager($this->config->getRevisionConnection()), $this->config, $this->metadataFactory);
     }
 
     public function registerEvents(EventManager $evm)
     {
         $evm->addEventSubscriber(new CreateSchemaListener($this));
-        $evm->addEventSubscriber(new LogRevisionsListener($this));
+        $evm->addEventSubscriber(new LogRevisionsListener($this, $this->doctrine));
+    }
+
+    public function getRevisionEntityManager()
+    {
+        return $this->emRevision;
     }
 }

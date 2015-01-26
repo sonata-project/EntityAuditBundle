@@ -13,24 +13,30 @@
         <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
+        <parameter key="simplethings.entityaudit.default_connection" type="string" />
+        <parameter key="simplethings.entityaudit.revision_connection" type="string" />
     </parameters>
 
     <services>
         <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
             <argument id="simplethings_entityaudit.config" type="service" />
+            <argument id="doctrine" type="service" />
         </service>
 
         <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader" factory-service="simplethings_entityaudit.manager" factory-method="createAuditReader">
-            <argument type="service" id="doctrine.orm.default_entity_manager" />
+            <!--<argument type="service" id="doctrine.orm.default_entity_manager" />-->
+            <argument id="doctrine" type="service" />
         </service>
 
         <service id="simplethings_entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
+            <argument id="doctrine" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
         <service id="simplethings_entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
+            <argument id="doctrine" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
@@ -58,6 +64,12 @@
             </call>
             <call method="setRevisionIdFieldType">
                 <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
+            </call>
+            <call method="setDefaultConnection">
+                <argument>%simplethings.entityaudit.default_connection%</argument>
+            </call>
+            <call method="setRevisionConnection">
+                <argument>%simplethings.entityaudit.revision_connection%</argument>
             </call>
         </service>
     </services>

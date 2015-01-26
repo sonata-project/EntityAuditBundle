@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Persisters\BasicEntityPersister;
 use SimpleThings\EntityAudit\AuditManager;
@@ -55,10 +56,11 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $platform;
 
-    /**
-     * @var \Doctrine\ORM\EntityManager
-     */
-    private $em;
+
+    private $emDefault;
+
+
+    private $emRevision;
 
     /**
      * @var array
@@ -75,10 +77,13 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $revisionId;
 
-    public function __construct(AuditManager $auditManager)
+    private $doctrine;
+
+    public function __construct(AuditManager $auditManager, Registry $doctrine)
     {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
+        $this->doctrine = $doctrine;
     }
 
     public function getSubscribedEvents()
@@ -88,9 +93,8 @@ class LogRevisionsListener implements EventSubscriber
 
     public function postFlush(PostFlushEventArgs $eventArgs)
     {
-        $em = $eventArgs->getEntityManager();
-
-        $uow = $em->getUnitOfWork();
+        $emDefault = $eventArgs->getEntityManager();
+        $uow = $emDefault->getUnitOfWork();
 
         //well, this is awkward, it's a reflection again
         $uowR = new \ReflectionClass($uow);
@@ -106,9 +110,9 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $meta = $em->getClassMetadata(get_class($entity));
+            $meta = $emDefault->getClassMetadata(get_class($entity));
 
-            $persister = new BasicEntityPersister($em, $meta);
+            $persister = new BasicEntityPersister($emDefault, $meta);
 
             $persisterR = new \ReflectionClass($persister);
 
@@ -177,7 +181,7 @@ class LogRevisionsListener implements EventSubscriber
                     $sql .= 'AND '.$columnName.' = ?';
                 }
 
-                $this->em->getConnection()->executeQuery($sql, $params, $types);
+                $this->emRevision->getConnection()->executeQuery($sql, $params, $types);
             }
         }
     }
@@ -187,7 +191,7 @@ class LogRevisionsListener implements EventSubscriber
         // onFlush was executed before, everything already initialized
         $entity = $eventArgs->getEntity();
 
-        $class = $this->em->getClassMetadata(get_class($entity));
+        $class = $this->emDefault->getClassMetadata(get_class($entity));
         if (!$this->metadataFactory->isAudited($class->name)) {
             return;
         }
@@ -200,7 +204,7 @@ class LogRevisionsListener implements EventSubscriber
         // onFlush was executed before, everything already initialized
         $entity = $eventArgs->getEntity();
 
-        $class = $this->em->getClassMetadata(get_class($entity));
+        $class = $this->emDefault->getClassMetadata(get_class($entity));
         if (!$this->metadataFactory->isAudited($class->name)) {
             return;
         }
@@ -224,9 +228,16 @@ class LogRevisionsListener implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $eventArgs)
     {
-        $this->em = $eventArgs->getEntityManager();
-        $this->conn = $this->em->getConnection();
-        $this->uow = $this->em->getUnitOfWork();
+        $this->emDefault = $eventArgs->getEntityManager();
+        if($this->config->getRevisionConnection() === $this->config->getDefaultConnection()) {
+            $this->emRevision = $this->emDefault;
+        }
+        else {
+            $this->emRevision = $this->doctrine->getManager($this->config->getRevisionConnection());
+        }
+
+        $this->conn = $this->emRevision->getConnection();
+        $this->uow = $this->emDefault->getUnitOfWork();
         $this->platform = $this->conn->getDatabasePlatform();
         $this->revisionId = null; // reset revision
 
@@ -246,7 +257,7 @@ class LogRevisionsListener implements EventSubscriber
 
             $processedEntities[] = $hash;
 
-            $class = $this->em->getClassMetadata(get_class($entity));
+            $class = $this->emDefault->getClassMetadata(get_class($entity));
             if (!$this->metadataFactory->isAudited($class->name)) {
                 continue;
             }
@@ -264,7 +275,7 @@ class LogRevisionsListener implements EventSubscriber
      */
     private function getOriginalEntityData($entity)
     {
-        $class = $this->em->getClassMetadata(get_class($entity));
+        $class = $this->emDefault->getClassMetadata(get_class($entity));
         $data = $this->uow->getOriginalEntityData($entity);
         if( $class->isVersioned ){
             $versionField = $class->versionField;
@@ -380,7 +391,7 @@ class LogRevisionsListener implements EventSubscriber
                     $relatedId = $this->uow->getEntityIdentifier($data);
                 }
 
-                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+                $targetClass = $this->emDefault->getClassMetadata($assoc['targetEntity']);
 
                 foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
                     $fields[$sourceColumn] = true;
@@ -423,7 +434,7 @@ class LogRevisionsListener implements EventSubscriber
             && $class->name != $class->rootEntityName) {
             $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
-                $this->em->getClassMetadata($class->rootEntityName),
+                $this->emDefault->getClassMetadata($class->rootEntityName),
                 $entityData,
                 $revType
             );
