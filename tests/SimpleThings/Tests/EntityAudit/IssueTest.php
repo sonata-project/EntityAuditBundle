@@ -26,6 +26,8 @@ namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 class IssueTest extends BaseTest
 {
@@ -41,6 +43,7 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
+        'SimpleThings\EntityAudit\Tests\Issue111Entity',
     );
 
     protected $auditedEntities = array(
@@ -55,7 +58,28 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestPrimaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
+        'SimpleThings\EntityAudit\Tests\Issue111Entity',
     );
+
+    public function testIssue111()
+    {
+        $this->em->getEventManager()->addEventSubscriber(new SoftDeleteableListener());
+
+        $e = new Issue111Entity();
+        $e->setStatus('test status');
+
+        $this->em->persist($e);
+        $this->em->flush($e); //#1
+
+        $this->em->remove($e);
+        $this->em->flush(); //#2
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $ae = $reader->find('SimpleThings\EntityAudit\Tests\Issue111Entity', 1, 2);
+
+        $this->assertInstanceOf('DateTime', $ae->getDeletedAt());
+    }
 
     public function testEscapedColumns()
     {
@@ -154,6 +178,44 @@ class IssueTest extends BaseTest
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
+    }
+}
+
+/** @ORM\Entity  @Gedmo\SoftDeleteable(fieldName="deletedAt") */
+class Issue111Entity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /** @ORM\Column */
+    protected $status;
+
+    /** @ORM\Column(type="datetime", nullable=true) */
+    protected $deletedAt;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
     }
 }
 
