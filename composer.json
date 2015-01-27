@@ -8,7 +8,8 @@
     },
     "require-dev": {
         "symfony/framework-bundle": "~2.0",
-        "phpunit/phpunit": "~4.0"
+        "phpunit/phpunit": "~4.0",
+        "gedmo/doctrine-extensions": "~2.2"
     },
     "autoload": {
         "psr-0": {"SimpleThings\\EntityAudit": "src/"}
