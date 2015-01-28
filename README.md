@@ -243,4 +243,4 @@ This provides you with a few different routes:
 * Currently only works with auto-increment databases
 * Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
 * It does NOT work with Joined-Table-Inheritance (Single Table Inheritance should work, but not tested)
-* Many-To-Many assocations are NOT versioned
+* Many-To-Many associations are NOT versioned
