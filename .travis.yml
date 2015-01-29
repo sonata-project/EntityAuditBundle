@@ -4,10 +4,17 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - 5.6
   - hhvm
+  
+env:
+  matrix:
+    - PREFER_LOWEST="--prefer-lowest"
+    - PREFER_LOWEST=""
+  
 
 before_script:
-    - COMPOSER_ROOT_VERSION=dev-master composer --prefer-source --dev install
+    - composer update --prefer-source $PREFER_LOWEST 
 
 matrix:
   allow_failures:
