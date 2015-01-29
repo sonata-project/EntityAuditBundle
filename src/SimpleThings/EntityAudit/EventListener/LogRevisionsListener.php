@@ -111,7 +111,17 @@ class LogRevisionsListener implements EventSubscriber
             $persister = new BasicEntityPersister($em, $meta);
 
             $persisterR = new \ReflectionClass($persister);
-            $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
+
+            if ($persisterR->hasMethod('prepareUpdateData')) {
+                //doctrine 2.4+
+                $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
+            } elseif ($persisterR->hasMethod('_prepareUpdateData')) {
+                //doctrine < 2.4
+                $prepareUpdateDataR = $persisterR->getMethod('_prepareUpdateData');
+            } else {
+                throw new \Exception('Can not resolve prepareUpdateData method of BasicPersister, probably a doctrine regression');
+            }
+
             $prepareUpdateDataR->setAccessible(true);
 
             $updateData = $prepareUpdateDataR->invoke($persister, $entity);
