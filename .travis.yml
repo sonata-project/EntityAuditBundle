@@ -14,6 +14,7 @@ env:
   
 
 before_script:
+    - composer self-update
     - composer update --prefer-source $PREFER_LOWEST 
 
 matrix:
