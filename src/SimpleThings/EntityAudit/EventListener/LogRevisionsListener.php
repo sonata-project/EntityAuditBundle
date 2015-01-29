@@ -111,7 +111,17 @@ class LogRevisionsListener implements EventSubscriber
             $persister = new BasicEntityPersister($em, $meta);
 
             $persisterR = new \ReflectionClass($persister);
-            $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
+
+            if ($persisterR->hasMethod('prepareUpdateData')) {
+                //doctrine 2.4+
+                $prepareUpdateDataR = $persisterR->getMethod('prepareUpdateData');
+            } elseif ($persisterR->hasMethod('_prepareUpdateData')) {
+                //doctrine < 2.4
+                $prepareUpdateDataR = $persisterR->getMethod('_prepareUpdateData');
+            } else {
+                throw new \Exception('Can not resolve prepareUpdateData method of BasicPersister, probably a doctrine regression');
+            }
+
             $prepareUpdateDataR->setAccessible(true);
 
             $updateData = $prepareUpdateDataR->invoke($persister, $entity);
@@ -332,7 +342,7 @@ class LogRevisionsListener implements EventSubscriber
                 $sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
             }
 
-            if (($class->isInheritanceTypeJoined() && $class->isRootEntity()) || $class->isInheritanceTypeSingleTable()) {
+            if (($class->isInheritanceTypeJoined() && $class->rootEntityName == $class->name) || $class->isInheritanceTypeSingleTable()) {
                 $sql .= ', ' . $class->discriminatorColumn['name'];
                 $placeholders[] = '?';
             }
@@ -404,13 +414,13 @@ class LogRevisionsListener implements EventSubscriber
             $params[] = $class->discriminatorValue;
             $types[] = $class->discriminatorColumn['type'];
         } elseif ($class->isInheritanceTypeJoined()
-            && $class->isRootEntity()) {
+            && $class->name == $class->rootEntityName) {
             $params[] = $entityData[$class->discriminatorColumn['name']];
             $types[] = $class->discriminatorColumn['type'];
         }
 
         if ($class->isInheritanceTypeJoined()
-            && !$class->isRootEntity()) {
+            && $class->name != $class->rootEntityName) {
             $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
                 $this->em->getClassMetadata($class->rootEntityName),

@@ -27,7 +27,6 @@ namespace SimpleThings\EntityAudit\Tests;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\SoftDeleteable\SoftDeleteableListener;
 
 class IssueTest extends BaseTest
 {
@@ -61,9 +60,35 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Issue111Entity',
     );
 
+    protected function getGedmoVersion()
+    {
+        if (class_exists('Gedmo\Version')) {
+            return constant('Gedmo\Version::VERSION');
+        } elseif (class_exists('Gedmo\DoctrineExtensions')) {
+            return constant('Gedmo\DoctrineExtensions::VERSION');
+        } else {
+            return '0.0.1-DEV';
+        }
+    }
+
+    public function setUp()
+    {
+        //softdeleteable is present only in gedmo's 2.3+
+        if (version_compare($this->getGedmoVersion(), '2.3') < 0) {
+            $this->auditedEntities = array_diff($this->auditedEntities, array('SimpleThings\EntityAudit\Tests\Issue111Entity'));
+            $this->schemaEntities = array_diff($this->schemaEntities, array('SimpleThings\EntityAudit\Tests\Issue111Entity'));
+        }
+
+        parent::setUp();
+    }
+
     public function testIssue111()
     {
-        $this->em->getEventManager()->addEventSubscriber(new SoftDeleteableListener());
+        if (version_compare($this->getGedmoVersion(), '2.3') < 0) {
+            $this->markTestSkipped('SoftDeleteable is available only since gedmo 2.3');
+        }
+
+        $this->em->getEventManager()->addEventSubscriber(new \Gedmo\SoftDeleteable\SoftDeleteableListener());
 
         $e = new Issue111Entity();
         $e->setStatus('test status');
