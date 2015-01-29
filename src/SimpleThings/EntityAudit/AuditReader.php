@@ -260,7 +260,7 @@ class AuditReader
 
         $joinSql = '';
         if ($class->isInheritanceTypeJoined()
-            && !$class->isRootEntity()) {
+            && $class->name != $class->rootEntityName) {
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
             $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
             $joinSql = "INNER JOIN {$rootTableName} re ON";
@@ -562,7 +562,7 @@ class AuditReader
                 $columnList .= ', e.' . $class->discriminatorColumn['name'];
                 $whereSQL .= " AND e." . $class->discriminatorColumn['fieldName'] . " = ?";
                 $params[] = $class->discriminatorValue;
-            } elseif ($class->isInheritanceTypeJoined() && ! $class->isRootEntity()) {
+            } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName != $class->name) {
                 $columnList .= ', re.' . $class->discriminatorColumn['name'];
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
                 $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
@@ -729,7 +729,7 @@ class AuditReader
     {
         $oldObject = $this->find($className, $id, $oldRevision);
         $newObject = $this->find($className, $id, $newRevision);
-        
+
         $oldValues = $this->getEntityValues($className, $oldObject);
         $newValues = $this->getEntityValues($className, $newObject);
 
