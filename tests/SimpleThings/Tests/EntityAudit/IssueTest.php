@@ -215,7 +215,7 @@ class Issue111Entity
     /** @ORM\Column */
     protected $status;
 
-    /** @ORM\Column(type="datetime", nullable=true) */
+    /** @ORM\Column(type="datetime", nullable=true, name="deleted_at") */
     protected $deletedAt;
 
     public function getId()

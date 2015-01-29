@@ -139,8 +139,8 @@ class LogRevisionsListener implements EventSubscriber
 
                 $types = array();
 
-                if (isset($meta->fieldMappings[$field])) {
-                    $types[] = $meta->fieldMappings[$field]['type'];
+                if (in_array($field, $meta->columnNames)) {
+                    $types[] = $meta->fieldMappings[$meta->getFieldForColumn($field)]['type'];
                 } else {
                     //try to find column in association mappings
                     $type = null;
@@ -157,7 +157,7 @@ class LogRevisionsListener implements EventSubscriber
                     }
 
                     if (is_null($type)) {
-                        throw new \Exception(sprintf('Could not resolve database type for column "%s" during extra updates'), $field);
+                        throw new \Exception(sprintf('Could not resolve database type for column "%s" during extra updates', $field));
                     }
                 }
 
