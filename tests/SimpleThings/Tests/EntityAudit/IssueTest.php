@@ -43,6 +43,8 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
         'SimpleThings\EntityAudit\Tests\Issue111Entity',
+        'SimpleThings\EntityAudit\Tests\Issue31User',
+        'SimpleThings\EntityAudit\Tests\Issue31Reve',
     );
 
     protected $auditedEntities = array(
@@ -58,6 +60,8 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestSecondaryOwner',
         'SimpleThings\EntityAudit\Tests\DuplicateRevisionFailureTestOwnedElement',
         'SimpleThings\EntityAudit\Tests\Issue111Entity',
+        'SimpleThings\EntityAudit\Tests\Issue31User',
+        'SimpleThings\EntityAudit\Tests\Issue31Reve',
     );
 
     protected function getGedmoVersion()
@@ -80,6 +84,22 @@ class IssueTest extends BaseTest
         }
 
         parent::setUp();
+    }
+
+    public function testIssue31()
+    {
+        $reve = new Issue31Reve();
+        $reve->setTitre('reve');
+
+        $this->em->persist($reve);
+        $this->em->flush();
+
+        $user = new Issue31User();
+        $user->setTitre('user');
+        $user->setReve($reve);
+        $this->em->persist($user);
+        $this->em->remove($reve);
+        $this->em->flush();
     }
 
     public function testIssue111()
@@ -203,6 +223,85 @@ class IssueTest extends BaseTest
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
+    }
+}
+
+/** @ORM\Entity */
+class Issue31User
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Issue31Reve", cascade={"persist", "remove"})
+     */
+    protected $reve;
+
+    /** @ORM\Column(type="string") */
+    protected $titre;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getReve()
+    {
+        return $this->reve;
+    }
+
+    public function setReve($reve)
+    {
+        $this->reve = $reve;
+    }
+
+    public function getTitre()
+    {
+        return $this->titre;
+    }
+
+    public function setTitre($titre)
+    {
+        $this->titre = $titre;
+    }
+}
+
+/** @ORM\Entity */
+class Issue31Reve
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    protected $id;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Issue31User")
+     */
+    protected $user;
+
+    /** @ORM\Column(type="string") */
+    protected $titre;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+    public function getTitre()
+    {
+        return $this->titre;
+    }
+
+    public function setTitre($titre)
+    {
+        $this->titre = $titre;
     }
 }
 
