@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Persisters\BasicEntityPersister;
 use SimpleThings\EntityAudit\AuditManager;
@@ -77,13 +78,11 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $revisionId;
 
-    private $doctrine;
-
-    public function __construct(AuditManager $auditManager, Registry $doctrine)
+    public function __construct(AuditManager $auditManager = null)
     {
-        $this->config = $auditManager->getConfiguration();
-        $this->metadataFactory = $auditManager->getMetadataFactory();
-        $this->doctrine = $doctrine;
+        if ($auditManager) {
+            $this->setAuditManager($auditManager);
+        }
     }
 
     public function getSubscribedEvents()
@@ -153,7 +152,7 @@ class LogRevisionsListener implements EventSubscriber
                         if (isset($mapping['joinColumns'])) {
                             foreach ($mapping['joinColumns'] as $definition) {
                                 if ($definition['name'] == $field) {
-                                    $targetTable = $em->getClassMetadata($mapping['targetEntity']);
+                                    $targetTable = $emDefault->getClassMetadata($mapping['targetEntity']);
                                     $type = $targetTable->getTypeOfColumn($definition['referencedColumnName']);
                                 }
                             }
@@ -231,9 +230,6 @@ class LogRevisionsListener implements EventSubscriber
         $this->emDefault = $eventArgs->getEntityManager();
         if($this->config->getRevisionConnection() === $this->config->getDefaultConnection()) {
             $this->emRevision = $this->emDefault;
-        }
-        else {
-            $this->emRevision = $this->doctrine->getManager($this->config->getRevisionConnection());
         }
 
         $this->conn = $this->emRevision->getConnection();
@@ -441,5 +437,12 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
+    }
+
+    public function setAuditManager(AuditManager $auditManager)
+    {
+        $this->config = $auditManager->getConfiguration();
+        $this->metadataFactory = $auditManager->getMetadataFactory();
+        $this->emRevision = $auditManager->getRevisionEntityManager();
     }
 }

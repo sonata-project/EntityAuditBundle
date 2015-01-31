@@ -147,7 +147,7 @@ class AuditReader
      * @param AuditConfiguration $config
      * @param MetadataFactory $factory
      */
-    public function __construct($emDefault, $emRevision, AuditConfiguration $config, MetadataFactory $factory)
+    public function __construct(EntityManager $emDefault, EntityManager $emRevision, AuditConfiguration $config, MetadataFactory $factory)
     {
         $this->emDefault = $emDefault;
         $this->emRevision = $emRevision;

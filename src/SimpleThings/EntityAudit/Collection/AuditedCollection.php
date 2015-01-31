@@ -510,7 +510,7 @@ class AuditedCollection implements Collection
             //add rev type parameter
             $params[] = 'DEL';
 
-            $rows = $this->auditReader->getConnection()->fetchAll($sql, $params);
+            $rows = $this->auditReader->getRevisionConnection()->fetchAll($sql, $params);
 
             foreach ($rows as $row) {
                 $entity = array(
