@@ -2,6 +2,7 @@
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
@@ -17,13 +18,17 @@ class AuditManager
 
     private $metadataFactory;
 
+    private $doctrine;
+
     /**
      * @param AuditConfiguration $config
+     * @param Registry $doctrine
      */
-    public function __construct(AuditConfiguration $config)
+    public function __construct(AuditConfiguration $config, Registry $doctrine = null)
     {
-        $this->config = $config;
+        $this->config          = $config;
         $this->metadataFactory = $config->createMetadataFactory();
+        $this->doctrine        = $doctrine;
     }
 
     public function getMetadataFactory()
@@ -36,14 +41,34 @@ class AuditManager
         return $this->config;
     }
 
-    public function createAuditReader(EntityManager $em)
+    public function createAuditReader(EntityManager $em = null)
     {
-        return new AuditReader($em, $this->config, $this->metadataFactory);
+        if ((!$emDefault = $this->getDefaultEntityManager()) || (!$emRevision = $this->getRevisionEntityManager()))
+        {
+            $emDefault = $emRevision = $em;
+        }
+
+        return new AuditReader($emDefault, $emRevision, $this->config, $this->metadataFactory);
     }
 
     public function registerEvents(EventManager $evm)
     {
         $evm->addEventSubscriber(new CreateSchemaListener($this));
-        $evm->addEventSubscriber(new LogRevisionsListener($this));
+        $evm->addEventSubscriber(new LogRevisionsListener($this, $this->getRevisionEntityManager()));
+    }
+
+    public function createLogRevisionListener()
+    {
+        return new LogRevisionsListener($this, $this->getRevisionEntityManager());
+    }
+
+    public function getRevisionEntityManager()
+    {
+        return $this->doctrine ? $this->doctrine->getManager($this->config->getRevisionConnection()) : null;
+    }
+
+    public function getDefaultEntityManager()
+    {
+        return $this->doctrine ? $this->doctrine->getManager($this->config->getDefaultConnection()) : null;
     }
 }

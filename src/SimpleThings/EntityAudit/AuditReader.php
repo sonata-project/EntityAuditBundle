@@ -39,7 +39,9 @@ use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
-    private $em;
+    private $emDefault;
+
+    private $emRevision;
 
     private $config;
 
@@ -140,24 +142,34 @@ class AuditReader
     }
 
     /**
-     * @param EntityManager $em
+     * @param EntityManager $emDefault
+     * @param EntityManager $emRevision
      * @param AuditConfiguration $config
      * @param MetadataFactory $factory
      */
-    public function __construct(EntityManager $em, AuditConfiguration $config, MetadataFactory $factory)
+    public function __construct(EntityManager $emDefault, EntityManager $emRevision, AuditConfiguration $config, MetadataFactory $factory)
     {
-        $this->em = $em;
+        $this->emDefault = $emDefault;
+        $this->emRevision = $emRevision;
         $this->config = $config;
         $this->metadataFactory = $factory;
-        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+        $this->platform = $this->emDefault->getConnection()->getDatabasePlatform();
     }
 
     /**
      * @return \Doctrine\DBAL\Connection
      */
-    public function getConnection()
+    public function getDefaultConnection()
     {
-        return $this->em->getConnection();
+        return $this->emDefault->getConnection();
+    }
+
+    /**
+     * @return \Doctrine\DBAL\Connection
+     */
+    public function getRevisionConnection()
+    {
+        return $this->emRevision->getConnection();
     }
 
     /**
@@ -207,7 +219,7 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
-        $class = $this->em->getClassMetadata($className);
+        $class = $this->emDefault->getClassMetadata($className);
 
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
@@ -261,7 +273,7 @@ class AuditReader
         $joinSql = '';
         if ($class->isInheritanceTypeJoined()
             && $class->name != $class->rootEntityName) {
-            $rootClass = $this->em->getClassMetadata($class->rootEntityName);
+            $rootClass = $this->emDefault->getClassMetadata($class->rootEntityName);
             $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
             $joinSql = "INNER JOIN {$rootTableName} re ON";
             $joinSql .= " re.rev = e.rev";
@@ -284,7 +296,7 @@ class AuditReader
 
         $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL . " ORDER BY e.rev DESC";
 
-        $row = $this->em->getConnection()->fetchAssoc($query, $values);
+        $row = $this->emRevision->getConnection()->fetchAssoc($query, $values);
 
         if (!$row) {
             throw new NoRevisionFoundException($class->name, $id, $revision);
@@ -316,7 +328,7 @@ class AuditReader
      */
     private function createEntity($className, array $data, $revision)
     {
-        $class = $this->em->getClassMetadata($className);
+        $class = $this->emDefault->getClassMetadata($className);
 
         //lookup revisioned entity cache
         $keyParts = array();
@@ -344,7 +356,7 @@ class AuditReader
             }
 
             if ($class->discriminatorValue) {
-                $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
+                $entity = $this->emDefault->getClassMetadata($class->discriminatorMap[$discriminator])
                     ->newInstance();
             } else {
                 //a complex case when ToOne binding is against AbstractEntity having no discriminator
@@ -377,7 +389,7 @@ class AuditReader
                 continue;
             }
 
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+            $targetClass = $this->emDefault->getClassMetadata($assoc['targetEntity']);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
                 //print_r($targetClass->discriminatorMap);
@@ -390,7 +402,7 @@ class AuditReader
                                 $pk[$foreign] = $data[$local];
                             }
                         } else {
-                            $otherEntityMeta = $this->em->getClassMetadata($assoc['targetEntity']);
+                            $otherEntityMeta = $this->emDefault->getClassMetadata($assoc['targetEntity']);
 
                             foreach ($otherEntityMeta->associationMappings[$assoc['mappedBy']]['targetToSourceKeyColumns'] as $local => $foreign) {
                                 $pk[$foreign] = $data[$class->getFieldName($local)];
@@ -429,7 +441,7 @@ class AuditReader
                                 // Foreign key is NULL
                                 $class->reflFields[$field]->setValue($entity, null);
                             } else {
-                                $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
+                                $associatedEntity = $this->emDefault->getReference($targetClass->name, $associatedId);
                                 $class->reflFields[$field]->setValue($entity, $associatedEntity);
                             }
                         } else {
@@ -458,7 +470,7 @@ class AuditReader
                     }
                 } else {
                     if ($this->loadNativeCollections) {
-                        $collection = new PersistentCollection($this->em, $targetClass, new ArrayCollection());
+                        $collection = new PersistentCollection($this->emDefault, $targetClass, new ArrayCollection());
 
                         $this->getEntityPersister($assoc['targetEntity'])
                             ->loadOneToManyCollection($assoc, $entity, $collection);
@@ -490,7 +502,7 @@ class AuditReader
         $query = $this->platform->modifyLimitQuery(
             "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
         );
-        $revisionsData = $this->em->getConnection()->fetchAll($query);
+        $revisionsData = $this->emRevision->getConnection()->fetchAll($query);
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
@@ -524,7 +536,7 @@ class AuditReader
 
         $changedEntities = array();
         foreach ($auditedEntities AS $className) {
-            $class = $this->em->getClassMetadata($className);
+            $class = $this->emDefault->getClassMetadata($className);
 
             if ($class->isInheritanceTypeSingleTable() && count($class->subClasses) > 0) {
                 continue;
@@ -564,7 +576,7 @@ class AuditReader
                 $params[] = $class->discriminatorValue;
             } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName != $class->name) {
                 $columnList .= ', re.' . $class->discriminatorColumn['name'];
-                $rootClass = $this->em->getClassMetadata($class->rootEntityName);
+                $rootClass = $this->emDefault->getClassMetadata($class->rootEntityName);
                 $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
                 $joinSql = "INNER JOIN {$rootTableName} re ON";
                 $joinSql .= " re.rev = e.rev";
@@ -574,7 +586,7 @@ class AuditReader
             }
 
             $query = "SELECT " . $columnList . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL;
-            $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
+            $revisionsData = $this->emRevision->getConnection()->executeQuery($query, $params);
 
             foreach ($revisionsData AS $row) {
                 $id   = array();
@@ -601,7 +613,7 @@ class AuditReader
     public function findRevision($rev)
     {
         $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
+        $revisionsData = $this->emRevision->getConnection()->fetchAll($query, array($rev));
 
         if (count($revisionsData) == 1) {
             return new Revision(
@@ -628,7 +640,7 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
-        $class = $this->em->getClassMetadata($className);
+        $class = $this->emDefault->getClassMetadata($className);
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
         if (!is_array($id)) {
@@ -652,7 +664,7 @@ class AuditReader
 
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
                  "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
+        $revisionsData = $this->emRevision->getConnection()->fetchAll($query, array_values($id));
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
@@ -680,7 +692,7 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
-        $class = $this->em->getClassMetadata($className);
+        $class = $this->emDefault->getClassMetadata($className);
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
         if (!is_array($id)) {
@@ -704,14 +716,14 @@ class AuditReader
 
         $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
                         " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
-        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
+        $revision = $this->emRevision->getConnection()->fetchColumn($query, array_values($id));
 
         return $revision;
     }
 
     protected function getEntityPersister($entity)
     {
-        $uow = $this->em->getUnitOfWork();
+        $uow = $this->emDefault->getUnitOfWork();
         return $uow->getEntityPersister($entity);
     }
 
@@ -746,7 +758,7 @@ class AuditReader
      */
     public function getEntityValues($className, $entity)
     {
-        $metadata = $this->em->getClassMetadata($className);
+        $metadata = $this->emDefault->getClassMetadata($className);
         $fields = $metadata->getFieldNames();
 
         $return = array();
@@ -763,7 +775,7 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
-        $class = $this->em->getClassMetadata($className);
+        $class = $this->emDefault->getClassMetadata($className);
         $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
 
         if (!is_array($id)) {
@@ -808,7 +820,7 @@ class AuditReader
         $values = array_values($id);
 
         $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
-        $stmt = $this->em->getConnection()->executeQuery($query, $values);
+        $stmt = $this->emRevision->getConnection()->executeQuery($query, $values);
 
         $result = array();
         while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
