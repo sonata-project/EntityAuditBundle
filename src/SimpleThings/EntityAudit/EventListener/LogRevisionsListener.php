@@ -225,7 +225,7 @@ class LogRevisionsListener implements EventSubscriber
     public function onFlush(OnFlushEventArgs $eventArgs)
     {
         $this->em = $eventArgs->getEntityManager();
-        $this->conn = $this->em->getConnection();
+        $this->conn = $this->config->getAuditConnection() ?: $this->em->getConnection();
         $this->uow = $this->em->getUnitOfWork();
         $this->platform = $this->conn->getDatabasePlatform();
         $this->revisionId = null; // reset revision

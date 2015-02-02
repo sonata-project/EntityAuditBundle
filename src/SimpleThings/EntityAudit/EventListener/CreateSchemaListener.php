@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditManager;

@@ -23,13 +23,11 @@
 
 namespace SimpleThings\EntityAudit\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\Alias;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Symfony\Component\Config\FileLocator;
 
 class SimpleThingsEntityAuditExtension extends Extension
 {
@@ -57,6 +55,14 @@ class SimpleThingsEntityAuditExtension extends Extension
 
         if (true === $config['listener']['current_username']) {
             $loader->load('current_username.xml');
+        }
+
+        if ($config['audit_connection']) {
+            $container->getDefinition('simplethings_entityaudit.config')
+                ->addMethodCall('setAuditConnection', array(
+                        new Reference($config['audit_connection'])
+                    )
+            );
         }
     }
 }
