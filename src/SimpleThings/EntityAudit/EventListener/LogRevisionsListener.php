@@ -285,7 +285,7 @@ class LogRevisionsListener implements EventSubscriber
             ));
 
             $sequenceName = $this->platform->supportsSequences()
-                ? 'REVISIONS_ID_SEQ'
+                ? $this->platform->getIdentitySequenceName($this->config->getRevisionTableName(), 'id')
                 : null;
 
             $this->revisionId = $this->conn->lastInsertId($sequenceName);
