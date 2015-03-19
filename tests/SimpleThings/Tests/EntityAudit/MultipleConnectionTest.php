@@ -38,6 +38,12 @@ class MultipleConnectionTest extends \PHPUnit_Framework_TestCase
      */
     protected $em = null;
 
+
+    /**
+     * @var EntityManager
+     */
+    protected $auditEm = null;
+
     /**
      * @var AuditManager
      */
@@ -75,6 +81,7 @@ class MultipleConnectionTest extends \PHPUnit_Framework_TestCase
         $config->setMetadataDriverImpl($driver);
 
         $evm = new EventManager();
+        $auditEvm = new EventManager();
 
         $this->mainConnectionInstance = $mainConnectionInstance = $this->getMockBuilder('Doctrine\DBAL\Connection')
             ->setConstructorArgs(array(array('memory' => true), new Driver(), $config, $evm))
@@ -82,7 +89,7 @@ class MultipleConnectionTest extends \PHPUnit_Framework_TestCase
             ->getMock();
 
         $this->auditConnectionInstance = $auditConnectionInstance = $this->getMockBuilder('Doctrine\DBAL\Connection')
-            ->setConstructorArgs(array(array('memory' => true), new Driver(), $config, new EventManager()))
+            ->setConstructorArgs(array(array('memory' => true), new Driver(), $config, $auditEvm))
             ->enableProxyingToOriginalMethods()
             ->getMock();
 
@@ -94,18 +101,27 @@ class MultipleConnectionTest extends \PHPUnit_Framework_TestCase
 
         $this->auditManager = new AuditManager($auditConfig);
         $this->auditManager->registerEvents($evm);
+        $this->auditManager->registerEvents($auditEvm);
 
         if (php_sapi_name() == 'cli' && isset($_SERVER['argv']) && (in_array('-v', $_SERVER['argv']) || in_array('--verbose', $_SERVER['argv']))) {
             $config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
         }
 
         $this->em = \Doctrine\ORM\EntityManager::create($mainConnectionInstance, $config, $evm);
+        $this->auditEm = \Doctrine\ORM\EntityManager::create($auditConnectionInstance, $config, $auditEvm);
 
         $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
+        $auditSchemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->auditEm);
+
         $em = $this->em;
+        $auditEm = $this->auditEm;
 
         $schemaTool->createSchema(array_map(function ($value) use ($em) {
             return $em->getClassMetadata($value);
+        }, $this->schemaEntities));
+
+        $auditSchemaTool->createSchema(array_map(function ($value) use ($auditEm) {
+            return $auditEm->getClassMetadata($value);
         }, $this->schemaEntities));
     }
 
