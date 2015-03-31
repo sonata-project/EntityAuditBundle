@@ -4,6 +4,7 @@
     "keywords": ["Persistence", "Database", "Audit"],
     "description": "Audit for Doctrine Entities",
     "require": {
+        "doctrine/dbal": "~2.5",
         "doctrine/orm": "~2.2"
     },
     "require-dev": {
