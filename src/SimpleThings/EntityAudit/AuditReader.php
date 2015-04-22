@@ -483,12 +483,38 @@ class AuditReader
      *
      * @param int $limit
      * @param int $offset
+     * @param array $classNames
      * @return Revision[]
+     * @throws \Exception
      */
-    public function findRevisionHistory($limit = 20, $offset = 0)
+    public function findRevisionHistory($limit = 20, $offset = 0, $classNames = array())
     {
+        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+
+        $joinedTable = array();
+        $where = array();
+        if (!is_array($classNames)) {
+            throw new \Exception('Class list must be an array');
+        }
+        foreach ($classNames as $className) {
+            if (!$this->metadataFactory->isAudited($className)) {
+                throw new NotAuditedException($className);
+            }
+
+            $class = $this->em->getClassMetadata($className);
+            $tableName = $this->config->getTablePrefix().$class->table['name'].$this->config->getTableSuffix();
+            $joinedTable[] = 'LEFT JOIN ' . $tableName . ' ON rt.id = ' . $tableName . '.rev';
+            $where[] = $tableName . '.rev IS NOT NULL';
+        }
+        if (!empty($joinedTable) && !empty($where)) {
+            $joinedTable = implode(' ', $joinedTable);
+            $where = 'WHERE (' . implode(' OR ', $where) . ')';
+        } else {
+            $joinedTable = '';
+            $where = '';
+        }
         $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
+            "SELECT DISTINCT rt.* FROM " . $this->config->getRevisionTableName() . ' rt ' . $joinedTable . " " . $where . " ORDER BY id DESC", $limit, $offset
         );
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
