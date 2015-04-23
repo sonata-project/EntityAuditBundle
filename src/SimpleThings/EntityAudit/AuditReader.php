@@ -757,9 +757,9 @@ class AuditReader
 
         foreach($associationsFields as $key => $association) {
             $associationValues = $entity->{'get' . ucfirst($association)}();
-            $values = [];
+            $values = array();
             if (get_class($associationValues) == 'Doctrine\Common\Collections\ArrayCollection') {
-                $values[] = count($associationValues) > 0 ? array_map([$associationValues->first(), 'getId'], $associationValues) : [];
+                $values[] = count($associationValues) > 0 ? array_map(array($associationValues->first(), 'getId'), $associationValues) : array();
             } else {
                 $values[] = $associationValues == null ? null : $associationValues->getId();
             }
