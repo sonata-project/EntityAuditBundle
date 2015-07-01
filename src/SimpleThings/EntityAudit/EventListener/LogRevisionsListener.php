@@ -131,7 +131,7 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             foreach ($updateData[$meta->table['name']] as $field => $value) {
-                $sql = 'UPDATE '.$this->config->getTablePrefix() . $meta->table['name'] . $this->config->getTableSuffix().' '.
+                $sql = 'UPDATE '.$this->config->getTableName($meta).' '.
                     'SET '.$field.' = ? '.
                     'WHERE '.$this->config->getRevisionFieldName().' = ? ';
 
@@ -302,7 +302,7 @@ class LogRevisionsListener implements EventSubscriber
     {
         if (!isset($this->insertRevisionSQL[$class->name])) {
             $placeholders = array('?', '?');
-            $tableName    = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+            $tableName    = $this->config->getTableName($class);
 
             $sql = "INSERT INTO " . $tableName . " (" .
                     $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
