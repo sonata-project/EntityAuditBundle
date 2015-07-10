@@ -17,7 +17,7 @@
 
     <services>
         <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
-            <argument id="simplethings_entityaudit.config" type="service" />
+            <argument id="simplethings_entityaudit.config" type="%doctrine.dbal.default_connection%" />
         </service>
 
         <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader" factory-service="simplethings_entityaudit.manager" factory-method="createAuditReader">
@@ -26,12 +26,12 @@
 
         <service id="simplethings_entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
-            <tag name="doctrine.event_subscriber" connection="default" />
+            <tag name="doctrine.event_subscriber" connection="%doctrine.dbal.default_connection%" />
         </service>
 
         <service id="simplethings_entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
-            <tag name="doctrine.event_subscriber" connection="default" />
+            <tag name="doctrine.event_subscriber" connection="%doctrine.dbal.default_connection%" />
         </service>
 
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
