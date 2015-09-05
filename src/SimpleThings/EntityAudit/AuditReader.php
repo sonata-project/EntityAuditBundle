@@ -122,6 +122,14 @@ class AuditReader
         $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
         $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
+        // $row has keys with lowercase letters. Converting it to correct capitalization...
+        $newRow = array();
+        foreach ($columnMap as $key => $columnKey) {
+            $newRow[$key] = $row[strtolower($key)];
+        }
+        // Assign to $row the correctly-capitalized keys
+        $row = $newRow;
+
         if (!$row) {
             throw AuditException::noRevisionFound($class->name, $id, $revision);
         }
