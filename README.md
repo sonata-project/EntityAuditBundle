@@ -125,7 +125,7 @@ class DefaultController extends Controller
 {
     public function indexAction()
     {
-        $auditReader = $this->container->get("simplethings_entityaudit.reader");
+        $auditReader = $this->container->get('simplethings_entityaudit.reader');
     }
 }
 ```
@@ -176,7 +176,7 @@ class Revision
 ### Find Changed Entities at a specific revision
 
 ```php
-    $changedEntities = $auditReader->findEntitiesChangedAtRevision( 10 );
+    $changedEntities = $auditReader->findEntitiesChangedAtRevision(10);
 ```
 
 A changed entity has the API:
@@ -208,19 +208,19 @@ In the Symfony2 web context the username is automatically set to the one in the 
 In a standalone app or Symfony command you have to set the username to a specific value using the `AuditConfiguration`:
 
 ```php
-    // Symfony2 Context
-    $container->get('simplethings_entityaudit.config')->setCurrentUsername( "beberlei" );
+    // Symfony2 context
+    $container->get('simplethings_entityaudit.config')->setCurrentUsername('beberlei');
 
-    // Standalone App
+    // Standalone app
     $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
-    $auditConfig->setCurrentUsername( "beberlei" );
+    $auditConfig->setCurrentUsername('beberlei');
 ```
 
 ## Viewing auditing
 
 A default Symfony2 controller is provided that gives basic viewing capabilities of audited data.
 
-To use the controller, import the routing **(dont forget to secure the prefix you set so that
+To use the controller, import the routing **(don't forget to secure the prefix you set so that
 only appropriate users can get access)**
 
 #####app/config/routing.yml
@@ -232,11 +232,11 @@ simple_things_entity_audit:
 
 This provides you with a few different routes:
 
- * simple_things_entity_audit_home -- Displays a paginated list of revisions, their timestamps and the user who performed the revision
- * simple_things_entity_audit_viewrevision -- Displays the classes that were modified in a specific revision
- * simple_things_entity_audit_viewentity -- Displays the revisions where the specified entity was modified
- * simple_things_entity_audit_viewentity_detail -- Displays the data for the specified entity at the specified revision
- * simple_things_entity_audit_compare -- Allows you to compare the changes of an entity between 2 revisions
+ * ```simple_things_entity_audit_home``` - Displays a paginated list of revisions, their timestamps and the user who performed the revision
+ * ```simple_things_entity_audit_viewrevision``` - Displays the classes that were modified in a specific revision
+ * ```simple_things_entity_audit_viewentity``` - Displays the revisions where the specified entity was modified
+ * ```simple_things_entity_audit_viewentity_detail``` - Displays the data for the specified entity at the specified revision
+ * ```simple_things_entity_audit_compare``` - Allows you to compare the changes of an entity between 2 revisions
 
 ## TODOS
 
