@@ -56,19 +56,19 @@ Load extension "simple_things_entity_audit" and specify the audited entities (ye
 
 #####app/config/config.yml
 ```yml
-    simple_things_entity_audit:
-        audited_entities:
-            - MyBundle\Entity\MyEntity
-            - MyBundle\Entity\MyEntity2
+simple_things_entity_audit:
+    audited_entities:
+        - MyBundle\Entity\MyEntity
+        - MyBundle\Entity\MyEntity2
 ```
 If you need to exclude some entity properties from triggering a revision use:
 
 #####app/config/config.yml
 ```yml
-    simple_things_entity_audit:
-        global_ignore_columns:
-            - created_at
-            - updated_at
+simple_things_entity_audit:
+    global_ignore_columns:
+        - created_at
+        - updated_at
 ```
 
 ###Creating new tables
@@ -133,7 +133,7 @@ class DefaultController extends Controller
 In a standalone application you can create the audit reader from the audit manager:
 
 ```php
-    $auditReader = $auditManager->createAuditReader($entityManager);
+$auditReader = $auditManager->createAuditReader($entityManager);
 ```
 
 ### Find entity state at a particular revision
@@ -142,11 +142,11 @@ This command also returns the state of the entity at the given revision, even if
 to that entity was made in a revision before the given one:
 
 ```php
-    $articleAudit = $auditReader->find(
-        'SimpleThings\EntityAudit\Tests\ArticleAudit',
-        $id = 1,
-        $rev = 10
-    );
+$articleAudit = $auditReader->find(
+    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    $id = 1,
+    $rev = 10
+);
 ```
 
 Instances created through `AuditReader#find()` are *NOT* injected into the EntityManagers UnitOfWork,
@@ -156,10 +156,10 @@ in that old version.
 ### Find Revision History of an audited entity
 
 ```php
-    $revisions = $auditReader->findRevisions(
-        'SimpleThings\EntityAudit\Tests\ArticleAudit',
-        $id = 1
-    );
+$revisions = $auditReader->findRevisions(
+    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    $id = 1
+);
 ```
 
 A revision has the following API:
@@ -176,7 +176,7 @@ class Revision
 ### Find Changed Entities at a specific revision
 
 ```php
-    $changedEntities = $auditReader->findEntitiesChangedAtRevision(10);
+$changedEntities = $auditReader->findEntitiesChangedAtRevision(10);
 ```
 
 A changed entity has the API:
@@ -194,10 +194,10 @@ class ChangedEntity
 ### Find Current Revision of an audited Entity
 
 ```php
-    $revision = $auditReader->getCurrentRevision(
-        'SimpleThings\EntityAudit\Tests\ArticleAudit',
-        $id = 3
-    );
+$revision = $auditReader->getCurrentRevision(
+    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    $id = 3
+);
 ```
 
 ## Setting the Current Username
@@ -208,12 +208,12 @@ In the Symfony2 web context the username is automatically set to the one in the 
 In a standalone app or Symfony command you have to set the username to a specific value using the `AuditConfiguration`:
 
 ```php
-    // Symfony2 context
-    $container->get('simplethings_entityaudit.config')->setCurrentUsername('beberlei');
+// Symfony2 context
+$container->get('simplethings_entityaudit.config')->setCurrentUsername('beberlei');
 
-    // Standalone app
-    $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
-    $auditConfig->setCurrentUsername('beberlei');
+// Standalone app
+$auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
+$auditConfig->setCurrentUsername('beberlei');
 ```
 
 ## Viewing auditing
