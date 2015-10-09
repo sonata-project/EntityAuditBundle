@@ -13,7 +13,7 @@
         "gedmo/doctrine-extensions": "~2.2"
     },
     "autoload": {
-        "psr-0": {"SimpleThings\\EntityAudit": "src/"}
+        "psr-4": {"SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"}
     },
     "extra": {
         "branch-alias": {
