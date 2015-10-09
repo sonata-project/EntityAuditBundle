@@ -39,7 +39,8 @@ class AuditConfiguration
     {
         $tableName = $metadata->getTableName();
 
-        if ($metadata->getSchemaName()) {
+        //## Fix for doctrine/orm >= 2.5
+        if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
             $tableName = $metadata->getSchemaName() . '.' . $tableName;
         }
 
