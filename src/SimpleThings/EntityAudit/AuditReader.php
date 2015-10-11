@@ -748,10 +748,22 @@ class AuditReader
     {
         $metadata = $this->em->getClassMetadata($className);
         $fields = $metadata->getFieldNames();
+        $associationsFields = $metadata->getAssociationNames();
 
         $return = array();
         foreach ($fields AS $fieldName) {
             $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+        }
+
+        foreach($associationsFields as $key => $association) {
+            $associationValues = $entity->{'get' . ucfirst($association)}();
+            $values = array();
+            if ($associationValues instanceof \Doctrine\Common\Collections\Collection) {
+                $values[] = count($associationValues) > 0 ? array_map(array($associationValues->first(), 'getId'), $associationValues->toArray()) : array();
+            } else {
+                $values[] = $associationValues == null ? null : $associationValues->getId();
+            }
+            $return[$association] = $values;
         }
 
         return $return;

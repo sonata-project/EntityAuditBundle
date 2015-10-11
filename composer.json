@@ -5,7 +5,7 @@
     "description": "Audit for Doctrine Entities",
     "require": {
         "doctrine/dbal": "~2.5",
-        "doctrine/orm": "~2.2"
+        "doctrine/orm": "2.4.*"
     },
     "require-dev": {
         "symfony/framework-bundle": "~2.3",
