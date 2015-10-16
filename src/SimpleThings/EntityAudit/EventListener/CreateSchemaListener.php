@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditManager;
@@ -79,8 +80,9 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable = $schema->createTable(
             $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
         );
+
         foreach ($entityTable->getColumns() AS $column) {
-            /* @var $column Column */
+            /* @var Column $column */
             $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
                 $column->toArray(),
                 array('notnull' => false, 'autoincrement' => false)

@@ -23,5 +23,6 @@
         <var name="DOCTRINE_USER" value=""/>
         <var name="DOCTRINE_PASSWORD" value=""/>
         <var name="DOCTRINE_HOST" value=""/>
+        <!--<var name="DOCTRINE_PATH" value="./db.sqlite"/>-->
     </php>
 </phpunit>

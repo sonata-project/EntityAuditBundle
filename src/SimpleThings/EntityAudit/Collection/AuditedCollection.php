@@ -30,7 +30,6 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
-use Traversable;
 
 class AuditedCollection implements Collection
 {
@@ -451,8 +450,8 @@ class AuditedCollection implements Collection
             if (isset($this->associationDefinition['indexBy'])) {
                 $sql .= ', '.$this->associationDefinition['indexBy'].' ';
             }
-            $sql .= 'FROM '.$this->configuration->getTablePrefix().$this->metadata->table['name'].$this->configuration->getTableSuffix().' t ';
-            $sql .= 'WHERE '.$this->configuration->getRevisionFieldName().' <= '.$this->revision.' ';
+            $sql .= 'FROM ' . $this->configuration->getTableName($this->metadata) . ' t ';
+            $sql .= 'WHERE ' . $this->configuration->getRevisionFieldName() . ' <= ' . $this->revision . ' ';
 
             foreach ($this->foreignKeys as $column => $value) {
                 $sql .= 'AND '.$column.' = ? ';
@@ -460,7 +459,7 @@ class AuditedCollection implements Collection
             }
 
             //we check for revisions greater than current belonging to other entities
-            $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTablePrefix().$this->metadata->table['name'].$this->configuration->getTableSuffix().' st WHERE';
+            $sql .= 'AND NOT EXISTS (SELECT * FROM '. $this->configuration->getTableName($this->metadata) . ' st WHERE';
 
             //ids
             foreach ($this->metadata->getIdentifierColumnNames() as $name) {
@@ -488,7 +487,7 @@ class AuditedCollection implements Collection
             //end of check for for belonging to other entities
 
             //check for deleted revisions older than requested
-            $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTablePrefix().$this->metadata->table['name'].$this->configuration->getTableSuffix().' sd WHERE';
+            $sql .= 'AND NOT EXISTS (SELECT * FROM ' . $this->configuration->getTableName($this->metadata) . ' sd WHERE';
 
             //ids
             foreach ($this->metadata->getIdentifierColumnNames() as $name) {

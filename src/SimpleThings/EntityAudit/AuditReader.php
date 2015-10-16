@@ -23,10 +23,11 @@
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
@@ -39,10 +40,19 @@ use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
+    /**
+     * @var EntityManagerInterface
+     */
     private $em;
 
+    /**
+     * @var AuditConfiguration
+     */
     private $config;
 
+    /**
+     * @var MetadataFactory
+     */
     private $metadataFactory;
 
     /**
@@ -196,20 +206,15 @@ class AuditReader
      */
     public function find($className, $id, $revision, array $options = array())
     {
-        $options = array_merge(
-            array(
-                'threatDeletionsAsExceptions' => false
-            )
-            , $options
-        );
+        $options = array_merge(array('threatDeletionsAsExceptions' => false), $options);
 
         if (!$this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
         }
 
+        /** @var ClassMetadataInfo|ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
-
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -220,8 +225,10 @@ class AuditReader
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
-            } else if (isset($class->associationMappings[$idField])) {
+            } elseif (isset($class->associationMappings[$idField])) {
                 $columnName = $class->associationMappings[$idField]['joinColumns'][0];
+            } else {
+                throw new \RuntimeException('column name not found  for' . $idField);
             }
 
             $whereSQL .= " AND e." . $columnName . " = ?";
@@ -236,14 +243,20 @@ class AuditReader
                 : 'e';
 
             $type = Type::getType($class->fieldMappings[$field]['type']);
-            $columnList[] = $tableAlias.'.'.$type->convertToPHPValueSQL(
-                $class->getColumnName($field, $this->platform), $this->platform) .
-                ' AS ' . $this->platform->quoteSingleIdentifier($field);
+            $columnList[] = sprintf(
+                '%s.%s AS %s',
+                $tableAlias,
+                $type->convertToPHPValueSQL(
+                    $class->getColumnName($field),
+                    $this->platform
+                ),
+                $this->platform->quoteSingleIdentifier($field)
+            );
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
         foreach ($class->associationMappings AS $assoc) {
-            if ( ($assoc['type'] & ClassMetadata::TO_ONE) == 0 || !$assoc['isOwningSide']) {
+            if (($assoc['type'] & ClassMetadata::TO_ONE) == 0 || ! $assoc['isOwningSide']) {
                 continue;
             }
 
@@ -259,10 +272,10 @@ class AuditReader
         }
 
         $joinSql = '';
-        if ($class->isInheritanceTypeJoined()
-            && $class->name != $class->rootEntityName) {
+        if ($class->isInheritanceTypeJoined() && $class->name != $class->rootEntityName) {
+            /** @var ClassMetadataInfo|ClassMetadata $rootClass */
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
-            $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
+            $rootTableName = $this->config->getTableName($rootClass);
             $joinSql = "INNER JOIN {$rootTableName} re ON";
             $joinSql .= " re.rev = e.rev";
             foreach ($class->getIdentifierColumnNames() as $name) {
@@ -316,6 +329,7 @@ class AuditReader
      */
     private function createEntity($className, array $data, $revision)
     {
+        /** @var ClassMetadataInfo|ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
 
         //lookup revisioned entity cache
@@ -344,8 +358,7 @@ class AuditReader
             }
 
             if ($class->discriminatorValue) {
-                $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
-                    ->newInstance();
+                $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])->newInstance();
             } else {
                 //a complex case when ToOne binding is against AbstractEntity having no discriminator
                 $pk = array();
@@ -377,6 +390,7 @@ class AuditReader
                 continue;
             }
 
+            /** @var ClassMetadataInfo|ClassMetadata $targetClass */
             $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
@@ -390,6 +404,7 @@ class AuditReader
                                 $pk[$foreign] = $data[$local];
                             }
                         } else {
+                            /** @var ClassMetadataInfo|ClassMetadata $otherEntityMeta */
                             $otherEntityMeta = $this->em->getClassMetadata($assoc['targetEntity']);
 
                             foreach ($otherEntityMeta->associationMappings[$assoc['mappedBy']]['targetToSourceKeyColumns'] as $local => $foreign) {
@@ -524,13 +539,14 @@ class AuditReader
 
         $changedEntities = array();
         foreach ($auditedEntities AS $className) {
+            /** @var ClassMetadataInfo|ClassMetadata $class */
             $class = $this->em->getClassMetadata($className);
 
             if ($class->isInheritanceTypeSingleTable() && count($class->subClasses) > 0) {
                 continue;
             }
 
-            $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+            $tableName = $this->config->getTableName($class);
             $params = array();
 
             $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
@@ -564,8 +580,11 @@ class AuditReader
                 $params[] = $class->discriminatorValue;
             } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName != $class->name) {
                 $columnList .= ', re.' . $class->discriminatorColumn['name'];
+
+                /** @var ClassMetadataInfo|ClassMetadata $rootClass */
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
-                $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
+                $rootTableName = $this->config->getTableName($rootClass);
+
                 $joinSql = "INNER JOIN {$rootTableName} re ON";
                 $joinSql .= " re.rev = e.rev";
                 foreach ($class->getIdentifierColumnNames() as $name) {
@@ -578,14 +597,18 @@ class AuditReader
 
             foreach ($revisionsData AS $row) {
                 $id   = array();
-                $data = array();
 
                 foreach ($class->identifier AS $idField) {
                     $id[$idField] = $row[$idField];
                 }
 
                 $entity = $this->createEntity($className, $row, $revision);
-                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
+                $changedEntities[] = new ChangedEntity(
+                    $className,
+                    $id,
+                    $row[$this->config->getRevisionTypeFieldName()],
+                    $entity
+                );
             }
         }
         return $changedEntities;
@@ -628,8 +651,9 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
+        /** @var ClassMetadataInfo|ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -680,8 +704,9 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
+        /** @var ClassMetadataInfo|ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -746,6 +771,7 @@ class AuditReader
      */
     public function getEntityValues($className, $entity)
     {
+        /** @var ClassMetadataInfo|ClassMetadata $metadata */
         $metadata = $this->em->getClassMetadata($className);
         $fields = $metadata->getFieldNames();
 
@@ -763,8 +789,9 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
+        /** @var ClassMetadataInfo|ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -790,7 +817,9 @@ class AuditReader
         foreach ($class->fieldNames as $columnName => $field) {
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
-                               $class->getQuotedColumnName($field, $this->platform), $this->platform) .' AS ' . $this->platform->quoteSingleIdentifier($field);
+                    $class->getQuotedColumnName($field, $this->platform),
+                    $this->platform
+                ) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
