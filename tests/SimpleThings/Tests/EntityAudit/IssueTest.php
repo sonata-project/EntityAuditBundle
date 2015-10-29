@@ -106,6 +106,7 @@ class IssueTest extends BaseTest
         $user = new Issue31User();
         $user->setTitre('user');
         $user->setReve($reve);
+
         $this->em->persist($user);
         $this->em->remove($reve);
         $this->em->flush();
