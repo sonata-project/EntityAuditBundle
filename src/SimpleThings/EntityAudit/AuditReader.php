@@ -216,16 +216,10 @@ class AuditReader
         }
 
         $whereSQL  = "e." . $this->config->getRevisionFieldName() ." <= ?";
-
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $columnName = $class->fieldMappings[$idField]['columnName'];
-            } else if (isset($class->associationMappings[$idField])) {
-                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
-            }
-
-            $whereSQL .= " AND e." . $columnName . " = ?";
+        if ($whereSQL) {
+            $whereSQL .= ' AND ';
         }
+        $whereSQL .= $this->createWhereSQLForId($class);
 
         $columnList = array('e.'.$this->config->getRevisionTypeFieldName());
         $columnMap  = array();
@@ -759,20 +753,8 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereId = array();
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $columnName = $class->fieldMappings[$idField]['columnName'];
-            } else if (isset($class->associationMappings[$idField])) {
-                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
-            } else {
-                continue;
-            }
+        $whereSQL = $this->createWhereSQLForId($class);
 
-            $whereId[] = "{$columnName} = ?";
-        }
-
-        $whereSQL  = implode(' AND ', $whereId);
         $columnList = array($this->config->getRevisionFieldName());
         $columnMap  = array();
 
