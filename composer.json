@@ -5,7 +5,7 @@
     "description": "Audit for Doctrine Entities",
     "require": {
         "doctrine/dbal": "~2.5",
-        "doctrine/orm": "~2.2"
+        "doctrine/orm": "~2.2,<2.5"
     },
     "require-dev": {
         "symfony/framework-bundle": "~2.3",
@@ -13,7 +13,7 @@
         "gedmo/doctrine-extensions": "~2.2"
     },
     "autoload": {
-        "psr-0": {"SimpleThings\\EntityAudit": "src/"}
+        "psr-4": {"SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"}
     },
     "extra": {
         "branch-alias": {
