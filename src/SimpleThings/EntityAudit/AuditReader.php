@@ -819,4 +819,39 @@ class AuditReader
 
         return $result;
     }
+    
+    public function findRevisionsByDateAndUsername($className, $id, \DateTime $dateFrom = null, \DateTime $dateTo = null, $username = null)
+    {
+        $revisions = array();
+
+        foreach ($this->findRevisions($className, $id) as $revision) {
+            if ($this->revisionMatchDates($revision, $dateFrom, $dateTo) && $this->revisionMatchUsername($revision, $username)) {
+                $revisions[] = $revision;
+            }
+        }
+
+        return $revisions;
+    }
+
+    protected function revisionMatchDates($revision, $dateFrom, $dateTo)
+    {
+        if (empty($dateFrom) && empty($dateTo)) {
+            return true;
+        }
+
+        if ((empty($dateFrom) || $revision->getTimeStamp() >= $dateFrom) && (empty($dateTo) || $dateTo >= $revision->getTimeStamp())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function revisionMatchUsername($revision, $username)
+    {
+        if (empty($username) || (stripos($revision->getUsername(), $username) !== false)) {
+            return true;
+        }
+
+        return false;
+    }
 }
