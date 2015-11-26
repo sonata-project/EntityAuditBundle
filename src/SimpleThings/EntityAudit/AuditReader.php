@@ -36,6 +36,7 @@ use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
+use SimpleThings\EntityAudit\RevisionCriteria;
 
 class AuditReader
 {
@@ -820,38 +821,8 @@ class AuditReader
         return $result;
     }
     
-    public function findRevisionsByDateAndUsername($className, $id, \DateTime $dateFrom = null, \DateTime $dateTo = null, $username = null)
+    public function matchRevisions($className, $id, RevisionCriteria $criteria)
     {
-        $revisions = array();
-
-        foreach ($this->findRevisions($className, $id) as $revision) {
-            if ($this->revisionMatchDates($revision, $dateFrom, $dateTo) && $this->revisionMatchUsername($revision, $username)) {
-                $revisions[] = $revision;
-            }
-        }
-
-        return $revisions;
-    }
-
-    protected function revisionMatchDates($revision, $dateFrom, $dateTo)
-    {
-        if (empty($dateFrom) && empty($dateTo)) {
-            return true;
-        }
-
-        if ((empty($dateFrom) || $revision->getTimeStamp() >= $dateFrom) && (empty($dateTo) || $dateTo >= $revision->getTimeStamp())) {
-            return true;
-        }
-
-        return false;
-    }
-
-    protected function revisionMatchUsername($revision, $username)
-    {
-        if (empty($username) || (stripos($revision->getUsername(), $username) !== false)) {
-            return true;
-        }
-
-        return false;
+        return array_filter($this->auditReader->findRevisions($class, $entityId), array($criteria, 'matchCriteria'));
     }
 }
