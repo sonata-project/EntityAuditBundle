@@ -36,7 +36,6 @@ use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
-use SimpleThings\EntityAudit\RevisionCriteria;
 
 class AuditReader
 {
