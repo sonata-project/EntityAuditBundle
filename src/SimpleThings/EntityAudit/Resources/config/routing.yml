@@ -26,7 +26,7 @@ simple_things_entity_audit_viewentity:
         _controller: SimpleThingsEntityAuditBundle:Audit:viewEntity
 
 simple_things_entity_audit_compare:
-    pattern: /compare/{className}/{id}/{oldRev}/{newRev}
+    path: /compare/{className}/{id}/{oldRev}/{newRev}
     defaults:
         _controller: SimpleThingsEntityAuditBundle:Audit:compare
         oldRev: ~
