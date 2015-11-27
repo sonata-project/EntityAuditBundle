@@ -821,11 +821,38 @@ class AuditReader
         return $result;
     }
     
-    public function matchRevisions($className, $id, RevisionCriteria $criteria)
+    public function matchRevisions($class, $entityId, RevisionCriteria $criteria)
     {
-        return array_filter(
-            $this->findRevisions($class, $entityId), 
-            array($criteria, 'matchCriteria')
-        );
+        $revisions = $this->findRevisions($class, $entityId);
+        return array_filter($revisions, function($revision) use ($criteria) {
+            return $this->matchCriteria($revision, $criteria);
+        });
+    }
+
+    protected function matchCriteria(Revision $revision, RevisionCriteria $criteria)
+    {
+        return ($this->matchDates($revision, $criteria) && $this->matchUsername($revision, $criteria));
+    }
+
+    protected function matchDates(Revision $revision, RevisionCriteria $criteria)
+    {
+        if (empty($criteria->dateFrom) && empty($criteria->dateTo)) {
+            return true;
+        }
+
+        if ((empty($criteria->dateFrom) || $revision->getTimeStamp() >= $criteria->dateFrom) && (empty($criteria->dateTo) || $criteria->dateTo >= $revision->getTimeStamp())) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    protected function matchUsername(Revision $revision, RevisionCriteria $criteria)
+    {
+        if (empty($criteria->username) || (stripos($revision->getUsername(), $criteria->username) !== false)) {
+            return true;
+        }
+
+        return false;
     }
 }
