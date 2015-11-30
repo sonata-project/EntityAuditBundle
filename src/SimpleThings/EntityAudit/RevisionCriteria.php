@@ -1,5 +1,5 @@
 <?php
-namespace EntityAudit\src\SimpleThings\EntityAudit;
+namespace SimpleThings\EntityAudit;
 
 class RevisionCriteria
 {
