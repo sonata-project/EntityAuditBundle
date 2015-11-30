@@ -835,11 +835,11 @@ class AuditReader
 
     protected function matchDates(Revision $revision, RevisionCriteria $criteria)
     {
-        if (empty($criteria->dateFrom) && empty($criteria->dateTo)) {
+        if (empty($criteria->getDateFrom()) && empty($criteria->getDateTo())) {
             return true;
         }
 
-        if ((empty($criteria->dateFrom) || $revision->getTimeStamp() >= $criteria->dateFrom) && (empty($criteria->dateTo) || $criteria->dateTo >= $revision->getTimeStamp())) {
+        if ((empty($criteria->getDateFrom()) || $revision->getTimeStamp() >= $criteria->getDateFrom()) && (empty($criteria->getDateTo()) || $criteria->getDateTo() >= $revision->getTimeStamp())) {
             return true;
         }
 
@@ -848,7 +848,7 @@ class AuditReader
     
     protected function matchUsername(Revision $revision, RevisionCriteria $criteria)
     {
-        if (empty($criteria->username) || (stripos($revision->getUsername(), $criteria->username) !== false)) {
+        if (empty($criteria->getUsername()) || (stripos($revision->getUsername(), $criteria->getUsername()) !== false)) {
             return true;
         }
 
