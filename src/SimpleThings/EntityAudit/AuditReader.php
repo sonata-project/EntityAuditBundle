@@ -820,9 +820,9 @@ class AuditReader
         return $result;
     }
     
-    public function matchRevisions($class, $entityId, RevisionCriteria $criteria)
+    public function matchRevisions($className, $id, RevisionCriteria $criteria)
     {
-        $revisions = $this->findRevisions($class, $entityId);
+        $revisions = $this->findRevisions($className, $id);
         return array_filter($revisions, function($revision) use ($criteria) {
             return $this->matchCriteria($revision, $criteria);
         });
