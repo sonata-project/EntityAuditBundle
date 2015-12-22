@@ -9,16 +9,14 @@ php:
   - 5.6
   - hhvm
   
-env:
-  matrix:
-    - PREFER_LOWEST="--prefer-lowest"
-    - PREFER_LOWEST=""
-  
-
 before_script:
     - composer self-update
-    - composer update --prefer-source $PREFER_LOWEST 
+    - composer update --prefer-source $COMPOSER_FLAGS 
 
 matrix:
+  fast_finish: true
+  include:
+    - php: 5.3
+      env: COMPOSER_FLAGS="--prefer-lowest"
   allow_failures:
     - php: hhvm
