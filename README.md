@@ -238,9 +238,12 @@ This provides you with a few different routes:
  * ```simple_things_entity_audit_viewentity_detail``` - Displays the data for the specified entity at the specified revision
  * ```simple_things_entity_audit_compare``` - Allows you to compare the changes of an entity between 2 revisions
 
+## Done TODOS
+
+* It DOES support work with Joined-Table-Inheritance - tested but not many. (Single Table Inheritance should work, but not tested)
+* 
 ## TODOS
 
 * Currently only works with auto-increment databases
 * Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
-* It does NOT work with Joined-Table-Inheritance (Single Table Inheritance should work, but not tested)
 * Many-To-Many associations are NOT versioned

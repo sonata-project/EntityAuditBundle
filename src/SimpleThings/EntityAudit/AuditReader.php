@@ -216,16 +216,10 @@ class AuditReader
         }
 
         $whereSQL  = "e." . $this->config->getRevisionFieldName() ." <= ?";
-
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $columnName = $class->fieldMappings[$idField]['columnName'];
-            } else if (isset($class->associationMappings[$idField])) {
-                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
-            }
-
-            $whereSQL .= " AND e." . $columnName . " = ?";
+        if ($whereSQL) {
+            $whereSQL .= ' AND ';
         }
+        $whereSQL .= $this->createWhereSQLForId($class);
 
         $columnList = array('e.'.$this->config->getRevisionTypeFieldName());
         $columnMap  = array();
@@ -299,6 +293,14 @@ class AuditReader
         return $this->createEntity($class->name, $row, $revision);
     }
 
+    private function isClassField($class, $field){
+        if (!array_key_exists($field, $class->reflFields)) {
+            return false;
+        }
+        $refField = $class->reflFields[$field];
+        return $refField->class === $class->reflClass->name || in_array($field, $class->identifier);
+
+    }
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
@@ -316,6 +318,7 @@ class AuditReader
      */
     private function createEntity($className, array $data, $revision)
     {
+        /** @var ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
 
         //lookup revisioned entity cache
@@ -335,27 +338,27 @@ class AuditReader
         }
 
         if (!$class->isInheritanceTypeNone()) {
-            if (!isset($data[$class->discriminatorColumn['name']])) {
-                throw new \RuntimeException('Expecting discriminator value in data set.');
-            }
-            $discriminator = $data[$class->discriminatorColumn['name']];
-            if (!isset($class->discriminatorMap[$discriminator])) {
-                throw new \RuntimeException("No mapping found for [{$discriminator}].");
-            }
-
-            if ($class->discriminatorValue) {
-                $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
-                    ->newInstance();
-            } else {
-                //a complex case when ToOne binding is against AbstractEntity having no discriminator
-                $pk = array();
-
-                foreach ($class->identifier as $field) {
-                    $pk[$class->getColumnName($field)] = $data[$field];
+                if (!isset($data[$class->discriminatorColumn['name']])) {
+                    throw new \RuntimeException('Expecting discriminator value in data set.');
+                }
+                $discriminator = $data[$class->discriminatorColumn['name']];
+                if (!isset($class->discriminatorMap[$discriminator])) {
+                    throw new \RuntimeException("No mapping found for [{$discriminator}].");
                 }
 
-                return $this->find($class->discriminatorMap[$discriminator], $pk, $revision);
-            }
+                if ($class->discriminatorValue) {
+                    $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])
+                        ->newInstance();
+                } else {
+                    //a complex case when ToOne binding is against AbstractEntity having no discriminator
+                    $pk = array();
+
+                    foreach ($class->identifier as $field) {
+                        $pk[$class->getColumnName($field)] = $data[$field];
+                    }
+
+                    return $this->find($class->discriminatorMap[$discriminator], $pk, $revision);
+                }
         } else {
             $entity = $class->newInstance();
         }
@@ -524,9 +527,13 @@ class AuditReader
 
         $changedEntities = array();
         foreach ($auditedEntities AS $className) {
+            /** @var ClassMetadata $class */
             $class = $this->em->getClassMetadata($className);
 
             if ($class->isInheritanceTypeSingleTable() && count($class->subClasses) > 0) {
+                continue;
+            }
+            if ($class->isInheritanceTypeJoined() && $class->rootEntityName == $class->name && $class->getReflectionClass()->isAbstract()) {
                 continue;
             }
 
@@ -571,6 +578,8 @@ class AuditReader
                 foreach ($class->getIdentifierColumnNames() as $name) {
                     $joinSql .= " AND re.$name = e.$name";
                 }
+            } else if ($class->isInheritanceTypeJoined() && $class->rootEntityName == $class->name) {
+                $columnList .= ', e.' . $class->discriminatorColumn['name'];
             }
 
             $query = "SELECT " . $columnList . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL;
@@ -635,20 +644,7 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereSQL = "";
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                if ($whereSQL) {
-                    $whereSQL .= " AND ";
-                }
-                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
-            } else if (isset($class->associationMappings[$idField])) {
-                if ($whereSQL) {
-                    $whereSQL .= " AND ";
-                }
-                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
-            }
-        }
+        $whereSQL = $this->createWhereSQLForId($class);
 
         $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
                  "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
@@ -687,20 +683,7 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereSQL = "";
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                if ($whereSQL) {
-                    $whereSQL .= " AND ";
-                }
-                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
-            } else if (isset($class->associationMappings[$idField])) {
-                if ($whereSQL) {
-                    $whereSQL .= " AND ";
-                }
-                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
-            }
-        }
+        $whereSQL = $this->createWhereSQLForId($class);
 
         $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
                         " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
@@ -770,20 +753,8 @@ class AuditReader
             $id = array($class->identifier[0] => $id);
         }
 
-        $whereId = array();
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $columnName = $class->fieldMappings[$idField]['columnName'];
-            } else if (isset($class->associationMappings[$idField])) {
-                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
-            } else {
-                continue;
-            }
+        $whereSQL = $this->createWhereSQLForId($class);
 
-            $whereId[] = "{$columnName} = ?";
-        }
-
-        $whereSQL  = implode(' AND ', $whereId);
         $columnList = array($this->config->getRevisionFieldName());
         $columnMap  = array();
 
@@ -818,5 +789,29 @@ class AuditReader
         }
 
         return $result;
+    }
+
+
+    /**
+     * @param $class
+     * @return string
+     */
+    private function createWhereSQLForId($class)
+    {
+        $whereSQL = "";
+        foreach ($class->identifier AS $idField) {
+            if (isset($class->fieldMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
+            } else if (isset($class->associationMappings[$idField])) {
+                if ($whereSQL) {
+                    $whereSQL .= " AND ";
+                }
+                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
+            }
+        }
+        return $whereSQL;
     }
 }
