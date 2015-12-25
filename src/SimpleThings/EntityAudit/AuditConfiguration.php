@@ -35,6 +35,18 @@ class AuditConfiguration
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
 
+    public function getTableName($metadata)
+    {
+        $tableName = $metadata->getTableName();
+
+        //## Fix for doctrine/orm >= 2.5
+        if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
+            $tableName = $metadata->getSchemaName() . '.' . $tableName;
+        }
+
+        return $this->getTablePrefix() . $tableName . $this->getTableSuffix();
+    }
+
     public function getTablePrefix()
     {
         return $this->prefix;

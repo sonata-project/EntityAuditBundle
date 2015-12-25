@@ -208,8 +208,7 @@ class AuditReader
         }
 
         $class = $this->em->getClassMetadata($className);
-
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -262,7 +261,7 @@ class AuditReader
         if ($class->isInheritanceTypeJoined()
             && $class->name != $class->rootEntityName) {
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
-            $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
+            $rootTableName = $this->config->getTableName($rootClass);
             $joinSql = "INNER JOIN {$rootTableName} re ON";
             $joinSql .= " re.rev = e.rev";
             foreach ($class->getIdentifierColumnNames() as $name) {
@@ -530,7 +529,7 @@ class AuditReader
                 continue;
             }
 
-            $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+            $tableName = $this->config->getTableName($class);
             $params = array();
 
             $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
@@ -565,7 +564,7 @@ class AuditReader
             } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName != $class->name) {
                 $columnList .= ', re.' . $class->discriminatorColumn['name'];
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
-                $rootTableName = $this->config->getTablePrefix() . $rootClass->table['name'] . $this->config->getTableSuffix();
+                $rootTableName = $this->config->getTableName($rootClass);
                 $joinSql = "INNER JOIN {$rootTableName} re ON";
                 $joinSql .= " re.rev = e.rev";
                 foreach ($class->getIdentifierColumnNames() as $name) {
@@ -629,7 +628,7 @@ class AuditReader
         }
 
         $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -681,7 +680,7 @@ class AuditReader
         }
 
         $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -764,7 +763,7 @@ class AuditReader
         }
 
         $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
+        $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
             $id = array($class->identifier[0] => $id);
