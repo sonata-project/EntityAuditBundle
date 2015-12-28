@@ -9,7 +9,7 @@
     },
     "require-dev": {
         "symfony/framework-bundle": "~2.3",
-        "phpunit/phpunit": "~4.0",
+        "phpunit/phpunit": "~4.2",
         "gedmo/doctrine-extensions": "~2.2"
     },
     "autoload": {

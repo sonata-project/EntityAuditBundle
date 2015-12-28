@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\Visitor\CreateSchemaSqlCollector;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditManager;
@@ -41,6 +43,8 @@ class CreateSchemaListener implements EventSubscriber
      * @var \SimpleThings\EntityAudit\Metadata\MetadataFactory
      */
     private $metadataFactory;
+
+    private $auditTables = array();
 
     public function __construct(AuditManager $auditManager)
     {
@@ -76,9 +80,9 @@ class CreateSchemaListener implements EventSubscriber
 
         $schema = $eventArgs->getSchema();
         $entityTable = $eventArgs->getClassTable();
-        $revisionTable = $schema->createTable(
-            $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
-        );
+        $tableName = $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix();
+        $this->auditTables[] = $tableName;
+        $revisionTable = $schema->createTable($tableName);
         foreach ($entityTable->getColumns() AS $column) {
             /* @var $column Column */
             $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
@@ -100,6 +104,26 @@ class CreateSchemaListener implements EventSubscriber
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
     {
         $schema = $eventArgs->getSchema();
+
+        if ($this->config->getAuditConnection() && $this->config->getAuditConnection() != $eventArgs->getEntityManager()->getConnection()) {
+            // cancel creation of tables and return
+            $schemaReflection = new \ReflectionClass($schema);
+            $tableProperty = $schemaReflection->getProperty('_tables');
+            $tableProperty->setAccessible(true);
+
+            $tables = $tableProperty->getValue($schema);
+
+            foreach ($tables as $name => $tableObject) {
+                if (in_array($name, $this->auditTables)) {
+                    unset($tables[$name]);
+                }
+            }
+
+            $tableProperty->setValue($schema, $tables);
+
+            return;
+        }
+
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
         $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
             'autoincrement' => true,

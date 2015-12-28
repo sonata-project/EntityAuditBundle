@@ -232,9 +232,7 @@ class Issue31User
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
     protected $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="Issue31Reve", cascade={"persist", "remove"})
-     */
+    /** @ORM\OneToOne(targetEntity="Issue31Reve", cascade={"persist", "remove"}) @ORM\JoinColumn(onDelete="CASCADE") */
     protected $reve;
 
     /** @ORM\Column(type="string") */
@@ -272,9 +270,7 @@ class Issue31Reve
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
     protected $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="Issue31User")
-     */
+    /** @ORM\OneToOne(targetEntity="Issue31User") */
     protected $user;
 
     /** @ORM\Column(type="string") */
