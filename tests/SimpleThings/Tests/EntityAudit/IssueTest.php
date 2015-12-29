@@ -73,28 +73,6 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
     );
 
-    protected function getGedmoVersion()
-    {
-        if (class_exists('Gedmo\Version')) {
-            return constant('Gedmo\Version::VERSION');
-        } elseif (class_exists('Gedmo\DoctrineExtensions')) {
-            return constant('Gedmo\DoctrineExtensions::VERSION');
-        } else {
-            return '0.0.1-DEV';
-        }
-    }
-
-    public function setUp()
-    {
-        //softdeleteable is present only in gedmo's 2.3+
-        if (version_compare($this->getGedmoVersion(), '2.3') < 0) {
-            $this->auditedEntities = array_diff($this->auditedEntities, array('SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity'));
-            $this->schemaEntities = array_diff($this->schemaEntities, array('SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity'));
-        }
-
-        parent::setUp();
-    }
-
     public function testIssue31()
     {
         $reve = new Issue31Reve();
@@ -114,10 +92,6 @@ class IssueTest extends BaseTest
 
     public function testIssue111()
     {
-        if (version_compare($this->getGedmoVersion(), '2.3') < 0) {
-            $this->markTestSkipped('SoftDeleteable is available only since gedmo 2.3');
-        }
-
         $this->em->getEventManager()->addEventSubscriber(new \Gedmo\SoftDeleteable\SoftDeleteableListener());
 
         $e = new Issue111Entity();
