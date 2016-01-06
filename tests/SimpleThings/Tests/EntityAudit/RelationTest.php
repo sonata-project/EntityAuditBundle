@@ -45,7 +45,10 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\PageLocalization',
         'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
         'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity'
+        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity',
+        'SimpleThings\EntityAudit\Tests\ParentEntity',
+        'SimpleThings\EntityAudit\Tests\ChildEntity',
+        'SimpleThings\EntityAudit\Tests\RelatedEntity',
     );
 
     protected $auditedEntities = array(
@@ -62,7 +65,10 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\PageLocalization',
         'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
         'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity'
+        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity',
+        'SimpleThings\EntityAudit\Tests\ParentEntity',
+        'SimpleThings\EntityAudit\Tests\ChildEntity',
+        'SimpleThings\EntityAudit\Tests\RelatedEntity',
     );
 
     public function testUndefinedIndexesInUOWForRelations()
@@ -766,6 +772,27 @@ class RelationTest extends BaseTest
         $this->assertEquals('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
         $this->assertEquals('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
     }
+
+    public function testDoubleFieldDefinitionEdgeCase()
+    {
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $owner = new ChildEntity();
+        $owned = new RelatedEntity();
+
+        $this->em->persist($owner);
+        $this->em->persist($owned);
+        $this->em->flush();
+
+        $audited = $reader->find(get_class($owner), $owner->getId(), 1);
+        $this->assertInstanceOf(get_class($owner), $audited);
+
+        $owner->setRelation($owned);
+        $this->em->flush();
+
+        $audited = $reader->find(get_class($owner), $owner->getId(), 2);
+        $this->assertInstanceOf(get_class($owner), $audited);
+    }
 }
 
 /** @ORM\MappedSuperclass */
@@ -1327,4 +1354,81 @@ class PageLocalization
 class UnManagedIndexByOwner
 {
 
+}
+
+
+/**
+ * @ORM\MappedSuperclass()
+ */
+abstract class ParentEntity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    private $id;
+
+    /** @ORM\Column(name="relation_id", type="integer", nullable=true) */
+    private $relationId;
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRelationId()
+    {
+        return $this->relationId;
+    }
+
+    /**
+     * @param mixed $relationId
+     */
+    public function setRelationId($relationId)
+    {
+        $this->relationId = $relationId;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class ChildEntity extends ParentEntity
+{
+    /**
+     * @var RelatedEntity
+     * @ORM\OneToOne(targetEntity="RelatedEntity")
+     * @ORM\JoinColumn(name="relation_id", referencedColumnName="id", nullable=true)
+     */
+    private $relation;
+
+    /**
+     * @return RelatedEntity
+     */
+    public function getRelation()
+    {
+        return $this->relation;
+    }
+
+    /**
+     * @param RelatedEntity $relation
+     */
+    public function setRelation($relation)
+    {
+        $this->relation = $relation;
+    }
+}
+
+/**
+ * @ORM\Entity
+ */
+class RelatedEntity
+{
+    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    private $id;
+
+    public function getId()
+    {
+        return $this->id;
+    }
 }
