@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping as ORM;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataLegalEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataPrivateEntity;
@@ -39,6 +40,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelatedEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
@@ -68,6 +70,9 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataLegalEntity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataPrivateEntity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelatedEntity',
     );
 
     protected $auditedEntities = array(
@@ -90,6 +95,9 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataLegalEntity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataPrivateEntity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelatedEntity',
     );
 
     public function testUndefinedIndexesInUOWForRelations()
@@ -109,7 +117,9 @@ class RelationTest extends BaseTest
 
         $this->em->flush();
 
-        unset($owner); unset($owned1); unset($owned2);
+        unset($owner);
+        unset($owned1);
+        unset($owned2);
         $this->em->clear();
 
         $owner = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnerEntity", 1);
@@ -129,7 +139,8 @@ class RelationTest extends BaseTest
         $changedOwned = $changedEntities[1]->getEntity();
 
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', $changedEntities[0]->getClassName());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
+            $changedEntities[0]->getClassName());
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', get_class($changedOwner));
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', get_class($changedOwned));
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
@@ -384,7 +395,7 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#2', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
-        $o1 =  $audited->getOwned1();
+        $o1 = $audited->getOwned1();
         $this->assertEquals('created#3', $o1[0]->getTitle());
         $o2 = $audited->getOwned2();
         $this->assertEquals('owned21', $o2[0]->getTitle());
@@ -869,5 +880,26 @@ class RelationTest extends BaseTest
         $this->assertSame($owner1->getTitle(), $diff['owner']['old']->getTitle());
         $this->assertSame($owner2->getTitle(), $diff['owner']['new']->getTitle());
         $this->assertEmpty($diff['owner']['same']);
+    }
+
+    public function testDoubleFieldDefinitionEdgeCase()
+    {
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $owner = new ChildEntity();
+        $owned = new RelatedEntity();
+
+        $this->em->persist($owner);
+        $this->em->persist($owned);
+        $this->em->flush();
+
+        $audited = $reader->find(get_class($owner), $owner->getId(), 1);
+        $this->assertInstanceOf(get_class($owner), $audited);
+
+        $owner->setRelation($owned);
+        $this->em->flush();
+
+        $audited = $reader->find(get_class($owner), $owner->getId(), 2);
+        $this->assertInstanceOf(get_class($owner), $audited);
     }
 }
