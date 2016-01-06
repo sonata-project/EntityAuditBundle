@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
+
 class AuditConfiguration
 {
     private $prefix = '';
@@ -34,6 +36,23 @@ class AuditConfiguration
     private $globalIgnoreColumns = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
+
+    /**
+     * @param ClassMetadataInfo $metadata
+     *
+     * @return string
+     */
+    public function getTableName(ClassMetadataInfo $metadata)
+    {
+        $tableName = $metadata->getTableName();
+
+        //## Fix for doctrine/orm >= 2.5
+        if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
+            $tableName = $metadata->getSchemaName() . '.' . $tableName;
+        }
+
+        return $this->getTablePrefix() . $tableName . $this->getTableSuffix();
+    }
 
     public function getTablePrefix()
     {

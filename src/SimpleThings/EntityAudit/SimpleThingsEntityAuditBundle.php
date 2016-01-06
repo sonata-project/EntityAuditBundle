@@ -3,7 +3,7 @@
  * (c) SimpleThings
  *
  * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author  Benjamin Eberlei <eberlei@simplethings.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,5 +26,5 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class SimpleThingsEntityAuditBundle extends Bundle
 {
-    
+
 }

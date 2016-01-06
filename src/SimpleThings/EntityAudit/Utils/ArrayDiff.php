@@ -23,8 +23,6 @@
 
 namespace SimpleThings\EntityAudit\Utils;
 
-use Doctrine\ORM\Mapping\ClassMetadata;
-
 /**
  * Creates a diff between 2 arrays.
  *

@@ -23,8 +23,14 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\EventManager;
+use Doctrine\DBAL\Logging\EchoSQLLogger;
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Tools\SchemaTool;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 
@@ -46,11 +52,11 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $driver = new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader);
-        $config = new \Doctrine\ORM\Configuration();
-        $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
-        $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
+        $reader = new AnnotationReader();
+        $driver = new AnnotationDriver($reader);
+        $config = new Configuration();
+        $config->setMetadataCacheImpl(new ArrayCache());
+        $config->setQueryCacheImpl(new ArrayCache());
         $config->setProxyDir(sys_get_temp_dir());
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
         $config->setMetadataDriverImpl($driver);
@@ -64,6 +70,10 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
             'host' => $GLOBALS['DOCTRINE_HOST']
         );
 
+        if (isset($GLOBALS['DOCTRINE_PATH'])) {
+            $conn['path'] = $GLOBALS['DOCTRINE_PATH'];
+        }
+
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername("beberlei");
         $auditConfig->setAuditedEntityClasses($this->auditedEntities);
@@ -72,13 +82,16 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $this->auditManager = new AuditManager($auditConfig);
         $this->auditManager->registerEvents($evm = new EventManager());
 
-        if (php_sapi_name() == 'cli' && isset($_SERVER['argv']) && (in_array('-v', $_SERVER['argv']) || in_array('--verbose', $_SERVER['argv']))) {
-            $config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
+        if (php_sapi_name() == 'cli'
+            && isset($_SERVER['argv'])
+            && (in_array('-v', $_SERVER['argv']) || in_array('--verbose', $_SERVER['argv']))
+        ) {
+            $config->setSQLLogger(new EchoSQLLogger());
         }
 
-        $this->em = \Doctrine\ORM\EntityManager::create($conn, $config, $evm);
+        $this->em = EntityManager::create($conn, $config, $evm);
 
-        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
+        $schemaTool = new SchemaTool($this->em);
         $em = $this->em;
 
         try {
@@ -96,7 +109,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
+        $schemaTool = new SchemaTool($this->em);
         $em = $this->em;
 
         try {
