@@ -111,6 +111,18 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             foreach ($updateData[$meta->table['name']] as $field => $value) {
+
+                $isItPkUpdate = false;
+                foreach ($meta->identifier AS $idField) {
+                    if ($idField === $field && !$value) {
+                        $isItPkUpdate = true;
+                        continue;
+                    }
+                }
+                if ($isItPkUpdate) {
+                    continue;
+                }
+
                 $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ' .
                     'SET ' . $field . ' = ? ' .
                     'WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
