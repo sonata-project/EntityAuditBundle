@@ -111,6 +111,18 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             foreach ($updateData[$meta->table['name']] as $field => $value) {
+
+                $isItPkUpdate = false;
+                foreach ($meta->identifier AS $idField) {
+                    if ($idField === $field && !$value) {
+                        $isItPkUpdate = true;
+                        continue;
+                    }
+                }
+                if ($isItPkUpdate) {
+                    continue;
+                }
+
                 $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ' .
                     'SET ' . $field . ' = ? ' .
                     'WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
@@ -326,7 +338,8 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             foreach ($class->fieldNames as $field) {
-                if (array_key_exists($field, $fields)) {
+                $columnName = $class->fieldMappings[$field]['columnName'];
+                if (array_key_exists($columnName, $fields)) {
                     continue;
                 }
 
@@ -400,7 +413,8 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($class->fieldNames AS $field) {
-            if (array_key_exists($field, $fields)) {
+            $columnName = $class->fieldMappings[$field]['columnName'];
+            if (array_key_exists($columnName, $fields)) {
                 continue;
             }
 
