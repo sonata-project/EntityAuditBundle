@@ -1358,6 +1358,7 @@ class UnManagedIndexByOwner
 
 
 /**
+ * @ORM\Entity
  * @ORM\MappedSuperclass()
  */
 abstract class ParentEntity
