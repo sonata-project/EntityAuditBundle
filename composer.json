@@ -21,7 +21,7 @@
     },
     "conflict": {
         "gedmo/doctrine-extensions": "<2.3.1",
-        "symfony/framework-bundle": "<2.3",
+        "symfony/framework-bundle": "<2.7",
         "doctrine/doctrine-bundle": "<1.4"
     },
     "autoload": {
