@@ -292,7 +292,7 @@ class AuditReader
 
                 // Support for single table inheritance sub-classes
                 $allDiscrValues = array_flip($class->discriminatorMap);
-                $queriedDiscrValues = [$this->em->getConnection()->quote($class->discriminatorValue)];
+                $queriedDiscrValues = array($this->em->getConnection()->quote($class->discriminatorValue));
                 foreach ($class->subClasses as $subclassName) {
                     $queriedDiscrValues[] = $this->em->getConnection()->quote($allDiscrValues[$subclassName]);
                 }
