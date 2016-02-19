@@ -848,4 +848,61 @@ class AuditReader
 
         return $result;
     }
+
+    /**
+     * Find a class at the specific date.
+     *
+     * This method does not require the date to be exact but it also searches for an earlier revision
+     * of this entity and always returns the latest revision below or equal the given date
+     *
+     * @param string   $className
+     * @param mixed    $id
+     * @param DateTime $date
+     *
+     * @return object
+     *
+     * @throws AuditException
+     */
+    public function findAtDate($className, $id, \DateTime $date)
+    {
+        if (!$this->metadataFactory->isAudited($className)) {
+            throw new NotAuditedException($className);
+        }
+
+        $revision = $this->getRevisionByDate($date);
+
+        //a revision exists for this date
+        if ($revision !== null) {
+            $entity = $this->find($className, $id, $revision);
+        } else {
+            //there is no revision, let us get the normal entity
+            $repository = $this->em->getRepository($className);
+            $entity = $repository->findOneById($id);
+        }
+
+        return $entity;
+    }
+
+    /**
+     * Get the revision at the date
+     * If the date does not match exactly a revision, we get the previous revision
+     *
+     * @param \DateTime $date
+     *
+     * @return int|null The revision
+     */
+    public function getRevisionByDate(\DateTime $date)
+    {
+        $revision = null;
+
+        $query = "SELECT revisions.id FROM ".$this->config->getRevisionTableName()." WHERE timestamp <= '".$date->format("Y-m-d H:i:s")."' ORDER BY revisions.timestamp DESC,revisions.id DESC LIMIT 1";
+
+        $row = $this->em->getConnection()->fetchAssoc($query);
+
+        if ($row) {
+            $revision = $row['id'];
+        }
+
+        return $revision;
+    }
 }
