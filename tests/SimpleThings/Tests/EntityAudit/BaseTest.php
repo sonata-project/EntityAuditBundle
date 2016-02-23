@@ -54,6 +54,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     {
         $reader = new AnnotationReader();
         $driver = new AnnotationDriver($reader);
+        $driver->addPaths([__DIR__ . '/Fixtures']);
         $config = new Configuration();
         $config->setMetadataCacheImpl(new ArrayCache());
         $config->setQueryCacheImpl(new ArrayCache());
