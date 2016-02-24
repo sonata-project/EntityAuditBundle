@@ -290,8 +290,14 @@ class AuditReader
             if ($class->isInheritanceTypeSingleTable()
                 && $class->discriminatorValue !== null) {
 
-                $whereSQL .= " AND " . $class->discriminatorColumn['name'] . " = ?";
-                $values[] = $class->discriminatorValue;
+                // Support for single table inheritance sub-classes
+                $allDiscrValues = array_flip($class->discriminatorMap);
+                $queriedDiscrValues = array($this->em->getConnection()->quote($class->discriminatorValue));
+                foreach ($class->subClasses as $subclassName) {
+                    $queriedDiscrValues[] = $this->em->getConnection()->quote($allDiscrValues[$subclassName]);
+                }
+
+                $whereSQL .= " AND " . $class->discriminatorColumn['name'] . " IN " . '(' . implode(', ', $queriedDiscrValues) . ')';
             }
         }
 

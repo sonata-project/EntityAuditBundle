@@ -24,11 +24,15 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization;
@@ -54,6 +58,9 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
     );
 
     protected $auditedEntities = array(
@@ -71,6 +78,9 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
     );
 
     public function testIssue31()
@@ -210,5 +220,21 @@ class IssueTest extends BaseTest
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
+    }
+
+    public function testIssue156()
+    {
+        $client = new Issue156Client();
+
+        $number = new Issue156ContactTelephoneNumber();
+        $number->setNumber('0123567890');
+        $client->addTelephoneNumber($number);
+
+        $this->em->persist($client);
+        $this->em->persist($number);
+        $this->em->flush();
+
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $object = $auditReader->find(get_class($number), $number->getId(), 1);
     }
 }
