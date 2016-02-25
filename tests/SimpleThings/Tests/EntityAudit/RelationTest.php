@@ -1359,7 +1359,7 @@ class UnManagedIndexByOwner
  * @ORM\Entity
  * @ORM\MappedSuperclass()
  */
-abstract class ParentEntity
+abstract class AbstractParentEntity
 {
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
     private $id;
@@ -1392,7 +1392,7 @@ abstract class ParentEntity
 /**
  * @ORM\Entity
  */
-class ChildEntity extends ParentEntity
+class ChildEntity extends AbstractParentEntity
 {
     /**
      * @var RelatedEntity
