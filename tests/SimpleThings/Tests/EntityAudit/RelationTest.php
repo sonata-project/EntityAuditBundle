@@ -46,7 +46,6 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
         'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
         'SimpleThings\EntityAudit\Tests\RelationReferencedEntity',
-        'SimpleThings\EntityAudit\Tests\ParentEntity',
         'SimpleThings\EntityAudit\Tests\ChildEntity',
         'SimpleThings\EntityAudit\Tests\RelatedEntity',
     );
@@ -66,7 +65,6 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
         'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
         'SimpleThings\EntityAudit\Tests\RelationReferencedEntity',
-        'SimpleThings\EntityAudit\Tests\ParentEntity',
         'SimpleThings\EntityAudit\Tests\ChildEntity',
         'SimpleThings\EntityAudit\Tests\RelatedEntity',
     );
