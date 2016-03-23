@@ -150,7 +150,7 @@ class LogRevisionsListener implements EventSubscriber
                         $columnName = $meta->fieldMappings[$idField]['columnName'];
                         $types[] = $meta->fieldMappings[$idField]['type'];
                     } elseif (isset($meta->associationMappings[$idField])) {
-                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
+                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
                         $types[] = $meta->associationMappings[$idField]['type'];
                     }
 
