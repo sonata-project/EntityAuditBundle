@@ -241,7 +241,7 @@ class AuditReader
             } else if (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
             } elseif (isset($class->associationMappings[$idField])) {
-                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
+                $columnName = $class->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 throw new \RuntimeException('column name not found  for' . $idField);
             }
@@ -362,6 +362,15 @@ class AuditReader
         $keyParts = array();
 
         foreach($class->getIdentifierFieldNames() as $name) {
+            if ($class->hasAssociation($name)) {
+                if ($class->isSingleValuedAssociation($name)) {
+                    $name = $class->getSingleAssociationJoinColumnName($name);
+                } else {
+                    // Doctrine should throw a mapping exception if an identifier
+                    // that is an association is not single valued, but just in case.
+                    throw new \RuntimeException('Multiple valued association identifiers not supported');
+                }
+            }
             $keyParts[] = $data[$name];
         }
 
@@ -714,7 +723,7 @@ class AuditReader
             } else if (isset($class->associationMappings[$idField])) {
                 $queryBuilder->andWhere(sprintf(
                     'e.%s = ?',
-                    $class->associationMappings[$idField]['joinColumns'][0]
+                    $class->associationMappings[$idField]['joinColumns'][0]['name']
                 ));
             }
         }
@@ -760,7 +769,7 @@ class AuditReader
             if (isset($class->fieldMappings[$idField])) {
                 $queryBuilder->andWhere(sprintf('e.%s = ?', $class->fieldMappings[$idField]['columnName']));
             } elseif (isset($class->associationMappings[$idField])) {
-                $queryBuilder->andWhere(sprintf('e.%s = ?', $class->associationMappings[$idField]['joinColumns'][0]));
+                $queryBuilder->andWhere(sprintf('e.%s = ?', $class->associationMappings[$idField]['joinColumns'][0]['name']));
             }
         }
 
@@ -858,7 +867,7 @@ class AuditReader
             if (isset($class->fieldMappings[$idField])) {
                 $queryBuilder->andWhere($class->fieldMappings[$idField]['columnName'] . ' = ?');
             } elseif (isset($class->associationMappings[$idField])) {
-                $queryBuilder->andWhere($class->associationMappings[$idField]['joinColumns'][0] . ' = ?');
+                $queryBuilder->andWhere($class->associationMappings[$idField]['joinColumns'][0]['name'] . ' = ?');
             }
         }
 

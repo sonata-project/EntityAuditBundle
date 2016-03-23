@@ -179,6 +179,7 @@ class LogRevisionsListener implements EventSubscriber
                     if (isset($meta->fieldMappings[$idField])) {
                         $columnName = $meta->fieldMappings[$idField]['columnName'];
                         $types[] = $meta->fieldMappings[$idField]['type'];
+                        $params[] = $meta->reflFields[$idField]->getValue($entity);
                     } elseif (isset($meta->associationMappings[$idField])) {
                         $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
                         if (is_array($columnName)) {
@@ -190,9 +191,17 @@ class LogRevisionsListener implements EventSubscriber
                             }
                         }
                         $types[] = $meta->associationMappings[$idField]['type'];
+                        $foreignEntity = $meta->reflFields[$idField]->getValue($entity);
+                        $foreignMeta = $em->getClassMetadata(get_class($foreignEntity));
+                        $foreignIdFields = $foreignMeta->identifier;
+                        if (count($foreignIdFields) > 1) {
+                            // This is not supported by Doctrine, so this should never happen, but just in case..
+                            throw new \Exception(
+                                sprintf('Identifier field "%s" refers to a foreign entity with a composite primary key', $idField)
+                            );
+                        }
+                        $params[] = $foreignMeta->reflFields[$foreignIdFields[0]]->getValue($foreignEntity);
                     }
-
-                    $params[] = $meta->reflFields[$idField]->getValue($entity);
 
                     $sql .= 'AND ' . $columnName . ' = ?';
                 }

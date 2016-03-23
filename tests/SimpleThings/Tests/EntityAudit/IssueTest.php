@@ -33,6 +33,8 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194User;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194Address;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User;
@@ -64,6 +66,8 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194User',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194Address',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
@@ -87,6 +91,8 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194User',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194Address',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
@@ -253,6 +259,24 @@ class IssueTest extends BaseTest
         $object = $auditReader->find(get_class($number), $number->getId(), 1);
     }
 
+    public function testIssue194()
+    {
+        $user = new Issue194User();
+        $address = new Issue194Address($user);
+
+        $this->em->persist($user);
+        $this->em->flush();
+        $this->em->persist($address);
+        $this->em->flush();
+
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditUser = $auditReader->find(get_class($user), $user->getId(), 1);
+        $auditAddress = $auditReader->find(get_class($address), $address->getUser()->getId(), 2);
+        $this->assertEquals($auditAddress->getUser(), $auditUser);
+        $this->assertEquals($address->getUser(), $auditUser);
+        $this->assertEquals($auditAddress->getUser(), $user);
+    }
+    
     public function testIssue196()
     {
         $entity = new Issue196Entity();
@@ -273,7 +297,7 @@ class IssueTest extends BaseTest
             'Current revision of audited entity is not equivalent to persisted entity:'
         );
     }
-    
+
     public function testIssue198()
     {
         $owner = new Issue198Owner();
