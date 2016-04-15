@@ -326,7 +326,8 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             foreach ($class->fieldNames as $field) {
-                if (array_key_exists($field, $fields)) {
+                $columnName = $class->fieldMappings[$field]['columnName'];
+                if (array_key_exists($columnName, $fields)) {
                     continue;
                 }
 
@@ -400,7 +401,8 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($class->fieldNames AS $field) {
-            if (array_key_exists($field, $fields)) {
+            $columnName = $class->fieldMappings[$field]['columnName'];
+            if (array_key_exists($columnName, $fields)) {
                 continue;
             }
 
