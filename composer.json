@@ -9,7 +9,7 @@
     "description": "Audit for Doctrine Entities",
     "require": {
         "php": "^5.3.9|~7.0",
-        "doctrine/dbal": "~2.5",
+        "doctrine/dbal": "~2.4",
         "doctrine/orm": "~2.4"
     },
     "require-dev": {
