@@ -26,15 +26,17 @@ namespace SimpleThings\EntityAudit\Metadata;
 class MetadataFactory
 {
     private $auditedEntities = array();
+    private $excludedEntities = array();
 
-    public function __construct($auditedEntities)
+    public function __construct($auditedEntities, $excludedEntities)
     {
         $this->auditedEntities = array_flip($auditedEntities);
+        $this->excludedEntities = array_flip($excludedEntities);
     }
 
     public function isAudited($entity)
     {
-        return isset($this->auditedEntities[$entity]);
+        return isset($this->auditedEntities[$entity]) && !isset($this->excludedEntities[$entity]);
     }
     
     public function getAllClassNames()

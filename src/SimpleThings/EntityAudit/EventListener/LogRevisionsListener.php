@@ -183,6 +183,9 @@ class LogRevisionsListener implements EventSubscriber
         $entity = $eventArgs->getEntity();
 
         $class = $this->em->getClassMetadata(get_class($entity));
+<<<<<<< HEAD
+        if (!$this->metadataFactory->isAudited($class->name) || !$this->isChanged($entity)) {
+=======
         if (! $this->metadataFactory->isAudited($class->name)) {
             return;
         }
@@ -197,6 +200,7 @@ class LogRevisionsListener implements EventSubscriber
 
         // if we have no changes left => don't create revision log
         if (count($changeset) == 0) {
+>>>>>>> upstream/master
             return;
         }
 
@@ -436,6 +440,28 @@ class LogRevisionsListener implements EventSubscriber
 
         $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
     }
+<<<<<<< HEAD
+    
+    /**
+     * checks if any of the entity's fields values been changed
+     *
+     * @param mixed $entity
+     * @return boolean
+     */    
+    private function isChanged($entity)
+    {
+        $isChanged = FALSE;
+        $this->uow->computeChangeSets();
+        $changeset = $this->uow->getEntityChangeSet($entity);
+        
+        foreach ($changeset as $fieldName => $value) {
+            if($value[0] != $value[1]) {
+                $isChanged = TRUE;
+            }
+        }
+        return $isChanged;
+    }    
+=======
 
     /**
      * @param $entity
@@ -540,4 +566,5 @@ class LogRevisionsListener implements EventSubscriber
 
         return $result;
     }
+>>>>>>> upstream/master
 }
