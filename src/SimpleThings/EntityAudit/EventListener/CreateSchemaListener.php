@@ -104,16 +104,11 @@ class CreateSchemaListener implements EventSubscriber
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
     {
         $schema = $eventArgs->getSchema();
-        $revisionTableName = $schema->getName() . "." . $this->config->getRevisionTableName();
-        /* Nothing to do if revision table is already created */
-        if(in_array($revisionTableName, $schema->getTableNames())) {
-            return;
-        }
-        $revisionTable = $eventArgs->getSchema()->getName() . "." . $this->config->getRevisionTableName();
-        if (in_array($revisionTable, $schema->getTableNames())) {
-            
-            return;
-        }           
++       $revisionTableName = $schema->getName() . "." . $this->config->getRevisionTableName();
++       /* Nothing to do if revision table is already created */
++       if(in_array($revisionTableName, $schema->getTableNames())) {
++           return;
++       }        
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
         $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
             'autoincrement' => true,
