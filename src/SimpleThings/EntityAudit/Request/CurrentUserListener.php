@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit\Request;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\SecurityContext;
 use SimpleThings\EntityAudit\AuditConfiguration;
 
@@ -38,16 +39,16 @@ class CurrentUserListener
      */
     private $auditConfiguration;
     /**
-     * @var SecurityContext
+     * @var TokenStorageInterface
      */
     private $securityContext;
-    
-    public function __construct(AuditConfiguration $config, SecurityContext $context = null)
+
+    public function __construct(AuditConfiguration $config, TokenStorageInterface $context = null)
     {
         $this->auditConfiguration = $config;
         $this->securityContext = $context;
     }
-    
+
     /**
      * Handles access authorization.
      *

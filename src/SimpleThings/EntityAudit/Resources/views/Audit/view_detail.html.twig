@@ -15,6 +15,14 @@
         <td>{{ field }}</td>
         {% if value.timestamp is defined %}
         <td>{{ value|date('m/d/Y') }}</td>
+        {% elseif value is iterable %}
+        <td>
+            <ul>
+                {% for element in value %}
+                    <li>{{ element }}</li>
+                {% endfor %}
+            </ul>
+        </td>
         {% else %}
         <td>{{ value }}</td>
         {% endif %}
@@ -24,3 +32,4 @@
 </table>
 
 {% endblock simplethings_entityaudit_content %}
+

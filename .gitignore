@@ -1,5 +1,9 @@
 .svn
 composer.lock
 vendor
+<<<<<<< HEAD
 /nbproject/private/
 /nbproject/
+=======
+tests/SimpleThings/Tests/EntityAudit/cache
+>>>>>>> upstream/master

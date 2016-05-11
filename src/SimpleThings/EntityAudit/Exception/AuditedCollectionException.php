@@ -4,6 +4,7 @@
  *
  * @package SimpleThings\EntityAudit
  * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author Andrew Tch <andrew.tchircoff@gmail.com>
  * @link http://www.simplethings.de
  *
  * This library is free software; you can redistribute it and/or
@@ -21,33 +22,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Utils;
+namespace SimpleThings\EntityAudit\Exception;
 
-/**
- * Creates a diff between 2 arrays.
- *
- * @author Tim Nagel <tim@nagel.com.au>
- */
-class ArrayDiff
+class AuditedCollectionException extends AuditException
 {
-    public function diff($oldData, $newData)
+    public function __construct($message)
     {
-        $diff = array();
-
-        $keys = array_keys($oldData + $newData);
-        foreach ($keys as $field) {
-            $old = array_key_exists($field, $oldData) ? $oldData[$field] : null;
-            $new = array_key_exists($field, $newData) ? $newData[$field] : null;
-
-            if ($old == $new) {
-                $row = array('old' => '', 'new' => '', 'same' => $old);
-            } else {
-                $row = array('old' => $old, 'new' => $new, 'same' => '');
-            }
-
-            $diff[$field] = $row;
-        }
-
-        return $diff;
+        \Exception::__construct($message);
     }
 }

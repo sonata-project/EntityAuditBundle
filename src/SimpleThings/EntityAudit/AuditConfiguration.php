@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
+
 class AuditConfiguration
 {
     private $prefix = '';
@@ -31,9 +33,30 @@ class AuditConfiguration
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
+<<<<<<< HEAD
     private $excludedEntityClasses = array();
+=======
+    private $globalIgnoreColumns = array();
+>>>>>>> upstream/master
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
+
+    /**
+     * @param ClassMetadataInfo $metadata
+     *
+     * @return string
+     */
+    public function getTableName(ClassMetadataInfo $metadata)
+    {
+        $tableName = $metadata->getTableName();
+
+        //## Fix for doctrine/orm >= 2.5
+        if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
+            $tableName = $metadata->getSchemaName() . '.' . $tableName;
+        }
+
+        return $this->getTablePrefix() . $tableName . $this->getTableSuffix();
+    }
 
     public function getTablePrefix()
     {
@@ -91,16 +114,26 @@ class AuditConfiguration
         $this->excludedEntityClasses = $excludedClasses;
     }
 
+    public function getGlobalIgnoreColumns()
+    {
+        return $this->globalIgnoreColumns;
+    }
+
+    public function setGlobalIgnoreColumns(array $columns)
+    {
+        $this->globalIgnoreColumns = $columns;
+    }
+
     public function createMetadataFactory()
     {
         return new Metadata\MetadataFactory($this->auditedEntityClasses, $this->excludedEntityClasses);
     }
-    
+
     public function setCurrentUsername($username)
     {
         $this->currentUsername = $username;
     }
-    
+
     public function getCurrentUsername()
     {
         return $this->currentUsername;

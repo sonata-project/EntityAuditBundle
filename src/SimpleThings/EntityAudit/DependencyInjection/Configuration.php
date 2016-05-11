@@ -3,7 +3,6 @@
 namespace SimpleThings\EntityAudit\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
@@ -16,9 +15,15 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('audited_entities')
                     ->prototype('scalar')->end()
                 ->end()
+<<<<<<< HEAD
                 ->arrayNode('excluded_entities')
                     ->prototype('scalar')->end()
                 ->end()                
+=======
+                ->arrayNode('global_ignore_columns')
+                    ->prototype('scalar')->end()
+                ->end()
+>>>>>>> upstream/master
                 ->scalarNode('table_prefix')->defaultValue('')->end()
                 ->scalarNode('table_suffix')->defaultValue('_audit')->end()
                 ->scalarNode('revision_field_name')->defaultValue('rev')->end()
