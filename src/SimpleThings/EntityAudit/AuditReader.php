@@ -429,6 +429,8 @@ class AuditReader
                                 $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
                             } catch (DeletedException $e) {
                                 $value = null;
+                            } catch (NoRevisionFoundException $e) {
+                                $value = null;
                             }
 
                             $class->reflFields[$field]->setValue($entity, $value);
