@@ -66,9 +66,9 @@ If you need to exclude some entity properties from triggering a revision use:
 #####app/config/config.yml
 ```yml
 simple_things_entity_audit:
-    global_ignore_columns:
-        - created_at
-        - updated_at
+    global_ignore_properties:
+        - createdAt
+        - updatedAt
 ```
 
 ###Creating new tables
@@ -99,9 +99,9 @@ $auditconfig->setAuditedEntityClasses(array(
     'SimpleThings\EntityAudit\Tests\UserAudit'
 ));
 
-$auditconfig->setGlobalIgnoreColumns(array(
-    'created_at',
-    'updated_at'
+$auditconfig->setGlobalIgnoreProperties(array(
+    'createdAt',
+    'updatedAt'
 ));
 
 $evm = new EventManager();

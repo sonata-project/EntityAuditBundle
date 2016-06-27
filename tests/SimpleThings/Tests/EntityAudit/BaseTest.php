@@ -78,7 +78,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername("beberlei");
         $auditConfig->setAuditedEntityClasses($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
+        $auditConfig->setGlobalIgnoreProperties(array('ignoreMe'));
 
         $this->auditManager = new AuditManager($auditConfig);
         $this->auditManager->registerEvents($evm = new EventManager());
