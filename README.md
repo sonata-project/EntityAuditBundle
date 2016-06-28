@@ -130,7 +130,7 @@ class DefaultController extends Controller
 }
 ```
 
-In a standalone application you can create the audit reader from the audit manager:
+In a standalone application you can create the audit reader from the entity manager:
 
 ```php
 $auditReader = $auditManager->createAuditReader($entityManager);
