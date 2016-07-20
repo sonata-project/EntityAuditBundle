@@ -118,12 +118,20 @@ class LogRevisionsListener implements EventSubscriber
             foreach ($updateData[$meta->table['name']] as $column => $value) {
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
+                $placeholder = '?';
                 if ($meta->hasField($fieldName)) {
                     $field = $quoteStrategy->getColumnName($field, $meta, $this->platform);
+                    $fieldType = $meta->getTypeOfField($field);
+                    if (null !== $fieldType) {
+                        $type = Type::getType($fieldType);
+                        if ($type->canRequireSQLConversion()) {
+                            $placeholder = $type->convertToDatabaseValueSQL('?', $this->platform);
+                        }
+                    }
                 }
 
                 $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ' .
-                    'SET ' . $field . ' = ? ' .
+                    'SET ' . $field . ' = ' . $placeholder . ' ' .
                     'WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
 
                 $params = array($value, $this->getRevisionId());
