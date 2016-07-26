@@ -141,6 +141,8 @@ class LogRevisionsListener implements EventSubscriber
                             sprintf('Could not resolve database type for column "%s" during extra updates', $field)
                         );
                     }
+
+                    $types[] = $type;
                 }
 
                 $types[] = $this->config->getRevisionIdFieldType();
