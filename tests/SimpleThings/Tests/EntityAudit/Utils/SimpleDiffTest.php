@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleThings\EntityAudit\Tests\Utils;
+namespace SimpleThings\Tests\EntityAudit\Utils;
 
 use \SimpleThings\EntityAudit\Utils\SimpleDiff;
 

@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit bootstrap="./tests/bootstrap.php" colors="true">
+
+    <php>
+        <!-- uncomment, otherwise sqlite memory runs
+        <var name="db_type" value="pdo_mysql"/>
+        <var name="db_host" value="localhost" />
+        <var name="db_username" value="root" />
+        <var name="db_password" value="" />
+        <var name="db_name" value="entity_audit_tests" />
+        <var name="db_port" value="3306"/>-->
+
+        <!-- Database for temporary connections (i.e. to drop/create the main database) -->
+        <var name="tmpdb_type" value="pdo_mysql"/>
+        <var name="tmpdb_host" value="localhost" />
+        <var name="tmpdb_username" value="root" />
+        <var name="tmpdb_password" value="" />
+        <var name="tmpdb_name" value="" />
+        <var name="tmpdb_port" value="3306"/>
+    </php>
+
     <testsuites>
         <testsuite name="SimpleThings EntityAudit">
             <directory suffix="Test.php">./tests</directory>
@@ -15,14 +34,4 @@
             </exclude>
         </whitelist>
     </filter>
-
-    <php>
-        <var name="DOCTRINE_DRIVER" value="pdo_sqlite"/>
-        <var name="DOCTRINE_MEMORY" value="1"/>
-        <var name="DOCTRINE_DATABASE" value=""/>
-        <var name="DOCTRINE_USER" value=""/>
-        <var name="DOCTRINE_PASSWORD" value=""/>
-        <var name="DOCTRINE_HOST" value=""/>
-        <!--<var name="DOCTRINE_PATH" value="./db.sqlite"/>-->
-    </php>
 </phpunit>

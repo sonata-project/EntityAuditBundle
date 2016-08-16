@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
+namespace SimpleThings\Tests\EntityAudit\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
