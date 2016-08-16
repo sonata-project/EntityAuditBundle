@@ -21,97 +21,159 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Tests;
+namespace SimpleThings\Tests\EntityAudit;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Logging\EchoSQLLogger;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Logging\DebugStack;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\ORM\Tools\SchemaTool;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\Tests\TestUtil;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
 {
+
+    /**
+     * Shared connection when a TestCase is run alone (outside of its functional suite).
+     *
+     * @var Connection|null
+     */
+    protected static $_sharedConn;
+
     /**
      * @var EntityManager
      */
-    protected $em = null;
+    protected $_em;
+
+    /**
+     * @var SchemaTool
+     */
+    protected $_schemaTool;
+
+    /**
+     * @var \Doctrine\DBAL\Logging\DebugStack
+     */
+    protected $_sqlLoggerStack;
+
+    /**
+     * The names of the model sets used in this testcase.
+     *
+     * @var array
+     */
+    protected $_usedModelSets = array();
+
+    /**
+     * Whether the database schema has already been created.
+     *
+     * @var array
+     */
+    protected static $_tablesCreated = array();
+
+    /**
+     * Array of entity class name to their tables that were created.
+     *
+     * @var array
+     */
+    protected static $_entityTablesCreated = array();
 
     /**
      * @var AuditManager
      */
-    protected $auditManager = null;
+    protected $_auditManager = null;
 
     protected $schemaEntities = array();
 
     protected $auditedEntities = array();
 
-    public function setUp()
+    /**
+     * Creates a connection to the test database, if there is none yet, and
+     * creates the necessary tables.
+     *
+     * @return void
+     */
+    protected function setUp()
     {
-        $reader = new AnnotationReader();
-        $driver = new AnnotationDriver($reader);
-        $driver->addPaths(array(__DIR__ . '/Fixtures'));
+        if (!isset(static::$_sharedConn)) {
+            static::$_sharedConn = TestUtil::getConnection();
+        }
+
+        if (!$this->_em) {
+            $this->_em = $this->_getEntityManager();
+            $this->_schemaTool = new SchemaTool($this->_em);
+        }
+
+        if (!$this->_auditManager) {
+            $this->_auditManager = $this->_getAuditManager();
+        }
+
+        $em = $this->_em;
+        $this->_schemaTool->createSchema(array_map(function ($value) use ($em) {
+            return $em->getClassMetadata($value);
+        }, $this->schemaEntities));
+
+        $this->_sqlLoggerStack->enabled = true;
+    }
+
+    /**
+     * Gets an EntityManager for testing purposes.
+     *
+     * @return \Doctrine\ORM\EntityManager
+     */
+    protected function _getEntityManager() {
+
+        $this->_sqlLoggerStack = new DebugStack();
+        $this->_sqlLoggerStack->enabled = false;
+
         $config = new Configuration();
         $config->setMetadataCacheImpl(new ArrayCache());
         $config->setQueryCacheImpl(new ArrayCache());
-        $config->setProxyDir(sys_get_temp_dir());
-        $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
-        $config->setMetadataDriverImpl($driver);
+        $config->setProxyDir(__DIR__ . '/Proxies');
+        $config->setProxyNamespace('Doctrine\Tests\Proxies');
 
-        $conn = array(
-            'driver' => $GLOBALS['DOCTRINE_DRIVER'],
-            'memory' => $GLOBALS['DOCTRINE_MEMORY'],
-            'dbname' => $GLOBALS['DOCTRINE_DATABASE'],
-            'user' => $GLOBALS['DOCTRINE_USER'],
-            'password' => $GLOBALS['DOCTRINE_PASSWORD'],
-            'host' => $GLOBALS['DOCTRINE_HOST']
-        );
+        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(
+            realpath(__DIR__ . '/Fixtures/Core'),
+            realpath(__DIR__ . '/Fixtures/Issue'),
+            realpath(__DIR__ . '/Fixtures/Relation')
+        ), false));
 
-        if (isset($GLOBALS['DOCTRINE_PATH'])) {
-            $conn['path'] = $GLOBALS['DOCTRINE_PATH'];
+        $conn = static::$_sharedConn;
+        $conn->getConfiguration()->setSQLLogger($this->_sqlLoggerStack);
+
+        // get rid of more global state
+        $evm = $conn->getEventManager();
+        foreach ($evm->getListeners() AS $event => $listeners) {
+            foreach ($listeners AS $listener) {
+                $evm->removeEventListener(array($event), $listener);
+            }
         }
 
+        return EntityManager::create($conn, $config);
+    }
+
+    /**
+     * @return AuditManager
+     */
+    protected function _getAuditManager()
+    {
         $auditConfig = new AuditConfiguration();
-        $auditConfig->setCurrentUsername("beberlei");
+        $auditConfig->setCurrentUsername('beberlei');
         $auditConfig->setAuditedEntityClasses($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
 
-        $this->auditManager = new AuditManager($auditConfig);
-        $this->auditManager->registerEvents($evm = new EventManager());
+        $auditManager = new AuditManager($auditConfig);
+        $auditManager->registerEvents(static::$_sharedConn->getEventManager());
 
-        if (php_sapi_name() == 'cli'
-            && isset($_SERVER['argv'])
-            && (in_array('-v', $_SERVER['argv']) || in_array('--verbose', $_SERVER['argv']))
-        ) {
-            $config->setSQLLogger(new EchoSQLLogger());
-        }
-
-        $this->em = EntityManager::create($conn, $config, $evm);
-
-        $schemaTool = new SchemaTool($this->em);
-        $em = $this->em;
-
-        try {
-            $schemaTool->createSchema(array_map(function ($value) use ($em) {
-                return $em->getClassMetadata($value);
-            }, $this->schemaEntities));
-        } catch (\Exception $e) {
-            if ($GLOBALS['DOCTRINE_DRIVER'] != 'pdo_mysql' ||
-                !($e instanceof \PDOException && strpos($e->getMessage(), 'Base table or view already exists') !== false)
-            ) {
-                throw $e;
-            }
-        }
+        return $auditManager;
     }
 
     public function tearDown()
     {
-        $schemaTool = new SchemaTool($this->em);
-        $em = $this->em;
+        $schemaTool = new SchemaTool($this->_em);
+        $em = $this->_em;
 
         try {
             $schemaTool->dropSchema(array_map(function ($value) use ($em) {

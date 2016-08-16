@@ -6,13 +6,13 @@
  * Time: 15:57
  */
 
-namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
+namespace SimpleThings\Tests\EntityAudit\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Class Issue156Client
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * @package SimpleThings\Tests\EntityAudit\Fixtures\Issue
  * @ORM\Entity()
  */
 class Issue156Client extends Issue156Contact

@@ -31,7 +31,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "SimpleThings\\EntityAudit\\Tests\\": "tests/SimpleThings/Tests/EntityAudit"
+            "SimpleThings\\Tests\\": "tests/SimpleThings/Tests"
         }
     },
     "extra": {

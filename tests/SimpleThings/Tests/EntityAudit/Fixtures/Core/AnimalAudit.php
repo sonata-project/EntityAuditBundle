@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleThings\EntityAudit\Tests\Fixtures\Core;
+namespace SimpleThings\Tests\EntityAudit\Fixtures\Core;
 
 use Doctrine\ORM\Mapping as ORM;
 
