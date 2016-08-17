@@ -2,6 +2,10 @@ language: php
 
 sudo: false
 
+branches:
+  only:
+    - master
+
 php:
   - 5.3
   - 5.4
