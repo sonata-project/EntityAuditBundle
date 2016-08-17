@@ -23,46 +23,59 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneNotAuditedEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity2;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
 
 class RelationTest extends BaseTest
 {
     protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\OwnerEntity',
-        'SimpleThings\EntityAudit\Tests\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\OwnedEntity2',
-        'SimpleThings\EntityAudit\Tests\OwnedEntity3',
-        'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity',
-        'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\OneToOneNotAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Category',
-        'SimpleThings\EntityAudit\Tests\FoodCategory',
-        'SimpleThings\EntityAudit\Tests\Product',
-        'SimpleThings\EntityAudit\Tests\WineProduct',
-        'SimpleThings\EntityAudit\Tests\CheeseProduct',
-        'SimpleThings\EntityAudit\Tests\Page',
-        'SimpleThings\EntityAudit\Tests\PageLocalization',
-        'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
-        'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity'
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity2',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneNotAuditedEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity'
     );
 
     protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\OwnerEntity',
-        'SimpleThings\EntityAudit\Tests\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\OneToOneMasterEntity',
-        'SimpleThings\EntityAudit\Tests\Category',
-        'SimpleThings\EntityAudit\Tests\FoodCategory',
-        'SimpleThings\EntityAudit\Tests\Product',
-        'SimpleThings\EntityAudit\Tests\WineProduct',
-        'SimpleThings\EntityAudit\Tests\CheeseProduct',
-        'SimpleThings\EntityAudit\Tests\Page',
-        'SimpleThings\EntityAudit\Tests\PageLocalization',
-        'SimpleThings\EntityAudit\Tests\RelationOneToOneEntity',
-        'SimpleThings\EntityAudit\Tests\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\RelationReferencedEntity'
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity'
     );
 
     public function testUndefinedIndexesInUOWForRelations()
@@ -85,11 +98,11 @@ class RelationTest extends BaseTest
         unset($owner); unset($owned1); unset($owned2);
         $this->em->clear();
 
-        $owner = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\OwnerEntity", 1);
+        $owner = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnerEntity", 1);
         $this->em->remove($owner);
-        $owned1 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\OwnedEntity1", 1);
+        $owned1 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnedEntity1", 1);
         $this->em->remove($owned1);
-        $owned2 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\OwnedEntity2", 1);
+        $owned2 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnedEntity2", 1);
         $this->em->remove($owned2);
 
         $this->em->flush();
@@ -102,9 +115,9 @@ class RelationTest extends BaseTest
         $changedOwned = $changedEntities[1]->getEntity();
 
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\OwnerEntity', $changedEntities[0]->getClassName());
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\OwnerEntity', get_class($changedOwner));
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\OwnedEntity1', get_class($changedOwned));
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', $changedEntities[0]->getClassName());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', get_class($changedOwner));
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', get_class($changedOwned));
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
         $this->assertEquals('DEL', $changedEntities[1]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
@@ -766,565 +779,4 @@ class RelationTest extends BaseTest
         $this->assertEquals('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
         $this->assertEquals('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
     }
-}
-
-/** @ORM\MappedSuperclass */
-class RelationAbstractEntityBase
-{
-    /** @ORM\Id @ORM\Column(type="integer", name="id_column") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-}
-
-/**
- * @ORM\Entity
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({ "foobar" = "RelationFoobarEntity" })
- */
-abstract class RelationReferencedEntity extends RelationAbstractEntityBase
-{
-    /** @ORM\Column(type="string") */
-    protected $referencedField;
-
-    /** @ORM\OneToOne(targetEntity="RelationOneToOneEntity", mappedBy="referencedEntity") */
-    protected $oneToOne;
-
-    public function getOneToOne()
-    {
-        return $this->oneToOne;
-    }
-
-    public function setOneToOne($oneToOne)
-    {
-        $this->oneToOne = $oneToOne;
-    }
-
-    public function getReferencedField()
-    {
-        return $this->referencedField;
-    }
-
-    public function setReferencedField($referencedField)
-    {
-        $this->referencedField = $referencedField;
-    }
-}
-
-/** @ORM\Entity */
-class RelationFoobarEntity extends RelationReferencedEntity
-{
-    /** @ORM\Column(type="string") */
-    protected $foobarField;
-
-    public function getFoobarField()
-    {
-        return $this->foobarField;
-    }
-
-    public function setFoobarField($foobarField)
-    {
-        $this->foobarField = $foobarField;
-    }
-}
-
-/** @ORM\Entity */
-class RelationOneToOneEntity extends RelationAbstractEntityBase
-{
-    /** @ORM\OneToOne(targetEntity="RelationReferencedEntity", inversedBy="oneToOne") @ORM\JoinColumn(name="one_id", referencedColumnName="id_column") */
-    protected $referencedEntity;
-
-    public function getReferencedEntity()
-    {
-        return $this->referencedEntity;
-    }
-    public function setReferencedEntity($referencedEntity)
-    {
-        $this->referencedEntity = $referencedEntity;
-    }
-}
-
-/** @ORM\Entity */
-class OneToOneMasterEntity
-{
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string") */
-    protected $title;
-
-    /** @ORM\OneToOne(targetEntity="OneToOneAuditedEntity") @ORM\JoinColumn(onDelete="SET NULL") */
-    protected $audited;
-
-    /** @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity") */
-    protected $notAudited;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getAudited()
-    {
-        return $this->audited;
-    }
-
-    public function setAudited($audited)
-    {
-        $this->audited = $audited;
-    }
-
-    public function getNotAudited()
-    {
-        return $this->notAudited;
-    }
-
-    public function setNotAudited($notAudited)
-    {
-        $this->notAudited = $notAudited;
-    }
-}
-
-/** @ORM\Entity */
-class OneToOneAuditedEntity
-{
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string") */
-    protected $title;
-
-    /** @ORM\OneToOne(targetEntity="OneToOneMasterEntity") */
-    protected $master;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getMaster()
-    {
-        return $this->master;
-    }
-
-    public function setMaster($master)
-    {
-        $this->master = $master;
-    }
-}
-
-/** @ORM\Entity */
-class OneToOneNotAuditedEntity
-{
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string") */
-    protected $title;
-
-    /** @ORM\OneToOne(targetEntity="OneToOneMasterEntity") */
-    protected $master;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getMaster()
-    {
-        return $this->master;
-    }
-
-    public function setMaster($master)
-    {
-        $this->master = $master;
-    }
-}
-
-/** @ORM\Entity */
-class OwnerEntity
-{
-    /** @ORM\Id @ORM\Column(type="integer", name="some_strange_key_name") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string", name="crazy_title_to_mess_up_audit") */
-    protected $title;
-
-    /** @ORM\OneToMany(targetEntity="OwnedEntity1", mappedBy="owner")*/
-    protected $owned1;
-
-    /** @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner") */
-    protected $owned2;
-
-    /**
-     * @ORM\ManyToMany(targetEntity="OwnedEntity3", mappedBy="owner")
-     * @ORM\JoinTable(name="owner_owned3",
-     *   joinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")}
-     * )
-     */
-    protected $owned3;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getOwned1()
-    {
-        return $this->owned1;
-    }
-
-    public function addOwned1($owned1)
-    {
-        $this->owned1[] = $owned1;
-    }
-
-    public function getOwned2()
-    {
-        return $this->owned2;
-    }
-
-    public function addOwned2($owned2)
-    {
-        $this->owned2[] = $owned2;
-    }
-
-    public function getOwned3()
-    {
-        return $this->owned3;
-    }
-
-    public function addOwned3($owned3)
-    {
-        $this->owned3[] = $owned3;
-    }
-}
-
-/** @ORM\Entity */
-class OwnedEntity1
-{
-    /** @ORM\Id @ORM\Column(type="integer", name="strange_owned_id_name") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string", name="even_strangier_column_name") */
-    protected $title;
-
-    /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name", onDelete="SET NULL") */
-    protected $owner;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getOwner()
-    {
-        return $this->owner;
-    }
-
-    public function setOwner($owner)
-    {
-        $this->owner = $owner;
-    }
-}
-
-/** @ORM\Entity */
-class OwnedEntity2
-{
-    /** @ORM\Id @ORM\Column(type="integer", name="strange_owned_id_name") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string", name="even_strangier_column_name") */
-    protected $title;
-
-    /** @ORM\ManyToOne(targetEntity="OwnerEntity") @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name")*/
-    protected $owner;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getOwner()
-    {
-        return $this->owner;
-    }
-
-    public function setOwner($owner)
-    {
-        $this->owner = $owner;
-    }
-}
-
-/** @ORM\Entity */
-class OwnedEntity3
-{
-    /** @ORM\Id @ORM\Column(type="integer", name="strange_owned_id_name") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string", name="even_strangier_column_name") */
-    protected $title;
-
-    /** @ORM\ManyToMany(targetEntity="OwnerEntity", inversedBy="owned3")
-     * @ORM\JoinTable(name="owner_owned3",
-     *   joinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")}
-     * )
-     */
-    protected $owner;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function getOwner()
-    {
-        return $this->owner;
-    }
-
-    public function setOwner($owner)
-    {
-        $this->owner = $owner;
-    }
-}
-
-/**
- * @ORM\MappedSuperclass()
- */
-abstract class SomeEntity
-{
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
-    private $id;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-}
-
-/**
- * @ORM\Entity
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"food" = "FoodCategory", "books" = "BookCategory"})
- */
-abstract class Category extends SomeEntity
-{
-    /** @ORM\OneToMany(targetEntity="Product", mappedBy="category") */
-    private $products;
-
-    public function __construct()
-    {
-        $this->products = new ArrayCollection();
-    }
-
-    public function addProduct(Product $product)
-    {
-        $product->setCategory($this);
-        $this->products->add($product);
-    }
-
-    public function getProducts()
-    {
-        return $this->products;
-    }
-}
-
-/**
- * @ORM\Entity
- */
-class FoodCategory extends Category {}
-
-/**
- * @ORM\Entity
- */
-class BookCategory extends Category {}
-
-/**
- * @ORM\Entity
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"cheese" = "CheeseProduct", "wine" = "WineProduct"})
- */
-abstract class Product extends SomeEntity
-{
-    /** @ORM\Column(type="string") */
-    private $name;
-
-    /** @ORM\ManyToOne(targetEntity="Category", inversedBy="products") */
-    private $category;
-
-    public function __construct($name)
-    {
-        $this->name = $name;
-    }
-
-    public function setCategory(Category $category)
-    {
-        $this->category = $category;
-    }
-}
-
-/**
- * @ORM\Entity
- */
-class CheeseProduct extends Product {}
-
-/**
- * @ORM\Entity
- */
-class WineProduct extends Product {}
-
-
-/**
- * @ORM\Entity
- */
-class Page
-{
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    private $id;
-
-    /** @ORM\OneToMany(targetEntity="PageLocalization", mappedBy="page", indexBy="locale") */
-    private $localizations;
-
-    public function __construct()
-    {
-        $this->localizations = new ArrayCollection();
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function getLocalizations()
-    {
-        return $this->localizations;
-    }
-
-    public function addLocalization(PageLocalization $localization)
-    {
-        $localization->setPage($this);
-        $this->localizations->set($localization->getLocale(), $localization);
-    }
-}
-
-/**
- * @ORM\Entity
- */
-class PageLocalization
-{
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-
-    /** @ORM\Column(type="string") */
-    private $locale;
-
-    /** @ORM\ManyToOne(targetEntity="Page", inversedBy="localizations") */
-    private $page;
-
-    public function __construct($locale)
-    {
-        $this->locale = $locale;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setPage(Page $page)
-    {
-        $this->page = $page;
-    }
-
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-}
-
-/**
- * Class UnManagedIndexByOwner
- * @package SimpleThings\EntityAudit\Tests
- */
-class UnManagedIndexByOwner
-{
-
 }
