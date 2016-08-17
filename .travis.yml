@@ -6,6 +6,10 @@ branches:
   only:
     - master
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+
 php:
   - 5.3
   - 5.4
@@ -16,7 +20,7 @@ php:
   
 before_script:
     - composer self-update
-    - composer update --prefer-source $COMPOSER_FLAGS 
+    - composer update --prefer-dist $COMPOSER_FLAGS
 
 matrix:
   fast_finish: true
