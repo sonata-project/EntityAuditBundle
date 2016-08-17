@@ -14,9 +14,9 @@
     },
     "require-dev": {
         "doctrine/doctrine-bundle": "~1.4",
-        "symfony/framework-bundle": "~2.7|~3.0",
         "gedmo/doctrine-extensions": "^2.3.1",
-        "phpunit/phpunit": "~4.8.20",
+        "phpunit/phpunit": "^4.8",
+        "symfony/framework-bundle": "~2.7|~3.0",
         "symfony/var-dumper": "^2.7"
     },
     "conflict": {
