@@ -110,57 +110,66 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
+            $params = array();
+            $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ';
+
+            $firstField = true;
             foreach ($updateData[$meta->table['name']] as $field => $value) {
-                $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ' .
-                    'SET ' . $field . ' = ? ' .
-                    'WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
-
-                $params = array($value, $this->getRevisionId());
-
-                $types = array();
-
-                if (in_array($field, $meta->columnNames)) {
-                    $types[] = $meta->fieldMappings[$meta->getFieldForColumn($field)]['type'];
+                if ($firstField) {
+                    $sql .= "SET `$field` = ? ";
+                    $firstField = false;
                 } else {
-                    //try to find column in association mappings
-                    $type = null;
+                    $sql .= ", `$field` = ? ";
+                }
+                $params[] = $value;
+            }
 
-                    foreach ($meta->associationMappings as $mapping) {
-                        if (isset($mapping['joinColumns'])) {
-                            foreach ($mapping['joinColumns'] as $definition) {
-                                if ($definition['name'] == $field) {
-                                    $targetTable = $em->getClassMetadata($mapping['targetEntity']);
-                                    $type = $targetTable->getTypeOfColumn($definition['referencedColumnName']);
-                                }
+            $sql .= ' WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
+
+            $types = array();
+
+            if (in_array($field, $meta->columnNames)) {
+                $types[] = $meta->fieldMappings[$meta->getFieldForColumn($field)]['type'];
+            } else {
+                //try to find column in association mappings
+                $type = null;
+
+                foreach ($meta->associationMappings as $mapping) {
+                    if (isset($mapping['joinColumns'])) {
+                        foreach ($mapping['joinColumns'] as $definition) {
+                            if ($definition['name'] == $field) {
+                                $targetTable = $em->getClassMetadata($mapping['targetEntity']);
+                                $type = $targetTable->getTypeOfColumn($definition['referencedColumnName']);
                             }
                         }
                     }
-
-                    if (is_null($type)) {
-                        throw new \Exception(
-                            sprintf('Could not resolve database type for column "%s" during extra updates', $field)
-                        );
-                    }
                 }
 
-                $types[] = $this->config->getRevisionIdFieldType();
-
-                foreach ($meta->identifier AS $idField) {
-                    if (isset($meta->fieldMappings[$idField])) {
-                        $columnName = $meta->fieldMappings[$idField]['columnName'];
-                        $types[] = $meta->fieldMappings[$idField]['type'];
-                    } elseif (isset($meta->associationMappings[$idField])) {
-                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
-                        $types[] = $meta->associationMappings[$idField]['type'];
-                    }
-
-                    $params[] = $meta->reflFields[$idField]->getValue($entity);
-
-                    $sql .= 'AND ' . $columnName . ' = ?';
+                if (is_null($type)) {
+                    throw new \Exception(
+                        sprintf('Could not resolve database type for column "%s" during extra update', $field)
+                    );
                 }
-
-                $this->em->getConnection()->executeQuery($sql, $params, $types);
             }
+
+            $params[] = $this->getRevisionId();
+            $types[] = $this->config->getRevisionIdFieldType();
+
+            foreach ($meta->identifier AS $idField) {
+                if (isset($meta->fieldMappings[$idField])) {
+                    $columnName = $meta->fieldMappings[$idField]['columnName'];
+                    $types[] = $meta->fieldMappings[$idField]['type'];
+                } elseif (isset($meta->associationMappings[$idField])) {
+                    $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
+                    $types[] = $meta->associationMappings[$idField]['type'];
+                }
+
+                $params[] = $meta->reflFields[$idField]->getValue($entity);
+
+                $sql .= 'AND ' . $columnName . ' = ?';
+            }
+
+            $this->em->getConnection()->executeQuery($sql, $params, $types);
         }
     }
 
