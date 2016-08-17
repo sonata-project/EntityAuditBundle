@@ -5,6 +5,10 @@
 This extension for Doctrine 2 is inspired by [Hibernate Envers](http://www.jboss.org/envers) and
 allows full versioning of entities and their associations.
 
+## Is this library still maintained?
+
+[Maybe?](https://github.com/simplethings/EntityAudit/issues/203) - please discuss and support us in the linked issue
+
 ## How does it work?
 
 There are a bunch of different approaches to auditing or versioning of database tables. This extension
