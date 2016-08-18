@@ -102,7 +102,9 @@ class IssueTest extends BaseTest
         $user->setReve($reve);
 
         $this->em->persist($user);
-        $this->em->remove($reve);
+        $this->em->flush();
+
+        $this->em->remove($user);
         $this->em->flush();
     }
 
