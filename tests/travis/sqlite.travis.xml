@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit bootstrap="../bootstrap.php" colors="true">
+
+    <testsuites>
+        <testsuite name="SimpleThings EntityAudit">
+            <directory>./../SimpleThings/Tests/EntityAudit</directory>
+        </testsuite>
+    </testsuites>
+
+</phpunit>
