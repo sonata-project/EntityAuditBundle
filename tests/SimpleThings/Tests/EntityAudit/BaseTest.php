@@ -23,23 +23,32 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Logging\EchoSQLLogger;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
+use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Tools\SchemaTool;
+use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var Connection|null
+     */
+    protected static $sharedConn;
+
+    /**
      * @var EntityManager
      */
-    protected $em = null;
+    protected $em;
+
+    /**
+     * @var SchemaTool
+     */
+    protected $schemaTool;
 
     /**
      * @var AuditManager
@@ -52,77 +61,93 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $reader = new AnnotationReader();
-        $driver = new AnnotationDriver($reader);
-        $driver->addPaths(array(__DIR__ . '/Fixtures'));
-        $config = new Configuration();
-        $config->setMetadataCacheImpl(new ArrayCache());
-        $config->setQueryCacheImpl(new ArrayCache());
-        $config->setProxyDir(sys_get_temp_dir());
-        $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
-        $config->setMetadataDriverImpl($driver);
-
-        $conn = array(
-            'driver' => $GLOBALS['DOCTRINE_DRIVER'],
-            'memory' => $GLOBALS['DOCTRINE_MEMORY'],
-            'dbname' => $GLOBALS['DOCTRINE_DATABASE'],
-            'user' => $GLOBALS['DOCTRINE_USER'],
-            'password' => $GLOBALS['DOCTRINE_PASSWORD'],
-            'host' => $GLOBALS['DOCTRINE_HOST']
-        );
-
-        if (isset($GLOBALS['DOCTRINE_PATH'])) {
-            $conn['path'] = $GLOBALS['DOCTRINE_PATH'];
+        if (!isset(static::$sharedConn)) {
+            static::$sharedConn = TestUtil::getConnection();
         }
 
-        $auditConfig = new AuditConfiguration();
-        $auditConfig->setCurrentUsername("beberlei");
-        $auditConfig->setAuditedEntityClasses($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreProperties(array('ignoreMe'));
-
-        $this->auditManager = new AuditManager($auditConfig);
-        $this->auditManager->registerEvents($evm = new EventManager());
-
-        if (php_sapi_name() == 'cli'
-            && isset($_SERVER['argv'])
-            && (in_array('-v', $_SERVER['argv']) || in_array('--verbose', $_SERVER['argv']))
-        ) {
-            $config->setSQLLogger(new EchoSQLLogger());
+        if (!$this->em) {
+            $this->em = $this->getEntityManager();
+            $this->schemaTool = new SchemaTool($this->em);
         }
 
-        $this->em = EntityManager::create($conn, $config, $evm);
-
-        $schemaTool = new SchemaTool($this->em);
-        $em = $this->em;
-
-        try {
-            $schemaTool->createSchema(array_map(function ($value) use ($em) {
-                return $em->getClassMetadata($value);
-            }, $this->schemaEntities));
-        } catch (\Exception $e) {
-            if ($GLOBALS['DOCTRINE_DRIVER'] != 'pdo_mysql' ||
-                !($e instanceof \PDOException && strpos($e->getMessage(), 'Base table or view already exists') !== false)
-            ) {
-                throw $e;
-            }
+        if (!$this->auditManager) {
+            $this->auditManager = $this->getAuditManager();
         }
+
+        $this->setUpEntitySchema();
     }
 
     public function tearDown()
     {
-        $schemaTool = new SchemaTool($this->em);
-        $em = $this->em;
+        $this->tearDownEntitySchema();
+    }
 
-        try {
-            $schemaTool->dropSchema(array_map(function ($value) use ($em) {
-                    return $em->getClassMetadata($value);
-                }, $this->schemaEntities));
-        } catch (\Exception $e) {
-            if ($GLOBALS['DOCTRINE_DRIVER'] != 'pdo_mysql' ||
-                !($e instanceof \PDOException && strpos($e->getMessage(), 'Base table or view already exists') !== false)
-            ) {
-                throw $e;
+    /**
+     * @return EntityManager
+     */
+    protected function getEntityManager()
+    {
+        $config = new Configuration();
+        $config->setMetadataCacheImpl(new ArrayCache());
+        $config->setQueryCacheImpl(new ArrayCache());
+        $config->setProxyDir(__DIR__ . '/Proxies');
+        $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_EVAL);
+        $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
+
+        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(
+            realpath(__DIR__ . '/Fixtures/Core'),
+            realpath(__DIR__ . '/Fixtures/Issue'),
+            realpath(__DIR__ . '/Fixtures/Relation'),
+        ), false));
+
+        Gedmo\DoctrineExtensions::registerAnnotations();
+
+        $conn = static::$sharedConn;
+
+        // get rid of more global state
+        $evm = $conn->getEventManager();
+        foreach ($evm->getListeners() AS $event => $listeners) {
+            foreach ($listeners AS $listener) {
+                $evm->removeEventListener(array($event), $listener);
             }
         }
+
+        return EntityManager::create($conn, $config);
+    }
+
+    /**
+     * @return AuditManager
+     */
+    protected function getAuditManager()
+    {
+        $auditConfig = new AuditConfiguration();
+        $auditConfig->setCurrentUsername('beberlei');
+        $auditConfig->setAuditedEntityClasses($this->auditedEntities);
+        $auditConfig->setGlobalIgnoreProperties(array('ignoreMe'));
+
+        $auditManager = new AuditManager($auditConfig);
+        $auditManager->registerEvents(static::$sharedConn->getEventManager());
+
+        return $auditManager;
+    }
+
+    protected function setUpEntitySchema()
+    {
+        $em = $this->em;
+        $classes = array_map(function ($value) use ($em) {
+            return $em->getClassMetadata($value);
+        }, $this->schemaEntities);
+
+        $this->schemaTool->createSchema($classes);
+    }
+
+    protected function tearDownEntitySchema()
+    {
+        $em = $this->em;
+        $classes = array_map(function ($value) use ($em) {
+            return $em->getClassMetadata($value);
+        }, $this->schemaEntities);
+
+        $this->schemaTool->dropSchema($classes);
     }
 }
