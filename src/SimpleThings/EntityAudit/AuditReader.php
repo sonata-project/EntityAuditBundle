@@ -328,13 +328,14 @@ class AuditReader
 
         unset($row[$this->config->getRevisionTypeFieldName()]);
 
-        return $this->createEntity($class->name, $row, $revision);
+        return $this->createEntity($class->name, $columnMap, $row, $revision);
     }
 
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
      * @param string $className
+     * @param array $columnMap
      * @param array $data
      * @param $revision
      * @throws DeletedException
@@ -346,7 +347,7 @@ class AuditReader
      * @throws \Exception
      * @return object
      */
-    private function createEntity($className, array $data, $revision)
+    private function createEntity($className, array $columnMap, array $data, $revision)
     {
         /** @var ClassMetadataInfo|ClassMetadata $class */
         $class = $this->em->getClassMetadata($className);
@@ -420,7 +421,7 @@ class AuditReader
 
                         if ($assoc['isOwningSide']) {
                             foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                                $pk[$foreign] = $data[$local];
+                                $pk[$foreign] = $data[$columnMap[$local]];
                             }
                         } else {
                             /** @var ClassMetadataInfo|ClassMetadata $otherEntityMeta */
@@ -454,7 +455,7 @@ class AuditReader
                         if ($assoc['isOwningSide']) {
                             $associatedId = array();
                             foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                                $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
+                                $joinColumnValue = isset($data[$columnMap[$srcColumn]]) ? $data[$columnMap[$srcColumn]] : null;
                                 if ($joinColumnValue !== null) {
                                     $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
                                 }
@@ -622,7 +623,7 @@ class AuditReader
                     $id[$idField] = $row[$idField];
                 }
 
-                $entity = $this->createEntity($className, $row, $revision);
+                $entity = $this->createEntity($className, $columnMap, $row, $revision);
                 $changedEntities[] = new ChangedEntity(
                     $className,
                     $id,
@@ -863,7 +864,7 @@ class AuditReader
         while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
             $rev = $row[$this->config->getRevisionFieldName()];
             unset($row[$this->config->getRevisionFieldName()]);
-            $result[] = $this->createEntity($class->name, $row, $rev);
+            $result[] = $this->createEntity($class->name, $columnMap, $row, $rev);
         }
 
         return $result;
