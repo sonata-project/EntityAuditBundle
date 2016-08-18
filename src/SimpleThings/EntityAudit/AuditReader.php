@@ -24,10 +24,12 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
@@ -54,6 +56,16 @@ class AuditReader
      * @var MetadataFactory
      */
     private $metadataFactory;
+
+    /**
+     * @var AbstractPlatform
+     */
+    private $platform;
+
+    /**
+     * @var QuoteStrategy
+     */
+    private $quoteStrategy;
 
     /**
      * Entity cache to prevent circular references
@@ -160,6 +172,7 @@ class AuditReader
         $this->config = $config;
         $this->metadataFactory = $factory;
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
+        $this->quoteStrategy = $this->em->getConfiguration()->getQuoteStrategy();
     }
 
     /**
@@ -247,7 +260,7 @@ class AuditReader
                 '%s.%s AS %s',
                 $tableAlias,
                 $type->convertToPHPValueSQL(
-                    $class->getColumnName($field),
+                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
                     $this->platform
                 ),
                 $this->platform->quoteSingleIdentifier($field)
@@ -565,8 +578,9 @@ class AuditReader
                 $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field)	&& ! $class->isIdentifier($field)
                     ? 're' // root entity
                     : 'e';
-                $columnList .= ', ' . $tableAlias.'.'.$type->convertToPHPValueSQL(
-                    $class->getQuotedColumnName($field, $this->platform), $this->platform) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
+                $columnList .= ', ' . $tableAlias . '.' . $type->convertToPHPValueSQL(
+                        $this->quoteStrategy->getColumnName($field, $class, $this->platform), $this->platform
+                    ) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
@@ -823,7 +837,7 @@ class AuditReader
         foreach ($class->fieldNames as $columnName => $field) {
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
-                    $class->getQuotedColumnName($field, $this->platform),
+                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
                     $this->platform
                 ) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
