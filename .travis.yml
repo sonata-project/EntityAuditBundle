@@ -20,6 +20,7 @@ php:
   - hhvm
 
 env:
+  - DB=mysql
   - DB=sqlite
 
 before_install:
