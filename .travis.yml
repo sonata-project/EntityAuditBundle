@@ -65,6 +65,9 @@ matrix:
       env: DB=pgsql
       addons:
         postgresql: 9.4
+  exclude:
+    - php: hhvm
+      env: DB=pgsql  # driver for PostgreSQL currently unsupported by HHVM, requires 3rd party dependency
   allow_failures:
     - php: nightly
     - php: hhvm
