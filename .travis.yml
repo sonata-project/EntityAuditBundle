@@ -31,7 +31,7 @@ install: composer update $COMPOSER_FLAGS --prefer-dist
 
 before_script:
   - if [[ $DB == 'mysql' && $MYSQL_VERSION == '5.7' ]]; then ./tests/travis/install-mysql-5.7.sh; fi
-  - if [[ $DB == 'mysql' ]]; then mysql --version; fi
+  - if [[ $DB == 'mysql' ]]; then mysql -e 'select version()'; fi
 
 script: ./vendor/bin/phpunit -c tests/travis/$DB.travis.xml
 
