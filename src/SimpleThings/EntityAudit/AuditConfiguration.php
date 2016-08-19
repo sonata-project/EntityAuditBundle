@@ -33,7 +33,7 @@ class AuditConfiguration
     private $revisionTypeFieldName = 'revtype';
     private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
-    private $globalIgnoreColumns = array();
+    private $globalIgnoreProperties = array();
     private $currentUsername = '';
     private $revisionIdFieldType = 'integer';
 
@@ -109,14 +109,14 @@ class AuditConfiguration
         $this->auditedEntityClasses = $classes;
     }
 
-    public function getGlobalIgnoreColumns()
+    public function getGlobalIgnoreProperties()
     {
-        return $this->globalIgnoreColumns;
+        return $this->globalIgnoreProperties;
     }
 
-    public function setGlobalIgnoreColumns(array $columns)
+    public function setGlobalIgnoreProperties(array $columns)
     {
-        $this->globalIgnoreColumns = $columns;
+        $this->globalIgnoreProperties = $columns;
     }
 
     public function createMetadataFactory()
