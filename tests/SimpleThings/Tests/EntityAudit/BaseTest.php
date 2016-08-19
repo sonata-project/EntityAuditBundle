@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Proxy\ProxyFactory;
@@ -38,7 +39,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     /**
      * @var Connection|null
      */
-    protected static $sharedConn;
+    protected static $conn;
 
     /**
      * @var EntityManager
@@ -48,12 +49,12 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     /**
      * @var SchemaTool
      */
-    protected $schemaTool;
+    private $schemaTool;
 
     /**
      * @var AuditManager
      */
-    protected $auditManager = null;
+    protected $auditManager;
 
     protected $schemaEntities = array();
 
@@ -61,19 +62,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        if (!isset(static::$sharedConn)) {
-            static::$sharedConn = TestUtil::getConnection();
-        }
-
-        if (!$this->em) {
-            $this->em = $this->getEntityManager();
-            $this->schemaTool = new SchemaTool($this->em);
-        }
-
-        if (!$this->auditManager) {
-            $this->auditManager = $this->getAuditManager();
-        }
-
+        $this->getEntityManager();
+        $this->getSchemaTool();
+        $this->getAuditManager();
         $this->setUpEntitySchema();
     }
 
@@ -87,6 +78,10 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
      */
     protected function getEntityManager()
     {
+        if (null !== $this->em) {
+            return $this->em;
+        }
+
         $config = new Configuration();
         $config->setMetadataCacheImpl(new ArrayCache());
         $config->setQueryCacheImpl(new ArrayCache());
@@ -102,17 +97,86 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
         Gedmo\DoctrineExtensions::registerAnnotations();
 
-        $conn = static::$sharedConn;
+        $connection = $this->_getConnection();
 
         // get rid of more global state
-        $evm = $conn->getEventManager();
-        foreach ($evm->getListeners() AS $event => $listeners) {
-            foreach ($listeners AS $listener) {
+        $evm = $connection->getEventManager();
+        foreach ($evm->getListeners() as $event => $listeners) {
+            foreach ($listeners as $listener) {
                 $evm->removeEventListener(array($event), $listener);
             }
         }
 
-        return EntityManager::create($conn, $config);
+        return $this->em = EntityManager::create($connection, $config);
+    }
+
+
+    /**
+     * @return SchemaTool
+     */
+    protected function getSchemaTool()
+    {
+        if (null !== $this->schemaTool) {
+            return $this->schemaTool;
+        }
+
+        return $this->schemaTool = new SchemaTool($this->getEntityManager());
+    }
+
+    /**
+     * @return Connection
+     */
+    protected function _getConnection()
+    {
+        if (!isset(self::$conn)) {
+            if(isset(
+                $GLOBALS['db_type'],
+                $GLOBALS['db_username'],
+                $GLOBALS['db_password'],
+                $GLOBALS['db_host'],
+                $GLOBALS['db_name'],
+                $GLOBALS['db_port']
+            )){
+                $params = array(
+                    'driver' => $GLOBALS['db_type'],
+                    'user' => $GLOBALS['db_username'],
+                    'password' => $GLOBALS['db_password'],
+                    'host' => $GLOBALS['db_host'],
+                    'dbname' => $GLOBALS['db_name'],
+                    'port' => $GLOBALS['db_port'],
+                );
+
+                $tmpParams = $params;
+                $dbname = $params['dbname'];
+                unset($tmpParams['dbname']);
+
+                $conn = DriverManager::getConnection($tmpParams);
+                $platform = $conn->getDatabasePlatform();
+
+                if ($platform->supportsCreateDropDatabase()) {
+                    $conn->getSchemaManager()->dropAndCreateDatabase($dbname);
+                } else {
+                    $sm = $conn->getSchemaManager();
+                    $schema = $sm->createSchema();
+                    $stmts = $schema->toDropSql($conn->getDatabasePlatform());
+                    foreach ($stmts as $stmt) {
+                        $conn->exec($stmt);
+                    }
+                }
+
+                $conn->close();
+
+            } else {
+                $params = array(
+                    'driver' => 'pdo_sqlite',
+                    'memory' => true,
+                );
+            }
+
+            self::$conn = DriverManager::getConnection($params);
+        }
+
+        return self::$conn;
     }
 
     /**
@@ -120,34 +184,38 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
      */
     protected function getAuditManager()
     {
+        if (null !== $this->auditManager) {
+            return $this->auditManager;
+        }
+
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername('beberlei');
         $auditConfig->setAuditedEntityClasses($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
 
         $auditManager = new AuditManager($auditConfig);
-        $auditManager->registerEvents(static::$sharedConn->getEventManager());
+        $auditManager->registerEvents($this->_getConnection()->getEventManager());
 
-        return $auditManager;
+        return $this->auditManager = $auditManager;
     }
 
     protected function setUpEntitySchema()
     {
-        $em = $this->em;
+        $em = $this->getEntityManager();
         $classes = array_map(function ($value) use ($em) {
             return $em->getClassMetadata($value);
         }, $this->schemaEntities);
 
-        $this->schemaTool->createSchema($classes);
+        $this->getSchemaTool()->createSchema($classes);
     }
 
     protected function tearDownEntitySchema()
     {
-        $em = $this->em;
+        $em = $this->getEntityManager();
         $classes = array_map(function ($value) use ($em) {
             return $em->getClassMetadata($value);
         }, $this->schemaEntities);
 
-        $this->schemaTool->dropSchema($classes);
+        $this->getSchemaTool()->dropSchema($classes);
     }
 }

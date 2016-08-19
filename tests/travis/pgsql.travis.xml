@@ -8,12 +8,6 @@
         <var name="db_password" value=""/>
         <var name="db_name" value="entity_audit_tests"/>
         <var name="db_port" value="5432"/>
-
-        <var name="tmpdb_type" value="pdo_pgsql"/>
-        <var name="tmpdb_host" value="localhost"/>
-        <var name="tmpdb_username" value="postgres"/>
-        <var name="tmpdb_password" value=""/>
-        <var name="tmpdb_port" value="5432"/>
     </php>
 
     <testsuites>
