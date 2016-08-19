@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.1 / 2016-03-03
+
+* added support for symfony/framework-bundle 3.x
+* added support for PHP 7.x
+
+#### breaking changes
+
+* dropped support for symfony/framework-bundle < 2.7
+
+
 ## 0.9.0 / 2016-01-06
 
 * added support for doctrine/orm 2.5.x
