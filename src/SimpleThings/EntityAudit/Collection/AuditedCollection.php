@@ -76,14 +76,14 @@ class AuditedCollection implements Collection
      *
      * @var array
      */
-    protected $entities = array();
+    protected $entities = [];
 
     /**
      * Definition of current association
      *
      * @var array
      */
-    protected $associationDefinition = array();
+    protected $associationDefinition = [];
 
     /**
      * @var bool
@@ -114,7 +114,7 @@ class AuditedCollection implements Collection
      */
     public function clear()
     {
-        $this->entities = array();
+        $this->entities = [];
         $this->initialized = false;
     }
 
@@ -319,7 +319,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        $true = $false = array();
+        $true = $false = [];
 
         foreach ($this->entities as $entity) {
             if ($p($entity)) {
@@ -329,7 +329,7 @@ class AuditedCollection implements Collection
             }
         }
 
-        return array($true, $false);
+        return [$true, $false];
     }
 
     /**
@@ -442,7 +442,7 @@ class AuditedCollection implements Collection
     protected function initialize()
     {
         if (!$this->initialized) {
-            $params = array();
+            $params = [];
 
             $sql = 'SELECT MAX('.$this->configuration->getRevisionFieldName().') as rev, ';
             $sql .= implode(', ', $this->metadata->getIdentifierColumnNames()).' ';
@@ -469,7 +469,7 @@ class AuditedCollection implements Collection
             $sql .= ' ((';
 
             //master entity query, not equals
-            $notEqualParts = $nullParts = array();
+            $notEqualParts = $nullParts = [];
             foreach($this->foreignKeys as $column => $value) {
                 $notEqualParts[] = $column.' <> ?';
                 $nullParts[] = $column.' IS NULL';
@@ -516,9 +516,9 @@ class AuditedCollection implements Collection
             $rows = $this->auditReader->getConnection()->fetchAll($sql, $params);
 
             foreach ($rows as $row) {
-                $entity = array(
+                $entity = [
                     'rev' => $row['rev']
-                );
+                ];
 
                 unset($row['rev']);
 

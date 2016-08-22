@@ -32,7 +32,7 @@ class ArrayDiff
 {
     public function diff($oldData, $newData)
     {
-        $diff = array();
+        $diff = [];
 
         $keys = array_keys($oldData + $newData);
         foreach ($keys as $field) {
@@ -40,9 +40,9 @@ class ArrayDiff
             $new = array_key_exists($field, $newData) ? $newData[$field] : null;
 
             if ($old == $new) {
-                $row = array('old' => '', 'new' => '', 'same' => $old);
+                $row = ['old' => '', 'new' => '', 'same' => $old];
             } else {
-                $row = array('old' => $old, 'new' => $new, 'same' => '');
+                $row = ['old' => $old, 'new' => $new, 'same' => ''];
             }
 
             $diff[$field] = $row;

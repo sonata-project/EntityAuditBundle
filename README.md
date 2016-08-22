@@ -96,17 +96,19 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\Common\EventManager;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Tests\ArticleAudit;
+use SimpleThings\EntityAudit\Tests\UserAudit;
 
 $auditconfig = new AuditConfiguration();
-$auditconfig->setAuditedEntityClasses(array(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
-    'SimpleThings\EntityAudit\Tests\UserAudit'
-));
+$auditconfig->setAuditedEntityClasses([
+    ArticleAudit::class,
+    UserAudit::class
+]);
 
-$auditconfig->setGlobalIgnoreColumns(array(
+$auditconfig->setGlobalIgnoreColumns([
     'created_at',
     'updated_at'
-));
+]);
 
 $evm = new EventManager();
 $auditManager = new AuditManager($auditconfig);
@@ -147,7 +149,7 @@ to that entity was made in a revision before the given one:
 
 ```php
 $articleAudit = $auditReader->find(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    ArticleAudit::class,
     $id = 1,
     $rev = 10
 );
@@ -161,7 +163,7 @@ in that old version.
 
 ```php
 $revisions = $auditReader->findRevisions(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    ArticleAudit::class,
     $id = 1
 );
 ```
@@ -199,7 +201,7 @@ class ChangedEntity
 
 ```php
 $revision = $auditReader->getCurrentRevision(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    ArticleAudit::class,
     $id = 3
 );
 ```

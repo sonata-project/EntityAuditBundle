@@ -51,10 +51,10 @@ class CreateSchemaListener implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             ToolEvents::postGenerateSchemaTable,
             ToolEvents::postGenerateSchema,
-        );
+        ];
     }
 
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
@@ -85,12 +85,12 @@ class CreateSchemaListener implements EventSubscriber
             /* @var Column $column */
             $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
                 $column->toArray(),
-                array('notnull' => false, 'autoincrement' => false)
+                ['notnull' => false, 'autoincrement' => false]
             ));
         }
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
-        if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
+        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', ['length' => 4]);
+        if (!in_array($cm->inheritanceType, [ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE])) {
             throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
 
@@ -98,18 +98,18 @@ class CreateSchemaListener implements EventSubscriber
         $pkColumns[] = $this->config->getRevisionFieldName();
         $revisionTable->setPrimaryKey($pkColumns);
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
-        $revisionTable->addIndex(array($this->config->getRevisionFieldName()),$revIndexName);
+        $revisionTable->addIndex([$this->config->getRevisionFieldName()],$revIndexName);
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
     {
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
+        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), [
             'autoincrement' => true,
-        ));
+        ]);
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string')->setNotnull(false);
-        $revisionsTable->setPrimaryKey(array('id'));
+        $revisionsTable->setPrimaryKey(['id']);
     }
 }

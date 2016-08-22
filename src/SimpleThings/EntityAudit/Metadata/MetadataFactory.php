@@ -25,7 +25,7 @@ namespace SimpleThings\EntityAudit\Metadata;
 
 class MetadataFactory
 {
-    private $auditedEntities = array();
+    private $auditedEntities = [];
 
     public function __construct($auditedEntities)
     {

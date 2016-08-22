@@ -196,7 +196,7 @@ class AuditReader
      */
     public function clearEntityCache()
     {
-        $this->entityCache = array();
+        $this->entityCache = [];
     }
 
     /**
@@ -217,9 +217,9 @@ class AuditReader
      * @throws NotAuditedException
      * @throws \Doctrine\DBAL\DBALException
      */
-    public function find($className, $id, $revision, array $options = array())
+    public function find($className, $id, $revision, array $options = [])
     {
-        $options = array_merge(array('threatDeletionsAsExceptions' => false), $options);
+        $options = array_merge(['threatDeletionsAsExceptions' => false], $options);
 
         if (!$this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
@@ -230,7 +230,7 @@ class AuditReader
         $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
+            $id = [$class->identifier[0] => $id];
         }
 
         $whereSQL  = "e." . $this->config->getRevisionFieldName() ." <= ?";
@@ -247,8 +247,8 @@ class AuditReader
             $whereSQL .= " AND e." . $columnName . " = ?";
         }
 
-        $columnList = array('e.'.$this->config->getRevisionTypeFieldName());
-        $columnMap  = array();
+        $columnList = ['e.'.$this->config->getRevisionTypeFieldName()];
+        $columnMap  = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
             $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
@@ -296,7 +296,7 @@ class AuditReader
             }
         }
 
-        $values = array_merge(array($revision), array_values($id));
+        $values = array_merge([$revision], array_values($id));
 
         if (!$class->isInheritanceTypeNone()) {
             $columnList[] = $class->discriminatorColumn['name'];
@@ -305,7 +305,7 @@ class AuditReader
 
                 // Support for single table inheritance sub-classes
                 $allDiscrValues = array_flip($class->discriminatorMap);
-                $queriedDiscrValues = array($this->em->getConnection()->quote($class->discriminatorValue));
+                $queriedDiscrValues = [$this->em->getConnection()->quote($class->discriminatorValue)];
                 foreach ($class->subClasses as $subclassName) {
                     $queriedDiscrValues[] = $this->em->getConnection()->quote($allDiscrValues[$subclassName]);
                 }
@@ -353,7 +353,7 @@ class AuditReader
         $class = $this->em->getClassMetadata($className);
 
         //lookup revisioned entity cache
-        $keyParts = array();
+        $keyParts = [];
 
         foreach($class->getIdentifierFieldNames() as $name) {
             $keyParts[] = $data[$name];
@@ -381,7 +381,7 @@ class AuditReader
                 $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])->newInstance();
             } else {
                 //a complex case when ToOne binding is against AbstractEntity having no discriminator
-                $pk = array();
+                $pk = [];
 
                 foreach ($class->identifier as $field) {
                     $pk[$class->getColumnName($field)] = $data[$field];
@@ -417,7 +417,7 @@ class AuditReader
                 //print_r($targetClass->discriminatorMap);
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
                     if ($this->loadAuditedEntities) {
-                        $pk = array();
+                        $pk = [];
 
                         if ($assoc['isOwningSide']) {
                             foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
@@ -440,7 +440,7 @@ class AuditReader
                             $class->reflFields[$field]->setValue($entity, null);
                         } else {
                             try {
-                                $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
+                                $value = $this->find($targetClass->name, $pk, $revision, ['threatDeletionsAsExceptions' => true]);
                             } catch (DeletedException $e) {
                                 $value = null;
                             }
@@ -453,7 +453,7 @@ class AuditReader
                 } else {
                     if ($this->loadNativeEntities) {
                         if ($assoc['isOwningSide']) {
-                            $associatedId = array();
+                            $associatedId = [];
                             foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
                                 $joinColumnValue = isset($data[$columnMap[$srcColumn]]) ? $data[$columnMap[$srcColumn]] : null;
                                 if ($joinColumnValue !== null) {
@@ -479,7 +479,7 @@ class AuditReader
             } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
                     if ($this->loadAuditedCollections) {
-                        $foreignKeys = array();
+                        $foreignKeys = [];
                         foreach ($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
                             $field = $class->getFieldForColumn($foreign);
                             $foreignKeys[$local] = $class->reflFields[$field]->getValue($entity);
@@ -527,7 +527,7 @@ class AuditReader
         );
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
-        $revisions = array();
+        $revisions = [];
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
                 $row['id'],
@@ -557,7 +557,7 @@ class AuditReader
     {
         $auditedEntities = $this->metadataFactory->getAllClassNames();
 
-        $changedEntities = array();
+        $changedEntities = [];
         foreach ($auditedEntities AS $className) {
             /** @var ClassMetadataInfo|ClassMetadata $class */
             $class = $this->em->getClassMetadata($className);
@@ -567,12 +567,12 @@ class AuditReader
             }
 
             $tableName = $this->config->getTableName($class);
-            $params = array();
+            $params = [];
 
             $whereSQL   = "e." . $this->config->getRevisionFieldName() ." = ?";
             $columnList = "e." . $this->config->getRevisionTypeFieldName();
             $params[] = $revision;
-            $columnMap  = array();
+            $columnMap  = [];
 
             foreach ($class->fieldNames as $columnName => $field) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
@@ -617,7 +617,7 @@ class AuditReader
             $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
 
             foreach ($revisionsData AS $row) {
-                $id   = array();
+                $id   = [];
 
                 foreach ($class->identifier AS $idField) {
                     $id[$idField] = $row[$idField];
@@ -645,7 +645,7 @@ class AuditReader
     public function findRevision($rev)
     {
         $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
+        $revisionsData = $this->em->getConnection()->fetchAll($query, [$rev]);
 
         if (count($revisionsData) == 1) {
             return new Revision(
@@ -677,7 +677,7 @@ class AuditReader
         $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
+            $id = [$class->identifier[0] => $id];
         }
 
         $whereSQL = "";
@@ -699,7 +699,7 @@ class AuditReader
                  "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
         $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
 
-        $revisions = array();
+        $revisions = [];
         foreach ($revisionsData AS $row) {
             $revisions[] = new Revision(
                 $row['id'],
@@ -730,7 +730,7 @@ class AuditReader
         $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
+            $id = [$class->identifier[0] => $id];
         }
 
         $whereSQL = "";
@@ -796,7 +796,7 @@ class AuditReader
         $metadata = $this->em->getClassMetadata($className);
         $fields = $metadata->getFieldNames();
 
-        $return = array();
+        $return = [];
         foreach ($fields AS $fieldName) {
             $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
         }
@@ -815,10 +815,10 @@ class AuditReader
         $tableName = $this->config->getTableName($class);
 
         if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
+            $id = [$class->identifier[0] => $id];
         }
 
-        $whereId = array();
+        $whereId = [];
         foreach ($class->identifier AS $idField) {
             if (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
@@ -832,8 +832,8 @@ class AuditReader
         }
 
         $whereSQL  = implode(' AND ', $whereId);
-        $columnList = array($this->config->getRevisionFieldName());
-        $columnMap  = array();
+        $columnList = [$this->config->getRevisionFieldName()];
+        $columnMap  = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
             $type = Type::getType($class->fieldMappings[$field]['type']);
@@ -860,7 +860,7 @@ class AuditReader
         $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
-        $result = array();
+        $result = [];
         while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
             $rev = $row[$this->config->getRevisionFieldName()];
             unset($row[$this->config->getRevisionFieldName()]);
