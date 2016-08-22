@@ -45,7 +45,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
 
 class RelationTest extends BaseTest
 {
-    protected $schemaEntities = array(
+    protected $schemaEntities = [
         OwnerEntity::class,
         OwnedEntity1::class,
         OwnedEntity2::class,
@@ -63,9 +63,9 @@ class RelationTest extends BaseTest
         RelationOneToOneEntity::class,
         RelationFoobarEntity::class,
         RelationReferencedEntity::class
-    );
+    ];
 
-    protected $auditedEntities = array(
+    protected $auditedEntities = [
         OwnerEntity::class,
         OwnedEntity1::class,
         OneToOneAuditedEntity::class,
@@ -80,7 +80,7 @@ class RelationTest extends BaseTest
         RelationOneToOneEntity::class,
         RelationFoobarEntity::class,
         RelationReferencedEntity::class
-    );
+    ];
 
     public function testUndefinedIndexesInUOWForRelations()
     {
@@ -124,8 +124,8 @@ class RelationTest extends BaseTest
         $this->assertEquals(OwnedEntity1::class, get_class($changedOwned));
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
         $this->assertEquals('DEL', $changedEntities[1]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
-        $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
+        $this->assertEquals(['id' => 1], $changedEntities[0]->getId());
+        $this->assertEquals(['id' => 1], $changedEntities[1]->getId());
         //uninit proxy messes up ids, it is fine
         $this->assertCount(0, $changedOwner->getOwned1());
         $this->assertCount(0, $changedOwner->getOwned2());
@@ -750,7 +750,7 @@ class RelationTest extends BaseTest
 
         $this->assertCount(3, $auditedOwner->getOwned1());
 
-        $ids = array();
+        $ids = [];
         foreach ($auditedOwner->getOwned1() as $ownedElement) {
             $ids[] = $ownedElement->getId();
         }

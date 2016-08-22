@@ -27,8 +27,8 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class AuditConfiguration
 {
-    private $auditedEntityClasses = array();
-    private $globalIgnoreColumns = array();
+    private $auditedEntityClasses = [];
+    private $globalIgnoreColumns = [];
     private $tablePrefix = '';
     private $tableSuffix = '_audit';
     private $revisionTableName = 'revisions';

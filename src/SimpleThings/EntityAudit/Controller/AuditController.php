@@ -61,9 +61,9 @@ class AuditController extends Controller
         $reader = $this->getAuditReader();
         $revisions = $reader->findRevisionHistory(20, 20 * ($page - 1));
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:index.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:index.html.twig', [
             'revisions' => $revisions,
-        ));
+        ]);
     }
 
     /**
@@ -82,10 +82,10 @@ class AuditController extends Controller
 
         $changedEntities = $this->getAuditReader()->findEntitiesChangedAtRevision($rev);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', [
             'revision' => $revision,
             'changedEntities' => $changedEntities,
-        ));
+        ]);
     }
 
     /**
@@ -100,11 +100,11 @@ class AuditController extends Controller
         $ids = explode(',', $id);
         $revisions = $this->getAuditReader()->findRevisions($className, $ids);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_entity.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_entity.html.twig', [
             'id' => $id,
             'className' => $className,
             'revisions' => $revisions,
-        ));
+        ]);
     }
 
     /**
@@ -123,13 +123,13 @@ class AuditController extends Controller
         $data = $this->getAuditReader()->getEntityValues($className, $entity);
         krsort($data);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', [
             'id' => $id,
             'rev' => $rev,
             'className' => $className,
             'entity' => $entity,
             'data' => $data,
-        ));
+        ]);
     }
 
     /**
@@ -155,13 +155,13 @@ class AuditController extends Controller
         $ids = explode(',', $id);
         $diff = $this->getAuditReader()->diff($className, $ids, $oldRev, $newRev);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', array(
+        return $this->render('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', [
             'className' => $className,
             'id' => $id,
             'oldRev' => $oldRev,
             'newRev' => $newRev,
             'diff' => $diff,
-        ));
+        ]);
     }
 
 }

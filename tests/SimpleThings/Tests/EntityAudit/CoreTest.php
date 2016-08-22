@@ -38,7 +38,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit;
 
 class CoreTest extends BaseTest
 {
-    protected $schemaEntities = array(
+    protected $schemaEntities = [
         ArticleAudit::class,
         UserAudit::class,
         AnimalAudit::class,
@@ -47,9 +47,9 @@ class CoreTest extends BaseTest
         PetAudit::class,
         Cat::class,
         Dog::class
-    );
+    ];
 
-    protected $auditedEntities = array(
+    protected $auditedEntities = [
         ArticleAudit::class,
         UserAudit::class,
         AnimalAudit::class,
@@ -57,7 +57,7 @@ class CoreTest extends BaseTest
         Fox::class,
         Cat::class,
         Dog::class
-    );
+    ];
 
     public function testAuditable()
     {
@@ -215,12 +215,12 @@ class CoreTest extends BaseTest
 
         $this->assertEquals(ArticleAudit::class, $changedEntities[0]->getClassName());
         $this->assertEquals('INS', $changedEntities[0]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
+        $this->assertEquals(['id' => 1], $changedEntities[0]->getId());
         $this->assertInstanceOf(ArticleAudit::class, $changedEntities[0]->getEntity());
 
         $this->assertEquals(UserAudit::class, $changedEntities[1]->getClassName());
         $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
+        $this->assertEquals(['id' => 1], $changedEntities[1]->getId());
         $this->assertInstanceOf(UserAudit::class, $changedEntities[1]->getEntity());
     }
 
@@ -335,7 +335,7 @@ class CoreTest extends BaseTest
         $this->assertContainsOnly(ChangedEntity::class, $changedEntities);
         $this->assertEquals(UserAudit::class, $changedEntities[0]->getClassName());
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
+        $this->assertEquals(['id' => 1], $changedEntities[0]->getId());
     }
 
     public function testUsernameResolvingIsDynamic()

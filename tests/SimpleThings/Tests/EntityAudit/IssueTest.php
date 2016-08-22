@@ -45,7 +45,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
 
 class IssueTest extends BaseTest
 {
-    protected $schemaEntities = array(
+    protected $schemaEntities = [
        EscapedColumnsEntity::class,
        Issue87Project::class,
        Issue87ProjectComment::class,
@@ -65,9 +65,9 @@ class IssueTest extends BaseTest
        Issue156Client::class,
        Issue198Car::class,
        Issue198Owner::class,
-    );
+    ];
 
-    protected $auditedEntities = array(
+    protected $auditedEntities = [
         EscapedColumnsEntity::class,
         Issue87Project::class,
         Issue87ProjectComment::class,
@@ -87,7 +87,7 @@ class IssueTest extends BaseTest
         Issue156Client::class,
         Issue198Car::class,
         Issue198Owner::class,
-    );
+    ];
 
     public function testIssue31()
     {
@@ -182,7 +182,7 @@ class IssueTest extends BaseTest
         $address->setAddressText('NY, Red Street 6');
 
         $customer = new Issue9Customer();
-        $customer->setAddresses(array($address));
+        $customer->setAddresses([$address]);
         $customer->setPrimaryAddress($address);
 
         $address->setCustomer($customer);

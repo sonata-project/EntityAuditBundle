@@ -100,15 +100,15 @@ use SimpleThings\EntityAudit\Tests\ArticleAudit;
 use SimpleThings\EntityAudit\Tests\UserAudit;
 
 $auditconfig = new AuditConfiguration();
-$auditconfig->setAuditedEntityClasses(array(
+$auditconfig->setAuditedEntityClasses([
     ArticleAudit::class,
     UserAudit::class
-));
+]);
 
-$auditconfig->setGlobalIgnoreColumns(array(
+$auditconfig->setGlobalIgnoreColumns([
     'created_at',
     'updated_at'
-));
+]);
 
 $evm = new EventManager();
 $auditManager = new AuditManager($auditconfig);

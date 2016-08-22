@@ -37,7 +37,7 @@ class SimpleThingsEntityAuditExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('auditable.xml');
 
-        $configurables = array(
+        $configurables = [
             'audited_entities',
             'table_prefix',
             'table_suffix',
@@ -46,7 +46,7 @@ class SimpleThingsEntityAuditExtension extends Extension
             'revision_table_name',
             'revision_id_field_type',
             'global_ignore_columns',
-        );
+        ];
 
         foreach ($configurables as $key) {
             $container->setParameter('simplethings.entityaudit.' . $key, $config[$key]);

@@ -42,7 +42,7 @@ class SimpleDiff
                 }
             }
         }
-        if ($maxlen == 0) return array(array('d' => $old, 'i' => $new));
+        if ($maxlen == 0) return [['d' => $old, 'i' => $new]];
         return array_merge(
             $this->diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)),
             array_slice($new, $nmax, $maxlen),
