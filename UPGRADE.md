@@ -1,7 +1,7 @@
 
 # Upgrade to unreleased
 
-## Minor BC BREAK: Current user name resolution
+## BC BREAK: Current user name resolution
 
 Previously the username that was recorded againsts revisions was resolved by `SimpleThings\EntityAudit\Request\CurrentUserListener` (``simplethings_entityaudit.request.current_user_listener` service).
 
