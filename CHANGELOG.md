@@ -1,5 +1,8 @@
 # Changelog
 
+## upcoming (2016/MM/DD)
+- [#210](https://github.com/simplethings/EntityAudit/pull/210) Provide a way to customize the revision username. (@bendavies)
+
 ## v0.9.2 2016-08-22
 - [#209](https://github.com/simplethings/EntityAudit/pull/209) run tests against postgresql (@bendavies)
 - [#208](https://github.com/simplethings/EntityAudit/pull/208) run tests againts mysql (@bendavies)
