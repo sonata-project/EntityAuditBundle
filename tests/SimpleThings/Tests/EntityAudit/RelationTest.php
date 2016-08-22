@@ -24,6 +24,8 @@
 namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\ChangedEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity;
@@ -35,47 +37,49 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
 
 class RelationTest extends BaseTest
 {
     protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity2',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneNotAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity'
+        OwnerEntity::class,
+        OwnedEntity1::class,
+        OwnedEntity2::class,
+        OwnedEntity3::class,
+        OneToOneMasterEntity::class,
+        OneToOneAuditedEntity::class,
+        OneToOneNotAuditedEntity::class,
+        Category::class,
+        FoodCategory::class,
+        Product::class,
+        WineProduct::class,
+        CheeseProduct::class,
+        Page::class,
+        PageLocalization::class,
+        RelationOneToOneEntity::class,
+        RelationFoobarEntity::class,
+        RelationReferencedEntity::class
     );
 
     protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity'
+        OwnerEntity::class,
+        OwnedEntity1::class,
+        OneToOneAuditedEntity::class,
+        OneToOneMasterEntity::class,
+        Category::class,
+        FoodCategory::class,
+        Product::class,
+        WineProduct::class,
+        CheeseProduct::class,
+        Page::class,
+        PageLocalization::class,
+        RelationOneToOneEntity::class,
+        RelationFoobarEntity::class,
+        RelationReferencedEntity::class
     );
 
     public function testUndefinedIndexesInUOWForRelations()
@@ -98,11 +102,11 @@ class RelationTest extends BaseTest
         unset($owner); unset($owned1); unset($owned2);
         $this->em->clear();
 
-        $owner = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnerEntity", 1);
+        $owner = $this->em->getReference(OwnerEntity::class, 1);
         $this->em->remove($owner);
-        $owned1 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnedEntity1", 1);
+        $owned1 = $this->em->getReference(OwnedEntity1::class, 1);
         $this->em->remove($owned1);
-        $owned2 = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnedEntity2", 1);
+        $owned2 = $this->em->getReference(OwnedEntity2::class, 1);
         $this->em->remove($owned2);
 
         $this->em->flush();
@@ -114,10 +118,10 @@ class RelationTest extends BaseTest
         $changedOwner = $changedEntities[0]->getEntity();
         $changedOwned = $changedEntities[1]->getEntity();
 
-        $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', $changedEntities[0]->getClassName());
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', get_class($changedOwner));
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', get_class($changedOwned));
+        $this->assertContainsOnly(ChangedEntity::class, $changedEntities);
+        $this->assertEquals(OwnerEntity::class, $changedEntities[0]->getClassName());
+        $this->assertEquals(OwnerEntity::class, get_class($changedOwner));
+        $this->assertEquals(OwnedEntity1::class, get_class($changedOwned));
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
         $this->assertEquals('DEL', $changedEntities[1]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());

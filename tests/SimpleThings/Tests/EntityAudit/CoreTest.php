@@ -23,34 +23,38 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use SimpleThings\EntityAudit\ChangedEntity;
+use SimpleThings\EntityAudit\Revision;
+use SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox;
+use SimpleThings\EntityAudit\Tests\Fixtures\Core\PetAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit;
 
 class CoreTest extends BaseTest
 {
     protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\PetAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
+        ArticleAudit::class,
+        UserAudit::class,
+        AnimalAudit::class,
+        Fox::class,
+        Rabbit::class,
+        PetAudit::class,
+        Cat::class,
+        Dog::class
     );
 
     protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
+        ArticleAudit::class,
+        UserAudit::class,
+        AnimalAudit::class,
+        Rabbit::class,
+        Fox::class,
+        Cat::class,
+        Dog::class
     );
 
     public function testAuditable()
@@ -146,7 +150,7 @@ class CoreTest extends BaseTest
             'SimpleThings\EntityAudit\Exception\NoRevisionFoundException',
             "No revision of class 'SimpleThings\\EntityAudit\\Tests\\Fixtures\\Core\\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet."
         );
-        $auditUser = $reader->find('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', 1, 1);
+        $auditUser = $reader->find(UserAudit::class, 1, 1);
     }
 
     public function testFindNotAudited()
@@ -176,7 +180,7 @@ class CoreTest extends BaseTest
         $revisions = $reader->findRevisionHistory();
 
         $this->assertEquals(2, count($revisions));
-        $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
+        $this->assertContainsOnly(Revision::class, $revisions);
 
         $this->assertEquals(2, $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
@@ -209,17 +213,17 @@ class CoreTest extends BaseTest
 
         //duplicated entries means a bug with discriminators
         $this->assertEquals(6, count($changedEntities));
-        $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
+        $this->assertContainsOnly(ChangedEntity::class, $changedEntities);
 
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getClassName());
+        $this->assertEquals(ArticleAudit::class, $changedEntities[0]->getClassName());
         $this->assertEquals('INS', $changedEntities[0]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getEntity());
+        $this->assertInstanceOf(ArticleAudit::class, $changedEntities[0]->getEntity());
 
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getClassName());
+        $this->assertEquals(UserAudit::class, $changedEntities[1]->getClassName());
         $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getEntity());
+        $this->assertInstanceOf(UserAudit::class, $changedEntities[1]->getEntity());
     }
 
     public function testFindRevisions()
@@ -246,7 +250,7 @@ class CoreTest extends BaseTest
         $revisions = $reader->findRevisions(get_class($user), $user->getId());
 
         $this->assertEquals(2, count($revisions));
-        $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
+        $this->assertContainsOnly(Revision::class, $revisions);
 
         $this->assertEquals(2, $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
@@ -330,8 +334,8 @@ class CoreTest extends BaseTest
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
         $this->assertEquals(1, count($changedEntities));
-        $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[0]->getClassName());
+        $this->assertContainsOnly(ChangedEntity::class, $changedEntities);
+        $this->assertEquals(UserAudit::class, $changedEntities[0]->getClassName());
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
     }
@@ -348,12 +352,12 @@ class CoreTest extends BaseTest
         
         $user->setName('b.eberlei');
         $this->em->flush();
-        
+
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
 
         $this->assertEquals(2, count($revisions));
-        $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
+        $this->assertContainsOnly(Revision::class, $revisions);
 
         $this->assertStringStartsWith('user: ', $revisions[0]->getUsername());
         $this->assertStringStartsWith('user: ', $revisions[1]->getUsername());

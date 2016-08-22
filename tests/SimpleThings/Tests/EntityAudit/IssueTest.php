@@ -24,7 +24,6 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner;
@@ -35,6 +34,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment;
@@ -46,47 +46,47 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
 class IssueTest extends BaseTest
 {
     protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
+       EscapedColumnsEntity::class,
+       Issue87Project::class,
+       Issue87ProjectComment::class,
+       Issue87AbstractProject::class,
+       Issue87Organization::class,
+       Issue9Address::class,
+       Issue9Customer::class,
+       Issue87Organization::class,
+       DuplicateRevisionFailureTestPrimaryOwner::class,
+       DuplicateRevisionFailureTestSecondaryOwner::class,
+       DuplicateRevisionFailureTestOwnedElement::class,
+       Issue111Entity::class,
+       Issue31User::class,
+       Issue31Reve::class,
+       Issue156Contact::class,
+       Issue156ContactTelephoneNumber::class,
+       Issue156Client::class,
+       Issue198Car::class,
+       Issue198Owner::class,
     );
 
     protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
+        EscapedColumnsEntity::class,
+        Issue87Project::class,
+        Issue87ProjectComment::class,
+        Issue87AbstractProject::class,
+        Issue87Organization::class,
+        Issue9Address::class,
+        Issue9Customer::class,
+        Issue87Organization::class,
+        DuplicateRevisionFailureTestPrimaryOwner::class,
+        DuplicateRevisionFailureTestSecondaryOwner::class,
+        DuplicateRevisionFailureTestOwnedElement::class,
+        Issue111Entity::class,
+        Issue31User::class,
+        Issue31Reve::class,
+        Issue156Contact::class,
+        Issue156ContactTelephoneNumber::class,
+        Issue156Client::class,
+        Issue198Car::class,
+        Issue198Owner::class,
     );
 
     public function testIssue31()
@@ -123,7 +123,7 @@ class IssueTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $ae = $reader->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity', 1, 2);
+        $ae = $reader->find(Issue111Entity::class, 1, 2);
 
         $this->assertInstanceOf('DateTime', $ae->getDeletedAt());
     }
@@ -224,7 +224,7 @@ class IssueTest extends BaseTest
 
         $this->em->getUnitOfWork()->clear();
 
-        $primaryOwner = $this->em->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner', 1);
+        $primaryOwner = $this->em->find(DuplicateRevisionFailureTestPrimaryOwner::class, 1);
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
