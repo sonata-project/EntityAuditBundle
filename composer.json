@@ -15,6 +15,7 @@
     "require-dev": {
         "doctrine/doctrine-bundle": "~1.4",
         "gedmo/doctrine-extensions": "^2.3.1",
+        "matthiasnoback/symfony-dependency-injection-test": "^1.0",
         "phpunit/phpunit": "^4.8",
         "symfony/framework-bundle": "~2.7|~3.0",
         "symfony/var-dumper": "^2.7"

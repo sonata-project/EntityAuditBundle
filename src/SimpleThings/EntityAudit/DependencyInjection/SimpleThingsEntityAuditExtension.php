@@ -45,15 +45,17 @@ class SimpleThingsEntityAuditExtension extends Extension
             'revision_type_field_name',
             'revision_table_name',
             'revision_id_field_type',
-            'global_ignore_columns'
+            'global_ignore_columns',
         );
 
         foreach ($configurables as $key) {
-            $container->setParameter("simplethings.entityaudit." . $key, $config[$key]);
+            $container->setParameter('simplethings.entityaudit.' . $key, $config[$key]);
         }
 
-        if (true === $config['listener']['current_username']) {
-            $loader->load('current_username.xml');
+        foreach ($config['service'] as $key => $service) {
+            if (null !== $service) {
+                $container->setAlias('simplethings_entityaudit.'.$key, $service);
+            }
         }
     }
 }

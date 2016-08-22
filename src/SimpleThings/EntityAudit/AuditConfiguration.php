@@ -27,15 +27,28 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class AuditConfiguration
 {
-    private $prefix = '';
-    private $suffix = '_audit';
-    private $revisionFieldName = 'rev';
-    private $revisionTypeFieldName = 'revtype';
-    private $revisionTableName = 'revisions';
     private $auditedEntityClasses = array();
     private $globalIgnoreColumns = array();
-    private $currentUsername = '';
+    private $tablePrefix = '';
+    private $tableSuffix = '_audit';
+    private $revisionTableName = 'revisions';
+    private $revisionFieldName = 'rev';
+    private $revisionTypeFieldName = 'revtype';
     private $revisionIdFieldType = 'integer';
+    private $usernameCallable;
+
+    /**
+     * @param array $classes
+     *
+     * @return AuditConfiguration
+     */
+    public static function forEntities(array $classes)
+    {
+        $conf = new self;
+        $conf->auditedEntityClasses = $classes;
+
+        return $conf;
+    }
 
     /**
      * @param ClassMetadataInfo $metadata
@@ -56,22 +69,22 @@ class AuditConfiguration
 
     public function getTablePrefix()
     {
-        return $this->prefix;
+        return $this->tablePrefix;
     }
 
     public function setTablePrefix($prefix)
     {
-        $this->prefix = $prefix;
+        $this->tablePrefix = $prefix;
     }
 
     public function getTableSuffix()
     {
-        return $this->suffix;
+        return $this->tableSuffix;
     }
 
     public function setTableSuffix($suffix)
     {
-        $this->suffix = $suffix;
+        $this->tableSuffix = $suffix;
     }
 
     public function getRevisionFieldName()
@@ -124,14 +137,46 @@ class AuditConfiguration
         return new Metadata\MetadataFactory($this->auditedEntityClasses);
     }
 
+    /**
+     * @deprecated
+     * @param string|null $username
+     */
     public function setCurrentUsername($username)
     {
-        $this->currentUsername = $username;
+        $this->setUsernameCallable(function () use ($username) {
+            return $username;
+        });
     }
 
+    /**
+     * @return string|null
+     */
     public function getCurrentUsername()
     {
-        return $this->currentUsername;
+        $callable = $this->usernameCallable;
+
+        return $callable ? $callable() : null;
+    }
+
+    public function setUsernameCallable($usernameCallable)
+    {
+        // php 5.3 compat
+        if (null !== $usernameCallable && !is_callable($usernameCallable)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Username Callable must be callable. Got: %s',
+                is_object($usernameCallable) ? get_class($usernameCallable) : gettype($usernameCallable)
+            ));
+        }
+
+        $this->usernameCallable = $usernameCallable;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getUsernameCallable()
+    {
+        return $this->usernameCallable;
     }
 
     public function setRevisionIdFieldType($revisionIdFieldType)

@@ -35,6 +35,10 @@
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
+        <service id="simplethings_entityaudit.username_callable.token_storage" class="SimpleThings\EntityAudit\User\TokenStorageUsernameCallable">
+            <argument id="service_container" type="service" />
+        </service>
+
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
@@ -48,17 +52,20 @@
             <call method="setTableSuffix">
                 <argument>%simplethings.entityaudit.table_suffix%</argument>
             </call>
+            <call method="setRevisionTableName">
+                <argument>%simplethings.entityaudit.revision_table_name%</argument>
+            </call>
+            <call method="setRevisionIdFieldType">
+                <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
+            </call>
             <call method="setRevisionFieldName">
                 <argument>%simplethings.entityaudit.revision_field_name%</argument>
             </call>
             <call method="setRevisionTypeFieldName">
                 <argument>%simplethings.entityaudit.revision_type_field_name%</argument>
             </call>
-            <call method="setRevisionTableName">
-                <argument>%simplethings.entityaudit.revision_table_name%</argument>
-            </call>
-            <call method="setRevisionIdFieldType">
-                <argument>%simplethings.entityaudit.revision_id_field_type%</argument>
+            <call method="setUsernameCallable">
+                <argument type="service" id="simplethings_entityaudit.username_callable" />
             </call>
         </service>
     </services>

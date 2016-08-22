@@ -335,4 +335,29 @@ class CoreTest extends BaseTest
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
     }
+
+    public function testUsernameResolvingIsDynamic()
+    {
+        $this->auditManager->getConfiguration()->setUsernameCallable(function () {
+            return 'user: ' . uniqid();
+        });
+        
+        $user = new UserAudit('beberlei');
+        $this->em->persist($user);
+        $this->em->flush();
+        
+        $user->setName('b.eberlei');
+        $this->em->flush();
+        
+        $reader = $this->auditManager->createAuditReader($this->em);
+        $revisions = $reader->findRevisionHistory();
+
+        $this->assertEquals(2, count($revisions));
+        $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
+
+        $this->assertStringStartsWith('user: ', $revisions[0]->getUsername());
+        $this->assertStringStartsWith('user: ', $revisions[1]->getUsername());
+
+        $this->assertNotEquals($revisions[0]->getUsername(), $revisions[1]->getUsername());
+    }
 }

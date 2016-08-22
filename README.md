@@ -206,18 +206,27 @@ $revision = $auditReader->getCurrentRevision(
 
 ## Setting the Current Username
 
-Each revision automatically saves the username that changes it. For this to work you have to set the username.
-In the Symfony2 web context the username is automatically set to the one in the current security token.
+Each revision automatically saves the username that changes it. For this to work, the username must be resolved.
 
-In a standalone app or Symfony command you have to set the username to a specific value using the `AuditConfiguration`:
+In the Symfony2 web context the username is resolved from the one in the current security context token.
+
+You can override this with your own behaviour by configuring the `username_callable` service in the bundle configuration. Your custom service must be a `callable` and should return a `string` or `null`.
+
+#####app/config/config.yml
+```yml
+simple_things_entity_audit:
+    service:
+        username_callable: acme.username_callable
+```
+
+In a standalone app or Symfony command you can username callable to a specific value using the `AuditConfiguration`.
 
 ```php
-// Symfony2 context
-$container->get('simplethings_entityaudit.config')->setCurrentUsername('beberlei');
-
-// Standalone app
 $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
-$auditConfig->setCurrentUsername('beberlei');
+$auditConfig->setUsernameCallable(function () {
+	$username = //your customer logic
+    return username;
+});
 ```
 
 ## Viewing auditing
