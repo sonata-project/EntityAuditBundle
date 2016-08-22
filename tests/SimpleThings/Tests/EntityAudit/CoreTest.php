@@ -24,6 +24,8 @@
 namespace SimpleThings\EntityAudit\Tests;
 
 use SimpleThings\EntityAudit\ChangedEntity;
+use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
+use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Revision;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit;
@@ -144,24 +146,20 @@ class CoreTest extends BaseTest
 
     public function testFindNoRevisionFound()
     {
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $this->expectException(NoRevisionFoundException::class);
+        $this->expectExceptionMessage("No revision of class 'SimpleThings\\EntityAudit\\Tests\\Fixtures\\Core\\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.");
 
-        $this->setExpectedException(
-            'SimpleThings\EntityAudit\Exception\NoRevisionFoundException',
-            "No revision of class 'SimpleThings\\EntityAudit\\Tests\\Fixtures\\Core\\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet."
-        );
-        $auditUser = $reader->find(UserAudit::class, 1, 1);
+        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader->find(UserAudit::class, 1, 1);
     }
 
     public function testFindNotAudited()
     {
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $this->expectException(NotAuditedException::class);
+        $this->expectExceptionMessage("Class 'stdClass' is not audited.");
 
-        $this->setExpectedException(
-            'SimpleThings\EntityAudit\Exception\NotAuditedException',
-            "Class 'stdClass' is not audited."
-        );
-        $auditUser = $reader->find("stdClass", 1, 1);
+        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader->find("stdClass", 1, 1);
     }
 
     public function testFindRevisionHistory()
