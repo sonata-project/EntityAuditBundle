@@ -19,17 +19,17 @@ class ArticleAudit
     private $text;
 
     /** @ORM\Column(type="text") */
-    private $ignoreme;
+    private $ignoreMe;
 
     /** @ORM\ManyToOne(targetEntity="UserAudit") */
     private $author;
 
-    function __construct($title, $text, $author, $ignoreme)
+    function __construct($title, $text, $author, $ignoreMe)
     {
         $this->title    = $title;
         $this->text     = $text;
         $this->author   = $author;
-        $this->ignoreme = $ignoreme;
+        $this->ignoreMe = $ignoreMe;
     }
 
     public function getId()
@@ -42,8 +42,8 @@ class ArticleAudit
         $this->text = $text;
     }
 
-    public function setIgnoreme($ignoreme)
+    public function setIgnoreMe($ignoreMe)
     {
-        $this->ignoreme = $ignoreme;
+        $this->ignoreMe = $ignoreMe;
     }
 }

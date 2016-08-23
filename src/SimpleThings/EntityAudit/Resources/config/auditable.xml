@@ -43,8 +43,8 @@
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
             </call>
-            <call method="setGlobalIgnoreColumns">
-                <argument>%simplethings.entityaudit.global_ignore_columns%</argument>
+            <call method="setGlobalIgnoreProperties">
+                <argument>%simplethings.entityaudit.global_ignore_properties%</argument>
             </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
