@@ -26,6 +26,7 @@ namespace SimpleThings\EntityAudit\Tests;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Proxy\ProxyFactory;
@@ -107,9 +108,19 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        return $this->em = EntityManager::create($connection, $config);
-    }
+        $this->em = EntityManager::create($connection, $config);
 
+        if (isset($this->customTypes) and is_array($this->customTypes)) {
+            foreach ($this->customTypes as $customTypeName => $customTypeClass) {
+                if (!Type::hasType($customTypeName)) {
+                    Type::addType($customTypeName, $customTypeClass);
+                }
+                $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $customTypeName, $customTypeName);
+            }
+        }
+
+        return $this->em;
+    }
 
     /**
      * @return SchemaTool
