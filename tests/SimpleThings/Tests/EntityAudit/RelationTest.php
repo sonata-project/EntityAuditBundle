@@ -822,12 +822,15 @@ class RelationTest extends BaseTest
 
         $container1 = new DataContainerEntity();
         $container1->setData($private1);
+        $container1->setName('container1');
 
         $container2 = new DataContainerEntity();
         $container2->setData($legal1);
+        $container2->setName('container2');
 
         $container3 = new DataContainerEntity();
         $container3->setData($legal2);
+        $container3->setName('container3');
 
         $this->em->persist($container1);
         $this->em->persist($container2);
@@ -838,6 +841,6 @@ class RelationTest extends BaseTest
 
         $legal2Base = $reader->find(get_class($legal2), $legal2->getId(), 1);
 
-        $this->assertEquals(3, $legal2Base->getDataContainer()->getId());
+        $this->assertEquals('container3', $legal2Base->getDataContainer()->getName());
     }
 }

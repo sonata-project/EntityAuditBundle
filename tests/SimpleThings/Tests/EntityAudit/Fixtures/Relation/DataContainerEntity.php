@@ -28,6 +28,13 @@ class DataContainerEntity
     private $data;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     */
+    private $name;
+
+    /**
      * @return int
      */
     public function getId()
@@ -49,5 +56,21 @@ class DataContainerEntity
     public function setData($data)
     {
         $this->data = $data;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 }
