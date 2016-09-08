@@ -18,7 +18,8 @@
         "matthiasnoback/symfony-dependency-injection-test": "^1.0",
         "phpunit/phpunit": "^4.8",
         "symfony/framework-bundle": "~2.7|~3.0",
-        "symfony/var-dumper": "^2.7"
+        "symfony/var-dumper": "^2.7",
+        "fabpot/php-cs-fixer": "^1.11"
     },
     "conflict": {
         "gedmo/doctrine-extensions": "<2.3.1",

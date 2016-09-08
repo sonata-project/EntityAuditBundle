@@ -257,3 +257,9 @@ This provides you with a few different routes:
 * Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
 * It does NOT work with Joined-Table-Inheritance (Single Table Inheritance should work, but not tested)
 * Many-To-Many associations are NOT versioned
+
+## Contributing
+
+Please before commiting, run this command `./vendor/bin/php-cs-fixer fix --verbose` to normalize the coding style.
+
+If you already have the fixer locally you can run `php-cs-fixer fix .`.
