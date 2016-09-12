@@ -663,10 +663,11 @@ class AuditReader
      *
      * @param string $className
      * @param mixed $id
+     * @param boolean $shouldAuditAssociations
      * @throws NotAuditedException
      * @return Revision[]
      */
-    public function findRevisions($className, $id)
+    public function findRevisions($className, $id, $shouldAuditAssociations = false)
     {
         if (!$this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
@@ -695,20 +696,91 @@ class AuditReader
             }
         }
 
-        $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
-                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
-
         $revisions = array();
-        foreach ($revisionsData AS $row) {
-            $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
-            );
+        $revisionsIDs = array();
+
+        $revisionsRows = $this->fetchRevisions($tableName, $whereSQL, array_values($id));
+
+        foreach ($revisionsRows as $row) {
+            $revisionsIDs[] = $row['id'];
+            $revisions[] = $this->createRevisionFromRow($row);
+        }
+
+        // When the audit includes the associations, we search for revisions where an owned entity has been affected.
+        //
+        // If the entity has a collection, when one of the item of the collection is updated/removed, the entity owning
+        // this collection will not be included in the revision by default (This is logic, no fields are updated in the
+        // parent entity).
+        // With this option enabled, the revision where only the collection is affected will also be returned.
+        if ($shouldAuditAssociations) {
+            foreach ($class->associationMappings as $associationId => $associationMapping) {
+                if ($associationMapping['type'] & ClassMetadata::ONE_TO_MANY) {
+                    $associatedClass = $associationMapping['targetEntity'];
+                    $whereSQL = "";
+                    $sqlParams = array();
+
+                    /** @var ClassMetadataInfo $associatedClassMetadata */
+                    $associatedClassMetadata = $this->em->getClassMetadata($associatedClass);
+                    $associatedTableName = $this->config->getTableName($associatedClassMetadata);
+                    // The relation is defined in the target entity since we are in the 'mappedBy' side
+                    $reversedAssociationMapping = $associatedClassMetadata->associationMappings[$associationMapping['mappedBy']];
+
+                    foreach ($reversedAssociationMapping['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                        if ($whereSQL) {
+                            $whereSQL .= " AND ";
+                        }
+                        $whereSQL .= "e." . $sourceColumn . " = ?";
+                        $sqlParams[] = $id[$targetColumn];
+                    }
+
+                    $associatedRevisionsRows = $this->fetchRevisions($associatedTableName, $whereSQL, $sqlParams);
+
+                    foreach ($associatedRevisionsRows as $row) {
+                        if (!in_array($row['id'], $revisionsIDs)) {
+                            $revisionsIDs[] = $row['id'];
+                            $revisions[] = $this->createRevisionFromRow($row);
+                        }
+                    }
+                }
+            }
+
+            // Since the revisions are added from different queries, we are losing the sql order by, we need to sort by code.
+            usort($revisions, function($a, $b){
+                return ($a->getRev() < $b->getRev()) ? 1 : -1;
+            });
         }
 
         return $revisions;
+    }
+
+    /**
+     * Executes the query
+     *
+     * @param string $tableName
+     * @param string $whereSQL
+     * @param array $sqlParams
+     * @return array
+     */
+    protected function fetchRevisions($tableName, $whereSQL, $sqlParams = array())
+    {
+        $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
+            "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " GROUP BY r.id ORDER BY r.id DESC";
+        return $this->em->getConnection()->fetchAll($query, $sqlParams);
+    }
+
+    /**
+     * Creates a revision object from a database row
+     *
+     * @param array $row
+     * @return Revision
+     */
+    protected function createRevisionFromRow($row)
+    {
+        return new Revision(
+            $row['id'],
+            \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
+            $row['username']
+        );
     }
 
     /**
