@@ -11,6 +11,13 @@ class Configuration implements ConfigurationInterface
     {
         $builder = new TreeBuilder();
         $builder->root('simple_things_entity_audit')
+            ->beforeNormalization()
+                ->ifTrue(function ($v) { return isset($v['audited_entities']); })
+                ->then(function ($v) {
+                    @trigger_error('The audited_entities configuration key is deprecated. Use the annotations instead.', E_USER_DEPRECATED);
+                    return $v;
+                })
+            ->end()
             ->children()
                 ->arrayNode('audited_entities')
                     ->prototype('scalar')->end()
