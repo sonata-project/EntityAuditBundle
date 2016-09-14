@@ -39,7 +39,14 @@
             <argument id="service_container" type="service" />
         </service>
 
+        <service id="simplethings_entityaudit.config_factory" class="SimpleThings\EntityAudit\AuditConfigurationFactory">
+        </service>
+
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
+            <factory service="simplethings_entityaudit.config_factory" method="createAuditConfiguration" />
+            <argument type="service" id="doctrine.orm.default_configuration" />
+            <argument type="service" id="annotation_reader" />
+            <argument>%simplethings.entityaudit.audited_entities%</argument>
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
             </call>
@@ -70,4 +77,3 @@
         </service>
     </services>
 </container>
-
