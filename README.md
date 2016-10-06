@@ -75,6 +75,18 @@ simple_things_entity_audit:
         - updated_at
 ```
 
+If you need to replace the value of certain fields (e.g. password value):
+
+#####app/config/config.yml
+```yml
+simple_things_entity_audit:
+    global_replace_column_vaues:
+        password: XXX
+        another_important_field: Some other value
+```
+
+*Note:* if the field being replaced is the only field updated in a changeset, you won't "see" the overall change (the row will appear the same as the last entry), but you will at least see that a revision was made. 
+
 ###Creating new tables
 
 Call the command below to see the new tables in the update schema queue.

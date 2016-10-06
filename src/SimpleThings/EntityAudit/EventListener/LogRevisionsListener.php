@@ -118,6 +118,7 @@ class LogRevisionsListener implements EventSubscriber
             foreach ($updateData[$meta->table['name']] as $column => $value) {
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
+                $value = $this->getReplacedValue($column, $value);
                 $placeholder = '?';
                 if ($meta->hasField($fieldName)) {
                     $field = $quoteStrategy->getColumnName($field, $meta, $this->platform);
@@ -561,5 +562,28 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         return $result;
+    }
+
+    /**
+     * @param string $columnName
+     * @param mixed $orUseThis
+     * @return mixed
+     */
+    protected function getReplacedValue($columnName, $orUseThis = null)
+    {
+        $replacedValue = $orUseThis;
+        static $replacements = array();     // Cache discovered replacements for performance
+        if (array_key_exists($columnName, $replacements)) {
+            // We've already seen this column name before
+            return $replacements[$columnName];
+        }
+        $map = $this->config->getGlobalReplaceColumnValues();
+        if ($map) {
+            if (array_key_exists($columnName, $map)) {
+                $replacements[$columnName] = $replacedValue = $map[$columnName];
+            }
+        }
+        
+        return $replacedValue;
     }
 }
