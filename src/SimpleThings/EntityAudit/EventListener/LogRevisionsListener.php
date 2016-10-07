@@ -434,7 +434,9 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $params[] = isset($entityData[$field]) ? $entityData[$field] : null;
+            $params[] = isset($entityData[$field])
+                ? $this->getReplacedValue($this->getColumnName($class, $field), $entityData[$field])
+                : null;
             $types[] = $class->fieldMappings[$field]['type'];
         }
 
@@ -562,6 +564,18 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         return $result;
+    }
+
+    /**
+     * Return the underlying column name for the field
+     * @param ClassMetadata $from
+     * @param $fieldName
+     * @return string
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     */
+    protected function getColumnName(ClassMetadata $from, $fieldName)
+    {
+        return $from->getFieldMapping($fieldName)['columnName'];
     }
 
     /**
