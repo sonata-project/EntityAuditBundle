@@ -469,7 +469,7 @@ class LogRevisionsListener implements EventSubscriber
         return implode(
             ' ',
             array_merge(
-                array(get_class($entity)),
+                array(\Doctrine\Common\Util\ClassUtils::getRealClass(get_class($entity))),
                 $this->uow->getEntityIdentifier($entity)
             )
         );
