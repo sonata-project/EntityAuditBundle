@@ -21,15 +21,19 @@ class ArticleAudit
     /** @ORM\Column(type="text") */
     private $ignoreme;
 
+    /** @ORM\Column(type="text") */
+    private $replacethis;
+
     /** @ORM\ManyToOne(targetEntity="UserAudit") */
     private $author;
 
-    function __construct($title, $text, $author, $ignoreme)
+    function __construct($title, $text, $author, $ignoreme, $replacethis = 'This Should Be Replaced')
     {
-        $this->title    = $title;
-        $this->text     = $text;
-        $this->author   = $author;
-        $this->ignoreme = $ignoreme;
+        $this->title       = $title;
+        $this->text        = $text;
+        $this->author      =  $author;
+        $this->ignoreme    = $ignoreme;
+        $this->replacethis = $replacethis;
     }
 
     public function getId()
@@ -45,5 +49,10 @@ class ArticleAudit
     public function setIgnoreme($ignoreme)
     {
         $this->ignoreme = $ignoreme;
+    }
+
+    public function setReplacethis($replacethis)
+    {
+        $this->replacethis = $replacethis;
     }
 }

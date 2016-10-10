@@ -146,7 +146,7 @@ class CoreTest extends BaseTest
             'SimpleThings\EntityAudit\Exception\NoRevisionFoundException',
             "No revision of class 'SimpleThings\\EntityAudit\\Tests\\Fixtures\\Core\\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet."
         );
-        $auditUser = $reader->find('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', 1, 1);
+        $reader->find('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', 1, 1);
     }
 
     public function testFindNotAudited()
@@ -157,7 +157,7 @@ class CoreTest extends BaseTest
             'SimpleThings\EntityAudit\Exception\NotAuditedException',
             "Class 'stdClass' is not audited."
         );
-        $auditUser = $reader->find("stdClass", 1, 1);
+        $reader->find("stdClass", 1, 1);
     }
 
     public function testFindRevisionHistory()
@@ -310,6 +310,41 @@ class CoreTest extends BaseTest
 
         $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
         $this->assertEquals(2, $revision);
+    }
+
+    public function testGlobaReplaceColumns()
+    {
+        $user = new UserAudit("Deniro");
+        $article = new ArticleAudit("testentry", "blah blah", $user, 'ignoreme', 'this must be replaced');
+
+        $this->em->persist($user);
+        $this->em->persist($article);
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $revisionCount = 1;
+        $article->setReplacethis('this should also be replaced');
+        $this->em->persist($article);
+        $this->em->flush();
+        $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
+        $this->assertEquals(++$revisionCount, $revision);
+
+        // When updating a column other than the one which should be replaced, check replacement still happens
+        $article->setText("testcolumn2");
+        $this->em->persist($article);
+        $this->em->flush();
+        $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
+        $this->assertEquals(++$revisionCount, $revision);
+
+        // Ensure the replacethis field was actually replaced for all of the audit history
+        $this->assertEquals(
+            0,
+            $this->em->getConnection()->fetchColumn(
+                'SELECT COUNT(1) 
+                 FROM ArticleAudit_audit 
+                 WHERE replacethis <> "replaced"')
+        );
     }
 
     public function testDeleteUnInitProxy()
