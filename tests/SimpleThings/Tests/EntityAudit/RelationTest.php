@@ -34,6 +34,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity2;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page;
+use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity;
@@ -55,6 +56,7 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
@@ -72,6 +74,7 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
@@ -778,5 +781,20 @@ class RelationTest extends BaseTest
 
         $this->assertEquals('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
         $this->assertEquals('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
+    }
+
+    /**
+     * Specific test for the case where a join condition is via an ORM/Id and where the column is also an object.
+     * Used to result in an 'aray to string conversion' error
+     */
+    public function testJoinOnObject()
+    {
+        $page = new Page();
+        $this->em->persist($page);
+        $this->em->flush();
+
+        $pageAlias = new PageAlias($page, 'This is the alias');
+        $this->em->persist($pageAlias);
+        $this->em->flush();
     }
 }
