@@ -16,6 +16,16 @@ class Page
     /** @ORM\OneToMany(targetEntity="PageLocalization", mappedBy="page", indexBy="locale") */
     private $localizations;
 
+
+    /**
+     * A page can have many aliases
+     *
+     * @var PageAlias[]
+     * @ORM\OneToMany(targetEntity="PageAlias", mappedBy="page", cascade={"persist"})
+     */
+    protected $pageAliases;
+
+
     public function __construct()
     {
         $this->localizations = new ArrayCollection();
@@ -35,5 +45,13 @@ class Page
     {
         $localization->setPage($this);
         $this->localizations->set($localization->getLocale(), $localization);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) $this->id;
     }
 }
