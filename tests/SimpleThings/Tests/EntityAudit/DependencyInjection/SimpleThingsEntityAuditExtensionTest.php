@@ -31,7 +31,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasService('simplethings_entityaudit.config', 'SimpleThings\EntityAudit\AuditConfiguration');
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setAuditedEntityClasses', array('%simplethings.entityaudit.audited_entities%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setGlobalIgnoreColumns', array('%simplethings.entityaudit.global_ignore_columns%'));
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setGlobalReplaceColumnValues', array('%simplethings.entityaudit.global_replace_column_vaues%'));
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setGlobalReplaceColumnValues', array('%simplethings.entityaudit.global_replace_column_values%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTablePrefix', array('%simplethings.entityaudit.table_prefix%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTableSuffix', array('%simplethings.entityaudit.table_suffix%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionTableName', array('%simplethings.entityaudit.revision_table_name%'));
@@ -71,7 +71,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', array());
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_columns', array());
-        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_replace_column_vaues', array());
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_replace_column_values', array());
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', '');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_suffix', '_audit');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_table_name', 'revisions');
@@ -85,7 +85,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->load(array(
             'audited_entities' => array('Entity1', 'Entity2'),
             'global_ignore_columns' => array('created_at', 'updated_at'),
-            'global_replace_column_vaues' => array('password'),
+            'global_replace_column_values' => array('password'),
             'table_prefix' => 'prefix',
             'table_suffix' => 'suffix',
             'revision_table_name' => 'log',
@@ -96,7 +96,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', array('Entity1', 'Entity2'));
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_columns', array('created_at', 'updated_at'));
-        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_replace_column_vaues', array('password'));
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_replace_column_values', array('password'));
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', 'prefix');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_suffix', 'suffix');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_table_name', 'log');

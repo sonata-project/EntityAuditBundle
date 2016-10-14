@@ -18,7 +18,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('global_ignore_columns')
                     ->prototype('scalar')->end()
                 ->end()
-                ->arrayNode('global_replace_column_vaues')
+                ->arrayNode('global_replace_column_values')
                     ->prototype('scalar')->end()
                 ->end()
                 ->scalarNode('table_prefix')->defaultValue('')->end()

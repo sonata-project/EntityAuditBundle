@@ -80,7 +80,7 @@ If you need to replace the value of certain fields (e.g. password value):
 #####app/config/config.yml
 ```yml
 simple_things_entity_audit:
-    global_replace_column_vaues:
+    global_replace_column_values:
         password: XXX
         another_important_field: Some other value
 ```

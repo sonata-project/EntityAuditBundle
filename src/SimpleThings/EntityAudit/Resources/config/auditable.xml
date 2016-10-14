@@ -7,7 +7,7 @@
     <parameters>
         <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
         <parameter key="simplethings.entityaudit.global_ignore_columns" type="collection" />
-        <parameter key="simplethings.entityaudit.global_replace_column_vaues" type="collection" />
+        <parameter key="simplethings.entityaudit.global_replace_column_values" type="collection" />
         <parameter key="simplethings.entityaudit.table_prefix" type="string" />
         <parameter key="simplethings.entityaudit.table_suffix" type="string" />
         <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
@@ -48,7 +48,7 @@
                 <argument>%simplethings.entityaudit.global_ignore_columns%</argument>
             </call>
             <call method="setGlobalReplaceColumnValues">
-                <argument>%simplethings.entityaudit.global_replace_column_vaues%</argument>
+                <argument>%simplethings.entityaudit.global_replace_column_values%</argument>
             </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
