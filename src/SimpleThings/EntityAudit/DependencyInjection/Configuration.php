@@ -24,7 +24,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
                 ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
-                ->scalarNode('retention_period_months')->defaultValue('12')->end()
+                // turn off purging by default - we don't want accidental deletion
+                ->scalarNode('retention_period_months')->defaultValue(null)->end()
                 ->arrayNode('service')
                     ->addDefaultsIfNotSet()
                     ->children()

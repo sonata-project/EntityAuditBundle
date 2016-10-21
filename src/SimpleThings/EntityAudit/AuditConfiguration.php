@@ -205,13 +205,6 @@ class AuditConfiguration
      */
     public function setRetentionPeriodMonths($retentionPeriodMonths)
     {
-        if((!is_numeric(trim($retentionPeriodMonths)) && $retentionPeriodMonths !== null) || $retentionPeriodMonths < 0) {
-            throw new ConfigurationException(
-                'retentionPeriodMonths',
-                $retentionPeriodMonths,
-                'Retention period should be an integer with a value of 0 or greater'
-            );
-        }
-        $this->retentionPeriodMonths = (int) trim($retentionPeriodMonths);
+        $this->retentionPeriodMonths = AuditPurger::getValidPeriodValue($retentionPeriodMonths);
     }
 }

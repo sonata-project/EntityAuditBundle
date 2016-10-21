@@ -75,6 +75,14 @@ simple_things_entity_audit:
         - updated_at
 ```
 
+If you want to use the `audit:purge` command (see below), then you can configure the number of months you want to retain (e.g. not purge): 
+
+#####app/config/config.yml
+```yml
+simple_things_entity_audit:
+    retention_period_months: ~
+```
+
 ###Creating new tables
 
 Call the command below to see the new tables in the update schema queue.
@@ -250,6 +258,27 @@ This provides you with a few different routes:
  * ```simple_things_entity_audit_viewentity``` - Displays the revisions where the specified entity was modified
  * ```simple_things_entity_audit_viewentity_detail``` - Displays the data for the specified entity at the specified revision
  * ```simple_things_entity_audit_compare``` - Allows you to compare the changes of an entity between 2 revisions
+
+## Command Line
+
+Provided you have registered the EntityAudit bundle with your app, you will have the following commands available to you from the command line.
+
+### Purge
+
+`audit:purge`
+
+This command will cause your audit data to be purged, removing any audit data older than the configured retention period (months) or the number of months specified on the command line.
+
+#### Examples
+
+This example assumes a Symfony 2.5+ installation.
+
+```
+php app/console audit:purge --help  # display the help for this command
+php app/console audit:purge         # purge the audit data using the configured number of months
+php app/console audit:purge 12      # purge any audit data older than 12 months
+```
+
 
 ## TODOS
 

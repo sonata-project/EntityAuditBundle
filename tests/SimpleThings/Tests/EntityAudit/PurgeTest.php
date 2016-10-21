@@ -50,12 +50,24 @@ class PurgeTest extends BaseTest
      * @dataProvider invalidRetentionPeriods 
      * @expectedException \SimpleThings\EntityAudit\Exception\ConfigurationException
      */
-    public function testInvalidRetentionPeriod($period)
+    public function testInvalidRetentionPeriodConfiguration($period)
     {
         $config = $this->getAuditManager()->getConfiguration();
         $config->setRetentionPeriodMonths($period);
+        $purger = $this->getAuditPurger();
+        $purger->purge($period);
     }
-    
+
+    /**
+     * @dataProvider invalidRetentionPeriods
+     * @expectedException \SimpleThings\EntityAudit\Exception\ConfigurationException
+     */
+    public function testInvalidRetentionPeriod($period)
+    {
+        $purger = $this->getAuditPurger();
+        $purger->purge($period);
+    }
+
     public function invalidRetentionPeriods()
     {
         return array(
@@ -68,11 +80,22 @@ class PurgeTest extends BaseTest
     /**
      * @dataProvider validRetentionPeriods
      */
-    public function testValidRetentionPeriod($period)
+    public function testValidRetentionPeriodConfiguration($period)
     {
         $config = $this->getAuditManager()->getConfiguration();
         $config->setRetentionPeriodMonths($period);
         $this->assertEquals((int) trim($period), $config->getRetentionPeriodMonths(), 'Mis-match when retrieving retention period');
+        $purger = $this->getAuditPurger();
+        $purger->purge($period);
+    }
+
+    /**
+     * @dataProvider validRetentionPeriods
+     */
+    public function testValidRetentionPeriod($period)
+    {
+        $purger = $this->getAuditPurger();
+        $purger->purge($period);
     }
 
     public function validRetentionPeriods()
