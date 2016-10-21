@@ -60,13 +60,13 @@ class AuditPurger
                     "DELETE FROM $auditTable 
                      WHERE $auditTable.$revisionsJoinField IN
                      (SELECT id FROM $revisionsTable WHERE timestamp < ?)",
-                    [$removeFromDate->format('c')]
+                    array($removeFromDate->format('c'))
                 );
             }
             // Now delete revisions entries
             $this->em->getConnection()->executeUpdate(
                 "DELETE FROM $revisionsTable WHERE timestamp < ?",
-                [$removeFromDate->format('c')]
+                array($removeFromDate->format('c'))
             );
             $this->em->commit();
         }

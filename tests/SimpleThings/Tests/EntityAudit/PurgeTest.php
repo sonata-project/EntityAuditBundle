@@ -58,10 +58,11 @@ class PurgeTest extends BaseTest
     
     public function invalidRetentionPeriods()
     {
-        return [
-            [-1],
-            ['a']
-        ];
+        return array(
+            array(-1),
+            array('a'),
+            array('')
+        );
     }
 
     /**
@@ -71,17 +72,21 @@ class PurgeTest extends BaseTest
     {
         $config = $this->getAuditManager()->getConfiguration();
         $config->setRetentionPeriodMonths($period);
-        $this->assertEquals($period, $config->getRetentionPeriodMonths(), 'Mis-match when retrieving retention period');
+        $this->assertEquals((int) trim($period), $config->getRetentionPeriodMonths(), 'Mis-match when retrieving retention period');
     }
 
     public function validRetentionPeriods()
     {
-        return [
-            [NULL],
-            [0],
-            [1],
-            [1000],
-        ];
+        return array(
+            array(null),
+            array(0),
+            array(1),
+            array(1000),
+            array('0'),
+            array('1'),
+            array('    1    '),
+            array('1000')
+        );
     }
 
     public function testWithConfigRetentionPeriod()
@@ -191,9 +196,9 @@ class PurgeTest extends BaseTest
                 "UPDATE $revisionsTable 
                  SET timestamp = $dateStr
                  WHERE id = :id",
-                [
+                array(
                     'id' => $revision['id']
-                ]
+                )
             );
             $date->sub(new \DateInterval('P1M'));
         }

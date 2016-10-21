@@ -24,7 +24,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
                 ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
-                ->scalarNode('retention_period_months')->defaultValue('integer')->end()
+                ->scalarNode('retention_period_months')->defaultValue('12')->end()
                 ->arrayNode('service')
                     ->addDefaultsIfNotSet()
                     ->children()
