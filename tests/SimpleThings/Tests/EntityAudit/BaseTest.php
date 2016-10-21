@@ -34,6 +34,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\AuditPurger;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -57,6 +58,11 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
      */
     protected $auditManager;
 
+    /**
+     * @var AuditPurger
+     */
+    protected $auditPurger;
+
     protected $schemaEntities = array();
 
     protected $auditedEntities = array();
@@ -66,6 +72,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $this->getEntityManager();
         $this->getSchemaTool();
         $this->getAuditManager();
+        $this->getAuditPurger();
         $this->setUpEntitySchema();
     }
 
@@ -209,6 +216,18 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $auditManager->registerEvents($this->_getConnection()->getEventManager());
 
         return $this->auditManager = $auditManager;
+    }
+
+    /**
+     * @return AuditPurger
+     */
+    protected function getAuditPurger()
+    {
+        if (null !== $this->auditPurger) {
+            return $this->auditPurger;
+        }
+
+        return $this->auditPurger = new AuditPurger($this->getAuditManager(), $this->getEntityManager());
     }
 
     protected function setUpEntitySchema()

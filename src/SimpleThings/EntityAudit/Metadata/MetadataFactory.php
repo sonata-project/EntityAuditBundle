@@ -27,16 +27,26 @@ class MetadataFactory
 {
     private $auditedEntities = array();
 
+    /**
+     * @param string[] $auditedEntities
+     */
     public function __construct($auditedEntities)
     {
         $this->auditedEntities = array_flip($auditedEntities);
     }
 
+    /**
+     * @param string $entity
+     * @return bool
+     */
     public function isAudited($entity)
     {
         return isset($this->auditedEntities[$entity]);
     }
-    
+
+    /**
+     * @return array
+     */
     public function getAllClassNames()
     {
         return array_flip($this->auditedEntities);
