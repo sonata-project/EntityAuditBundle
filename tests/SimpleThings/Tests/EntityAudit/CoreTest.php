@@ -341,9 +341,9 @@ class CoreTest extends BaseTest
         $this->assertEquals(
             0,
             $this->em->getConnection()->fetchColumn(
-                'SELECT COUNT(1) 
+                "SELECT COUNT(1)
                  FROM ArticleAudit_audit 
-                 WHERE replacethis <> "replaced"')
+                 WHERE replacethis <> 'replaced'")
         );
     }
 
