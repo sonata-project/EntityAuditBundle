@@ -575,7 +575,8 @@ class LogRevisionsListener implements EventSubscriber
      */
     protected function getColumnName(ClassMetadata $from, $fieldName)
     {
-        return $from->getFieldMapping($fieldName)['columnName'];
+        $mapping = $from->getFieldMapping($fieldName);
+        return $mapping['columnName'];
     }
 
     /**
