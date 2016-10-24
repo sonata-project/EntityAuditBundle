@@ -85,8 +85,6 @@ class PurgeTest extends BaseTest
         $config = $this->getAuditManager()->getConfiguration();
         $config->setRetentionPeriodMonths($period);
         $this->assertEquals((int) trim($period), $config->getRetentionPeriodMonths(), 'Mis-match when retrieving retention period');
-        $purger = $this->getAuditPurger();
-        $purger->purge($period);
     }
 
     /**
@@ -122,7 +120,7 @@ class PurgeTest extends BaseTest
         $this->createRevisionHistory();
 
         $purger = $this->getAuditPurger();
-        $purger->purge();
+        $this->assertTrue($purger->purge(), 'Expected to purge some test audit data');
 
         $this->assertNoRevisionsOlderThan($retainFor);
         $this->assertNoOrphans();
@@ -134,9 +132,38 @@ class PurgeTest extends BaseTest
         $retainFor = 6;
         $this->createTestData($retainFor * 3);
         $this->createRevisionHistory();
-        $purger->purge($retainFor);
+        $this->assertTrue($purger->purge($retainFor), 'Expected to purge some test audit data');
         $this->assertNoRevisionsOlderThan($retainFor);
         $this->assertNoOrphans();
+    }
+
+    /**
+     * Ensure that we DO NOT purge where using default configuration
+     */
+    public function testPurgeWhereConfigDisabled()
+    {
+        // Turn off purge retention period (should be the default, anyway, but let's be explicit)
+        $this->getAuditManager()->getConfiguration()->setRetentionPeriodMonths(null);
+
+        $purger = $this->getAuditPurger();
+        $retainFor = 6;
+        $this->createTestData($retainFor * 3);
+        $revisionHistory = $this->createRevisionHistory();
+        $this->assertFalse($purger->purge(), 'Expected no action to be taken');
+        $this->assertRevisionHistorySameAs($revisionHistory);
+    }
+
+    /**
+     * Ensure we do not delete anything where we explicitly require a 0 month retention
+     */
+    public function testPurgeWhereOverrideIsZero()
+    {
+        $purger = $this->getAuditPurger();
+        $retainFor = 6;
+        $this->createTestData($retainFor * 3);
+        $revisionHistory = $this->createRevisionHistory();
+        $this->assertFalse($purger->purge(0), 'Expected no action to be taken');
+        $this->assertRevisionHistorySameAs($revisionHistory);
     }
 
     /**
@@ -182,6 +209,18 @@ class PurgeTest extends BaseTest
     }
 
     /**
+     * @param array $prevRevisionHistory
+     */
+    private function assertRevisionHistorySameAs(array $prevRevisionHistory)
+    {
+        $this->assertSame(
+            $prevRevisionHistory,
+            $this->getRevisionHistory(),
+            'Expected revision history to remain unchanged'
+        );
+    }
+
+    /**
      * Cater for difference in dealing with timestamps in SQLite
      * @param \DateTime $date
      * @return string
@@ -206,14 +245,14 @@ class PurgeTest extends BaseTest
 
     /**
      * Go through all revisions and manufacture revision dates going back a month per revision
+     * @return array = revision history
      */
     private function createRevisionHistory()
     {
         $revisionsTable = $this->auditManager->getConfiguration()->getRevisionTableName();
-        $revisions = $this->em->getConnection()->fetchAll("SELECT * FROM $revisionsTable ORDER BY id");
         $date = new \DateTime('first day of this month');
 
-        foreach ($revisions as $revision) {
+        foreach ($this->getRevisionHistory() as $revision) {
             $dateStr = $this->makeDateString($date);
             $this->em->getConnection()->executeUpdate(
                 "UPDATE $revisionsTable 
@@ -225,6 +264,16 @@ class PurgeTest extends BaseTest
             );
             $date->sub(new \DateInterval('P1M'));
         }
+        return $this->getRevisionHistory();
+    }
+
+    /**
+     * @return array
+     */
+    private function getRevisionHistory()
+    {
+        $revisionsTable = $this->auditManager->getConfiguration()->getRevisionTableName();
+        return $this->em->getConnection()->fetchAll("SELECT * FROM $revisionsTable ORDER BY id");
     }
 
     /**
