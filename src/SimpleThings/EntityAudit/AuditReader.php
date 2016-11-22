@@ -235,15 +235,7 @@ class AuditReader
 
         $whereSQL  = "e." . $this->config->getRevisionFieldName() ." <= ?";
 
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $columnName = $class->fieldMappings[$idField]['columnName'];
-            } elseif (isset($class->associationMappings[$idField])) {
-                $columnName = $class->associationMappings[$idField]['joinColumns'][0];
-            } else {
-                throw new \RuntimeException('column name not found  for' . $idField);
-            }
-
+        foreach (array_keys($id) AS $columnName) {
             $whereSQL .= " AND e." . $columnName . " = ?";
         }
 
