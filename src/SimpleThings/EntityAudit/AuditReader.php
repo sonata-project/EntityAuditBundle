@@ -229,14 +229,13 @@ class AuditReader
         $class = $this->em->getClassMetadata($className);
         $tableName = $this->config->getTableName($class);
 
-        if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
-        }
-
         $whereSQL  = "e." . $this->config->getRevisionFieldName() ." <= ?";
 
         foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
+            if (is_array($id) && count($id) > 0) {
+                $idKeys = array_keys($id);
+                $columnName = $idKeys[0];
+            } else if (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
             } elseif (isset($class->associationMappings[$idField])) {
                 $columnName = $class->associationMappings[$idField]['joinColumns'][0];
@@ -245,6 +244,10 @@ class AuditReader
             }
 
             $whereSQL .= " AND e." . $columnName . " = ?";
+        }
+
+        if (!is_array($id)) {
+            $id = array($class->identifier[0] => $id);
         }
 
         $columnList = array('e.'.$this->config->getRevisionTypeFieldName());
