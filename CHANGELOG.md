@@ -1,6 +1,11 @@
 ## Change Log
 
-### upcoming (2016/MM/DD)
+### upcoming (2017/MM/DD)
+
+### v1.0.0 (2017/01/06)
+- [#218](https://github.com/simplethings/EntityAudit/pull/218) Failing one to one bidirectional fix (@peschee)
+- [#231](https://github.com/simplethings/EntityAudit/pull/231) Enable join column to be an id (@oconnedk)
+- [#159](https://github.com/simplethings/EntityAudit/pull/159) [ADD] PHP-CS-Fixer (@Th3Mouk)
 - [#197](https://github.com/simplethings/EntityAudit/pull/197) Fix auditing of entities with fields that require sql conversion (@jamescdavis)
 - [#210](https://github.com/simplethings/EntityAudit/pull/210) Provide a way to customize the revision username. (@bendavies)
 
