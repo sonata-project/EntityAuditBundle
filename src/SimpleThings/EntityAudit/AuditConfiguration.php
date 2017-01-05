@@ -158,16 +158,8 @@ class AuditConfiguration
         return $callable ? $callable() : null;
     }
 
-    public function setUsernameCallable($usernameCallable)
+    public function setUsernameCallable(callable $usernameCallable = null)
     {
-        // php 5.3 compat
-        if (null !== $usernameCallable && !is_callable($usernameCallable)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Username Callable must be callable. Got: %s',
-                is_object($usernameCallable) ? get_class($usernameCallable) : gettype($usernameCallable)
-            ));
-        }
-
         $this->usernameCallable = $usernameCallable;
     }
 
