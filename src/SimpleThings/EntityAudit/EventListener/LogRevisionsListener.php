@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -485,7 +486,7 @@ class LogRevisionsListener implements EventSubscriber
         return implode(
             ' ',
             array_merge(
-                array(\Doctrine\Common\Util\ClassUtils::getRealClass(get_class($entity))),
+                array(ClassUtils::getClass($entity)),
                 $this->uow->getEntityIdentifier($entity)
             )
         );
