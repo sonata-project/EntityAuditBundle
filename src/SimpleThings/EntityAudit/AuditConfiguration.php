@@ -138,17 +138,6 @@ class AuditConfiguration
     }
 
     /**
-     * @deprecated
-     * @param string|null $username
-     */
-    public function setCurrentUsername($username)
-    {
-        $this->setUsernameCallable(function () use ($username) {
-            return $username;
-        });
-    }
-
-    /**
      * @return string|null
      */
     public function getCurrentUsername()
