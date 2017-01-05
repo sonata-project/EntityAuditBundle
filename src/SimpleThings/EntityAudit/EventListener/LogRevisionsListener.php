@@ -169,7 +169,7 @@ class LogRevisionsListener implements EventSubscriber
                             sprintf('Could not resolve database type for column "%s" during extra updates', $column)
                         );
                     }
-                    
+
                     $types[] = $type;
                 }
 
@@ -227,9 +227,9 @@ class LogRevisionsListener implements EventSubscriber
 
         // get changes => should be already computed here (is a listener)
         $changeset = $this->uow->getEntityChangeSet($entity);
-        foreach ($this->config->getGlobalIgnoreColumns() as $column) {
-            if (isset($changeset[$column])) {
-                unset($changeset[$column]);
+        foreach ($this->config->getGlobalIgnoreProperties() as $property) {
+            if (isset($changeset[$property])) {
+                unset($changeset[$property]);
             }
         }
 

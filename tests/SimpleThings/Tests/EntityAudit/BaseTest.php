@@ -200,7 +200,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         }
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
+        $auditConfig->setGlobalIgnoreProperties(array('ignoreMe'));
         $auditConfig->setUsernameCallable(function () {
             return 'beberlei';
         });

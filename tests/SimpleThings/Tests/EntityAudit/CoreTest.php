@@ -286,7 +286,7 @@ class CoreTest extends BaseTest
         $this->assertEquals(3, $revision);
     }
 
-    public function testGlobalIgnoreColumns()
+    public function testGlobalIgnoreProperties()
     {
         $user = new UserAudit("welante");
         $article = new ArticleAudit("testcolumn", "yadda!", $user, 'text');
@@ -304,7 +304,7 @@ class CoreTest extends BaseTest
         $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
         $this->assertEquals(2, $revision);
 
-        $article->setIgnoreme("textnew");
+        $article->setIgnoreMe("textnew");
         $this->em->persist($article);
         $this->em->flush();
 
@@ -341,14 +341,14 @@ class CoreTest extends BaseTest
         $this->auditManager->getConfiguration()->setUsernameCallable(function () {
             return 'user: ' . uniqid();
         });
-        
+
         $user = new UserAudit('beberlei');
         $this->em->persist($user);
         $this->em->flush();
-        
+
         $user->setName('b.eberlei');
         $this->em->flush();
-        
+
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
 

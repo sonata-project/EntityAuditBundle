@@ -30,7 +30,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.config', 'SimpleThings\EntityAudit\AuditConfiguration');
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setAuditedEntityClasses', array('%simplethings.entityaudit.audited_entities%'));
-        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setGlobalIgnoreColumns', array('%simplethings.entityaudit.global_ignore_columns%'));
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setGlobalIgnoreProperties', array('%simplethings.entityaudit.global_ignore_properties%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTablePrefix', array('%simplethings.entityaudit.table_prefix%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTableSuffix', array('%simplethings.entityaudit.table_suffix%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionTableName', array('%simplethings.entityaudit.revision_table_name%'));
