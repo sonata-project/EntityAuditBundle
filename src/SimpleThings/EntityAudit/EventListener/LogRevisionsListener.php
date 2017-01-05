@@ -127,6 +127,7 @@ class LogRevisionsListener implements EventSubscriber
             foreach ($updateData[$meta->table['name']] as $column => $value) {
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
+                $value = $this->getReplacedValue($column, $value);
                 $placeholder = '?';
                 if ($meta->hasField($fieldName)) {
                     $field = $quoteStrategy->getColumnName($field, $meta, $this->platform);
@@ -450,7 +451,9 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $params[] = isset($entityData[$field]) ? $entityData[$field] : null;
+            $params[] = isset($entityData[$field])
+                ? $this->getReplacedValue($this->getColumnName($class, $field), $entityData[$field])
+                : null;
             $types[] = $class->fieldMappings[$field]['type'];
         }
 
@@ -578,5 +581,40 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         return $result;
+    }
+
+    /**
+     * Return the underlying column name for the field
+     * @param ClassMetadata $from
+     * @param $fieldName
+     * @return string
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     */
+    protected function getColumnName(ClassMetadata $from, $fieldName)
+    {
+        return $from->getFieldMapping($fieldName)['columnName'];
+    }
+
+    /**
+     * @param string $columnName
+     * @param mixed $orUseThis
+     * @return mixed
+     */
+    protected function getReplacedValue($columnName, $orUseThis = null)
+    {
+        $replacedValue = $orUseThis;
+        static $replacements = array();     // Cache discovered replacements for performance
+        if (array_key_exists($columnName, $replacements)) {
+            // We've already seen this column name before
+            return $replacements[$columnName];
+        }
+        $map = $this->config->getGlobalReplaceColumnValues();
+        if ($map) {
+            if (array_key_exists($columnName, $map)) {
+                $replacements[$columnName] = $replacedValue = $map[$columnName];
+            }
+        }
+        
+        return $replacedValue;
     }
 }
