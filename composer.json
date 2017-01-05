@@ -8,7 +8,7 @@
     ],
     "description": "Audit for Doctrine Entities",
     "require": {
-        "php": "^5.3.9|~7.0",
+        "php": "^5.6|~7.0",
         "doctrine/dbal": "~2.5",
         "doctrine/orm": "~2.4"
     },
@@ -16,14 +16,14 @@
         "doctrine/doctrine-bundle": "~1.4",
         "gedmo/doctrine-extensions": "^2.3.1",
         "matthiasnoback/symfony-dependency-injection-test": "^1.0",
-        "phpunit/phpunit": "^4.8",
-        "symfony/framework-bundle": "~2.7|~3.0",
-        "symfony/var-dumper": "^2.7",
+        "phpunit/phpunit": "^5.5",
+        "symfony/framework-bundle": "~2.8|~3.0",
+        "symfony/var-dumper": "~2.8|~3.0",
         "fabpot/php-cs-fixer": "^1.11"
     },
     "conflict": {
         "gedmo/doctrine-extensions": "<2.3.1",
-        "symfony/framework-bundle": "<2.7",
+        "symfony/framework-bundle": "<2.8",
         "doctrine/doctrine-bundle": "<1.4"
     },
     "autoload": {
@@ -38,7 +38,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.x-dev"
+            "dev-master": "2.0-dev"
         }
     }
 }

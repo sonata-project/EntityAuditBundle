@@ -11,11 +11,9 @@ cache:
     - $HOME/.composer/cache
 
 php:
-  - 5.3
-  - 5.4
-  - 5.5
   - 5.6
   - 7.0
+  - 7.1
   - nightly
   - hhvm
 
@@ -38,9 +36,9 @@ script: ./vendor/bin/phpunit -c tests/travis/$DB.travis.xml
 matrix:
   fast_finish: true
   include:
-    - php: 5.3
+    - php: 5.6
       env: COMPOSER_FLAGS="--prefer-lowest" DB=sqlite
-    - php: 7.0
+    - php: 7.1
       env: NAME="MySQL 5.6" DB=mysql
       dist: trusty
       sudo: required
@@ -50,18 +48,18 @@ matrix:
           - mysql-server-5.6
           - mysql-client-core-5.6
           - mysql-client-5.6
-    - php: 7.0
+    - php: 7.1
       env: NAME="MySQL 5.7" DB=mysql MYSQL_VERSION=5.7
       sudo: required
-    - php: 7.0
+    - php: 7.1
       env: NAME="PostgreSQL 9.2" DB=pgsql
       addons:
         postgresql: 9.2
-    - php: 7.0
+    - php: 7.1
       env: NAME="PostgreSQL 9.3" DB=pgsql
       addons:
         postgresql: 9.3
-    - php: 7.0
+    - php: 7.1
       env: NAME="PostgreSQL 9.4" DB=pgsql
       addons:
         postgresql: 9.4
