@@ -25,7 +25,6 @@ namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
@@ -258,14 +257,10 @@ class AuditReader
                 ? 're' // root entity
                 : 'e';
 
-            $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = sprintf(
                 '%s.%s AS %s',
                 $tableAlias,
-                $type->convertToPHPValueSQL(
-                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
-                    $this->platform
-                ),
+                $this->quoteStrategy->getColumnName($field, $class, $this->platform),
                 $this->platform->quoteSingleIdentifier($field)
             );
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
@@ -399,10 +394,10 @@ class AuditReader
         //cache the entity to prevent circular references
         $this->entityCache[$className][$key][$revision] = $entity;
 
+        $connection = $this->getConnection();
         foreach ($data as $field => $value) {
             if (isset($class->fieldMappings[$field])) {
-                $type = Type::getType($class->fieldMappings[$field]['type']);
-                $value = $type->convertToPHPValue($value, $this->platform);
+                $value = $connection->convertToPHPValue($value, $class->fieldMappings[$field]['type']);
                 $class->reflFields[$field]->setValue($entity, $value);
             }
         }
@@ -525,10 +520,14 @@ class AuditReader
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
-        $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
-        );
-        $revisionsData = $this->em->getConnection()->fetchAll($query);
+        $revisionsData = $this->getConnection()->createQueryBuilder()
+            ->select('*')
+            ->from($this->config->getRevisionTableName())
+            ->orderBy('id', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->execute()
+            ->fetchAll();
 
         $revisions = array();
         foreach ($revisionsData AS $row) {
@@ -578,13 +577,10 @@ class AuditReader
             $columnMap  = array();
 
             foreach ($class->fieldNames as $columnName => $field) {
-                $type = Type::getType($class->fieldMappings[$field]['type']);
                 $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field)	&& ! $class->isIdentifier($field)
                     ? 're' // root entity
                     : 'e';
-                $columnList .= ', ' . $tableAlias . '.' . $type->convertToPHPValueSQL(
-                        $this->quoteStrategy->getColumnName($field, $class, $this->platform), $this->platform
-                    ) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
+                $columnList .= ', ' . $tableAlias . '.' . $this->quoteStrategy->getColumnName($field, $class, $this->platform) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
@@ -647,8 +643,13 @@ class AuditReader
      */
     public function findRevision($rev)
     {
-        $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
+        $revisionsData = $this->getConnection()->createQueryBuilder()
+            ->select('*')
+            ->from($this->config->getRevisionTableName(), 'r')
+            ->where('r.id = :id')
+            ->setParameter('id', $rev)
+            ->execute()
+            ->fetchAll();
 
         if (count($revisionsData) == 1) {
             return new Revision(
@@ -656,9 +657,9 @@ class AuditReader
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
                 $revisionsData[0]['username']
             );
-        } else {
-            throw new InvalidRevisionException($rev);
         }
+
+        throw new InvalidRevisionException($rev);
     }
 
     /**
@@ -753,15 +754,13 @@ class AuditReader
 
         $query = "SELECT e.".$this->config->getRevisionFieldName()." FROM " . $tableName . " e " .
                         " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
-        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
 
-        return $revision;
+        return $this->em->getConnection()->fetchColumn($query, array_values($id));
     }
 
     protected function getEntityPersister($entity)
     {
-        $uow = $this->em->getUnitOfWork();
-        return $uow->getEntityPersister($entity);
+        return $this->em->getUnitOfWork()->getEntityPersister($entity);
     }
 
     /**
@@ -839,11 +838,7 @@ class AuditReader
         $columnMap  = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
-            $type = Type::getType($class->fieldMappings[$field]['type']);
-            $columnList[] = $type->convertToPHPValueSQL(
-                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
-                    $this->platform
-                ) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
+            $columnList[] = $this->quoteStrategy->getColumnName($field, $class, $this->platform) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
