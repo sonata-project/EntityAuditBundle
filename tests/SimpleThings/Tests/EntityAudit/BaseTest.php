@@ -201,6 +201,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
+        $auditConfig->setGlobalReplaceColumnValues(array('replacethis' => 'replaced'));
         $auditConfig->setUsernameCallable(function () {
             return 'beberlei';
         });
