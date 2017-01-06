@@ -441,6 +441,9 @@ class AuditReader
                                 $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
                             } catch (DeletedException $e) {
                                 $value = null;
+                            } catch (NoRevisionFoundException $e) {
+                                // The entity does not have any revision yet. So let's get the actual state of it.
+                                $value = $this->em->find($targetClass->name, $pk);
                             }
 
                             $class->reflFields[$field]->setValue($entity, $value);

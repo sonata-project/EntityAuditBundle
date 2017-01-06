@@ -222,6 +222,31 @@ class CoreTest extends BaseTest
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getEntity());
     }
 
+    public function testNotVersionedRelationFind()
+    {
+        // Insert user without the manager to skip revision registering.
+        $this->em->getConnection()->insert(
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit')->getTableName(),
+            array(
+                'name' => 'beberlei',
+            )
+        );
+
+        $article = new ArticleAudit(
+            "test",
+            "yadda!",
+            $this->em->getRepository('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit')->find(1),
+            'text'
+        );
+
+        $this->em->persist($article);
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $this->assertSame('beberlei', $reader->find(get_class($article), 1, 1)->getAuthor()->getName());
+    }
+
     public function testFindRevisions()
     {
         $user = new UserAudit("beberlei");
