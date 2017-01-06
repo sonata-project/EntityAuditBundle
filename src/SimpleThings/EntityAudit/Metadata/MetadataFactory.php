@@ -32,11 +32,27 @@ class MetadataFactory
         $this->auditedEntities = array_flip($auditedEntities);
     }
 
-    public function isAudited($entity)
+    public function isAudited($entityName)
     {
-        return isset($this->auditedEntities[$entity]);
+        return isset($this->auditedEntities[$entityName]);
     }
-    
+
+    public function isClassAudited($entityClass)
+    {
+        if ($this->isAudited($entityClass->name)) {
+            return true;
+        }
+        if ($subClasses = $entityClass->subClasses) {
+            foreach ($subClasses as $oneEntityclass) {
+                if ($this->isAudited($oneEntityclass)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function getAllClassNames()
     {
         return array_flip($this->auditedEntities);

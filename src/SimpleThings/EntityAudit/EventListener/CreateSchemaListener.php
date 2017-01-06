@@ -61,7 +61,7 @@ class CreateSchemaListener implements EventSubscriber
     {
         $cm = $eventArgs->getClassMetadata();
 
-        if (!$this->metadataFactory->isAudited($cm->name)) {
+        if (!$this->metadataFactory->isClassAudited($cm)) {
             $audited = false;
             if ($cm->isInheritanceTypeJoined() && $cm->rootEntityName == $cm->name) {
                 foreach ($cm->subClasses as $subClass) {
