@@ -24,3 +24,35 @@ simple_things_entity_audit:
 ```
 
 The above after configuration is the default and does not need setting explicitly.
+
+## BC BREAK: Bundle related files has been moved
+
+All bundle related files has been moved from `src/SimpleThings/EntityAudit` to `src/SimpleThings/EntityAuditBundle`.
+
+You have to change the namespace in your AppKernel:
+
+Before:
+``` php
+public function registerBundles()
+{
+    $bundles = array(
+        //...
+        new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
+        //...
+    );
+    return $bundles;
+}
+```
+
+After:
+``` php
+public function registerBundles()
+{
+    $bundles = array(
+        //...
+        new SimpleThings\EntityAuditBundle\SimpleThingsEntityAuditBundle(),
+        //...
+    );
+    return $bundles;
+}
+```
