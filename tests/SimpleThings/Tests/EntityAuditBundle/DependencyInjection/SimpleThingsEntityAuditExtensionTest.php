@@ -1,9 +1,9 @@
 <?php
 
-namespace SimpleThings\EntityAudit\Tests\DependencyInjection;
+namespace SimpleThings\Tests\EntityAuditBundle\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
-use SimpleThings\EntityAudit\DependencyInjection\SimpleThingsEntityAuditExtension;
+use SimpleThings\EntityAuditBundle\DependencyInjection\SimpleThingsEntityAuditExtension;
 
 class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 {

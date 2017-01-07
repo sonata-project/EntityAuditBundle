@@ -3,7 +3,7 @@
 
     <testsuites>
         <testsuite name="SimpleThings EntityAudit">
-            <directory>./../SimpleThings/Tests/EntityAudit</directory>
+            <directory>./../SimpleThings/Tests/</directory>
         </testsuite>
     </testsuites>
 

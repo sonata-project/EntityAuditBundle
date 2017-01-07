@@ -47,7 +47,7 @@ public function registerBundles()
 {
     $bundles = array(
         //...
-        new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
+        new SimpleThings\EntityAuditBundle\SimpleThingsEntityAuditBundle(),
         //...
     );
     return $bundles;
