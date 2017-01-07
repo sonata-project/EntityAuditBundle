@@ -9,12 +9,19 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class UserAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    /**
+     * @ORM\Id()
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private $id;
-    /** @ORM\Column(type="string") */
+
+    /**
+     * @ORM\Column(type="string")
+     */
     private $name;
 
-    function __construct($name)
+    public function __construct($name)
     {
         $this->name = $name;
     }
