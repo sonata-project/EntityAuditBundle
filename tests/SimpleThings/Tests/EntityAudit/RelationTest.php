@@ -811,7 +811,7 @@ class RelationTest extends BaseTest
 
     public function testOneToOneBidirectional()
     {
-        $private1  = new DataPrivateEntity();
+        $private1 = new DataPrivateEntity();
         $private1->setName('private1');
 
         $legal1 = new DataLegalEntity();
