@@ -41,6 +41,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionIdFieldType', array('%simplethings.entityaudit.revision_id_field_type%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionFieldName', array('%simplethings.entityaudit.revision_field_name%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionTypeFieldName', array('%simplethings.entityaudit.revision_type_field_name%'));
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRetentionPeriodMonths', array('%simplethings.entityaudit.retention_period_months%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setUsernameCallable', array('simplethings_entityaudit.username_callable'));
     }
 
@@ -80,6 +81,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'rev');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'revtype');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'integer');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.retention_period_months', null);
     }
 
     public function testItSetsConfiguredParameters()
@@ -93,6 +95,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
             'revision_id_field_type' => 'guid',
             'revision_field_name' => 'revision',
             'revision_type_field_name' => 'action',
+            'retention_period_months' => 12
         ));
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', array('Entity1', 'Entity2'));
@@ -103,6 +106,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'guid');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'revision');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'action');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.retention_period_months', 12);
     }
 
     /**

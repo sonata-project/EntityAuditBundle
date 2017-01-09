@@ -18,11 +18,33 @@ abstract class Product extends SomeEntity
     /** @ORM\ManyToOne(targetEntity="Category", inversedBy="products") */
     private $category;
 
+    /**
+     * @param string $name
+     */
     public function __construct($name)
     {
         $this->name = $name;
     }
 
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param Category $category
+     */
     public function setCategory(Category $category)
     {
         $this->category = $category;

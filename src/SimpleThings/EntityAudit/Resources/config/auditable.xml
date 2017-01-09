@@ -13,6 +13,7 @@
         <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
         <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
+        <parameter key="simplethings.entityaudit.retention_period_months" type="string" />
     </parameters>
 
     <services>
@@ -22,6 +23,11 @@
 
         <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader">
             <factory service="simplethings_entityaudit.manager" method="createAuditReader" />
+            <argument type="service" id="doctrine.orm.default_entity_manager" />
+        </service>
+
+        <service id="simplethings_entityaudit.purger" class="SimpleThings\EntityAudit\AuditPurger">
+            <argument id="simplethings_entityaudit.manager" type="service" />
             <argument type="service" id="doctrine.orm.default_entity_manager" />
         </service>
 
@@ -70,6 +76,9 @@
             </call>
             <call method="setRevisionTypeFieldName">
                 <argument>%simplethings.entityaudit.revision_type_field_name%</argument>
+            </call>
+            <call method="setRetentionPeriodMonths">
+                <argument>%simplethings.entityaudit.retention_period_months%</argument>
             </call>
             <call method="setUsernameCallable">
                 <argument type="service" id="simplethings_entityaudit.username_callable" />

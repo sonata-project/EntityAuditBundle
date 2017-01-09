@@ -46,6 +46,7 @@ class SimpleThingsEntityAuditExtension extends Extension
             'revision_table_name',
             'revision_id_field_type',
             'global_ignore_columns',
+            'retention_period_months'
         );
 
         foreach ($configurables as $key) {

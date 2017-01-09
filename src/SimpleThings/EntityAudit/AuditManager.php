@@ -13,8 +13,14 @@ use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
  */
 class AuditManager
 {
+    /** 
+     * @var AuditConfiguration 
+     */
     private $config;
 
+    /** 
+     * @var Metadata\MetadataFactory 
+     */
     private $metadataFactory;
 
     /**
@@ -36,6 +42,10 @@ class AuditManager
         return $this->config;
     }
 
+    /**
+     * @param EntityManager $em
+     * @return AuditReader
+     */
     public function createAuditReader(EntityManager $em)
     {
         return new AuditReader($em, $this->config, $this->metadataFactory);
