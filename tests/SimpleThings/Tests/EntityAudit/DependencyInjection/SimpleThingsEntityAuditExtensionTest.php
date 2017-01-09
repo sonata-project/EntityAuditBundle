@@ -73,7 +73,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->load(array());
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', array());
-        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_columns', array());
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_properties', array());
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', '');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_suffix', '_audit');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_table_name', 'revisions');
@@ -86,7 +86,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
     {
         $this->load(array(
             'audited_entities' => array('Entity1', 'Entity2'),
-            'global_ignore_columns' => array('created_at', 'updated_at'),
+            'global_ignore_properties' => array('created_at', 'updated_at'),
             'table_prefix' => 'prefix',
             'table_suffix' => 'suffix',
             'revision_table_name' => 'log',
@@ -96,7 +96,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         ));
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', array('Entity1', 'Entity2'));
-        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_columns', array('created_at', 'updated_at'));
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_properties', array('created_at', 'updated_at'));
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', 'prefix');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_suffix', 'suffix');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_table_name', 'log');

@@ -15,7 +15,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('audited_entities')
                     ->prototype('scalar')->end()
                 ->end()
-                ->arrayNode('global_ignore_columns')
+                ->arrayNode('global_ignore_properties')
                     ->prototype('scalar')->end()
                 ->end()
                 ->scalarNode('table_prefix')->defaultValue('')->end()
