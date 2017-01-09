@@ -324,6 +324,14 @@ class AuditReader
 
         $row = $queryBuilder->execute()->fetch(\PDO::FETCH_ASSOC);
 
+        // $row has keys with lowercase letters. Converting it to correct capitalization...
+        $newRow = array();
+        foreach ($columnMap as $key => $columnKey) {
+            $newRow[$key] = $row[strtolower($key)];
+        }
+        // Assign to $row the correctly-capitalized keys
+        $row = $newRow;
+
         if (!$row) {
             throw new NoRevisionFoundException($class->name, $id, $revision);
         }
