@@ -262,6 +262,8 @@ This provides you with a few different routes:
 * PostgesSQL
 * SQLite
 
+*We can only really support the databases if we can test them via Travis.*
+
 ## Contributing
 
 Please before commiting, run this command `./vendor/bin/php-cs-fixer fix --verbose` to normalize the coding style.
