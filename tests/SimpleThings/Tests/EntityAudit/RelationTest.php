@@ -843,4 +843,31 @@ class RelationTest extends BaseTest
 
         $this->assertEquals('container3', $legal2Base->getDataContainer()->getName());
     }
+
+    public function testDiff()
+    {
+        $owner1 = new OwnerEntity();
+        $owner1->setTitle('Owner 1');
+        $owner2 = new OwnerEntity();
+        $owner2->setTitle('Owner 2');
+        $this->em->persist($owner1);
+        $this->em->persist($owner2);
+
+        $owned = new OwnedEntity1();
+        $owned->setTitle('Owned');
+        $this->em->persist($owned);
+        $owned->setOwner($owner1);
+        $this->em->flush();
+
+        $owned->setOwner($owner2);
+        $this->em->persist($owned);
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+        $diff = $reader->diff(get_class($owned), 1, 1, 2);
+
+        $this->assertSame($owner1->getTitle(), $diff['owner']['old']->getTitle());
+        $this->assertSame($owner2->getTitle(), $diff['owner']['new']->getTitle());
+        $this->assertEmpty($diff['owner']['same']);
+    }
 }

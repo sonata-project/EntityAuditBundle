@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -37,7 +38,6 @@ use SimpleThings\EntityAudit\Exception\InvalidRevisionException;
 use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
-use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
@@ -810,8 +810,34 @@ class AuditReader
         $oldValues = $this->getEntityValues($className, $oldObject);
         $newValues = $this->getEntityValues($className, $newObject);
 
-        $differ = new ArrayDiff();
-        return $differ->diff($oldValues, $newValues);
+        $diff = array();
+
+        $metadataFactory = $this->em->getMetadataFactory();
+        $valueToCompare = function ($value) use ($metadataFactory) {
+            // If the value is an associated entity, we have to compare the identifiers.
+            if (is_object($value) && $metadataFactory->hasMetadataFor(ClassUtils::getClass($value))) {
+                return $metadataFactory->getMetadataFor(ClassUtils::getClass($value))
+                    ->getIdentifierValues($value);
+            }
+
+            return $value;
+        };
+
+        $keys = array_keys($oldValues + $newValues);
+        foreach ($keys as $field) {
+            $old = array_key_exists($field, $oldValues) ? $oldValues[$field] : null;
+            $new = array_key_exists($field, $newValues) ? $newValues[$field] : null;
+
+            if ($valueToCompare($old) == $valueToCompare($new)) {
+                $row = array('old' => '', 'new' => '', 'same' => $old);
+            } else {
+                $row = array('old' => $old, 'new' => $new, 'same' => '');
+            }
+
+            $diff[$field] = $row;
+        }
+
+        return $diff;
     }
 
     /**
@@ -825,14 +851,23 @@ class AuditReader
     {
         /** @var ClassMetadataInfo|ClassMetadata $metadata */
         $metadata = $this->em->getClassMetadata($className);
-        $fields = $metadata->getFieldNames();
 
-        $return = array();
-        foreach ($fields AS $fieldName) {
-            $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
+        $values = array();
+
+        // Fetch simple fields values
+        foreach ($metadata->getFieldNames() as $fieldName) {
+            $values[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
         }
 
-        return $return;
+        // Fetch associations identifiers values
+        foreach ($metadata->getAssociationNames() as $associationName) {
+            // Do not get OneToMany or ManyToMany collections because not relevant to the revision.
+            if ($metadata->getAssociationMapping($associationName)['isOwningSide']) {
+                $values[$associationName] = $metadata->getFieldValue($entity, $associationName);
+            }
+        }
+
+        return $values;
     }
 
     /**
