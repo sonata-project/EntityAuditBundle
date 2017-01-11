@@ -294,6 +294,19 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
+            // get changes => should be already computed here (is a listener)
+            $changeset = $this->uow->getEntityChangeSet($entity);
+            foreach ($this->config->getGlobalIgnoreProperties() as $property) {
+                if (isset($changeset[$property])) {
+                    unset($changeset[$property]);
+                }
+            }
+
+            // if we have no changes left => don't create revision log
+            if (count($changeset) == 0) {
+                continue;
+            }
+
             $this->extraUpdates[spl_object_hash($entity)] = $entity;
         }
     }
