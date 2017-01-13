@@ -68,30 +68,35 @@ class AuditReader
 
     /**
      * Entity cache to prevent circular references
+     *
      * @var array
      */
     private $entityCache;
 
     /**
      * Decides if audited ToMany collections are loaded
+     *
      * @var bool
      */
     private $loadAuditedCollections = true;
 
     /**
      * Decides if audited ToOne collections are loaded
+     *
      * @var bool
      */
     private $loadAuditedEntities = true;
 
     /**
      * Decides if native (not audited) ToMany collections are loaded
+     *
      * @var bool
      */
     private $loadNativeCollections = true;
 
     /**
      * Decides if native (not audited) ToOne collections are loaded
+     *
      * @var bool
      */
     private $loadNativeEntities = true;
@@ -162,8 +167,8 @@ class AuditReader
 
     /**
      * @param EntityManagerInterface $em
-     * @param AuditConfiguration $config
-     * @param MetadataFactory $factory
+     * @param AuditConfiguration     $config
+     * @param MetadataFactory        $factory
      */
     public function __construct(EntityManagerInterface $em, AuditConfiguration $config, MetadataFactory $factory)
     {
@@ -238,7 +243,7 @@ class AuditReader
             if (is_array($id) && count($id) > 0) {
                 $idKeys = array_keys($id);
                 $columnName = $idKeys[0];
-            } else if (isset($class->fieldMappings[$idField])) {
+            } elseif (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
             } elseif (isset($class->associationMappings[$idField])) {
                 $columnName = $class->associationMappings[$idField]['joinColumns'][0]['name'];
@@ -249,7 +254,7 @@ class AuditReader
             $queryBuilder->andWhere(sprintf('e.%s = ?', $columnName));
         }
 
-        if (!is_array($id)) {
+        if (! is_array($id)) {
             $id = array($class->identifier[0] => $id);
         }
 
@@ -257,7 +262,7 @@ class AuditReader
         $columnMap = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
-            $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
+            $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && ! $class->isIdentifier($field)
                 ? 're' // root entity
                 : 'e';
 
@@ -277,8 +282,8 @@ class AuditReader
 
             foreach ($assoc['joinColumnFieldNames'] as $sourceCol) {
                 $tableAlias = $class->isInheritanceTypeJoined() &&
-                    $class->isInheritedAssociation($assoc['fieldName']) &&
-                    !$class->isIdentifier($assoc['fieldName'])
+                $class->isInheritedAssociation($assoc['fieldName']) &&
+                ! $class->isIdentifier($assoc['fieldName'])
                     ? 're' // root entity
                     : 'e';
                 $queryBuilder->addSelect($tableAlias . '.' . $sourceCol);
@@ -324,7 +329,7 @@ class AuditReader
 
         $row = $queryBuilder->execute()->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$row) {
+        if (! $row) {
             throw new NoRevisionFoundException($class->name, $id, $revision);
         }
 
@@ -341,9 +346,10 @@ class AuditReader
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
      * @param string $className
-     * @param array $columnMap
-     * @param array $data
-     * @param $revision
+     * @param array  $columnMap
+     * @param array  $data
+     * @param        $revision
+     *
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
@@ -361,7 +367,7 @@ class AuditReader
         //lookup revisioned entity cache
         $keyParts = array();
 
-        foreach($class->getIdentifierFieldNames() as $name) {
+        foreach ($class->getIdentifierFieldNames() as $name) {
             if ($class->hasAssociation($name)) {
                 if ($class->isSingleValuedAssociation($name)) {
                     $name = $class->getSingleAssociationJoinColumnName($name);
@@ -383,12 +389,12 @@ class AuditReader
             return $this->entityCache[$className][$key][$revision];
         }
 
-        if (!$class->isInheritanceTypeNone()) {
-            if (!isset($data[$class->discriminatorColumn['name']])) {
+        if (! $class->isInheritanceTypeNone()) {
+            if (! isset($data[$class->discriminatorColumn['name']])) {
                 throw new \RuntimeException('Expecting discriminator value in data set.');
             }
             $discriminator = $data[$class->discriminatorColumn['name']];
-            if (!isset($class->discriminatorMap[$discriminator])) {
+            if (! isset($class->discriminatorMap[$discriminator])) {
                 throw new \RuntimeException("No mapping found for [{$discriminator}].");
             }
 
@@ -451,10 +457,10 @@ class AuditReader
                         }
 
                         $pk = array_filter($pk, function ($value) {
-                            return !is_null($value);
+                            return ! is_null($value);
                         });
 
-                        if (!$pk) {
+                        if (! $pk) {
                             $class->reflFields[$field]->setValue($entity, null);
                         } else {
                             try {
@@ -481,7 +487,7 @@ class AuditReader
                                     $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
                                 }
                             }
-                            if (!$associatedId) {
+                            if (! $associatedId) {
                                 // Foreign key is NULL
                                 $class->reflFields[$field]->setValue($entity, null);
                             } else {
@@ -506,7 +512,13 @@ class AuditReader
                             $foreignKeys[$local] = $class->reflFields[$field]->getValue($entity);
                         }
 
-                        $collection = new AuditedCollection($this, $targetClass->name, $targetClass, $assoc, $foreignKeys, $revision);
+                        $collection = new AuditedCollection(
+                            $this,
+                            $targetClass,
+                            $assoc,
+                            $foreignKeys,
+                            $revision
+                        );
 
                         $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
                     } else {
@@ -539,6 +551,7 @@ class AuditReader
      *
      * @param int $limit
      * @param int $offset
+     *
      * @return Revision[]
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
@@ -556,6 +569,7 @@ class AuditReader
         foreach ($revisionsData AS $row) {
             $revisions[] = $this->createRevision($row);
         }
+
         return $revisions;
     }
 
@@ -593,7 +607,7 @@ class AuditReader
             $columnMap = array();
 
             foreach ($class->fieldNames as $columnName => $field) {
-                $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field)	&& ! $class->isIdentifier($field)
+                $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && ! $class->isIdentifier($field)
                     ? 're' // root entity
                     : 'e';
 
@@ -627,7 +641,7 @@ class AuditReader
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
                 $rootTableName = $this->config->getTableName($rootClass);
 
-                $condition  = ['re.rev = e.rev'];
+                $condition = ['re.rev = e.rev'];
                 foreach ($class->getIdentifierColumnNames() as $name) {
                     $condition[] = "re.$name = e.$name";
                 }
@@ -687,7 +701,8 @@ class AuditReader
      * Find all revisions that were made of entity class with given id.
      *
      * @param string $className
-     * @param mixed $id
+     * @param mixed  $id
+     *
      * @throws NotAuditedException
      * @return Revision[]
      */
@@ -723,7 +738,7 @@ class AuditReader
                     'e.%s = ?',
                     $class->fieldMappings[$idField]['columnName']
                 ));
-            } else if (isset($class->associationMappings[$idField])) {
+            } elseif (isset($class->associationMappings[$idField])) {
                 $queryBuilder->andWhere(sprintf(
                     'e.%s = ?',
                     $class->associationMappings[$idField]['joinColumns'][0]['name']
@@ -745,13 +760,14 @@ class AuditReader
      * Gets the current revision of the entity with given ID.
      *
      * @param string $className
-     * @param mixed $id
+     * @param mixed  $id
+     *
      * @throws NotAuditedException
      * @return integer
      */
     public function getCurrentRevision($className, $id)
     {
-        if (!$this->metadataFactory->isAudited($className)) {
+        if (! $this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
         }
 
@@ -848,6 +864,7 @@ class AuditReader
      *
      * @param string $className
      * @param object $entity
+     *
      * @return array
      */
     public function getEntityValues($className, $entity)
@@ -875,7 +892,7 @@ class AuditReader
 
     /**
      * @param string $className
-     * @param mixed $id
+     * @param mixed  $id
      *
      * @return array
      *
@@ -896,7 +913,7 @@ class AuditReader
             ->from($this->config->getTableName($class), 'e')
             ->orderBy('e.rev', 'DESC');
 
-        if (!is_array($id)) {
+        if (! is_array($id)) {
             $id = array($class->identifier[0] => $id);
         }
         $queryBuilder->setParameters(array_values($id));
@@ -909,7 +926,7 @@ class AuditReader
             }
         }
 
-        $columnMap  = array();
+        $columnMap = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
             $queryBuilder->addSelect(sprintf(
