@@ -2,6 +2,10 @@
 
 ### upcoming (2017/MM/DD)
 
+### v1.0.1 (2017/01/13)
+- [#250](https://github.com/simplethings/EntityAudit/pull/250) Fix OneToOne reverse relation Doctrine fallback query (@Soullivaneuh)
+- [#227](https://github.com/simplethings/EntityAudit/pull/227) Fallback to native entity if no revision found for properties (@Soullivaneuh)
+
 ### v1.0.0 (2017/01/06)
 - [#218](https://github.com/simplethings/EntityAudit/pull/218) Failing one to one bidirectional fix (@peschee)
 - [#231](https://github.com/simplethings/EntityAudit/pull/231) Enable join column to be an id (@oconnedk)
