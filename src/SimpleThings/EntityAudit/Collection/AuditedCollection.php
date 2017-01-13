@@ -447,7 +447,7 @@ class AuditedCollection implements Collection
             $sql = 'SELECT MAX('.$this->configuration->getRevisionFieldName().') as rev, ';
             $sql .= implode(', ', $this->metadata->getIdentifierColumnNames()).' ';
             if (isset($this->associationDefinition['indexBy'])) {
-                $sql .= ', '.$this->associationDefinition['indexBy'].' ';
+                $sql .= ', '.$this->associationDefinition['indexBy'].' AS __indexBy ';
             }
             $sql .= 'FROM ' . $this->configuration->getTableName($this->metadata) . ' t ';
             $sql .= 'WHERE ' . $this->configuration->getRevisionFieldName() . ' <= ' . $this->revision . ' ';
@@ -525,8 +525,8 @@ class AuditedCollection implements Collection
                 $entity['keys'] = $row;
 
                 if (isset($this->associationDefinition['indexBy'])) {
-                    $key = $row[$this->associationDefinition['indexBy']];
-                    unset($entity['keys'][$this->associationDefinition['indexBy']]);
+                    $key = $row['__indexBy'];
+                    unset($entity['keys']['__indexBy']);
                     $this->entities[$key] = $entity;
                 } else {
                     $this->entities[] = $entity;
