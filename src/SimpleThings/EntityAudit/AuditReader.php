@@ -432,18 +432,21 @@ class AuditReader
                 //print_r($targetClass->discriminatorMap);
                 if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
                     if ($this->loadAuditedEntities) {
+                        // Primary Key. Used for audit tables queries.
                         $pk = array();
+                        // Primary Field. Used when fallback to Doctrine finder.
+                        $pf = array();
 
                         if ($assoc['isOwningSide']) {
                             foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                                $pk[$foreign] = $data[$columnMap[$local]];
+                                $pk[$foreign] = $pf[$foreign] = $data[$columnMap[$local]];
                             }
                         } else {
                             /** @var ClassMetadataInfo|ClassMetadata $otherEntityMeta */
-                            $otherEntityMeta = $this->em->getClassMetadata($assoc['targetEntity']);
+                            $otherEntityAssoc = $this->em->getClassMetadata($assoc['targetEntity'])->associationMappings[$assoc['mappedBy']];
 
-                            foreach ($otherEntityMeta->associationMappings[$assoc['mappedBy']]['targetToSourceKeyColumns'] as $local => $foreign) {
-                                $pk[$foreign] = $data[$class->getFieldName($local)];
+                            foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
+                                $pk[$foreign] = $pf[$otherEntityAssoc['fieldName']] = $data[$class->getFieldName($local)];
                             }
                         }
 
@@ -460,7 +463,7 @@ class AuditReader
                                 $value = null;
                             } catch (NoRevisionFoundException $e) {
                                 // The entity does not have any revision yet. So let's get the actual state of it.
-                                $value = $this->em->find($targetClass->name, $pk);
+                                $value = $this->em->getRepository($targetClass->name)->findOneBy($pf);
                             }
 
                             $class->reflFields[$field]->setValue($entity, $value);

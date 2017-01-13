@@ -21,6 +21,9 @@ class UserAudit
      */
     private $name;
 
+    /** @ORM\OneToOne(targetEntity="ProfileAudit", mappedBy="user") */
+    private $profile;
+
     public function __construct($name)
     {
         $this->name = $name;
@@ -39,5 +42,19 @@ class UserAudit
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getProfile()
+    {
+        return $this->profile;
+    }
+
+    /**
+     * @param ProfileAudit $profile
+     */
+    public function setProfile($profile)
+    {
+        $this->profile = $profile;
+        $profile->setUser($this);
     }
 }
