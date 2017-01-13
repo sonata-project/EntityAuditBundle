@@ -35,6 +35,7 @@ class CoreTest extends BaseTest
     protected $schemaEntities = array(
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
@@ -46,6 +47,7 @@ class CoreTest extends BaseTest
     protected $auditedEntities = array(
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
@@ -245,6 +247,27 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $this->assertSame('beberlei', $reader->find(get_class($article), 1, 1)->getAuthor()->getName());
+    }
+
+    public function testNotVersionedReverseRelationFind()
+    {
+        $user = new UserAudit('beberlei');
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        // Insert user without the manager to skip revision registering.
+        $this->em->getConnection()->insert(
+            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit')->getTableName(),
+            array(
+                'biography' => 'He is an amazing contributor!',
+                'user_id' => 1,
+            )
+        );
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $this->assertSame('He is an amazing contributor!', $reader->find(get_class($user), 1, 1)->getProfile()->getBiography());
     }
 
     public function testFindRevisions()
