@@ -261,6 +261,7 @@ class CoreTest extends BaseTest
         $this->em->getConnection()->insert(
             $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit')->getTableName(),
             array(
+                'id' => 1,
                 'biography' => 'He is an amazing contributor!',
                 'user_id' => 1,
             )
