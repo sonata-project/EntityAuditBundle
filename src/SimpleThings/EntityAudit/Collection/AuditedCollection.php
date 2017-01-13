@@ -26,6 +26,8 @@ namespace SimpleThings\EntityAudit\Collection;
 
 use Closure;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
@@ -42,18 +44,21 @@ class AuditedCollection implements Collection
 
     /**
      * Class to fetch
+     *
      * @var string
      */
     protected $class;
 
     /**
      * Foreign keys for target entity
+     *
      * @var array
      */
     protected $foreignKeys;
 
     /**
      * Maximum revision to fetch
+     *
      * @var string
      */
     protected $revision;
@@ -90,14 +95,26 @@ class AuditedCollection implements Collection
      */
     protected $initialized = false;
 
-    public function __construct(AuditReader $auditReader, $class, ClassMetadataInfo $classMeta, array $associationDefinition, array $foreignKeys, $revision)
-    {
+    /**
+     * @param AuditReader       $auditReader
+     * @param ClassMetadataInfo $classMetadata
+     * @param array             $associationDefinition
+     * @param array             $foreignKeys
+     * @param int               $revision
+     */
+    public function __construct(
+        AuditReader $auditReader,
+        ClassMetadataInfo $classMetadata,
+        array $associationDefinition,
+        array $foreignKeys,
+        $revision
+    ) {
         $this->auditReader = $auditReader;
-        $this->class = $class;
+        $this->class = $classMetadata->name;
         $this->foreignKeys = $foreignKeys;
         $this->revision = $revision;
         $this->configuration = $auditReader->getConfiguration();
-        $this->metadata = $classMeta;
+        $this->metadata = $classMetadata;
         $this->associationDefinition = $associationDefinition;
     }
 
@@ -294,7 +311,7 @@ class AuditedCollection implements Collection
         $this->forceLoad();
 
         foreach ($this->entities as $entity) {
-            if (!$p($entity)) {
+            if (! $p($entity)) {
                 return false;
             }
         }
@@ -379,7 +396,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        if (!isset($this->entities[$offset])) {
+        if (! isset($this->entities[$offset])) {
             throw new AuditedCollectionException(sprintf('Offset "%s" is not defined', $offset));
         }
 
@@ -387,9 +404,9 @@ class AuditedCollection implements Collection
 
         if (is_object($entity)) {
             return $entity;
-        } else {
-            return $this->entities[$offset] = $this->resolve($entity);
         }
+
+        return $this->entities[$offset] = $this->resolve($entity);
     }
 
     /**
@@ -420,12 +437,7 @@ class AuditedCollection implements Collection
 
     protected function resolve($entity)
     {
-        return $this->auditReader
-            ->find(
-                $this->class,
-                $entity['keys'],
-                $this->revision
-            );
+        return $this->auditReader->find($this->class, $entity['keys'], $this->revision);
     }
 
     protected function forceLoad()
@@ -441,99 +453,158 @@ class AuditedCollection implements Collection
 
     protected function initialize()
     {
-        if (!$this->initialized) {
-            $params = array();
-
-            $sql = 'SELECT MAX('.$this->configuration->getRevisionFieldName().') as rev, ';
-            $sql .= implode(', ', $this->metadata->getIdentifierColumnNames()).' ';
-            if (isset($this->associationDefinition['indexBy'])) {
-                $sql .= ', '.$this->associationDefinition['indexBy'].' ';
-            }
-            $sql .= 'FROM ' . $this->configuration->getTableName($this->metadata) . ' t ';
-            $sql .= 'WHERE ' . $this->configuration->getRevisionFieldName() . ' <= ' . $this->revision . ' ';
-
-            foreach ($this->foreignKeys as $column => $value) {
-                $sql .= 'AND '.$column.' = ? ';
-                $params[] = $value;
-            }
-
-            //we check for revisions greater than current belonging to other entities
-            $sql .= 'AND NOT EXISTS (SELECT * FROM '. $this->configuration->getTableName($this->metadata) . ' st WHERE';
-
-            //ids
-            foreach ($this->metadata->getIdentifierColumnNames() as $name) {
-                $sql .= ' st.'.$name.' = t.'.$name.' AND';
-            }
-
-            //foreigns
-            $sql .= ' ((';
-
-            //master entity query, not equals
-            $notEqualParts = $nullParts = array();
-            foreach($this->foreignKeys as $column => $value) {
-                $notEqualParts[] = $column.' <> ?';
-                $nullParts[] = $column.' IS NULL';
-                $params[] = $value;
-            }
-
-            $sql .= implode(' AND ', $notEqualParts).') OR ('.implode(' AND ', $nullParts).'))';
-
-            //revision
-            $sql .= ' AND st.'.$this->configuration->getRevisionFieldName().' <= '.$this->revision;
-            $sql .= ' AND st.'.$this->configuration->getRevisionFieldName().' > t.'.$this->configuration->getRevisionFieldName();
-
-            $sql .= ') ';
-            //end of check for for belonging to other entities
-
-            //check for deleted revisions older than requested
-            $sql .= 'AND NOT EXISTS (SELECT * FROM ' . $this->configuration->getTableName($this->metadata) . ' sd WHERE';
-
-            //ids
-            foreach ($this->metadata->getIdentifierColumnNames() as $name) {
-                $sql .= ' sd.'.$name.' = t.'.$name.' AND';
-            }
-
-            //revision
-            $sql .= ' sd.'.$this->configuration->getRevisionFieldName().' <= '.$this->revision;
-            $sql .= ' AND sd.'.$this->configuration->getRevisionFieldName().' > t.'.$this->configuration->getRevisionFieldName();
-
-            $sql .= ' AND sd.'.$this->configuration->getRevisionTypeFieldName().' = ?';
-            $params[] = 'DEL';
-
-            $sql .= ') ';
-            //end check for deleted revisions older than requested
-
-            $sql .= 'AND '.$this->configuration->getRevisionTypeFieldName().' <> ? ';
-            $params[] = 'DEL';
-
-            $groupBy = $this->metadata->getIdentifierColumnNames();
-            if (isset($this->associationDefinition['indexBy'])) {
-                $groupBy[] = $this->associationDefinition['indexBy'];
-            }
-            $sql .= ' GROUP BY '.implode(', ', $groupBy);
-            $sql .= ' ORDER BY '.implode(' ASC, ', $this->metadata->getIdentifierColumnNames()).' ASC';
-
-            $rows = $this->auditReader->getConnection()->fetchAll($sql, $params);
-
-            foreach ($rows as $row) {
-                $entity = array(
-                    'rev' => $row['rev']
-                );
-
-                unset($row['rev']);
-
-                $entity['keys'] = $row;
-
-                if (isset($this->associationDefinition['indexBy'])) {
-                    $key = $row[$this->associationDefinition['indexBy']];
-                    unset($entity['keys'][$this->associationDefinition['indexBy']]);
-                    $this->entities[$key] = $entity;
-                } else {
-                    $this->entities[] = $entity;
-                }
-            }
-
-            $this->initialized = true;
+        if ($this->initialized) {
+            return;
         }
+
+        $revisionFieldName = $this->configuration->getRevisionFieldName();
+        $identifierColumnNames = $this->metadata->getIdentifierColumnNames();
+        $connection = $this->auditReader->getConnection();
+
+        $queryBuilder = $connection->createQueryBuilder()
+            ->select(sprintf('MAX(%s) as rev', $revisionFieldName))
+            ->addSelect($identifierColumnNames)
+            ->from($this->configuration->getTableName($this->metadata), 't');
+
+        $queryBuilder->where(sprintf(
+            '%s <= %s',
+            $revisionFieldName,
+            $queryBuilder->createPositionalParameter($this->revision)
+        ));
+
+        if (isset($this->associationDefinition['indexBy'])) {
+            $queryBuilder->addSelect($this->associationDefinition['indexBy']);
+        }
+
+        foreach ($this->foreignKeys as $column => $value) {
+            $queryBuilder->andWhere($column . ' = ' . $queryBuilder->createPositionalParameter($value));
+        }
+
+        //we check for revisions greater than current belonging to other entities
+        $belongingToEntitiesQB = $this->createBelongingToOtherEntitiesQueryBuilder($connection, $queryBuilder);
+        $queryBuilder->andWhere(sprintf('NOT EXISTS(%s)', $belongingToEntitiesQB->getSQL()));
+
+        //check for deleted revisions older than requested
+        $deletedRevisionQB = $this->createDeletedRevisionsQueryBuilder($connection, $queryBuilder);
+        $queryBuilder->andWhere(sprintf('NOT EXISTS(%s)', $deletedRevisionQB->getSQL()));
+
+        $queryBuilder->andWhere(sprintf(
+            '%s <> %s',
+            $this->configuration->getRevisionTypeFieldName(),
+            $queryBuilder->createPositionalParameter('DEL')
+        ));
+
+        $groupBy = $identifierColumnNames;
+        if (isset($this->associationDefinition['indexBy'])) {
+            $groupBy[] = $this->associationDefinition['indexBy'];
+        }
+
+        $queryBuilder->groupBy($groupBy);
+
+        foreach ($identifierColumnNames as $identifierColumnName) {
+            $queryBuilder->addOrderBy($identifierColumnName, 'ASC');
+        }
+
+        $rows = $queryBuilder->execute()->fetchAll();
+
+        foreach ($rows as $row) {
+            $entity = array('rev' => $row['rev']);
+            unset($row['rev']);
+
+            $entity['keys'] = $row;
+
+            if (isset($this->associationDefinition['indexBy'])) {
+                $key = $row[$this->associationDefinition['indexBy']];
+                unset($entity['keys'][$this->associationDefinition['indexBy']]);
+                $this->entities[$key] = $entity;
+            } else {
+                $this->entities[] = $entity;
+            }
+        }
+
+        $this->initialized = true;
+    }
+
+    /**
+     * @param Connection   $connection
+     * @param QueryBuilder $parentQueryBuilder
+     *
+     * @return QueryBuilder
+     */
+    private function createBelongingToOtherEntitiesQueryBuilder(
+        Connection $connection,
+        QueryBuilder $parentQueryBuilder
+    ) {
+        $revisionFieldName = $this->configuration->getRevisionFieldName();
+        $identifierColumnNames = $this->metadata->getIdentifierColumnNames();
+
+        $queryBuilder = $connection->createQueryBuilder()
+            ->select('1')
+            ->from($this->configuration->getTableName($this->metadata), 'st')
+            ->andWhere(sprintf('st.%1$s > t.%1$s', $revisionFieldName));
+
+        $queryBuilder->andWhere(sprintf(
+            'st.%s <= %s',
+            $revisionFieldName,
+            $parentQueryBuilder->createPositionalParameter($this->revision)
+        ));
+
+        //ids
+        foreach ($identifierColumnNames as $name) {
+            $queryBuilder->andWhere(sprintf('st.%1$s = t.%1$s', $name));
+        }
+
+        //master entity query, not equals
+        $notEqualParts = $nullParts = array();
+        foreach ($this->foreignKeys as $column => $value) {
+            $notEqualParts[] = $column . ' <> ' . $parentQueryBuilder->createPositionalParameter($value);
+            $nullParts[] = $column . ' IS NULL';
+        }
+
+        $expr = $queryBuilder->expr();
+        $queryBuilder->andWhere(
+            $expr->orX(
+                $expr->andX(...$notEqualParts),
+                $expr->andX(...$nullParts)
+            )
+        );
+
+        return $queryBuilder;
+    }
+
+    /**
+     * @param Connection   $connection
+     * @param QueryBuilder $parentQueryBuilder
+     *
+     * @return QueryBuilder
+     */
+    private function createDeletedRevisionsQueryBuilder(Connection $connection, QueryBuilder $parentQueryBuilder)
+    {
+        $tableName = $this->configuration->getTableName($this->metadata);
+        $revisionFieldName = $this->configuration->getRevisionFieldName();
+        $identifierColumnNames = $this->metadata->getIdentifierColumnNames();
+
+        $queryBuilder = $connection->createQueryBuilder()
+            ->select('1')
+            ->from($tableName, 'sd')
+            ->andWhere(sprintf('sd.%1$s > t.%1$s', $revisionFieldName));
+
+        $queryBuilder->andWhere(sprintf(
+            'sd.%s <= %s',
+            $revisionFieldName,
+            $parentQueryBuilder->createPositionalParameter($this->revision)
+        ));
+        $queryBuilder->andWhere(sprintf(
+            'sd.%s = %s',
+            $this->configuration->getRevisionTypeFieldName(),
+            $parentQueryBuilder->createPositionalParameter('DEL')
+        ));
+
+        //ids
+        foreach ($identifierColumnNames as $name) {
+            $queryBuilder->andWhere(sprintf('sd.%1$s = t.%1$s', $name));
+        }
+
+        return $queryBuilder;
     }
 }
