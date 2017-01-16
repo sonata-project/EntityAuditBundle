@@ -5,7 +5,6 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
  * @ORM\MappedSuperclass()
  */
 abstract class AbstractParentEntity
