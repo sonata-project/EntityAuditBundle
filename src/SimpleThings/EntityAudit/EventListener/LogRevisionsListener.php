@@ -27,6 +27,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Mapping\MappingException;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
@@ -102,6 +103,7 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * @param PostFlushEventArgs $eventArgs
+     *
      * @throws MappingException
      * @throws \Doctrine\DBAL\DBALException
      * @throws MappingException
@@ -112,6 +114,7 @@ class LogRevisionsListener implements EventSubscriber
         $em = $eventArgs->getEntityManager();
         $quoteStrategy = $em->getConfiguration()->getQuoteStrategy();
         $uow = $em->getUnitOfWork();
+        $connection = $em->getConnection();
 
         foreach ($this->extraUpdates as $entity) {
             $className = get_class($entity);
@@ -127,7 +130,13 @@ class LogRevisionsListener implements EventSubscriber
             foreach ($updateData[$meta->table['name']] as $column => $value) {
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
-                $placeholder = '?';
+
+                $queryBuilder = $connection->createQueryBuilder();
+                $placeholder = $queryBuilder->createPositionalParameter(
+                    $value,
+                    $this->getFieldType($em, $meta, $column, $fieldName)
+                );
+
                 if ($meta->hasField($fieldName)) {
                     $field = $quoteStrategy->getColumnName($field, $meta, $this->platform);
                     $fieldType = $meta->getTypeOfField($field);
@@ -139,48 +148,40 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 }
 
-                $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ' .
-                    'SET ' . $field . ' = ' . $placeholder . ' ' .
-                    'WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
-
-                $params = array($value, $this->getRevisionId());
-
-                $types = array();
-
-                if (in_array($column, $meta->columnNames)) {
-                    $types[] = $meta->getTypeOfField($fieldName);
-                } else {
-                    //try to find column in association mappings
-                    $type = null;
-
-                    foreach ($meta->associationMappings as $mapping) {
-                        if (isset($mapping['joinColumns'])) {
-                            foreach ($mapping['joinColumns'] as $definition) {
-                                if ($definition['name'] == $column) {
-                                    $targetTable = $em->getClassMetadata($mapping['targetEntity']);
-                                    $type = $targetTable->getTypeOfColumn($definition['referencedColumnName']);
-                                }
-                            }
-                        }
-                    }
-
-                    if (is_null($type)) {
-                        throw new \Exception(
-                            sprintf('Could not resolve database type for column "%s" during extra updates', $column)
-                        );
-                    }
-
-                    $types[] = $type;
-                }
-
-                $types[] = $this->config->getRevisionIdFieldType();
+                $queryBuilder
+                    ->update($this->config->getTableName($meta))
+                    ->set($field, $placeholder)
+                    ->where(sprintf(
+                        '%s = %s',
+                        $this->config->getRevisionFieldName(),
+                        $queryBuilder->createPositionalParameter(
+                            $this->getRevisionId(),
+                            $this->config->getRevisionIdFieldType()
+                        )
+                    ));
 
                 foreach ($meta->identifier AS $idField) {
                     if (isset($meta->fieldMappings[$idField])) {
-                        $columnName = $meta->fieldMappings[$idField]['columnName'];
-                        $types[] = $meta->fieldMappings[$idField]['type'];
-                        $params[] = $meta->reflFields[$idField]->getValue($entity);
+                        $queryBuilder->andWhere(sprintf(
+                            '%s = %s',
+                            $meta->fieldMappings[$idField]['columnName'],
+                            $queryBuilder->createPositionalParameter(
+                                $meta->reflFields[$idField]->getValue($entity),
+                                $meta->fieldMappings[$idField]['type']
+                            )
+                        ));
                     } elseif (isset($meta->associationMappings[$idField])) {
+                        $foreignEntity = $meta->reflFields[$idField]->getValue($entity);
+                        $foreignMeta = $em->getClassMetadata(get_class($foreignEntity));
+                        $foreignIdFields = $foreignMeta->identifier;
+                        if (count($foreignIdFields) > 1) {
+                            // This is not supported by Doctrine, so this should never happen, but just in case..
+                            throw new \Exception(
+                                sprintf('Identifier field "%s" refers to a foreign entity with a composite primary key',
+                                    $idField)
+                            );
+                        }
+
                         $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
                         if (is_array($columnName)) {
                             if (isset($columnName['name'])) {
@@ -190,23 +191,19 @@ class LogRevisionsListener implements EventSubscriber
                                 throw new MappingException('Column name not set within meta');
                             }
                         }
-                        $types[] = $meta->associationMappings[$idField]['type'];
-                        $foreignEntity = $meta->reflFields[$idField]->getValue($entity);
-                        $foreignMeta = $em->getClassMetadata(get_class($foreignEntity));
-                        $foreignIdFields = $foreignMeta->identifier;
-                        if (count($foreignIdFields) > 1) {
-                            // This is not supported by Doctrine, so this should never happen, but just in case..
-                            throw new \Exception(
-                                sprintf('Identifier field "%s" refers to a foreign entity with a composite primary key', $idField)
-                            );
-                        }
-                        $params[] = $foreignMeta->reflFields[$foreignIdFields[0]]->getValue($foreignEntity);
-                    }
 
-                    $sql .= 'AND ' . $columnName . ' = ?';
+                        $queryBuilder->andWhere(sprintf(
+                            '%s = %s',
+                            $columnName,
+                            $queryBuilder->createPositionalParameter(
+                                $foreignMeta->reflFields[$foreignIdFields[0]]->getValue($foreignEntity),
+                                $meta->associationMappings[$idField]['type']
+                            )
+                        ));
+                    }
                 }
 
-                $this->em->getConnection()->executeQuery($sql, $params, $types);
+                $queryBuilder->execute();
             }
         }
     }
@@ -531,7 +528,7 @@ class LogRevisionsListener implements EventSubscriber
      * @author  Simon Mönch <simonmoench@gmail.com>
      *
      * @param EntityPersister|BasicEntityPersister $persister
-     * @param                 $entity
+     * @param                                      $entity
      *
      * @return array
      */
@@ -558,7 +555,7 @@ class LogRevisionsListener implements EventSubscriber
 
             $newVal = $change[1];
 
-            if ( ! isset($classMetadata->associationMappings[$field])) {
+            if (! isset($classMetadata->associationMappings[$field])) {
                 $columnName = $classMetadata->columnNames[$field];
                 $result[$persister->getOwningTable($field)][$columnName] = $newVal;
 
@@ -568,7 +565,7 @@ class LogRevisionsListener implements EventSubscriber
             $assoc = $classMetadata->associationMappings[$field];
 
             // Only owning side of x-1 associations can have a FK column.
-            if ( ! $assoc['isOwningSide'] || ! ($assoc['type'] & ClassMetadata::TO_ONE)) {
+            if (! $assoc['isOwningSide'] || ! ($assoc['type'] & ClassMetadata::TO_ONE)) {
                 continue;
             }
 
@@ -602,5 +599,38 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         return $result;
+    }
+
+    /**
+     * @param EntityManager $em
+     * @param ClassMetadata $meta
+     * @param string        $column
+     * @param string        $fieldName
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    private function getFieldType(EntityManager $em, ClassMetadata $meta, $column, $fieldName)
+    {
+        if (in_array($column, $meta->columnNames)) {
+            return $meta->getTypeOfField($fieldName);
+        }
+
+        foreach ($meta->associationMappings as $mapping) {
+            if (isset($mapping['joinColumns'])) {
+                foreach ($mapping['joinColumns'] as $definition) {
+                    if ($definition['name'] == $column) {
+                        $targetTable = $em->getClassMetadata($mapping['targetEntity']);
+
+                        return $targetTable->getTypeOfColumn($definition['referencedColumnName']);
+                    }
+                }
+            }
+        }
+
+        throw new \Exception(
+            sprintf('Could not resolve database type for column "%s" during extra updates', $column)
+        );
     }
 }
