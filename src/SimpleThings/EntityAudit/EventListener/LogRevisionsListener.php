@@ -127,12 +127,66 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
+            $queryBuilder = $connection->createQueryBuilder();
+            $queryBuilder
+                ->update($this->config->getTableName($meta))
+                ->where(sprintf(
+                    '%s = %s',
+                    $this->config->getRevisionFieldName(),
+                    $queryBuilder->createNamedParameter(
+                        $this->getRevisionId(),
+                        $this->config->getRevisionIdFieldType()
+                    )
+                ));
+
+            foreach ($meta->identifier AS $idField) {
+                if (isset($meta->fieldMappings[$idField])) {
+                    $queryBuilder->andWhere(sprintf(
+                        '%s = %s',
+                        $meta->fieldMappings[$idField]['columnName'],
+                        $queryBuilder->createNamedParameter(
+                            $meta->reflFields[$idField]->getValue($entity),
+                            $meta->fieldMappings[$idField]['type']
+                        )
+                    ));
+                } elseif (isset($meta->associationMappings[$idField])) {
+                    $foreignEntity = $meta->reflFields[$idField]->getValue($entity);
+                    $foreignMeta = $em->getClassMetadata(get_class($foreignEntity));
+                    $foreignIdFields = $foreignMeta->identifier;
+                    if (count($foreignIdFields) > 1) {
+                        // This is not supported by Doctrine, so this should never happen, but just in case..
+                        throw new \Exception(
+                            sprintf('Identifier field "%s" refers to a foreign entity with a composite primary key',
+                                $idField)
+                        );
+                    }
+
+                    $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
+                    if (is_array($columnName)) {
+                        if (isset($columnName['name'])) {
+                            $columnName = $columnName['name'];
+                        } else {
+                            // Not much we can do to recover this - we need a column name...
+                            throw new MappingException('Column name not set within meta');
+                        }
+                    }
+
+                    $queryBuilder->andWhere(sprintf(
+                        '%s = %s',
+                        $columnName,
+                        $queryBuilder->createNamedParameter(
+                            $foreignMeta->reflFields[$foreignIdFields[0]]->getValue($foreignEntity),
+                            $meta->associationMappings[$idField]['type']
+                        )
+                    ));
+                }
+            }
+
             foreach ($updateData[$meta->table['name']] as $column => $value) {
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
 
-                $queryBuilder = $connection->createQueryBuilder();
-                $placeholder = $queryBuilder->createPositionalParameter(
+                $placeholder = $queryBuilder->createNamedParameter(
                     $value,
                     $this->getFieldType($em, $meta, $column, $fieldName)
                 );
@@ -143,68 +197,15 @@ class LogRevisionsListener implements EventSubscriber
                     if (null !== $fieldType) {
                         $type = Type::getType($fieldType);
                         if ($type->canRequireSQLConversion()) {
-                            $placeholder = $type->convertToDatabaseValueSQL('?', $this->platform);
+                            $placeholder = $type->convertToDatabaseValueSQL($placeholder, $this->platform);
                         }
                     }
                 }
 
-                $queryBuilder
-                    ->update($this->config->getTableName($meta))
-                    ->set($field, $placeholder)
-                    ->where(sprintf(
-                        '%s = %s',
-                        $this->config->getRevisionFieldName(),
-                        $queryBuilder->createPositionalParameter(
-                            $this->getRevisionId(),
-                            $this->config->getRevisionIdFieldType()
-                        )
-                    ));
-
-                foreach ($meta->identifier AS $idField) {
-                    if (isset($meta->fieldMappings[$idField])) {
-                        $queryBuilder->andWhere(sprintf(
-                            '%s = %s',
-                            $meta->fieldMappings[$idField]['columnName'],
-                            $queryBuilder->createPositionalParameter(
-                                $meta->reflFields[$idField]->getValue($entity),
-                                $meta->fieldMappings[$idField]['type']
-                            )
-                        ));
-                    } elseif (isset($meta->associationMappings[$idField])) {
-                        $foreignEntity = $meta->reflFields[$idField]->getValue($entity);
-                        $foreignMeta = $em->getClassMetadata(get_class($foreignEntity));
-                        $foreignIdFields = $foreignMeta->identifier;
-                        if (count($foreignIdFields) > 1) {
-                            // This is not supported by Doctrine, so this should never happen, but just in case..
-                            throw new \Exception(
-                                sprintf('Identifier field "%s" refers to a foreign entity with a composite primary key',
-                                    $idField)
-                            );
-                        }
-
-                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
-                        if (is_array($columnName)) {
-                            if (isset($columnName['name'])) {
-                                $columnName = $columnName['name'];
-                            } else {
-                                // Not much we can do to recover this - we need a column name...
-                                throw new MappingException('Column name not set within meta');
-                            }
-                        }
-
-                        $queryBuilder->andWhere(sprintf(
-                            '%s = %s',
-                            $columnName,
-                            $queryBuilder->createPositionalParameter(
-                                $foreignMeta->reflFields[$foreignIdFields[0]]->getValue($foreignEntity),
-                                $meta->associationMappings[$idField]['type']
-                            )
-                        ));
-                    }
-                }
-
-                $queryBuilder->execute();
+                $queryBuilder->set($field, $placeholder);
             }
+
+            $queryBuilder->execute();
         }
     }
 
@@ -329,27 +330,28 @@ class LogRevisionsListener implements EventSubscriber
 
     private function getRevisionId()
     {
-        if ($this->revisionId === null) {
-            $this->conn->insert(
-                $this->config->getRevisionTableName(),
-                array(
-                    'timestamp' => date_create('now'),
-                    'username' => $this->config->getCurrentUsername(),
-                ),
-                array(
-                    Type::DATETIME,
-                    Type::STRING,
-                )
-            );
-
-            $sequenceName = $this->platform->supportsSequences()
-                ? $this->platform->getIdentitySequenceName($this->config->getRevisionTableName(), 'id')
-                : null;
-
-            $this->revisionId = $this->conn->lastInsertId($sequenceName);
+        if (null !== $this->revisionId) {
+            return $this->revisionId;
         }
 
-        return $this->revisionId;
+        $tableName = $this->config->getRevisionTableName();
+        $this->conn->insert(
+            $tableName,
+            array(
+                'timestamp' => date_create('now'),
+                'username' => $this->config->getCurrentUsername(),
+            ),
+            array(
+                Type::DATETIME,
+                Type::STRING,
+            )
+        );
+
+        $sequenceName = $this->platform->supportsSequences()
+            ? $this->platform->getIdentitySequenceName($tableName, 'id')
+            : null;
+
+        return $this->revisionId = $this->conn->lastInsertId($sequenceName);
     }
 
     /**
