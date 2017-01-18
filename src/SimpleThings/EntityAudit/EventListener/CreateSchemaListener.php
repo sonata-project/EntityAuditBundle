@@ -88,8 +88,7 @@ class CreateSchemaListener implements EventSubscriber
         $pkColumns = $entityTable->getPrimaryKey()->getColumns();
         $pkColumns[] = $this->config->getRevisionFieldName();
         $revisionTable->setPrimaryKey($pkColumns);
-        $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
-        $revisionTable->addIndex(array($this->config->getRevisionFieldName()), $revIndexName);
+        $revisionTable->addIndex(array($this->config->getRevisionFieldName()));
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
