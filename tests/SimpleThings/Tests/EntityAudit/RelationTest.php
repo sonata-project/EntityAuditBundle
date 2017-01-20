@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity;
@@ -253,20 +254,19 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
         $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
 
-        $auditReader->setLoadAuditedEntities(false);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(get_class($master), $master->getId(), 4);
+        $audited = $auditReader->find(get_class($master), $master->getId(), 4, [
+            AuditReader::LOAD_AUDITED_ENTITIES => false
+        ]);
         $this->assertEquals(null, $audited->getAudited());
         $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
 
-        $auditReader->setLoadAuditedEntities(true);
-        $auditReader->setLoadNativeEntities(false);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(get_class($master), $master->getId(), 4);
+        $audited = $auditReader->find(get_class($master), $master->getId(), 4, [
+            AuditReader::LOAD_NATIVE_ENTITIES => false
+        ]);
         $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
         $this->assertEquals(null, $audited->getNotAudited());
-
-        $auditReader->setLoadNativeEntities(true);
 
         $audited = $auditReader->find(get_class($master), $master->getId(), 5);
         $this->assertEquals('changed#5', $audited->getTitle());
@@ -412,21 +412,21 @@ class RelationTest extends BaseTest
         $this->assertEquals('owned21', $o2[0]->getTitle());
 
         //check skipping collections
-        $auditReader->setLoadAuditedCollections(false);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(get_class($owner), $owner->getId(), 4);
+        $audited = $auditReader->find(get_class($owner), $owner->getId(), 4, [
+            AuditReader::LOAD_AUDITED_COLLECTIONS => false
+        ]);
         $this->assertCount(0, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
 
-        $auditReader->setLoadNativeCollections(false);
-        $auditReader->setLoadAuditedCollections(true);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(get_class($owner), $owner->getId(), 4);
+        $audited = $auditReader->find(get_class($owner), $owner->getId(), 4, [
+            AuditReader::LOAD_NATIVE_COLLECTIONS => false
+        ]);
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(0, $audited->getOwned2());
 
         //checking fifth revision
-        $auditReader->setLoadNativeCollections(true);
         $auditReader->clearEntityCache();
         $audited = $auditReader->find(get_class($owner), $owner->getId(), 5);
         $this->assertEquals('changed#5', $audited->getTitle());
