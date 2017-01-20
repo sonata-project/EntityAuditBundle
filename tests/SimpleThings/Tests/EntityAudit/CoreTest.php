@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog;
@@ -409,5 +410,26 @@ class CoreTest extends BaseTest
         $this->assertStringStartsWith('user: ', $revisions[1]->getUsername());
 
         $this->assertNotEquals($revisions[0]->getUsername(), $revisions[1]->getUsername());
+    }
+
+    public function testGetRevisionTable()
+    {
+        $config = $this->auditManager->getConfiguration();
+
+        $config->setTablePrefix('log_');
+
+        $metadata = new ClassMetadataInfo('test');
+        $metadata->table = [
+            'name' => 'test'
+        ];
+
+        $this->assertEquals('log_test_audit', $config->getTableName($metadata));
+
+        $metadata->table = [
+            'name' => 'test',
+            'schema' => 'foo'
+        ];
+
+        $this->assertEquals('foo.log_test_audit', $config->getTableName($metadata));
     }
 }
