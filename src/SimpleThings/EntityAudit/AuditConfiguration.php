@@ -57,65 +57,98 @@ class AuditConfiguration
      */
     public function getTableName(ClassMetadataInfo $metadata)
     {
-        $tableName = $metadata->getTableName();
+        $tableName = $this->getTablePrefix() . $metadata->getTableName() . $this->getTableSuffix();
 
-        if ($metadata->getSchemaName()) {
-            $tableName = $metadata->getSchemaName() . '.' . $tableName;
+        if (!$metadata->getSchemaName()) {
+            return $tableName;
         }
 
-        return $this->getTablePrefix() . $tableName . $this->getTableSuffix();
+        return $metadata->getSchemaName() . '.' . $tableName;
     }
 
+    /**
+     * @return string
+     */
     public function getTablePrefix()
     {
         return $this->tablePrefix;
     }
 
+    /**
+     * @param string $prefix
+     */
     public function setTablePrefix($prefix)
     {
         $this->tablePrefix = $prefix;
     }
 
+    /**
+     * @return string
+     */
     public function getTableSuffix()
     {
         return $this->tableSuffix;
     }
 
+    /**
+     * @param string $suffix
+     */
     public function setTableSuffix($suffix)
     {
         $this->tableSuffix = $suffix;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionFieldName()
     {
         return $this->revisionFieldName;
     }
 
+    /**
+     * @param string $revisionFieldName
+     */
     public function setRevisionFieldName($revisionFieldName)
     {
         $this->revisionFieldName = $revisionFieldName;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionTypeFieldName()
     {
         return $this->revisionTypeFieldName;
     }
 
+    /**
+     * @param string $revisionTypeFieldName
+     */
     public function setRevisionTypeFieldName($revisionTypeFieldName)
     {
         $this->revisionTypeFieldName = $revisionTypeFieldName;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionTableName()
     {
         return $this->revisionTableName;
     }
 
+    /**
+     * @param string $revisionTableName
+     */
     public function setRevisionTableName($revisionTableName)
     {
         $this->revisionTableName = $revisionTableName;
     }
 
+    /**
+     * @param string[] $classes
+     */
     public function setAuditedEntityClasses(array $classes)
     {
         $this->auditedEntityClasses = $classes;
