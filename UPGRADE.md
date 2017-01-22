@@ -26,16 +26,14 @@ simple_things_entity_audit:
 The above after configuration is the default and does not need setting explicitly.
 
 ## BC BREAK:
-Following methods has been removed:
+Following methods has been removed
 ```php
 AuditReader::setLoadAuditedCollections($loadAuditedCollections)
 AuditReader::setLoadAuditedEntities($loadAuditedEntities)
 AuditReader::setLoadNativeCollections($loadNativeCollections)
 AuditReader::setLoadNativeEntities($loadNativeEntities)
 ```
-
-And with with $options arguments at AuditReader::__c'tor or AuditReader::find.
-
+and are replaced by $options arguments at AuditReader::__c'tor or AuditReader::find.
 ```php
 $auditReader->find(Foo::class, 1, 1, [
     AuditReader::LOAD_AUDITED_COLLECTIONS => false,
