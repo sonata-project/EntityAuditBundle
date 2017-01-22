@@ -3,7 +3,7 @@
 
 ## BC BREAK: Current user name resolution
 
-Previously the username that was recorded againsts revisions was resolved by `SimpleThings\EntityAudit\Request\CurrentUserListener` (``simplethings_entityaudit.request.current_user_listener` service).
+Previously the username that was recorded against revisions was resolved by `SimpleThings\EntityAudit\Request\CurrentUserListener` (``simplethings_entityaudit.request.current_user_listener` service).
 
 This has been removed and replaced with `SimpleThings\EntityAudit\User\TokenStorageUsernameCallable`.
 
@@ -24,3 +24,23 @@ simple_things_entity_audit:
 ```
 
 The above after configuration is the default and does not need setting explicitly.
+
+## BC BREAK:
+Following methods has been removed:
+```php
+AuditReader::setLoadAuditedCollections($loadAuditedCollections)
+AuditReader::setLoadAuditedEntities($loadAuditedEntities)
+AuditReader::setLoadNativeCollections($loadNativeCollections)
+AuditReader::setLoadNativeEntities($loadNativeEntities)
+```
+
+And with with $options arguments at AuditReader::__c'tor or AuditReader::find.
+
+```php
+$auditReader->find(Foo::class, 1, 1, [
+    AuditReader::LOAD_AUDITED_COLLECTIONS => false,
+    AuditReader::LOAD_AUDITED_ENTITIES => false,
+    AuditReader::LOAD_NATIVE_COLLECTIONS => false,
+    AuditReader::LOAD_NATIVE_ENTITIES => false,
+]);
+```

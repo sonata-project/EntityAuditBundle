@@ -23,16 +23,13 @@
 
 namespace SimpleThings\EntityAudit;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Mapping\QuoteStrategy;
-use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
-use SimpleThings\EntityAudit\Collection\AuditedCollection;
 use SimpleThings\EntityAudit\Exception\DeletedException;
 use SimpleThings\EntityAudit\Exception\InvalidRevisionException;
 use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
@@ -41,6 +38,26 @@ use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class AuditReader
 {
+    /**
+     * Decides if audited ToMany collections are loaded
+     */
+    const LOAD_AUDITED_COLLECTIONS = 'loadAuditedCollections';
+
+    /**
+     * Decides if audited ToOne collections are loaded
+     */
+    const LOAD_AUDITED_ENTITIES = 'loadAuditedEntities';
+
+    /**
+     * Decides if native (not audited) ToMany collections are loaded
+     */
+    const LOAD_NATIVE_COLLECTIONS = 'loadNativeCollections';
+
+    /**
+     * Decides if native (not audited) ToOne collections are loaded
+     */
+    const LOAD_NATIVE_ENTITIES = 'loadNativeEntities';
+
     /**
      * @var EntityManagerInterface
      */
@@ -67,117 +84,31 @@ class AuditReader
     private $quoteStrategy;
 
     /**
-     * Entity cache to prevent circular references
-     *
-     * @var array
+     * @var EntityFactory
      */
-    private $entityCache;
-
-    /**
-     * Decides if audited ToMany collections are loaded
-     *
-     * @var bool
-     */
-    private $loadAuditedCollections = true;
-
-    /**
-     * Decides if audited ToOne collections are loaded
-     *
-     * @var bool
-     */
-    private $loadAuditedEntities = true;
-
-    /**
-     * Decides if native (not audited) ToMany collections are loaded
-     *
-     * @var bool
-     */
-    private $loadNativeCollections = true;
-
-    /**
-     * Decides if native (not audited) ToOne collections are loaded
-     *
-     * @var bool
-     */
-    private $loadNativeEntities = true;
-
-    /**
-     * @return boolean
-     */
-    public function isLoadAuditedCollections()
-    {
-        return $this->loadAuditedCollections;
-    }
-
-    /**
-     * @param boolean $loadAuditedCollections
-     */
-    public function setLoadAuditedCollections($loadAuditedCollections)
-    {
-        $this->loadAuditedCollections = $loadAuditedCollections;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isLoadAuditedEntities()
-    {
-        return $this->loadAuditedEntities;
-    }
-
-    /**
-     * @param boolean $loadAuditedEntities
-     */
-    public function setLoadAuditedEntities($loadAuditedEntities)
-    {
-        $this->loadAuditedEntities = $loadAuditedEntities;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isLoadNativeCollections()
-    {
-        return $this->loadNativeCollections;
-    }
-
-    /**
-     * @param boolean $loadNativeCollections
-     */
-    public function setLoadNativeCollections($loadNativeCollections)
-    {
-        $this->loadNativeCollections = $loadNativeCollections;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function isLoadNativeEntities()
-    {
-        return $this->loadNativeEntities;
-    }
-
-    /**
-     * @param boolean $loadNativeEntities
-     */
-    public function setLoadNativeEntities($loadNativeEntities)
-    {
-        $this->loadNativeEntities = $loadNativeEntities;
-    }
+    private $entityFactory;
 
     /**
      * @param EntityManagerInterface $em
      * @param AuditConfiguration     $config
      * @param MetadataFactory        $factory
+     * @param array                  $options
      */
-    public function __construct(EntityManagerInterface $em, AuditConfiguration $config, MetadataFactory $factory)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        AuditConfiguration $config,
+        MetadataFactory $factory,
+        array $options = []
+    ) {
         $this->em = $em;
         $this->config = $config;
         $this->metadataFactory = $factory;
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
         $this->quoteStrategy = $this->em->getConfiguration()->getQuoteStrategy();
+
+        $this->entityFactory = new EntityFactory($this, $em, $factory, $options);
     }
+
 
     /**
      * @return \Doctrine\DBAL\Connection
@@ -200,7 +131,7 @@ class AuditReader
      */
     public function clearEntityCache()
     {
-        $this->entityCache = array();
+        $this->entityFactory->clearEntityCache();
     }
 
     /**
@@ -339,211 +270,7 @@ class AuditReader
 
         unset($row[$this->config->getRevisionTypeFieldName()]);
 
-        return $this->createEntity($class->name, $columnMap, $row, $revision);
-    }
-
-    /**
-     * Simplified and stolen code from UnitOfWork::createEntity.
-     *
-     * @param string $className
-     * @param array  $columnMap
-     * @param array  $data
-     * @param        $revision
-     *
-     * @throws DeletedException
-     * @throws NoRevisionFoundException
-     * @throws NotAuditedException
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Doctrine\ORM\Mapping\MappingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
-     * @return object
-     */
-    private function createEntity($className, array $columnMap, array $data, $revision)
-    {
-        /** @var ClassMetadataInfo|ClassMetadata $class */
-        $class = $this->em->getClassMetadata($className);
-
-        //lookup revisioned entity cache
-        $keyParts = array();
-
-        foreach ($class->getIdentifierFieldNames() as $name) {
-            if ($class->hasAssociation($name)) {
-                if ($class->isSingleValuedAssociation($name)) {
-                    $name = $class->getSingleAssociationJoinColumnName($name);
-                } else {
-                    // Doctrine should throw a mapping exception if an identifier
-                    // that is an association is not single valued, but just in case.
-                    throw new \RuntimeException('Multiple valued association identifiers not supported');
-                }
-            }
-            $keyParts[] = $data[$name];
-        }
-
-        $key = implode(':', $keyParts);
-
-        if (isset($this->entityCache[$className]) &&
-            isset($this->entityCache[$className][$key]) &&
-            isset($this->entityCache[$className][$key][$revision])
-        ) {
-            return $this->entityCache[$className][$key][$revision];
-        }
-
-        if (! $class->isInheritanceTypeNone()) {
-            if (! isset($data[$class->discriminatorColumn['name']])) {
-                throw new \RuntimeException('Expecting discriminator value in data set.');
-            }
-            $discriminator = $data[$class->discriminatorColumn['name']];
-            if (! isset($class->discriminatorMap[$discriminator])) {
-                throw new \RuntimeException("No mapping found for [{$discriminator}].");
-            }
-
-            if ($class->discriminatorValue) {
-                $entity = $this->em->getClassMetadata($class->discriminatorMap[$discriminator])->newInstance();
-            } else {
-                //a complex case when ToOne binding is against AbstractEntity having no discriminator
-                $pk = array();
-
-                foreach ($class->identifier as $field) {
-                    $pk[$class->getColumnName($field)] = $data[$field];
-                }
-
-                return $this->find($class->discriminatorMap[$discriminator], $pk, $revision);
-            }
-        } else {
-            $entity = $class->newInstance();
-        }
-
-        //cache the entity to prevent circular references
-        $this->entityCache[$className][$key][$revision] = $entity;
-
-        $connection = $this->getConnection();
-        foreach ($data as $field => $value) {
-            if (isset($class->fieldMappings[$field])) {
-                $value = $connection->convertToPHPValue($value, $class->fieldMappings[$field]['type']);
-                $class->reflFields[$field]->setValue($entity, $value);
-            }
-        }
-
-        foreach ($class->associationMappings as $field => $assoc) {
-            // Check if the association is not among the fetch-joined associations already.
-            if (isset($hints['fetched'][$className][$field])) {
-                continue;
-            }
-
-            /** @var ClassMetadataInfo|ClassMetadata $targetClass */
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-            if ($assoc['type'] & ClassMetadata::TO_ONE) {
-                //print_r($targetClass->discriminatorMap);
-                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
-                    if ($this->loadAuditedEntities) {
-                        // Primary Key. Used for audit tables queries.
-                        $pk = array();
-                        // Primary Field. Used when fallback to Doctrine finder.
-                        $pf = array();
-
-                        if ($assoc['isOwningSide']) {
-                            foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                                $pk[$foreign] = $pf[$foreign] = $data[$columnMap[$local]];
-                            }
-                        } else {
-                            /** @var ClassMetadataInfo|ClassMetadata $otherEntityMeta */
-                            $otherEntityAssoc = $this->em->getClassMetadata($assoc['targetEntity'])->associationMappings[$assoc['mappedBy']];
-
-                            foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
-                                $pk[$foreign] = $pf[$otherEntityAssoc['fieldName']] = $data[$class->getFieldName($local)];
-                            }
-                        }
-
-                        $pk = array_filter($pk, function ($value) {
-                            return ! is_null($value);
-                        });
-
-                        if (! $pk) {
-                            $class->reflFields[$field]->setValue($entity, null);
-                        } else {
-                            try {
-                                $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
-                            } catch (DeletedException $e) {
-                                $value = null;
-                            } catch (NoRevisionFoundException $e) {
-                                // The entity does not have any revision yet. So let's get the actual state of it.
-                                $value = $this->em->getRepository($targetClass->name)->findOneBy($pf);
-                            }
-
-                            $class->reflFields[$field]->setValue($entity, $value);
-                        }
-                    } else {
-                        $class->reflFields[$field]->setValue($entity, null);
-                    }
-                } else {
-                    if ($this->loadNativeEntities) {
-                        if ($assoc['isOwningSide']) {
-                            $associatedId = array();
-                            foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                                $joinColumnValue = isset($data[$columnMap[$srcColumn]]) ? $data[$columnMap[$srcColumn]] : null;
-                                if ($joinColumnValue !== null) {
-                                    $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
-                                }
-                            }
-                            if (! $associatedId) {
-                                // Foreign key is NULL
-                                $class->reflFields[$field]->setValue($entity, null);
-                            } else {
-                                $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
-                                $class->reflFields[$field]->setValue($entity, $associatedEntity);
-                            }
-                        } else {
-                            // Inverse side of x-to-one can never be lazy
-                            $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                                ->loadOneToOneEntity($assoc, $entity));
-                        }
-                    } else {
-                        $class->reflFields[$field]->setValue($entity, null);
-                    }
-                }
-            } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
-                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
-                    if ($this->loadAuditedCollections) {
-                        $foreignKeys = array();
-                        foreach ($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
-                            $field = $class->getFieldForColumn($foreign);
-                            $foreignKeys[$local] = $class->reflFields[$field]->getValue($entity);
-                        }
-
-                        $collection = new AuditedCollection(
-                            $this,
-                            $targetClass,
-                            $assoc,
-                            $foreignKeys,
-                            $revision
-                        );
-
-                        $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
-                    } else {
-                        $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection());
-                    }
-                } else {
-                    if ($this->loadNativeCollections) {
-                        $collection = new PersistentCollection($this->em, $targetClass, new ArrayCollection());
-
-                        $this->getEntityPersister($assoc['targetEntity'])
-                            ->loadOneToManyCollection($assoc, $entity, $collection);
-
-                        $class->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
-                    } else {
-                        $class->reflFields[$assoc['fieldName']]->setValue($entity, new ArrayCollection());
-                    }
-                }
-            } else {
-                // Inject collection
-                $reflField = $class->reflFields[$field];
-                $reflField->setValue($entity, new ArrayCollection);
-            }
-        }
-
-        return $entity;
+        return $this->entityFactory->createEntity($class->name, $columnMap, $row, $revision, $options);
     }
 
     /**
@@ -658,7 +385,7 @@ class AuditReader
                     $id[$idField] = $row[$idField];
                 }
 
-                $entity = $this->createEntity($className, $columnMap, $row, $revision);
+                $entity = $this->entityFactory->createEntity($className, $columnMap, $row, $revision);
                 $changedEntities[] = new ChangedEntity(
                     $className,
                     $id,
@@ -788,21 +515,14 @@ class AuditReader
             if (isset($class->fieldMappings[$idField])) {
                 $queryBuilder->andWhere(sprintf('e.%s = ?', $class->fieldMappings[$idField]['columnName']));
             } elseif (isset($class->associationMappings[$idField])) {
-                $queryBuilder->andWhere(sprintf('e.%s = ?', $class->associationMappings[$idField]['joinColumns'][0]['name']));
+                $queryBuilder->andWhere(sprintf(
+                    'e.%s = ?',
+                    $class->associationMappings[$idField]['joinColumns'][0]['name']
+                ));
             }
         }
 
         return $queryBuilder->execute()->fetchColumn();
-    }
-
-    /**
-     * @param object $entity
-     *
-     * @return \Doctrine\ORM\Persisters\Entity\EntityPersister
-     */
-    protected function getEntityPersister($entity)
-    {
-        return $this->em->getUnitOfWork()->getEntityPersister($entity);
     }
 
     /**
@@ -956,7 +676,7 @@ class AuditReader
             $rev = $row[$revisionFieldName];
             unset($row[$revisionFieldName]);
 
-            $result[] = $this->createEntity($class->name, $columnMap, $row, $rev);
+            $result[] = $this->entityFactory->createEntity($class->name, $columnMap, $row, $rev);
         }
 
         return $result;
