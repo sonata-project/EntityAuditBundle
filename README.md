@@ -112,7 +112,7 @@ class DefaultController extends Controller
 {
     public function indexAction()
     {
-        $auditReader = $this->container->get('simplethings_entityaudit.reader');
+        $auditReader = $this->container->get('simplethings_entityaudit.manager')->createAuditReader();
     }
 }
 ```
