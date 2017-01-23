@@ -61,23 +61,16 @@ public function registerBundles()
 
 ###Configuration
 
-Load extension "simple_things_entity_audit" and specify the audited entities (yes, that ugly for now!)
-
 #####app/config/config.yml
 ```yml
 simple_things_entity_audit:
-    audited_entities:
-        - MyBundle\Entity\MyEntity
-        - MyBundle\Entity\MyEntity2
-```
-If you need to exclude some entity properties from triggering a revision use:
-
-#####app/config/config.yml
-```yml
-simple_things_entity_audit:
-    global_ignore_properties:
-        - createdAt
-        - updatedAt
+    entity_manager: default
+    table_prefix: ''
+    table_suffix: _audit
+    revision_field_name: rev
+    revision_type_field_name: revtype
+    revision_table_name: revisions
+    revision_id_field_type: integer
 ```
 
 ###Creating new tables

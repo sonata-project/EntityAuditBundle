@@ -5,8 +5,6 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
-        <parameter key="simplethings.entityaudit.global_ignore_properties" type="collection" />
         <parameter key="simplethings.entityaudit.table_prefix" type="string" />
         <parameter key="simplethings.entityaudit.table_suffix" type="string" />
         <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
@@ -46,13 +44,6 @@
             <factory service="simplethings_entityaudit.config_factory" method="createAuditConfiguration" />
             <argument type="service" id="doctrine.orm.default_configuration" />
             <argument type="service" id="annotation_reader" />
-            <argument>%simplethings.entityaudit.audited_entities%</argument>
-            <call method="setAuditedEntityClasses">
-                <argument>%simplethings.entityaudit.audited_entities%</argument>
-            </call>
-            <call method="setGlobalIgnoreProperties">
-                <argument>%simplethings.entityaudit.global_ignore_properties%</argument>
-            </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
             </call>
