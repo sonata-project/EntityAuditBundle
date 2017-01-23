@@ -62,4 +62,13 @@ class AuditManager
         $evm->addEventSubscriber(new CreateSchemaListener($this));
         $evm->addEventSubscriber(new LogRevisionsListener($this));
     }
+
+    /**
+     * @param EntityManager $entityManager
+     * @return AuditManager
+     */
+    public static function create(EntityManager $entityManager)
+    {
+        return new self($entityManager, AuditConfiguration::createWithAnnotationDriver());
+    }
 }

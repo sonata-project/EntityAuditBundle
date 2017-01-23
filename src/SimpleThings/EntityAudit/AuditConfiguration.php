@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 
 class AuditConfiguration
@@ -217,5 +218,13 @@ class AuditConfiguration
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
+    }
+
+    /**
+     * @return AuditConfiguration
+     */
+    public static function createWithAnnotationDriver()
+    {
+        return new self(AnnotationDriver::create());
     }
 }

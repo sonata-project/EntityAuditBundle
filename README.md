@@ -5,6 +5,8 @@
 | [![Build Status](https://travis-ci.org/simplethings/EntityAudit.svg?branch=master)](https://travis-ci.org/simplethings/EntityAudit) | [![Build Status](https://travis-ci.org/simplethings/EntityAudit.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAudit) |
 
 
+**Readme for 1.x:** https://github.com/simplethings/EntityAudit/blob/1.0/README.md
+
 This extension for Doctrine 2 is inspired by [Hibernate Envers](http://www.jboss.org/envers) and
 allows full versioning of entities and their associations.
 
@@ -96,29 +98,14 @@ instance and configure the two event listeners.
 
 ```php
 use Doctrine\ORM\EntityManager;
-use Doctrine\Common\EventManager;
-use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
-
-$auditconfig = new AuditConfiguration();
-$auditconfig->setAuditedEntityClasses(array(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
-    'SimpleThings\EntityAudit\Tests\UserAudit'
-));
-
-$auditconfig->setGlobalIgnoreProperties(array(
-    'createdAt',
-    'updatedAt'
-));
-
-$evm = new EventManager();
-$auditManager = new AuditManager($auditconfig);
-$auditManager->registerEvents($evm);
 
 $config = new \Doctrine\ORM\Configuration();
 // $config ...
 $conn = array();
 $em = EntityManager::create($conn, $config, $evm);
+
+$auditManager = AuditManager::create($em);
 ```
 
 ## Usage
@@ -140,7 +127,7 @@ class DefaultController extends Controller
 In a standalone application you can create the audit reader from the audit manager:
 
 ```php
-$auditReader = $auditManager->createAuditReader($entityManager);
+$auditReader = $auditManager->createAuditReader();
 ```
 
 ### Find entity state at a particular revision
