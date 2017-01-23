@@ -110,7 +110,7 @@ class MetadataFactory
                 continue;
             }
 
-            $classMetadata = new ClassMetadata($class);
+            $classMetadata = new ClassMetadata($doctrineClassMetadata);
 
             $this->driver->loadMetadataForClass($class, $classMetadata);
 

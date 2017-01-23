@@ -48,58 +48,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
 
 class RelationTest extends BaseTest
 {
-    protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity2',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneNotAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\AbstractDataEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataLegalEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataPrivateEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelatedEntity',
-    );
-
-    protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\AbstractDataEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataLegalEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataPrivateEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelatedEntity',
-    );
+    protected $fixturesPath = __DIR__ . '/Fixtures/Relation';
 
     public function testUndefinedIndexesInUOWForRelations()
     {
@@ -315,7 +264,7 @@ class RelationTest extends BaseTest
      */
     public function testRelations()
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
 
         //create owner
         $owner = new OwnerEntity();

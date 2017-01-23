@@ -33,28 +33,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit;
 
 class CoreTest extends BaseTest
 {
-    protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\PetAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
-    );
-
-    protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
-    );
+    protected $fixturesPath = __DIR__ . '/Fixtures/Core';
 
     public function testAuditable()
     {
@@ -207,7 +186,7 @@ class CoreTest extends BaseTest
         $this->em->persist($article);
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
         $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
         //duplicated entries means a bug with discriminators
@@ -337,7 +316,7 @@ class CoreTest extends BaseTest
         $this->assertEquals(3, $revision);
     }
 
-    public function testGlobalIgnoreProperties()
+    public function testIgnoreProperties()
     {
         $user = new UserAudit("welante");
         $article = new ArticleAudit("testcolumn", "yadda!", $user, 'text');
@@ -350,7 +329,7 @@ class CoreTest extends BaseTest
         $this->em->persist($article);
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
 
         $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
         $this->assertEquals(2, $revision);

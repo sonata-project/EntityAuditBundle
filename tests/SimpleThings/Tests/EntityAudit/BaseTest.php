@@ -23,7 +23,6 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -61,6 +60,8 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     protected $schemaEntities = array();
 
+    protected $fixturesPath;
+
     protected $auditedEntities = array();
 
     public function setUp()
@@ -74,6 +75,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->tearDownEntitySchema();
+        $this->em = null;
+        $this->auditManager = null;
+        $this->schemaTool = null;
     }
 
     /**
@@ -93,9 +97,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(
-            realpath(__DIR__ . '/Fixtures/Core'),
-            realpath(__DIR__ . '/Fixtures/Issue'),
-            realpath(__DIR__ . '/Fixtures/Relation'),
+            $this->fixturesPath
         ), false));
 
         Gedmo\DoctrineExtensions::registerAnnotations();
@@ -215,20 +217,14 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     protected function setUpEntitySchema()
     {
-        $em = $this->getEntityManager();
-        $classes = array_map(function ($value) use ($em) {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities);
+        $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
         $this->getSchemaTool()->createSchema($classes);
     }
 
     protected function tearDownEntitySchema()
     {
-        $em = $this->getEntityManager();
-        $classes = array_map(function ($value) use ($em) {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities);
+        $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
         $this->getSchemaTool()->dropSchema($classes);
     }

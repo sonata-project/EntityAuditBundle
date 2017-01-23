@@ -4,6 +4,7 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Core;
 
 use Doctrine\ORM\Mapping as ORM;
 use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
+use SimpleThings\EntityAudit\Mapping\Annotation\Ignore;
 
 /**
  * @Auditable()
@@ -20,7 +21,10 @@ class ArticleAudit
     /** @ORM\Column(type="text") */
     private $text;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @Ignore()
+     * @ORM\Column(type="text")
+     */
     private $ignoreMe;
 
     /** @ORM\ManyToOne(targetEntity="UserAudit") */

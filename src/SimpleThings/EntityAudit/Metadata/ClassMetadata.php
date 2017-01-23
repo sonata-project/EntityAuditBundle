@@ -23,6 +23,8 @@
 
 namespace SimpleThings\EntityAudit\Metadata;
 
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
+
 /**
  * @author David Badura <d.a.badura@gmail.com>
  */
@@ -34,15 +36,21 @@ class ClassMetadata
     public $name;
 
     /**
+     * @var ClassMetadataInfo
+     */
+    public $entity;
+
+    /**
      * @var string[]
      */
     public $ignoredFields = [];
 
     /**
-     * @param string $name
+     * @param ClassMetadataInfo $classMetadataInfo
      */
-    public function __construct($name)
+    public function __construct(ClassMetadataInfo $classMetadataInfo)
     {
-        $this->name = $name;
+        $this->entity = $classMetadataInfo;
+        $this->name = $classMetadataInfo->name;
     }
 }

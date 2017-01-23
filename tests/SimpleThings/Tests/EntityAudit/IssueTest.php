@@ -48,55 +48,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
 
 class IssueTest extends BaseTest
 {
-    protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
-    );
-
-    protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue194Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
-    );
+    protected $fixturesPath = __DIR__ . '/Fixtures/Issue';
 
     protected $customTypes = array(
         'issue196type' => 'SimpleThings\EntityAudit\Tests\Types\Issue196Type',
