@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit\Metadata\Driver;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 use SimpleThings\EntityAudit\Mapping\Annotation\Ignore;
 use SimpleThings\EntityAudit\Metadata\ClassMetadata;
@@ -71,5 +72,18 @@ class AnnotationDriver implements DriverInterface
         $reflection = new \ReflectionClass($class);
 
         return (bool)$this->reader->getClassAnnotation($reflection, Auditable::class);
+    }
+
+    /**
+     * @return AnnotationDriver
+     */
+    public static function create()
+    {
+        // use composer autoloader
+        AnnotationRegistry::registerLoader('class_exists');
+
+        $reader = new AnnotationReader();
+
+        return new self($reader);
     }
 }

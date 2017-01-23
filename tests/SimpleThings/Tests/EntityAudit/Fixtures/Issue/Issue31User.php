@@ -3,8 +3,12 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
-/** @ORM\Entity */
+/**
+ * @Auditable()
+ * @ORM\Entity
+ */
 class Issue31User
 {
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */

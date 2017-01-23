@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
@@ -34,6 +35,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -199,14 +201,14 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
             return $this->auditManager;
         }
 
-        $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreProperties(array('ignoreMe'));
+        $auditConfig = new AuditConfiguration();
         $auditConfig->setUsernameCallable(function () {
             return 'beberlei';
         });
 
-        $auditManager = new AuditManager($auditConfig);
-        $auditManager->registerEvents($this->_getConnection()->getEventManager());
+        $auditConfig->setMetadataDriver(AnnotationDriver::create());
+
+        $auditManager = new AuditManager($this->getEntityManager(), $auditConfig);
 
         return $this->auditManager = $auditManager;
     }

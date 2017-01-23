@@ -3,8 +3,10 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
+ * @Auditable()
  * @ORM\Table(name="project_project_abstract")
  * @ORM\Entity()
  * @ORM\InheritanceType("JOINED")

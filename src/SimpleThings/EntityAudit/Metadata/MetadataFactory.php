@@ -23,6 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Metadata;
 
+use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 
 /**
@@ -31,6 +32,11 @@ use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 class MetadataFactory
 {
     /**
+     * @var EntityManager
+     */
+    private $entityManager;
+
+    /**
      * @var DriverInterface
      */
     private $driver;
@@ -38,13 +44,19 @@ class MetadataFactory
     /**
      * @var ClassMetadata[]
      */
-    private $classMetadatas;
+    private $classMetadatas = [];
+    /**
+     * @var bool
+     */
+    private $loaded = false;
 
     /**
+     * @param EntityManager $entityManager
      * @param DriverInterface $driver
      */
-    public function __construct(DriverInterface $driver)
+    public function __construct(EntityManager $entityManager, DriverInterface $driver)
     {
+        $this->entityManager = $entityManager;
         $this->driver = $driver;
     }
 
@@ -54,7 +66,7 @@ class MetadataFactory
      */
     public function isAudited($class)
     {
-        $this->load($class);
+        $this->load();
 
         return array_key_exists($class, $this->classMetadatas);
     }
@@ -65,33 +77,46 @@ class MetadataFactory
      */
     public function getMetadataFor($class)
     {
-        $this->load($class);
+        $this->load();
 
         return $this->classMetadatas[$class];
     }
 
+    /**
+     * @return string[]
+     */
     public function getAllClassNames()
     {
-        //todo
+        $this->load();
+
+        return array_keys($this->classMetadatas);
     }
 
     /**
-     * @param string $class
+     *
      */
-    private function load($class)
+    private function load()
     {
-        if (array_key_exists($class, $this->classMetadatas)) {
+        if ($this->loaded) {
             return;
         }
 
-        if (!$this->driver->isTransient($class)) {
-            $this->classMetadatas[$class] = null;
+        $doctrineClassMetadatas = $this->entityManager->getMetadataFactory()->getAllMetadata();
+
+        foreach ($doctrineClassMetadatas as $doctrineClassMetadata) {
+            $class = $doctrineClassMetadata->name;
+
+            if (!$this->driver->isTransient($class)) {
+                continue;
+            }
+
+            $classMetadata = new ClassMetadata($class);
+
+            $this->driver->loadMetadataForClass($class, $classMetadata);
+
+            $this->classMetadatas[$class] = $classMetadata;
         }
 
-        $classMetadata = new ClassMetadata($class);
-
-        $this->driver->loadMetadataForClass($class, $classMetadata);
-
-        $this->classMetadatas[$class] = $classMetadata;
+        $this->loaded = true;
     }
 }

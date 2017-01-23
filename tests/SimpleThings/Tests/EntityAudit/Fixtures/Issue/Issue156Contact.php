@@ -1,19 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
- */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
- * Class Issue156Contact
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * @Auditable()
  * @ORM\Entity()
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
