@@ -28,7 +28,6 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 class AuditConfiguration
 {
     private $auditedEntityClasses = array();
-    private $globalIgnoreProperties = array();
     private $tablePrefix = '';
     private $tableSuffix = '_audit';
     private $revisionTableName = 'revisions';
@@ -152,16 +151,6 @@ class AuditConfiguration
     public function setAuditedEntityClasses(array $classes)
     {
         $this->auditedEntityClasses = $classes;
-    }
-
-    public function getGlobalIgnoreProperties()
-    {
-        return $this->globalIgnoreProperties;
-    }
-
-    public function setGlobalIgnoreProperties(array $properties)
-    {
-        $this->globalIgnoreProperties = $properties;
     }
 
     public function createMetadataFactory()

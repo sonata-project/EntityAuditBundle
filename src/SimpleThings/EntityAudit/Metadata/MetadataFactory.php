@@ -23,22 +23,75 @@
 
 namespace SimpleThings\EntityAudit\Metadata;
 
+use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
+
+/**
+ * @author David Badura <d.a.badura@gmail.com>
+ */
 class MetadataFactory
 {
-    private $auditedEntities = array();
+    /**
+     * @var DriverInterface
+     */
+    private $driver;
 
-    public function __construct($auditedEntities)
+    /**
+     * @var ClassMetadata[]
+     */
+    private $classMetadatas;
+
+    /**
+     * @param DriverInterface $driver
+     */
+    public function __construct(DriverInterface $driver)
     {
-        $this->auditedEntities = array_flip($auditedEntities);
+        $this->driver = $driver;
     }
 
-    public function isAudited($entity)
+    /**
+     * @param string $class
+     * @return bool
+     */
+    public function isAudited($class)
     {
-        return isset($this->auditedEntities[$entity]);
+        $this->load($class);
+
+        return array_key_exists($class, $this->classMetadatas);
     }
-    
+
+    /**
+     * @param string $class
+     * @return ClassMetadata
+     */
+    public function getMetadataFor($class)
+    {
+        $this->load($class);
+
+        return $this->classMetadatas[$class];
+    }
+
     public function getAllClassNames()
     {
-        return array_flip($this->auditedEntities);
+        //todo
+    }
+
+    /**
+     * @param string $class
+     */
+    private function load($class)
+    {
+        if (array_key_exists($class, $this->classMetadatas)) {
+            return;
+        }
+
+        if (!$this->driver->isTransient($class)) {
+            $this->classMetadatas[$class] = null;
+        }
+
+        $classMetadata = new ClassMetadata($class);
+
+        $this->driver->loadMetadataForClass($class, $classMetadata);
+
+        $this->classMetadatas[$class] = $classMetadata;
     }
 }
