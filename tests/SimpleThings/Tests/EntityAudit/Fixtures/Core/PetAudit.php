@@ -18,7 +18,7 @@ abstract class PetAudit
     /** @ORM\Column(type="string") */
     private $name;
 
-    function __construct($name)
+    public function __construct($name)
     {
         $this->name = $name;
     }

@@ -232,9 +232,11 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
+        $auditMetadata = $this->metadataFactory->getMetadataFor($class->name);
+
         // get changes => should be already computed here (is a listener)
         $changeset = $this->uow->getEntityChangeSet($entity);
-        foreach ($this->config->getGlobalIgnoreProperties() as $property) {
+        foreach (array_keys($auditMetadata->ignoredFields) as $property) {
             if (isset($changeset[$property])) {
                 unset($changeset[$property]);
             }
@@ -288,13 +290,17 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($this->uow->getScheduledEntityUpdates() as $entity) {
-            if (! $this->metadataFactory->isAudited(get_class($entity))) {
+            $class = get_class($entity);
+
+            if (! $this->metadataFactory->isAudited($class)) {
                 continue;
             }
 
+            $auditMetadata = $this->metadataFactory->getMetadataFor($class);
+
             // get changes => should be already computed here (is a listener)
             $changeset = $this->uow->getEntityChangeSet($entity);
-            foreach ($this->config->getGlobalIgnoreProperties() as $property) {
+            foreach (array_keys($auditMetadata->ignoredFields) as $property) {
                 if (isset($changeset[$property])) {
                     unset($changeset[$property]);
                 }

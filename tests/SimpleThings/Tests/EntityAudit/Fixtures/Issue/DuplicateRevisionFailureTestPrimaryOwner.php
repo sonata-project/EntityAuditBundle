@@ -4,10 +4,12 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
  * NB! Object property order matters!
  *
+ * @Auditable()
  * @ORM\Entity
  */
 class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity

@@ -4,8 +4,10 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
+ * @Auditable()
  * @ORM\Entity
  * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  */

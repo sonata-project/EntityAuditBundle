@@ -38,14 +38,13 @@ class SimpleThingsEntityAuditExtension extends Extension
         $loader->load('auditable.xml');
 
         $configurables = array(
-            'audited_entities',
+            'entity_manager',
             'table_prefix',
             'table_suffix',
             'revision_field_name',
             'revision_type_field_name',
             'revision_table_name',
             'revision_id_field_type',
-            'global_ignore_properties',
         );
 
         foreach ($configurables as $key) {

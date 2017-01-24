@@ -3,8 +3,12 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
-/** @ORM\Entity */
+/**
+ * @Auditable()
+ * @ORM\Entity
+ */
 class OwnerEntity
 {
     /** @ORM\Id @ORM\Column(type="integer", name="some_strange_key_name") @ORM\GeneratedValue(strategy="AUTO") */

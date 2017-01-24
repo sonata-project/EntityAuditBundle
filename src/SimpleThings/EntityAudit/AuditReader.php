@@ -363,7 +363,7 @@ class AuditReader
                     $class->discriminatorColumn['fieldName'],
                     $queryBuilder->createPositionalParameter($class->discriminatorValue)
                 ));
-            } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName != $class->name) {
+            } elseif ($class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName) {
                 /** @var ClassMetadataInfo|ClassMetadata $rootClass */
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
                 $rootTableName = $this->config->getTableName($rootClass);

@@ -3,8 +3,11 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Core;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
+use SimpleThings\EntityAudit\Mapping\Annotation\Ignore;
 
 /**
+ * @Auditable()
  * @ORM\Entity
  */
 class ArticleAudit
@@ -18,13 +21,16 @@ class ArticleAudit
     /** @ORM\Column(type="text") */
     private $text;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @Ignore()
+     * @ORM\Column(type="text")
+     */
     private $ignoreMe;
 
     /** @ORM\ManyToOne(targetEntity="UserAudit") */
     private $author;
 
-    function __construct($title, $text, $author, $ignoreMe)
+    public function __construct($title, $text, $author, $ignoreMe)
     {
         $this->title    = $title;
         $this->text     = $text;

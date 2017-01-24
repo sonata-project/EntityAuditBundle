@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
- */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
- * Class Issue156ContactTelephoneNumber
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * @Auditable()
  * @ORM\Entity()
  */
 class Issue156ContactTelephoneNumber

@@ -3,10 +3,12 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
  * Data container entity
  *
+ * @Auditable()
  * @ORM\Entity
  */
 class DataContainerEntity

@@ -6,8 +6,8 @@ use Doctrine\Common\Annotations\Annotation;
 
 /**
  * @Annotation
- * @Target("CLASS")
+ * @Target("PROPERTY")
  */
-final class Auditable extends Annotation
+final class Ignore extends Annotation
 {
 }

@@ -34,6 +34,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -57,9 +58,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
      */
     protected $auditManager;
 
-    protected $schemaEntities = array();
-
-    protected $auditedEntities = array();
+    protected $fixturesPath;
 
     public function setUp()
     {
@@ -72,6 +71,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $this->tearDownEntitySchema();
+        $this->em = null;
+        $this->auditManager = null;
+        $this->schemaTool = null;
     }
 
     /**
@@ -91,9 +93,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(
-            realpath(__DIR__ . '/Fixtures/Core'),
-            realpath(__DIR__ . '/Fixtures/Issue'),
-            realpath(__DIR__ . '/Fixtures/Relation'),
+            $this->fixturesPath
         ), false));
 
         Gedmo\DoctrineExtensions::registerAnnotations();
@@ -199,34 +199,28 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
             return $this->auditManager;
         }
 
-        $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreProperties(array('ignoreMe'));
+        $auditConfig = new AuditConfiguration();
         $auditConfig->setUsernameCallable(function () {
             return 'beberlei';
         });
 
-        $auditManager = new AuditManager($auditConfig);
-        $auditManager->registerEvents($this->_getConnection()->getEventManager());
+        $auditConfig->setMetadataDriver(AnnotationDriver::create());
+
+        $auditManager = new AuditManager($this->getEntityManager(), $auditConfig);
 
         return $this->auditManager = $auditManager;
     }
 
     protected function setUpEntitySchema()
     {
-        $em = $this->getEntityManager();
-        $classes = array_map(function ($value) use ($em) {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities);
+        $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
         $this->getSchemaTool()->createSchema($classes);
     }
 
     protected function tearDownEntitySchema()
     {
-        $em = $this->getEntityManager();
-        $classes = array_map(function ($value) use ($em) {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities);
+        $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
         $this->getSchemaTool()->dropSchema($classes);
     }

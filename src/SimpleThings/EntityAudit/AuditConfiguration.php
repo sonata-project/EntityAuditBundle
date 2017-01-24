@@ -24,30 +24,65 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
+use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 
 class AuditConfiguration
 {
-    private $auditedEntityClasses = array();
-    private $globalIgnoreProperties = array();
+    /**
+     * @var DriverInterface
+     */
+    private $metadataDriver;
+
+    /**
+     * @var string
+     */
     private $tablePrefix = '';
+
+    /**
+     * @var string
+     */
     private $tableSuffix = '_audit';
+
+    /**
+     * @var string
+     */
     private $revisionTableName = 'revisions';
+
+    /**
+     * @var string
+     */
     private $revisionFieldName = 'rev';
+
+    /**
+     * @var string
+     */
     private $revisionTypeFieldName = 'revtype';
+
+    /**
+     * @var string
+     */
     private $revisionIdFieldType = 'integer';
+
+    /**
+     * @var callable
+     */
     private $usernameCallable;
 
     /**
-     * @param array $classes
-     *
-     * @return AuditConfiguration
+     * @param DriverInterface $driver
      */
-    public static function forEntities(array $classes)
+    public function setMetadataDriver(DriverInterface $driver)
     {
-        $conf = new self;
-        $conf->auditedEntityClasses = $classes;
+        $this->metadataDriver = $driver;
+    }
 
-        return $conf;
+    /**
+     * @return DriverInterface
+     */
+    public function getMetadataDriver()
+    {
+        return $this->metadataDriver;
     }
 
     /**
@@ -147,29 +182,6 @@ class AuditConfiguration
     }
 
     /**
-     * @param string[] $classes
-     */
-    public function setAuditedEntityClasses(array $classes)
-    {
-        $this->auditedEntityClasses = $classes;
-    }
-
-    public function getGlobalIgnoreProperties()
-    {
-        return $this->globalIgnoreProperties;
-    }
-
-    public function setGlobalIgnoreProperties(array $properties)
-    {
-        $this->globalIgnoreProperties = $properties;
-    }
-
-    public function createMetadataFactory()
-    {
-        return new Metadata\MetadataFactory($this->auditedEntityClasses);
-    }
-
-    /**
      * @return string|null
      */
     public function getCurrentUsername()
@@ -192,13 +204,27 @@ class AuditConfiguration
         return $this->usernameCallable;
     }
 
+    /**
+     * @param string $revisionIdFieldType
+     */
     public function setRevisionIdFieldType($revisionIdFieldType)
     {
         $this->revisionIdFieldType = $revisionIdFieldType;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
+    }
+
+    /**
+     * @return AuditConfiguration
+     */
+    public static function createWithAnnotationDriver()
+    {
+        return new self(AnnotationDriver::create());
     }
 }

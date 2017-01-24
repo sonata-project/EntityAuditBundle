@@ -3,8 +3,13 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
-/** @ORM\Entity @ORM\Table(name="project_project") */
+/**
+ * @Auditable()
+ * @ORM\Entity
+ * @ORM\Table(name="project_project")
+ */
 class Issue87Project extends Issue87AbstractProject
 {
     /**

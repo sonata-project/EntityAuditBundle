@@ -9,9 +9,11 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
  * A slightly contrived entity which has an entity (Page) as an ID.
+ * @Auditable()
  * @ORM\Entity
  */
 class PageAlias

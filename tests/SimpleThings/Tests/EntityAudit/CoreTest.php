@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use SimpleThings\EntityAudit\ChangedEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog;
@@ -33,28 +34,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit;
 
 class CoreTest extends BaseTest
 {
-    protected $schemaEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\PetAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
-    );
-
-    protected $auditedEntities = array(
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
-    );
+    protected $fixturesPath = __DIR__ . '/Fixtures/Core';
 
     public function testAuditable()
     {
@@ -207,11 +187,16 @@ class CoreTest extends BaseTest
         $this->em->persist($article);
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
         $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
         //duplicated entries means a bug with discriminators
         $this->assertEquals(6, count($changedEntities));
+
+        usort($changedEntities, function(ChangedEntity $a, ChangedEntity $b) {
+            return strcmp($a->getClassName(), $b->getClassName());
+        });
+
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
 
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getClassName());
@@ -219,10 +204,10 @@ class CoreTest extends BaseTest
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getEntity());
 
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getClassName());
-        $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getEntity());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[5]->getClassName());
+        $this->assertEquals('INS', $changedEntities[5]->getRevisionType());
+        $this->assertEquals(array('id' => 1), $changedEntities[5]->getId());
+        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[5]->getEntity());
     }
 
     public function testNotVersionedRelationFind()
@@ -337,7 +322,7 @@ class CoreTest extends BaseTest
         $this->assertEquals(3, $revision);
     }
 
-    public function testGlobalIgnoreProperties()
+    public function testIgnoreProperties()
     {
         $user = new UserAudit("welante");
         $article = new ArticleAudit("testcolumn", "yadda!", $user, 'text');
@@ -350,7 +335,7 @@ class CoreTest extends BaseTest
         $this->em->persist($article);
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
 
         $revision = $reader->getCurrentRevision(get_class($article), $article->getId());
         $this->assertEquals(2, $revision);
