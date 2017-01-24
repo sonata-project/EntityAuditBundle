@@ -204,10 +204,10 @@ class CoreTest extends BaseTest
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getEntity());
 
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat', $changedEntities[1]->getClassName());
-        $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat', $changedEntities[1]->getEntity());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[5]->getClassName());
+        $this->assertEquals('INS', $changedEntities[5]->getRevisionType());
+        $this->assertEquals(array('id' => 1), $changedEntities[5]->getId());
+        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[5]->getEntity());
     }
 
     public function testNotVersionedRelationFind()
