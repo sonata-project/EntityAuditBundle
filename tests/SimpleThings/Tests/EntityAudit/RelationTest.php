@@ -67,9 +67,7 @@ class RelationTest extends BaseTest
 
         $this->em->flush();
 
-        unset($owner);
-        unset($owned1);
-        unset($owned2);
+        unset($owner, $owned1, $owned2);
         $this->em->clear();
 
         $owner = $this->em->getReference("SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnerEntity", 1);
@@ -81,7 +79,7 @@ class RelationTest extends BaseTest
 
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
         $this->assertEquals(2, count($changedEntities));
@@ -146,7 +144,7 @@ class RelationTest extends BaseTest
 
     public function testOneToOne()
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
 
         $master = new OneToOneMasterEntity();
         $master->setTitle('master#1');

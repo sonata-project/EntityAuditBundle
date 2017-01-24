@@ -52,9 +52,9 @@ class AuditManager
         return $this->config;
     }
 
-    public function createAuditReader(array $options = [])
+    public function createAuditReader()
     {
-        return new AuditReader($this->entityManager, $this->config, $this->metadataFactory, $options);
+        return new AuditReader($this->entityManager, $this->config, $this->metadataFactory);
     }
 
     protected function registerEvents(EventManager $evm)
