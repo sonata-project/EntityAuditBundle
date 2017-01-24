@@ -31,19 +31,35 @@ points in time.
 This extension hooks into the SchemaTool generation process so that it will automatically
 create the necessary DDL statements for your audited entities.
 
-## Installation (In Symfony2 Application)
+## Installation (Standalone)
 
-###Installing the bundle
+###Installing the lib/bundle
 
 Simply run assuming you have installed composer.phar or composer binary:
 
 ``` bash
-$ php composer.phar require simplethings/entity-audit-bundle
+$ composer require simplethings/entity-audit-bundle
 ```
+
+For standalone usage you have to pass the EntityManager.
+
+```php
+use Doctrine\ORM\EntityManager;
+use SimpleThings\EntityAudit\AuditManager;
+
+$config = new \Doctrine\ORM\Configuration();
+// $config ...
+$conn = array();
+$em = EntityManager::create($conn, $config, $evm);
+
+$auditManager = AuditManager::create($em);
+```
+
+## Installation (In Symfony2 Application)
 
 ###Enable the bundle
 
-Finally, enable the bundle in the kernel:
+Enable the bundle in the kernel:
 
 ``` php
 // app/AppKernel.php
@@ -60,6 +76,8 @@ public function registerBundles()
 ```
 
 ###Configuration
+
+You can configure the audited tables. 
 
 #####app/config/config.yml
 ```yml
@@ -81,29 +99,45 @@ Call the command below to see the new tables in the update schema queue.
 ./app/console doctrine:schema:update --dump-sql 
 ```
 
-**Notice**: EntityAudit currently **only** works with a DBAL Connection and EntityManager named **"default"**.
-
-
-## Installation (Standalone)
-
-For standalone usage you have to pass the entity class names to be audited to the MetadataFactory
-instance and configure the two event listeners.
-
-```php
-use Doctrine\ORM\EntityManager;
-use SimpleThings\EntityAudit\AuditManager;
-
-$config = new \Doctrine\ORM\Configuration();
-// $config ...
-$conn = array();
-$em = EntityManager::create($conn, $config, $evm);
-
-$auditManager = AuditManager::create($em);
-```
-
 ## Usage
 
+### Define auditable entities
+ 
+You need add `Auditable` annotation for the entities which you want to auditable.
+  
+```php
+/**
+ * \Doctrine\ORM\Mapping\Entity()
+ * \SimpleThings\EntityAudit\Mapping\Annotation\Auditable()
+ */
+class Page {
+ //...
+}
+```
+
+You can also ignore fields in an specific entity.
+ 
+```php
+class Page {
+
+    /**
+     * \Doctrine\ORM\Mapping\Column(type="string")
+     * \SimpleThings\EntityAudit\Mapping\Annotation\Ignore()
+     */
+    private $ignoreMe;
+
+}
+``` 
+
+### Use AuditReader
+
 Querying the auditing information is done using a `SimpleThings\EntityAudit\AuditReader` instance.
+
+In a standalone application you can create the audit reader from the audit manager:
+
+```php
+$auditReader = $auditManager->createAuditReader();
+```
 
 In Symfony2 the AuditReader is registered as the service "simplethings_entityaudit.reader":
 
@@ -115,12 +149,6 @@ class DefaultController extends Controller
         $auditReader = $this->container->get('simplethings_entityaudit.manager')->createAuditReader();
     }
 }
-```
-
-In a standalone application you can create the audit reader from the audit manager:
-
-```php
-$auditReader = $auditManager->createAuditReader();
 ```
 
 ### Find entity state at a particular revision
@@ -237,7 +265,6 @@ This provides you with a few different routes:
 ## TODOS
 
 * Currently only works with auto-increment databases
-* Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
 
 ## Supported DB
 
