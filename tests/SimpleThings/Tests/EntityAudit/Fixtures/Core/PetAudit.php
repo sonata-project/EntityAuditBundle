@@ -3,7 +3,6 @@
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Core;
 
 use Doctrine\ORM\Mapping as ORM;
-use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 
 /**
  * @ORM\Entity
