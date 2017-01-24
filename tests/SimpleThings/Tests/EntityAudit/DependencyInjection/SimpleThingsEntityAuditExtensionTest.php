@@ -18,9 +18,6 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.username_callable.token_storage', 0, 'service_container');
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.config', 'SimpleThings\EntityAudit\AuditConfiguration');
-        $this->assertContainerBuilderHasServiceDefinitionFactory('simplethings_entityaudit.config', 'simplethings_entityaudit.config_factory', 'createAuditConfiguration');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.config', 0, 'doctrine.orm.default_configuration');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.config', 1, 'annotation_reader');
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTablePrefix', array('%simplethings.entityaudit.table_prefix%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTableSuffix', array('%simplethings.entityaudit.table_suffix%'));
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionTableName', array('%simplethings.entityaudit.revision_table_name%'));
