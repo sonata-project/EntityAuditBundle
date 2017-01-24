@@ -3,7 +3,7 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\EventManager;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
@@ -25,15 +25,15 @@ class AuditManager
     private $metadataFactory;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
 
     /**
-     * @param EntityManager $entityManager
+     * @param EntityManagerInterface $entityManager
      * @param AuditConfiguration $config
      */
-    public function __construct(EntityManager $entityManager, AuditConfiguration $config)
+    public function __construct(EntityManagerInterface $entityManager, AuditConfiguration $config)
     {
         $this->entityManager = $entityManager;
         $this->config = $config;
@@ -64,10 +64,10 @@ class AuditManager
     }
 
     /**
-     * @param EntityManager $entityManager
+     * @param EntityManagerInterface $entityManager
      * @return AuditManager
      */
-    public static function create(EntityManager $entityManager)
+    public static function create(EntityManagerInterface $entityManager)
     {
         return new self($entityManager, AuditConfiguration::createWithAnnotationDriver());
     }

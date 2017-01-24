@@ -15,11 +15,10 @@
     </parameters>
 
     <services>
-
         <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
             <argument type="service">
-                <service>
-                    <factory service="simplethings_entityaudit.config_factory" method="createAuditConfiguration"/>
+                <service class="Doctrine\ORM\EntityManager">
+                    <factory service="doctrine" method="getManager"/>
                     <argument type="string">%simplethings.entityaudit.entity_manager%</argument>
                 </service>
             </argument>
@@ -31,14 +30,7 @@
             <argument id="service_container" type="service"/>
         </service>
 
-        <service id="simplethings_entityaudit.config_factory"
-                 class="SimpleThings\EntityAudit\AuditConfigurationFactory">
-        </service>
-
         <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
-            <factory service="simplethings_entityaudit.config_factory" method="createAuditConfiguration"/>
-            <argument type="service" id="doctrine.orm.default_configuration"/>
-            <argument type="service" id="annotation_reader"/>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
             </call>
@@ -59,6 +51,14 @@
             </call>
             <call method="setUsernameCallable">
                 <argument type="service" id="simplethings_entityaudit.username_callable"/>
+            </call>
+
+            <call method="setMetadataDriver">
+                <argument type="service">
+                    <service class="SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver">
+                        <factory class="SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver" method="create"/>
+                    </service>
+                </argument>
             </call>
         </service>
     </services>

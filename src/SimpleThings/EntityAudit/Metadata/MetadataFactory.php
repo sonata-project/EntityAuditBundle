@@ -23,7 +23,7 @@
 
 namespace SimpleThings\EntityAudit\Metadata;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 
 /**
@@ -32,7 +32,7 @@ use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 class MetadataFactory
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
 
@@ -51,10 +51,10 @@ class MetadataFactory
     private $loaded = false;
 
     /**
-     * @param EntityManager $entityManager
+     * @param EntityManagerInterface $entityManager
      * @param DriverInterface $driver
      */
-    public function __construct(EntityManager $entityManager, DriverInterface $driver)
+    public function __construct(EntityManagerInterface $entityManager, DriverInterface $driver)
     {
         $this->entityManager = $entityManager;
         $this->driver = $driver;
