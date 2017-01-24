@@ -24,6 +24,7 @@
 namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use SimpleThings\EntityAudit\ChangedEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog;
@@ -191,17 +192,22 @@ class CoreTest extends BaseTest
 
         //duplicated entries means a bug with discriminators
         $this->assertEquals(6, count($changedEntities));
+
+        usort($changedEntities, function(ChangedEntity $a, ChangedEntity $b) {
+            return strcmp($a->getClassName(), $b->getClassName());
+        });
+
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
 
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat', $changedEntities[0]->getClassName());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getClassName());
         $this->assertEquals('INS', $changedEntities[0]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat', $changedEntities[0]->getEntity());
+        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getEntity());
 
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit', $changedEntities[1]->getClassName());
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat', $changedEntities[1]->getClassName());
         $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit', $changedEntities[1]->getEntity());
+        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat', $changedEntities[1]->getEntity());
     }
 
     public function testNotVersionedRelationFind()

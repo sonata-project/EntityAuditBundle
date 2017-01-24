@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\ORM\Mapping as ORM;
 use SimpleThings\EntityAudit\AuditReader;
+use SimpleThings\EntityAudit\ChangedEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\ChildEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity;
@@ -83,12 +84,18 @@ class RelationTest extends BaseTest
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
         $this->assertEquals(2, count($changedEntities));
-        $changedOwner = $changedEntities[0]->getEntity();
-        $changedOwned = $changedEntities[1]->getEntity();
-
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',
+
+        usort($changedEntities, function(ChangedEntity $a, ChangedEntity $b) {
+            return strcmp($a->getClassName(), $b->getClassName());
+        });
+
+        $changedOwned = $changedEntities[0]->getEntity();
+        $changedOwner = $changedEntities[1]->getEntity();
+
+        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1',
             $changedEntities[0]->getClassName());
+
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', get_class($changedOwner));
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', get_class($changedOwned));
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());

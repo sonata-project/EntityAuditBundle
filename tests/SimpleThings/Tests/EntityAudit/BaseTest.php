@@ -58,11 +58,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
      */
     protected $auditManager;
 
-    protected $schemaEntities = array();
-
     protected $fixturesPath;
-
-    protected $auditedEntities = array();
 
     public function setUp()
     {
