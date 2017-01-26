@@ -2,7 +2,7 @@
 
 | Master | 1.0 Branch |
 |:----------------:|:----------:|
-| [![Build Status](https://travis-ci.org/simplethings/EntityAudit.svg?branch=master)](https://travis-ci.org/simplethings/EntityAudit) | [![Build Status](https://travis-ci.org/simplethings/EntityAudit.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAudit) |
+| [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=master)](https://travis-ci.org/simplethings/EntityAuditBundle) | [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAuditBundle) |
 
 
 **Readme for 1.x:** https://github.com/simplethings/EntityAudit/blob/1.0/README.md
