@@ -106,9 +106,12 @@ Call the command below to see the new tables in the update schema queue.
 You need add `Auditable` annotation for the entities which you want to auditable.
   
 ```php
+use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation as Audit;
+
 /**
- * \Doctrine\ORM\Mapping\Entity()
- * \SimpleThings\EntityAudit\Mapping\Annotation\Auditable()
+ * @ORM\Entity()
+ * @Audit\Auditable()
  */
 class Page {
  //...
@@ -121,8 +124,8 @@ You can also ignore fields in an specific entity.
 class Page {
 
     /**
-     * \Doctrine\ORM\Mapping\Column(type="string")
-     * \SimpleThings\EntityAudit\Mapping\Annotation\Ignore()
+     * @ORM\Column(type="string")
+     * @Audit\Ignore()
      */
     private $ignoreMe;
 
