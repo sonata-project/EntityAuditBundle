@@ -2,7 +2,7 @@
 
 | Master | 1.0 Branch |
 |:----------------:|:----------:|
-| [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=master)](https://travis-ci.org/simplethings/EntityAuditBundle) | [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAuditBundle) |
+| [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=master)](https://travis-ci.org/simplethings/EntityAuditBundle) [![Build Status](https://status.continuousphp.com/git-hub/simplethings/EntityAuditBundle?token=69da314d-aa46-4f24-841c-536c085a4b19&branch=master)](https://continuousphp.com/git-hub/simplethings/EntityAuditBundle) | [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAuditBundle) |
 
 
 **Readme for 1.x:** https://github.com/simplethings/EntityAudit/blob/1.0/README.md
@@ -274,6 +274,7 @@ This provides you with a few different routes:
 * MySQL / MariaDB
 * PostgesSQL
 * SQLite
+* Oracle
 
 *We can only really support the databases if we can test them via Travis.*
 

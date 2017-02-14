@@ -115,7 +115,8 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
                 if (!Type::hasType($customTypeName)) {
                     Type::addType($customTypeName, $customTypeClass);
                 }
-                $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $customTypeName, $customTypeName);
+                $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $customTypeName,
+                    $customTypeName);
             }
         }
 
@@ -140,14 +141,14 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     protected function _getConnection()
     {
         if (!isset(self::$conn)) {
-            if(isset(
+            if (isset(
                 $GLOBALS['db_type'],
                 $GLOBALS['db_username'],
                 $GLOBALS['db_password'],
                 $GLOBALS['db_host'],
                 $GLOBALS['db_name'],
                 $GLOBALS['db_port']
-            )){
+            )) {
                 $params = array(
                     'driver' => $GLOBALS['db_type'],
                     'user' => $GLOBALS['db_username'],
@@ -161,7 +162,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
                 $dbname = $params['dbname'];
                 unset($tmpParams['dbname']);
 
-                $conn = DriverManager::getConnection($tmpParams);
+                $conn = DriverManager::getConnection($params);
                 $platform = $conn->getDatabasePlatform();
 
                 if ($platform->supportsCreateDropDatabase()) {
