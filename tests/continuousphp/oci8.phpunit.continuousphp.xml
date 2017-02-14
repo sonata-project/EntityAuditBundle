@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<phpunit bootstrap="../bootstrap.php" colors="true">
+
+    <php>
+        <var name="db_type" value="oci8"/>
+        <var name="db_host" value="oracle-xe-11" />
+        <var name="db_username" value="ORACLE" />
+        <var name="db_password" value="ORACLE" />
+        <var name="db_name" value="XE" />
+        <var name="db_port" value="1521"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="SimpleThings EntityAudit">
+            <directory>./../SimpleThings/Tests/EntityAudit</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
