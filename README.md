@@ -3,9 +3,9 @@
 | Master | 1.0 Branch |
 |:----------------:|:----------:|
 | [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=master)](https://travis-ci.org/simplethings/EntityAuditBundle) | [![Build Status](https://travis-ci.org/simplethings/EntityAuditBundle.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAuditBundle) |
+|[documentation](https://github.com/simplethings/EntityAuditBundle/blob/master/README.md)|[documentation](https://github.com/simplethings/EntityAudit/blob/1.0/README.md)
 
-
-**Readme for 1.x:** https://github.com/simplethings/EntityAudit/blob/1.0/README.md
+**WARNING: Master isn't stable yet and it might not be working! Please use version `^1.0` and this documentation: https://github.com/simplethings/EntityAudit/blob/1.0/README.md**
 
 This extension for Doctrine 2 is inspired by [Hibernate Envers](http://www.jboss.org/envers) and
 allows full versioning of entities and their associations.
