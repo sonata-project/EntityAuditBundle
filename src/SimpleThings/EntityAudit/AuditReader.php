@@ -260,10 +260,9 @@ class AuditReader
 
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = sprintf(
-                '%s.%s AS %s',
-                $tableAlias,
+                '%s AS %s',
                 $type->convertToPHPValueSQL(
-                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                    $tableAlias . '.' . $this->quoteStrategy->getColumnName($field, $class, $this->platform),
                     $this->platform
                 ),
                 $this->platform->quoteSingleIdentifier($field)
@@ -588,8 +587,8 @@ class AuditReader
                 $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field)	&& ! $class->isIdentifier($field)
                     ? 're' // root entity
                     : 'e';
-                $columnList .= ', ' . $tableAlias . '.' . $type->convertToPHPValueSQL(
-                        $this->quoteStrategy->getColumnName($field, $class, $this->platform), $this->platform
+                $columnList .= ', ' . $type->convertToPHPValueSQL(
+                        $tableAlias . '.' . $this->quoteStrategy->getColumnName($field, $class, $this->platform), $this->platform
                     ) . ' AS ' . $this->platform->quoteSingleIdentifier($field);
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
