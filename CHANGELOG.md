@@ -2,6 +2,9 @@
 
 ### upcoming (2017/MM/DD)
 
+### v1.0.3 (2017/04/19)
+- [#275](https://github.com/simplethings/EntityAuditBundle/pull/275) Fix auditing of entities with fields that require php conversion (@TheRatG)
+
 ### v1.0.2 (2017/01/30)
 - [#258](https://github.com/simplethings/EntityAuditBundle/issues/258) global_ignore_columns doesn't work
 
