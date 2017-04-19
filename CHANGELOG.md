@@ -2,6 +2,9 @@
 
 ### upcoming (2017/MM/DD)
 
+### v1.0.2 (2017/01/30)
+- [#258](https://github.com/simplethings/EntityAuditBundle/issues/258) global_ignore_columns doesn't work
+
 ### v1.0.1 (2017/01/13)
 - [#250](https://github.com/simplethings/EntityAudit/pull/250) Fix OneToOne reverse relation Doctrine fallback query (@Soullivaneuh)
 - [#227](https://github.com/simplethings/EntityAudit/pull/227) Fallback to native entity if no revision found for properties (@Soullivaneuh)

@@ -25,6 +25,7 @@ namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
@@ -197,10 +198,13 @@ class AuditReader
                 ? 're' // root entity
                 : 'e';
 
+            $type = Type::getType($class->fieldMappings[$field]['type']);
             $queryBuilder->addSelect(sprintf(
-                '%s.%s AS %s',
-                $tableAlias,
-                $this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                '%s AS %s',
+                $type->convertToPHPValueSQL(
+                    $tableAlias . '.' . $this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                    $this->platform
+                ),
                 $this->platform->quoteSingleIdentifier($field)
             ));
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
@@ -338,12 +342,18 @@ class AuditReader
                     ? 're' // root entity
                     : 'e';
 
+                $type = Type::getType($class->fieldMappings[$field]['type']);
+
                 $queryBuilder->addSelect(sprintf(
-                    '%s.%s AS %s',
-                    $tableAlias,
-                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                    '%s AS %s',
+                    $type->convertToPHPValueSQL(
+                        $tableAlias . '.' . $this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                        $this->platform
+                    ),
                     $this->platform->quoteSingleIdentifier($field)
                 ));
+
+
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
