@@ -292,7 +292,7 @@ class AuditReader
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
             $rootTableName = $this->config->getTableName($rootClass);
             $joinSql = "INNER JOIN {$rootTableName} re ON";
-            $joinSql .= " re.rev = e.rev";
+            $joinSql .= " re.".$this->config->getRevisionFieldName()." = e.".$this->config->getRevisionFieldName();
             foreach ($class->getIdentifierColumnNames() as $name) {
                 $joinSql .= " AND re.$name = e.$name";
             }
@@ -316,7 +316,7 @@ class AuditReader
             }
         }
 
-        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e " . $joinSql . " WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
 
         $row = $this->em->getConnection()->fetchAssoc($query, $values);
 
@@ -615,7 +615,7 @@ class AuditReader
                 $rootTableName = $this->config->getTableName($rootClass);
 
                 $joinSql = "INNER JOIN {$rootTableName} re ON";
-                $joinSql .= " re.rev = e.rev";
+                $joinSql .= " re.".$this->config->getRevisionFieldName()." = e.".$this->config->getRevisionFieldName();
                 foreach ($class->getIdentifierColumnNames() as $name) {
                     $joinSql .= " AND re.$name = e.$name";
                 }
@@ -865,7 +865,7 @@ class AuditReader
 
         $values = array_values($id);
 
-        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
+        $query = "SELECT " . implode(', ', $columnList) . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.".$this->config->getRevisionFieldName()." DESC";
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
         $result = array();
