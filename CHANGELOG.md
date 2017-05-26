@@ -2,6 +2,12 @@
 
 ### upcoming (2017/MM/DD)
 
+### v1.0.5 (2017/05/26)
+- [#281](https://github.com/simplethings/EntityAuditBundle/pull/281) Removal of hardcoded revision field name (@c0ntax)
+
+### v1.0.4 (2017/04/19)
+- [#279](https://github.com/simplethings/EntityAuditBundle/issues/279) Fix versioning
+
 ### v1.0.3 (2017/04/19)
 - [#275](https://github.com/simplethings/EntityAuditBundle/pull/275) Fix auditing of entities with fields that require php conversion (@TheRatG)
 
