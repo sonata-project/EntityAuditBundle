@@ -3,7 +3,7 @@
 <phpunit bootstrap="./tests/bootstrap.php" colors="true">
     <testsuites>
         <testsuite name="SimpleThings EntityAudit">
-            <directory>./tests/SimpleThings/Tests/EntityAudit</directory>
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

@@ -19,20 +19,17 @@ php:
   - hhvm
 
 env:
-  - DB=mysql
+  - SYMFONY=mysql
   - DB=sqlite
   - DB=pgsql
 
 before_install:
-  - if [[ $DB == 'mysql' && $MYSQL_VERSION == '5.7' ]]; then ./tests/travis/install-mysql-5.7.sh; fi
-  - if [[ $DB == 'mysql' ]]; then mysql -u root -e 'select version()'; fi
-  - if [[ $DB == 'pgsql' ]]; then psql -U postgres -c 'SHOW SERVER_VERSION'; fi
   - if [[ $TRAVIS_PHP_VERSION != 'hhvm' ]]; then phpenv config-rm xdebug.ini; fi
   - composer self-update
 
 install: composer update $COMPOSER_FLAGS --prefer-dist
 
-script: ./vendor/bin/phpunit -c tests/travis/$DB.travis.xml
+script: ./vendor/bin/phpunit -c .
 
 matrix:
   fast_finish: true
@@ -64,9 +61,6 @@ matrix:
       env: NAME="PostgreSQL 9.4" DB=pgsql
       addons:
         postgresql: 9.4
-  exclude:
-    - php: hhvm
-      env: DB=pgsql  # driver for PostgreSQL currently unsupported by HHVM, requires 3rd party dependency
   allow_failures:
     - php: nightly
     - php: hhvm
