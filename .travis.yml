@@ -30,7 +30,7 @@ before_install:
 
 install: composer update $COMPOSER_FLAGS --prefer-dist
 
-before_script: composer require symfony/framework-bundle:${SYMFONY_VERSION}
+before_script: composer require --update-with-dependencies symfony/framework-bundle:${SYMFONY_VERSION}
 
 script: ./vendor/bin/phpunit -c .
 
