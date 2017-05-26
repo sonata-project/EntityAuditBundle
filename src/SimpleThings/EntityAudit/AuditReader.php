@@ -231,7 +231,7 @@ class AuditReader
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
             $rootTableName = $this->config->getTableName($rootClass);
 
-            $condition = ['re.rev = e.rev'];
+            $condition = ["re.{$this->config->getRevisionFieldName()} = e.{$this->config->getRevisionFieldName()}"];
             foreach ($class->getIdentifierColumnNames() as $name) {
                 $condition[] = "re.$name = e.$name";
             }
@@ -260,7 +260,7 @@ class AuditReader
         }
 
         $queryBuilder->setParameters(array_merge(array($revision), array_values($id)));
-        $queryBuilder->orderBy('e.rev', 'DESC');
+        $queryBuilder->orderBy('e.'.$this->config->getRevisionFieldName(), 'DESC');
 
         $row = $queryBuilder->execute()->fetch(\PDO::FETCH_ASSOC);
 
@@ -268,7 +268,7 @@ class AuditReader
             throw new NoRevisionFoundException($class->name, $id, $revision);
         }
 
-        if ($options['threatDeletionsAsExceptions'] && $row[$this->config->getRevisionTypeFieldName()] == 'DEL') {
+        if ($options['threatDeletionsAsExceptions'] && $row[$this->config->getRevisionTypeFieldName()] === 'DEL') {
             throw new DeletedException($class->name, $id, $revision);
         }
 
@@ -378,7 +378,7 @@ class AuditReader
                 $rootClass = $this->em->getClassMetadata($class->rootEntityName);
                 $rootTableName = $this->config->getTableName($rootClass);
 
-                $condition = ['re.rev = e.rev'];
+                $condition = ["re.{$this->config->getRevisionFieldName()} = e.{$this->config->getRevisionFieldName()}"];
                 foreach ($class->getIdentifierColumnNames() as $name) {
                     $condition[] = "re.$name = e.$name";
                 }
@@ -641,7 +641,7 @@ class AuditReader
         $queryBuilder = $this->getConnection()->createQueryBuilder()
             ->select($revisionFieldName)
             ->from($this->config->getTableName($class), 'e')
-            ->orderBy('e.rev', 'DESC');
+            ->orderBy('e.'.$this->config->getRevisionFieldName(), 'DESC');
 
         if (! is_array($id)) {
             $id = array($class->identifier[0] => $id);
@@ -677,7 +677,6 @@ class AuditReader
                 $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
             }
         }
-
 
         $stmt = $queryBuilder->execute();
 
