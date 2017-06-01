@@ -42,27 +42,27 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @var \SimpleThings\EntityAudit\AuditConfiguration
      */
-    private $config;
+    protected $config;
 
     /**
      * @var \SimpleThings\EntityAudit\Metadata\MetadataFactory
      */
-    private $metadataFactory;
+    protected $metadataFactory;
 
     /**
      * @var \Doctrine\DBAL\Connection
      */
-    private $conn;
+    protected $conn;
 
     /**
      * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
-    private $platform;
+    protected $platform;
 
     /**
      * @var \Doctrine\ORM\EntityManager
      */
-    private $em;
+    protected $em;
 
     /**
      * @var \Doctrine\ORM\Mapping\QuoteStrategy
@@ -73,22 +73,22 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @var array
      */
-    private $insertRevisionSQL = array();
+    protected $insertRevisionSQL = array();
 
     /**
      * @var \Doctrine\ORM\UnitOfWork
      */
-    private $uow;
+    protected $uow;
 
     /**
      * @var int
      */
-    private $revisionId;
+    protected $revisionId;
 
     /**
      * @var array
      */
-    private $extraUpdates = array();
+    protected $extraUpdates = array();
 
     public function __construct(AuditManager $auditManager)
     {
@@ -322,7 +322,7 @@ class LogRevisionsListener implements EventSubscriber
      *
      * @return array
      */
-    private function getOriginalEntityData($entity)
+    protected function getOriginalEntityData($entity)
     {
         $class = $this->em->getClassMetadata(get_class($entity));
         $data = $this->uow->getOriginalEntityData($entity);
@@ -334,7 +334,7 @@ class LogRevisionsListener implements EventSubscriber
         return $data;
     }
 
-    private function getRevisionId()
+    protected function getRevisionId()
     {
         if (null !== $this->revisionId) {
             return $this->revisionId;
@@ -366,7 +366,7 @@ class LogRevisionsListener implements EventSubscriber
      * @return string
      * @throws \Doctrine\DBAL\DBALException
      */
-    private function getInsertRevisionSQL($class)
+    protected function getInsertRevisionSQL($class)
     {
         if (! isset($this->insertRevisionSQL[$class->name])) {
             $placeholders = array('?', '?');
@@ -430,7 +430,7 @@ class LogRevisionsListener implements EventSubscriber
      * @param array         $entityData
      * @param string        $revType
      */
-    private function saveRevisionEntityData($class, $entityData, $revType)
+    protected function saveRevisionEntityData($class, $entityData, $revType)
     {
         $params = array($this->getRevisionId(), $revType);
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
@@ -510,7 +510,7 @@ class LogRevisionsListener implements EventSubscriber
      *
      * @return string
      */
-    private function getHash($entity)
+    protected function getHash($entity)
     {
         return implode(
             ' ',
@@ -540,7 +540,7 @@ class LogRevisionsListener implements EventSubscriber
      *
      * @return array
      */
-    private function prepareUpdateData($persister, $entity)
+    protected function prepareUpdateData($persister, $entity)
     {
         $uow = $this->em->getUnitOfWork();
         $classMetadata = $persister->getClassMetadata();
