@@ -155,7 +155,7 @@ class AuditConfiguration
     {
         $callable = $this->usernameCallable;
 
-        return $callable ? $callable() : null;
+        return $callable ? $callable() : "";
     }
 
     public function setUsernameCallable($usernameCallable)
