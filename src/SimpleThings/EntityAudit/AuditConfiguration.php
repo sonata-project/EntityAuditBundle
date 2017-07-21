@@ -149,7 +149,7 @@ class AuditConfiguration
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getCurrentUsername()
     {
