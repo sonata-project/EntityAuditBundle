@@ -24,17 +24,21 @@
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use SimpleThings\EntityAudit\AuditReader;
+use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Category;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Product;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization;
@@ -42,8 +46,6 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
 
 class IssueTest extends BaseTest
 {
@@ -69,6 +71,8 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Product',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Category',
     );
 
     protected $auditedEntities = array(
@@ -93,6 +97,8 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Product',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Category',
     );
 
     protected $customTypes = array(
@@ -235,7 +241,10 @@ class IssueTest extends BaseTest
 
         $this->em->getUnitOfWork()->clear();
 
-        $primaryOwner = $this->em->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner', 1);
+        $primaryOwner = $this->em->find(
+            'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
+            1
+        );
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
@@ -277,16 +286,16 @@ class IssueTest extends BaseTest
             'Current revision of audited entity is not equivalent to persisted entity:'
         );
     }
-    
+
     public function testIssue198()
     {
         $owner = new Issue198Owner();
         $car = new Issue198Car();
-        
+
         $this->em->persist($owner);
         $this->em->persist($car);
         $this->em->flush();
-        
+
         $owner->addCar($car);
 
         $this->em->persist($owner);
@@ -294,10 +303,10 @@ class IssueTest extends BaseTest
         $this->em->flush();
 
         $auditReader = $this->auditManager->createAuditReader($this->em);
-        
+
         $car1 = $auditReader->find(get_class($car), $car->getId(), 1);
         $this->assertNull($car1->getOwner());
-        
+
         $car2 = $auditReader->find(get_class($car), $car->getId(), 2);
         $this->assertEquals($car2->getOwner()->getId(), $owner->getId());
     }
@@ -321,5 +330,43 @@ class IssueTest extends BaseTest
             $currentRevisionEntity,
             'Current revision of audited entity is not equivalent to persisted entity:'
         );
+    }
+
+    public function testIssue273()
+    {
+        $auditConfig = AuditConfiguration::forEntities(
+            array_diff(
+                $this->auditedEntities,
+                ['SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Category']
+            )
+        );
+
+        $auditConfig->setUsernameCallable(
+            function () {
+                return 'beberlei';
+            }
+        );
+
+        $auditManager = new AuditManager($auditConfig);
+        $auditManager->registerEvents($this->_getConnection()->getEventManager());
+
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+
+        $category = new Issue273Category();
+        $this->em->persist($category);
+
+        $product = new Issue273Product();
+        $product->setCategory($category);
+        $this->em->persist($product);
+
+        $this->em->flush();
+
+
+        $rev = $auditReader->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Product', 1, 1);
+
+        dump($rev);
+
+        //$product = $auditReader->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue273Product', 1, 1);
+
     }
 }

@@ -441,15 +441,29 @@ class AuditReader
                             return !is_null($value);
                         });
 
+                        dump($pf, $pk);
+
+
                         if (!$pk) {
+                            dump('hier');
+
                             $class->reflFields[$field]->setValue($entity, null);
                         } else {
                             try {
+                                dump('da');
+
+
                                 $value = $this->find($targetClass->name, $pk, $revision, array('threatDeletionsAsExceptions' => true));
                             } catch (DeletedException $e) {
                                 $value = null;
                             } catch (NoRevisionFoundException $e) {
+                                dump('foo');
+
+
                                 // The entity does not have any revision yet. So let's get the actual state of it.
+                                $value = $this->em->getRepository($targetClass->name)->findOneBy($pf);
+
+                                /*
                                 $mappings = $this->em->getClassMetadata($assoc['targetEntity']);
                                 $criteria = array();
                                 foreach ($pf as $columnName => $value) {
@@ -457,6 +471,7 @@ class AuditReader
                                 }
 
                                 $value = $this->em->getRepository($targetClass->name)->findOneBy($criteria);
+                                */
                             }
 
                             $class->reflFields[$field]->setValue($entity, $value);
