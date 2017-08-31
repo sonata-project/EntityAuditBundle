@@ -234,7 +234,7 @@ class AuditReader
         foreach ($class->identifier AS $idField) {
             if (is_array($id) && count($id) > 0) {
                 $idKeys = array_keys($id);
-                $columnName = $idKeys[0];
+                $columnName = $idField;
             } else if (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
             } elseif (isset($class->associationMappings[$idField])) {
