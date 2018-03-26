@@ -1,5 +1,6 @@
 {
     "name": "simplethings/entity-audit-bundle",
+    "type": "symfony-bundle",
     "license": "LGPL-2.1",
     "keywords": [
         "Persistence",
