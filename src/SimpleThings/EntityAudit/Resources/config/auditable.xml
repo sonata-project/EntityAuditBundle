@@ -16,14 +16,18 @@
     </parameters>
 
     <services>
-        <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
+        <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager" public="true">
             <argument id="simplethings_entityaudit.config" type="service" />
         </service>
 
-        <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader">
+        <service id="SimpleThings\EntityAudit\AuditManager" alias="simplethings_entityaudit.manager" public="true" />
+
+        <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader" public="true">
             <factory service="simplethings_entityaudit.manager" method="createAuditReader" />
             <argument type="service" id="doctrine.orm.default_entity_manager" />
         </service>
+
+        <service id="SimpleThings\EntityAudit\AuditReader" alias="simplethings_entityaudit.reader" />
 
         <service id="simplethings_entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
@@ -39,7 +43,7 @@
             <argument id="service_container" type="service" />
         </service>
 
-        <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
+        <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration" public="true">
             <call method="setAuditedEntityClasses">
                 <argument>%simplethings.entityaudit.audited_entities%</argument>
             </call>
@@ -68,6 +72,9 @@
                 <argument type="service" id="simplethings_entityaudit.username_callable" />
             </call>
         </service>
+
+        <service id="SimpleThings\EntityAudit\AuditConfiguration" alias="simplethings_entityaudit.config" />
+
     </services>
 </container>
 
