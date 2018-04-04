@@ -41,6 +41,7 @@ matrix:
   include:
     - php: 5.3
       env: COMPOSER_FLAGS="--prefer-lowest" DB=sqlite
+      dist: precise
     - php: 7.0
       env: NAME="MySQL 5.6" DB=mysql
       dist: trusty
