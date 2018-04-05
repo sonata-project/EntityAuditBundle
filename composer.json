@@ -23,6 +23,7 @@
         "fabpot/php-cs-fixer": "^1.11"
     },
     "conflict": {
+        "doctrine/dbal": "2.7.0",
         "gedmo/doctrine-extensions": "<2.3.1",
         "symfony/framework-bundle": "<2.7",
         "doctrine/doctrine-bundle": "<1.4"
