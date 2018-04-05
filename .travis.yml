@@ -30,6 +30,7 @@ before_install:
   - if [[ $DB == 'mysql' ]]; then mysql -u root -e 'select version()'; fi
   - if [[ $DB == 'pgsql' ]]; then psql -U postgres -c 'SHOW SERVER_VERSION'; fi
   - if [[ $TRAVIS_PHP_VERSION != 'hhvm' ]]; then phpenv config-rm xdebug.ini; fi
+  - phpenv config-add tests/travis/travis.php.ini
   - composer self-update
 
 install: composer update $COMPOSER_FLAGS --prefer-dist
@@ -40,6 +41,7 @@ matrix:
   fast_finish: true
   include:
     - php: 5.3
+      dist: precise
       env: COMPOSER_FLAGS="--prefer-lowest" DB=sqlite
     - php: 7.0
       env: NAME="MySQL 5.6" DB=mysql
@@ -69,6 +71,7 @@ matrix:
   exclude:
     - php: hhvm
       env: DB=pgsql  # driver for PostgreSQL currently unsupported by HHVM, requires 3rd party dependency
+    - php: 5.3
   allow_failures:
     - php: nightly
     - php: hhvm
