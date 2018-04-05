@@ -30,6 +30,7 @@ before_install:
   - if [[ $DB == 'mysql' ]]; then mysql -u root -e 'select version()'; fi
   - if [[ $DB == 'pgsql' ]]; then psql -U postgres -c 'SHOW SERVER_VERSION'; fi
   - if [[ $TRAVIS_PHP_VERSION != 'hhvm' ]]; then phpenv config-rm xdebug.ini; fi
+  - phpenv tests/travis/travis.php.ini
   - composer self-update
 
 install: composer update $COMPOSER_FLAGS --prefer-dist
