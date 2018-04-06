@@ -74,6 +74,11 @@ class LogRevisionsListener implements EventSubscriber
     private $insertRevisionSQL = array();
 
     /**
+     * @var array
+     */
+    private $insertJoinTableRevisionSQL = array();
+
+    /**
      * @var \Doctrine\ORM\UnitOfWork
      */
     private $uow;
@@ -211,7 +216,8 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $this->saveRevisionEntityData($class, $this->getOriginalEntityData($entity), 'INS');
+        $entityData = array_merge($this->getOriginalEntityData($entity), $this->getManyToManyRelations($entity));
+        $this->saveRevisionEntityData($class, $entityData, 'INS');
     }
 
     public function postUpdate(LifecycleEventArgs $eventArgs)
@@ -237,7 +243,8 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
+        $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity),
+            $this->getManyToManyRelations($entity));
         $this->saveRevisionEntityData($class, $entityData, 'UPD');
     }
 
@@ -267,7 +274,8 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
+            $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity),
+                $this->getManyToManyRelations($entity));
             $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
 
@@ -304,6 +312,19 @@ class LogRevisionsListener implements EventSubscriber
             $data[$versionField] = $class->reflFields[$versionField]->getValue($entity);
         }
 
+        return $data;
+    }
+
+    private function getManyToManyRelations($entity)
+    {
+        $data = [];
+        $class = $this->em->getClassMetadata(get_class($entity));
+        foreach ($class->associationMappings AS $field => $assoc) {
+            if (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0 && $assoc['isOwningSide']) {
+                // $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
+                $data[$field] = $class->reflFields[$field]->getValue($entity);
+            }
+        }
         return $data;
     }
 
@@ -398,6 +419,44 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * @param ClassMetadata $class
+     *
+     * @return string
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    private function getInsertJoinTableRevisionSQL($class, $targetClass, $assoc)
+    {
+        $cacheKey = $class->name . "." . $targetClass->name;
+        if (! isset($this->insertJoinTableRevisionSQL[$cacheKey])) {
+            $placeholders = array('?', '?');
+
+            // $tableName = $this->config->getTableName($class);
+            $tableName = $this->config->getTablePrefix() . $assoc['joinTable']['name'] . $this->config->getTableSuffix();
+
+            $sql = "INSERT INTO " . $tableName . " (" .
+                $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
+
+            $fields = array();
+
+            foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
+                $fields[$sourceColumn] = true;
+                $sql .= ', ' . $sourceColumn;
+                $placeholders[] = '?';
+            }
+            foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                $fields[$sourceColumn] = true;
+                $sql .= ', ' . $sourceColumn;
+                $placeholders[] = '?';
+            }
+
+            $sql .= ") VALUES (" . implode(", ", $placeholders) . ")";
+            $this->insertJoinTableRevisionSQL[$cacheKey] = $sql;
+        }
+
+        return $this->insertJoinTableRevisionSQL[$cacheKey];
+    }
+
+    /**
+     * @param ClassMetadata $class
      * @param array         $entityData
      * @param string        $revType
      */
@@ -412,27 +471,42 @@ class LogRevisionsListener implements EventSubscriber
             if ($class->isInheritanceTypeJoined() && $class->isInheritedAssociation($field)) {
                 continue;
             }
-            if (! (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide'])) {
-                continue;
-            }
+            if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                $data = isset($entityData[$field]) ? $entityData[$field] : null;
+                $relatedId = false;
 
-            $data = isset($entityData[$field]) ? $entityData[$field] : null;
-            $relatedId = false;
+                if ($data !== null && $this->uow->isInIdentityMap($data)) {
+                    $relatedId = $this->uow->getEntityIdentifier($data);
+                }
 
-            if ($data !== null && $this->uow->isInIdentityMap($data)) {
-                $relatedId = $this->uow->getEntityIdentifier($data);
-            }
+                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+                foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                    $fields[$sourceColumn] = true;
+                    if ($data === null) {
+                        $params[] = null;
+                        $types[] = \PDO::PARAM_STR;
+                    } else {
+                        $params[] = $relatedId ? $relatedId[$targetClass->fieldNames[$targetColumn]] : null;
+                        $types[] = $targetClass->getTypeOfColumn($targetColumn);
+                    }
+                }
+            } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0 && $assoc['isOwningSide']) {
 
-            foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                $fields[$sourceColumn] = true;
-                if ($data === null) {
-                    $params[] = null;
-                    $types[] = \PDO::PARAM_STR;
-                } else {
-                    $params[] = $relatedId ? $relatedId[$targetClass->fieldNames[$targetColumn]] : null;
-                    $types[] = $targetClass->getTypeOfColumn($targetColumn);
+                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+
+                foreach($entityData[$assoc['fieldName']] as $relatedEntity) {
+                    $joinTableParams = array($this->getRevisionId(), $revType);
+                    $joinTableTypes = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
+                    foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
+                        $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
+                        $joinTableTypes[] = $class->getTypeOfColumn($targetColumn);
+                    }
+                    foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                        $joinTableParams[] = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]]->getValue($relatedEntity);
+                        $joinTableTypes[] = $targetClass->getTypeOfColumn($targetColumn);
+                    }
+                    $this->conn->executeUpdate($this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc), $joinTableParams, $joinTableTypes);
                 }
             }
         }
