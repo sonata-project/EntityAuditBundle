@@ -333,7 +333,7 @@ class IssueTest extends BaseTest
         $this->em->persist($user);
         $this->em->flush();
         $userMetadata = $this->em->getClassMetadata(get_class($user));
-        $classes = [$userMetadata];
+        $classes = array($userMetadata);
         $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
         $schemaName = $schema->getName();
         $config = $this->getAuditManager()->getConfiguration();
