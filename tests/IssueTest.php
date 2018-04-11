@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\Common\Collections\Collection;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner;
@@ -24,6 +25,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue308User;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User;
@@ -56,6 +58,7 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue308User',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity',
     ];
@@ -81,6 +84,7 @@ class IssueTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
+        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue308User',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User',
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity',
     ];
@@ -335,12 +339,33 @@ class IssueTest extends BaseTest
         $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
         $schemaName = $schema->getName();
         $config = $this->getAuditManager()->getConfiguration();
-        $entityTableUser = $schema->getTable(sprintf('%s.issue318user', $schemaName));
         $revisionsTableUser = $schema->getTable(sprintf('%s.%sissue318user%s', $schemaName, $config->getTablePrefix(), $config->getTableSuffix()));
         $userNotNullColumnName = 'alias';
         $userIdColumnName = 'id';
 
         $this->assertFalse($revisionsTableUser->getColumn($userNotNullColumnName)->getNotnull());
         $this->assertFalse($revisionsTableUser->getColumn($userIdColumnName)->getAutoincrement());
+    }
+
+    public function testIssue308(): void
+    {
+        $user = new Issue308User();
+        $child1 = new Issue308User();
+        $user->addChild($child1);
+        $this->em->persist($child1);
+        $this->em->persist($user);
+        $this->em->flush();
+
+        $this->assertInstanceOf(Collection::class, $user->getChildren());
+
+        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader->setLoadAuditedCollections(true);
+        $userClass = \get_class($user);
+        $revisions = $auditReader->findRevisions($userClass, $user->getId());
+        $this->assertCount(1, $revisions);
+        $revision = reset($revisions);
+        $auditedUser = $auditReader->find($userClass, ['id' => $user->getId()], $revision->getRev());
+
+        $this->assertInstanceOf(Collection::class, $auditedUser->getChildren());
     }
 }
