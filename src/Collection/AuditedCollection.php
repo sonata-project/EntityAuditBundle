@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Collection;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -60,14 +61,14 @@ class AuditedCollection implements Collection
     protected $metadata;
 
     /**
-     * Entity array. If can be:
+     * Entity collection. If can be:
      * - empty, if the collection has not been initialized yet
      * - store entity
      * - contain audited entity.
      *
-     * @var array
+     * @var ArrayCollection
      */
-    protected $entities = [];
+    protected $entities;
 
     /**
      * Definition of current association.
@@ -90,6 +91,7 @@ class AuditedCollection implements Collection
         $this->configuration = $auditReader->getConfiguration();
         $this->metadata = $classMeta;
         $this->associationDefinition = $associationDefinition;
+        $this->entities = new ArrayCollection();
     }
 
     /**
@@ -105,7 +107,7 @@ class AuditedCollection implements Collection
      */
     public function clear(): void
     {
-        $this->entities = [];
+        $this->entities = new ArrayCollection();
         $this->initialized = false;
     }
 
@@ -116,7 +118,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return (bool) array_search($element, $this->entities, true);
+        return $this->entities->contains($element);
     }
 
     /**
@@ -126,7 +128,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return 0 === \count($this->entities);
+        return $this->entities->isEmpty();
     }
 
     /**
@@ -152,7 +154,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return \array_key_exists($key, $this->entities);
+        return $this->entities->containsKey($key);
     }
 
     /**
@@ -170,7 +172,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return array_keys($this->entities);
+        return $this->entities->getKeys();
     }
 
     /**
@@ -180,7 +182,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return array_values($this->entities);
+        return $this->entities->getValues();
     }
 
     /**
@@ -198,7 +200,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return $this->entities;
+        return $this->entities->toArray();
     }
 
     /**
@@ -208,7 +210,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return reset($this->entities);
+        return $this->entities->first();
     }
 
     /**
@@ -218,7 +220,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return end($this->entities);
+        return $this->entities->last();
     }
 
     /**
@@ -228,7 +230,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return key($this->entities);
+        return $this->entities->key();
     }
 
     /**
@@ -238,7 +240,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return current($this->entities);
+        return $this->entities->current();
     }
 
     /**
@@ -248,7 +250,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return next($this->entities);
+        return $this->entities->next();
     }
 
     /**
@@ -258,13 +260,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        foreach ($this->entities as $entity) {
-            if ($p($entity)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->entities->exists($p);
     }
 
     /**
@@ -274,7 +270,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return array_filter($this->entities, $p);
+        return $this->entities->filter($p);
     }
 
     /**
@@ -284,13 +280,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        foreach ($this->entities as $entity) {
-            if (!$p($entity)) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->entities->forAll($p);
     }
 
     /**
@@ -300,7 +290,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return array_map($func, $this->entities);
+        return $this->entities->map($func);
     }
 
     /**
@@ -310,17 +300,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        $true = $false = [];
-
-        foreach ($this->entities as $entity) {
-            if ($p($entity)) {
-                $true[] = $entity;
-            } else {
-                $false[] = $entity;
-            }
-        }
-
-        return [$true, $false];
+        return $this->entities->partition($p);
     }
 
     /**
@@ -330,7 +310,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return array_search($element, $this->entities, true);
+        return $this->entities->indexOf($element);
     }
 
     /**
@@ -340,7 +320,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return \array_slice($this->entities, $offset, $length);
+        return $this->entities->slice($offset, $length);
     }
 
     /**
@@ -350,7 +330,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return new \ArrayIterator($this->entities);
+        return $this->entities->getIterator();
     }
 
     /**
@@ -360,7 +340,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return \array_key_exists($offset, $this->entities);
+        return $this->entities->offsetExists($offset);
     }
 
     /**
@@ -370,17 +350,20 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        if (!isset($this->entities[$offset])) {
+        if (!$this->entities->offsetExists($offset)) {
             throw new AuditedCollectionException(sprintf('Offset "%s" is not defined', $offset));
         }
 
-        $entity = $this->entities[$offset];
+        $entity = $this->entities->offsetGet($offset);
 
         if (\is_object($entity)) {
             return $entity;
         }
 
-        return $this->entities[$offset] = $this->resolve($entity);
+        $resolvedEntity = $this->resolve($entity);
+        $this->entities->offsetSet($offset, $resolvedEntity);
+
+        return $resolvedEntity;
     }
 
     /**
@@ -406,7 +389,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return \count($this->entities);
+        return $this->entities->count();
     }
 
     protected function resolve($entity)
@@ -424,8 +407,8 @@ class AuditedCollection implements Collection
         $this->initialize();
 
         foreach ($this->entities as $key => $entity) {
-            if (\is_array($entity)) {
-                $this->entities[$key] = $this->resolve($entity);
+            if (\is_array($entity) || $entity instanceof \ArrayAccess) {
+                $this->entities->offsetSet($key, $this->resolve($entity));
             }
         }
     }
@@ -518,9 +501,9 @@ class AuditedCollection implements Collection
                 if (isset($this->associationDefinition['indexBy'])) {
                     $key = $row[$this->associationDefinition['indexBy']];
                     unset($entity['keys'][$this->associationDefinition['indexBy']]);
-                    $this->entities[$key] = $entity;
+                    $this->entities->offsetSet($key, $entity);
                 } else {
-                    $this->entities[] = $entity;
+                    $this->entities->add($entity);
                 }
             }
 
