@@ -1,0 +1,51 @@
+parameters:
+  simplethings.entityaudit.entity_manager: ''
+  simplethings.entityaudit.table_prefix: ''
+  simplethings.entityaudit.table_suffix: ''
+  simplethings.entityaudit.revision_field_name: ''
+  simplethings.entityaudit.revision_type_field_name: ''
+  simplethings.entityaudit.revision_table_name: ''
+  simplethings.entityaudit.revision_id_field_type: ''
+  simplethings.entityaudit.global_ignores: []
+
+services:
+  simplethings_entityaudit.manager:
+    class: SimpleThings\EntityAudit\AuditManager
+    arguments:
+      - '@doctrine.orm.entity_manager'
+      - '@simplethings_entityaudit.config'
+
+  simple_things.subscriber.schema_listener:
+    class: SimpleThings\EntityAudit\EventListener\CreateSchemaListener
+    tags:
+      - { name: doctrine.event_subscriber }
+    arguments: ['@simplethings_entityaudit.manager']
+
+  simple_things.subscriber.log_revisions:
+    class: SimpleThings\EntityAudit\EventListener\LogRevisionsListener
+    tags:
+      - { name: doctrine.event_subscriber, priority: -999 }
+    arguments: ['@simplethings_entityaudit.manager']
+
+  simplethings_entityaudit.username_callable.token_storage:
+    class: SimpleThings\EntityAudit\User\TokenStorageUsernameCallable
+    arguments: ['@service_container']
+
+  simplethings_entityaudit.metadriver:
+    class: SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver
+    factory: [SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver, create]
+    arguments: ['%simplethings.entityaudit.global_ignores%']
+
+  simplethings_entityaudit.config:
+    class: SimpleThings\EntityAudit\AuditConfiguration
+    calls:
+      - [setTablePrefix, ['%simplethings.entityaudit.table_prefix%']]
+      - [setTableSuffix, ['%simplethings.entityaudit.table_suffix%']]
+      - [setRevisionTableName, ['%simplethings.entityaudit.revision_table_name%']]
+      - [setRevisionIdFieldType, ['%simplethings.entityaudit.revision_id_field_type%']]
+      - [setRevisionFieldName, ['%simplethings.entityaudit.revision_field_name%']]
+      - [setRevisionTypeFieldName, ['%simplethings.entityaudit.revision_type_field_name%']]
+      - [setUsernameCallable, ['@simplethings_entityaudit.username_callable']]
+      - [setMetadataDriver, ['@simplethings_entityaudit.metadriver']]
+      - [setComparators, [!tagged simple_things.comparator]]
+

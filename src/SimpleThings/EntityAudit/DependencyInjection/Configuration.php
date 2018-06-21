@@ -25,6 +25,10 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('username_callable')->defaultValue('simplethings_entityaudit.username_callable.token_storage')->end()
                     ->end()
                 ->end()
+                ->arrayNode('global_ignores')
+                    ->scalarPrototype()->end()
+                    ->defaultValue(array())
+                ->end()
             ->end()
         ;
 

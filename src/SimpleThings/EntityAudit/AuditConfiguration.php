@@ -24,11 +24,20 @@
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use SimpleThings\EntityAudit\Comparator\ComparatorInterface;
 use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
+use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AuditConfiguration
 {
+    /**
+     * @var Container
+     */
+    private $container;
+
     /**
      * @var DriverInterface
      */
@@ -68,6 +77,17 @@ class AuditConfiguration
      * @var callable
      */
     private $usernameCallable;
+
+    /**
+     * @var array
+     */
+    private $comparators;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+        $this->comparators = array();
+    }
 
     /**
      * @param DriverInterface $driver
@@ -202,6 +222,52 @@ class AuditConfiguration
     public function getUsernameCallable()
     {
         return $this->usernameCallable;
+    }
+
+    public function addComparator($comparator)
+    {
+        if (!$comparator instanceof ComparatorInterface) {
+            throw new \InvalidArgumentException('Comparator must be false or instance of Comparator Interface');
+        }
+
+        $this->comparators[] = $comparator;
+    }
+
+    public function setComparators($comparators)
+    {
+        if ($comparators instanceof RewindableGenerator) {
+            $comparators = iterator_to_array($comparators->getIterator());
+        }
+
+        if (!is_array($comparators)) {
+            throw new \InvalidArgumentException('Must be Rewindable Generator or array');
+        }
+
+        $this->comparators = $this->resolveComparators($comparators);
+    }
+
+    private function resolveComparators($comparators)
+    {
+        $final = array();
+        foreach ($comparators as $comparator) {
+            if (is_string($comparator)) {
+                $comparator = $this->container->get($comparator);
+            }
+            if (!($comparator instanceof ComparatorInterface)) {
+                throw new \InvalidArgumentException('Comparator must be false or instance of Comparator Interface');
+            }
+            $final[] = $comparator;
+        }
+
+        return $final;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getComparators()
+    {
+        return $this->comparators;
     }
 
     /**
