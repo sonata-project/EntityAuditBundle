@@ -5,6 +5,7 @@ namespace SimpleThings\EntityAudit;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManagerInterface;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
+use SimpleThings\EntityAudit\EventListener\CreateSchemaSubscriber;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
@@ -38,8 +39,6 @@ class AuditManager
         $this->entityManager = $entityManager;
         $this->config = $config;
         $this->metadataFactory = new Metadata\MetadataFactory($this->entityManager, $config->getMetadataDriver());
-
-        $this->registerEvents($entityManager->getEventManager());
     }
 
     public function getMetadataFactory()
@@ -55,12 +54,6 @@ class AuditManager
     public function createAuditReader()
     {
         return new AuditReader($this->entityManager, $this->config, $this->metadataFactory);
-    }
-
-    protected function registerEvents(EventManager $evm)
-    {
-        $evm->addEventSubscriber(new CreateSchemaListener($this));
-        $evm->addEventSubscriber(new LogRevisionsListener($this));
     }
 
     /**
