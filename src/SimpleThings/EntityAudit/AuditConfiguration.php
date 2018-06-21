@@ -28,16 +28,10 @@ use SimpleThings\EntityAudit\Comparator\ComparatorInterface;
 use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AuditConfiguration
 {
-    /**
-     * @var Container
-     */
-    private $container;
-
     /**
      * @var DriverInterface
      */
@@ -83,9 +77,8 @@ class AuditConfiguration
      */
     private $comparators;
 
-    public function __construct(Container $container)
+    public function __construct()
     {
-        $this->container = $container;
         $this->comparators = array();
     }
 
@@ -250,9 +243,6 @@ class AuditConfiguration
     {
         $final = array();
         foreach ($comparators as $comparator) {
-            if (is_string($comparator)) {
-                $comparator = $this->container->get($comparator);
-            }
             if (!($comparator instanceof ComparatorInterface)) {
                 throw new \InvalidArgumentException('Comparator must be false or instance of Comparator Interface');
             }
