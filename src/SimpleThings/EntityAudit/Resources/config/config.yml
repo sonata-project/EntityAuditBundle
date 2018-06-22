@@ -9,10 +9,17 @@ parameters:
   simplethings.entityaudit.global_ignores: []
 
 services:
+
+  simplethings_entityaudit.entity_manager:
+    class: Doctrine\ORM\EntityManager
+    public: false
+    arguments: ['%simplethings.entityaudit.entity_manager%']
+    factory: ['@doctrine', getManager]
+
   simplethings_entityaudit.manager:
     class: SimpleThings\EntityAudit\AuditManager
     arguments:
-      - '@doctrine.orm.entity_manager'
+      - '@simplethings_entityaudit.entity_manager'
       - '@simplethings_entityaudit.config'
 
   simple_things.subscriber.schema_listener:

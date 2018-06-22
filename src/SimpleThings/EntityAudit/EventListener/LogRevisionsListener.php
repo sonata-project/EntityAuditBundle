@@ -324,7 +324,11 @@ class LogRevisionsListener implements EventSubscriber
         $compEnd = end($comparators);
         $changeEnd = end($changeset);
         foreach ($changeset as $name => $change) {
-            $mapping = $auditMetadata->entity->getFieldMapping($name);
+            try {
+                $mapping = $auditMetadata->entity->getFieldMapping($name);
+            } catch (\Doctrine\ORM\Mapping\MappingException $e) {
+                continue;
+            }
             foreach ($comparators as $comparator) {
                 /** @var ComparatorInterface $comparator */
                 // if this comparator is able to weigh in on the decision
