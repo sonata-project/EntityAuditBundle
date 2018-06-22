@@ -12,7 +12,6 @@ services:
 
   simplethings_entityaudit.entity_manager:
     class: Doctrine\ORM\EntityManager
-    public: false
     arguments: ['%simplethings.entityaudit.entity_manager%']
     factory: ['@doctrine', getManager]
 

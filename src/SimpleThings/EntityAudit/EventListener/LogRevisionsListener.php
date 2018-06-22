@@ -321,8 +321,10 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         $comparators = $this->config->getComparators();
-        $compEnd = end($comparators);
-        $changeEnd = end($changeset);
+        if (count($comparators) == 0) {
+            return $changeset;
+        }
+
         foreach ($changeset as $name => $change) {
             try {
                 $mapping = $auditMetadata->entity->getFieldMapping($name);
