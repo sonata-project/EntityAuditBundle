@@ -34,6 +34,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
@@ -215,8 +216,8 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     {
         $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
-        $listeners = $this->getEntityManager()->getEventManager()->getListeners();
-        print_r($listeners);
+        // set listeners
+        $this->getEntityManager()->getEventManager()->addEventSubscriber(new CreateSchemaListener($this->getAuditManager()));
 
         $this->getSchemaTool()->createSchema($classes);
     }
