@@ -35,6 +35,7 @@ use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
+use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
@@ -216,8 +217,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     {
         $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
-        // set listeners
+        // set subscribers
         $this->getEntityManager()->getEventManager()->addEventSubscriber(new CreateSchemaListener($this->getAuditManager()));
+        $this->getEntityManager()->getEventManager()->addEventSubscriber(new LogRevisionsListener($this->getAuditManager()));
 
         $this->getSchemaTool()->createSchema($classes);
     }
