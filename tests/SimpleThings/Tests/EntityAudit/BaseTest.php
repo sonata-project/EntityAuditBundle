@@ -215,6 +215,9 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
     {
         $classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
 
+        $sql = $this->getSchemaTool()->getCreateSchemaSql($classes);
+        print_r($sql);
+
         $this->getSchemaTool()->createSchema($classes);
     }
 
