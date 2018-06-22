@@ -113,7 +113,7 @@ class AnnotationDriver implements DriverInterface
     /**
      * @return AnnotationDriver
      */
-    public static function create($globalIgnores)
+    public static function create($globalIgnores = array())
     {
         // use composer autoloader
         AnnotationRegistry::registerLoader('class_exists');
