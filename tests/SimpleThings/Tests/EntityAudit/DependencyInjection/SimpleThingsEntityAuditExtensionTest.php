@@ -61,6 +61,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'rev');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'revtype');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'integer');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignores', array());
     }
 
     public function testItSetsConfiguredParameters()
@@ -72,6 +73,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
             'revision_id_field_type' => 'guid',
             'revision_field_name' => 'revision',
             'revision_type_field_name' => 'action',
+            'global_ignores' => array('id'),
         ));
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', 'prefix');
@@ -80,6 +82,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'guid');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'revision');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'action');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignores', array('id'));
     }
 
     /**
