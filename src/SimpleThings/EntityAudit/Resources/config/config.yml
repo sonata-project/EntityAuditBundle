@@ -17,6 +17,7 @@ services:
 
   simplethings_entityaudit.manager:
     class: SimpleThings\EntityAudit\AuditManager
+    public: true
     arguments:
       - '@simplethings_entityaudit.entity_manager'
       - '@simplethings_entityaudit.config'
