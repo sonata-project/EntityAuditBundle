@@ -237,7 +237,7 @@ class AuditConfiguration
         }
 
         if (!is_array($comparators)) {
-            print_r(typeof($comparators));
+            print_r(gettype($comparators));
             print_r($comparators);
             throw new \InvalidArgumentException('Must be Rewindable Generator or array');
         }
