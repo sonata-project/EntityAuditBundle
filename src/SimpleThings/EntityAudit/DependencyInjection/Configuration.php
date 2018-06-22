@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('global_ignores')
-                    ->scalarPrototype()->end()
+                    ->prototype('scalar')->end()
                     ->defaultValue(array())
                 ->end()
             ->end()
