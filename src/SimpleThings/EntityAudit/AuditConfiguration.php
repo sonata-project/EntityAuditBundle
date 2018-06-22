@@ -228,6 +228,10 @@ class AuditConfiguration
 
     public function setComparators($comparators)
     {
+        if (!$comparators) {
+            return;
+        }
+
         if ($comparators instanceof RewindableGenerator) {
             $comparators = iterator_to_array($comparators->getIterator());
         }
