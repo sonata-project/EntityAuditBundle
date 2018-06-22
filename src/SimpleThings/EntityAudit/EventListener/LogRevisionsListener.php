@@ -36,6 +36,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Comparator\ComparatorInterface;
 
 class LogRevisionsListener implements EventSubscriber
 {
@@ -232,15 +233,7 @@ class LogRevisionsListener implements EventSubscriber
             return;
         }
 
-        $auditMetadata = $this->metadataFactory->getMetadataFor($class->name);
-
-        // get changes => should be already computed here (is a listener)
-        $changeset = $this->uow->getEntityChangeSet($entity);
-        foreach (array_keys($auditMetadata->ignoredFields) as $property) {
-            if (isset($changeset[$property])) {
-                unset($changeset[$property]);
-            }
-        }
+        $changeset = $changeset = $this->calculateSignificantChangeSet($entity);
 
         // if we have no changes left => don't create revision log
         if (count($changeset) == 0) {
@@ -296,15 +289,10 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $auditMetadata = $this->metadataFactory->getMetadataFor($class);
-
-            // get changes => should be already computed here (is a listener)
-            $changeset = $this->uow->getEntityChangeSet($entity);
-            foreach (array_keys($auditMetadata->ignoredFields) as $property) {
-                if (isset($changeset[$property])) {
-                    unset($changeset[$property]);
-                }
-            }
+            //TODO is calculating revision significance here going to error
+            // in the case that there are other event listeners that may change the revision later on?
+            // should we be adding to the extraUpdate array in a later event?
+            $changeset = $this->calculateSignificantChangeSet($entity);
 
             // if we have no changes left => don't create revision log
             if (count($changeset) == 0) {
@@ -313,6 +301,46 @@ class LogRevisionsListener implements EventSubscriber
 
             $this->extraUpdates[spl_object_hash($entity)] = $entity;
         }
+    }
+
+    private function calculateSignificantChangeSet($entity)
+    {
+        $class = $this->em->getClassMetadata(get_class($entity));
+        if (! $this->metadataFactory->isAudited($class->name)) {
+            return;
+        }
+
+        $auditMetadata = $this->metadataFactory->getMetadataFor($class->name);
+
+        // get changes => should be already computed here (is a listener)
+        $changeset = $this->uow->getEntityChangeSet($entity);
+        foreach (array_keys($auditMetadata->ignoredFields) as $property) {
+            if (isset($changeset[$property])) {
+                unset($changeset[$property]);
+            }
+        }
+
+        $comparators = $this->config->getComparators();
+        $compEnd = end($comparators);
+        $changeEnd = end($changeset);
+        foreach ($changeset as $name => $change) {
+            $mapping = $auditMetadata->entity->getFieldMapping($name);
+            foreach ($comparators as $comparator) {
+                /** @var ComparatorInterface $comparator */
+                // if this comparator is able to weigh in on the decision
+                if ($comparator->canCompare($class, $mapping, $name)) {
+                    if ($comparator->compare($name, $change[1], $change[0])) {
+                        continue 2; // change was significant so we can move to next field
+                    } else {
+                        // change wasn't significant unset the change
+                        unset($changeset[$name]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $changeset;
     }
 
     /**
