@@ -2,11 +2,7 @@
 
 namespace SimpleThings\EntityAudit;
 
-use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManagerInterface;
-use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
-use SimpleThings\EntityAudit\EventListener\CreateSchemaSubscriber;
-use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 /**
@@ -32,7 +28,7 @@ class AuditManager
 
     /**
      * @param EntityManagerInterface $entityManager
-     * @param AuditConfiguration $config
+     * @param AuditConfiguration     $config
      */
     public function __construct(EntityManagerInterface $entityManager, AuditConfiguration $config)
     {
@@ -57,7 +53,7 @@ class AuditManager
     }
 
     /**
-     * @param EntityManagerInterface $entityManager
+     * @param  EntityManagerInterface $entityManager
      * @return AuditManager
      */
     public static function create(EntityManagerInterface $entityManager)

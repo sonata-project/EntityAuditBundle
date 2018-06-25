@@ -2,7 +2,6 @@
 
 namespace SimpleThings\EntityAudit\Comparator;
 
-
 /**
  * Interface ComparatorInterface
  *
@@ -28,9 +27,9 @@ interface ComparatorInterface
     /**
      * This gives you the data you need to make a decision on whether this class can compare the given values
      *
-     * @param ClassMetadata $classMetadata
-     * @param array $fieldMapping
-     * @param string $fieldName
+     * @param  ClassMetadata $classMetadata
+     * @param  array         $fieldMapping
+     * @param  string        $fieldName
      * @return boolean
      */
     public function canCompare($classMetadata, $fieldMapping, $fieldName);

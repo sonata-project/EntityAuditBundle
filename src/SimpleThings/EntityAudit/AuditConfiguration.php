@@ -28,7 +28,7 @@ use SimpleThings\EntityAudit\Comparator\ComparatorInterface;
 use SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver;
 use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\DependencyInjection\Container;
 
 class AuditConfiguration
 {
@@ -220,15 +220,15 @@ class AuditConfiguration
     public function addComparator($comparator)
     {
         if (!$comparator instanceof ComparatorInterface) {
-            throw new \InvalidArgumentException('Comparator must be false or instance of Comparator Interface');
+            throw new \InvalidArgumentException('Comparator must be instance of Comparator Interface');
         }
 
         $this->comparators[] = $comparator;
     }
 
-    public function setComparators($comparators)
+    public function setComparators($comparators, Container $container = null)
     {
-        if (!$comparators) {
+        if (!$comparators || is_string($comparators)) {
             return;
         }
 
@@ -236,26 +236,16 @@ class AuditConfiguration
             $comparators = iterator_to_array($comparators->getIterator());
         }
 
-        if (!is_array($comparators)) {
-            print_r(gettype($comparators));
-            print_r($comparators);
+        if (!is_array($comparators) && !($comparators instanceof \Traversable)) {
             throw new \InvalidArgumentException('Must be Rewindable Generator or array');
         }
 
-        $this->comparators = $this->resolveComparators($comparators);
-    }
-
-    private function resolveComparators($comparators)
-    {
-        $final = array();
         foreach ($comparators as $comparator) {
-            if (!($comparator instanceof ComparatorInterface)) {
-                throw new \InvalidArgumentException('Comparator must be false or instance of Comparator Interface');
+            if (is_string($comparator) && $container) {
+                $comparator = $container->get($comparator);
             }
-            $final[] = $comparator;
+            $this->addComparator($comparator);
         }
-
-        return $final;
     }
 
     /**

@@ -89,6 +89,8 @@ simple_things_entity_audit:
     revision_type_field_name: revtype
     revision_table_name: revisions
     revision_id_field_type: integer
+    comparators: []
+    global_ignores: []
 ```
 
 ### Creating new tables
@@ -131,6 +133,44 @@ class Page {
 
 }
 ``` 
+
+For fields that may be inheretid of otherwise not shown in the mapping you can use the class AdditionalIgnore
+ 
+```
+use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation as Audit;
+
+/**
+ * @ORM\Entity()
+ * @Audit\Auditable()
+ * @Audit\AdditionalIgnore({'attribute1', 'attribute2'})
+ */
+class Page {
+ //...
+}
+``` 
+
+Finally for occaisions when you may wish to consider globally ignored fields for the revision of certain entities
+ 
+```
+use Doctrine\ORM\Mapping as ORM;
+use SimpleThings\EntityAudit\Mapping\Annotation as Audit;
+
+/**
+ * @ORM\Entity()
+ * @Audit\Auditable()
+ * @Audit\OverrideIgnore({'override1', 'override2'})
+ */
+class Page {
+ //...
+}
+``` 
+
+Annotations are applied in the following order:
+1. AdditionalIgnore
+2. Ignore
+3. GlobalIgnore
+4. OverrideIgnore
 
 ### Use AuditReader
 
@@ -249,6 +289,23 @@ A default Symfony2 controller is provided that gives basic viewing capabilities 
 
 To use the controller, import the routing **(don't forget to secure the prefix you set so that
 only appropriate users can get access)**
+
+## Comparators
+
+Comparators have been introduced to allow comparisons to be made between the new and old value given
+by an entityChangeSet. The comparator decides if this change is significant and should in fact trigger
+a revision to be entered into the revision table. This can be useful for float or decimal values that
+may typically trigger a revision but the change may not actually constitute a real difference.
+
+Comparators may be configured in the config as given above by listing service id for the ComparatorInterface.
+All comparators must implement the comparator interface. In versions of symfony that support the !tagged
+call in yml config files all services tagged with 'simple_things.comparator' they will automatically be included
+and used.
+
+## Global Ignores
+
+You can now define globally ignored columns in the config. For each auditable entity these fields will be added
+to the ignore list and not be considered when determining if a revision is required for the entity.
 
 ##### app/config/routing.yml
 ```yml

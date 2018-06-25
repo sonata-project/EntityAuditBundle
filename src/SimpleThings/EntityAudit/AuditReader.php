@@ -110,7 +110,6 @@ class AuditReader
         $this->entityFactory = new EntityFactory($this, $em, $factory, $options);
     }
 
-
     /**
      * @return \Doctrine\DBAL\Connection
      */
@@ -353,7 +352,6 @@ class AuditReader
                     $this->platform->quoteSingleIdentifier($field)
                 ));
 
-
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
@@ -411,7 +409,7 @@ class AuditReader
     /**
      * Return the revision object for a particular revision.
      *
-     * @param  int $rev
+     * @param int $rev
      *
      * @return Revision
      *

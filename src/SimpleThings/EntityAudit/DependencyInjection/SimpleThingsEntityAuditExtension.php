@@ -23,8 +23,6 @@
 
 namespace SimpleThings\EntityAudit\DependencyInjection;
 
-use SimpleThings\EntityAudit\Comparator\ComparatorInterface;
-use SimpleThings\EntityAudit\DependencyInjection\Compiler\ComparatorCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -47,6 +45,7 @@ class SimpleThingsEntityAuditExtension extends Extension
             'revision_type_field_name',
             'revision_table_name',
             'revision_id_field_type',
+            'comparators',
             'global_ignores',
         );
 

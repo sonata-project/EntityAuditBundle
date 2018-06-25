@@ -70,7 +70,6 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $quoteStrategy;
 
-
     /**
      * @var array
      */

@@ -53,7 +53,7 @@ class AuditController extends Controller
     /**
      * Renders a paginated list of revisions.
      *
-     * @param int $page
+     * @param  int      $page
      * @return Response
      */
     public function indexAction($page = 1)
@@ -69,7 +69,7 @@ class AuditController extends Controller
     /**
      * Shows entities changed in the specified revision.
      *
-     * @param integer $rev
+     * @param  integer                                                       $rev
      * @return Response
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
@@ -91,8 +91,8 @@ class AuditController extends Controller
     /**
      * Lists revisions for the supplied entity.
      *
-     * @param string $className
-     * @param string $id
+     * @param  string   $className
+     * @param  string   $id
      * @return Response
      */
     public function viewEntityAction($className, $id)
@@ -110,9 +110,9 @@ class AuditController extends Controller
     /**
      * Shows the data for an entity at the specified revision.
      *
-     * @param string $className
-     * @param string $id Comma separated list of identifiers
-     * @param int $rev
+     * @param  string   $className
+     * @param  string   $id        Comma separated list of identifiers
+     * @param  int      $rev
      * @return Response
      */
     public function viewDetailAction($className, $id, $rev)
@@ -135,11 +135,11 @@ class AuditController extends Controller
     /**
      * Compares an entity at 2 different revisions.
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @param string $className
-     * @param string $id Comma separated list of identifiers
-     * @param null|int $oldRev if null, pulled from the query string
-     * @param null|int $newRev if null, pulled from the query string
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     * @param  string                                    $className
+     * @param  string                                    $id        Comma separated list of identifiers
+     * @param  null|int                                  $oldRev    if null, pulled from the query string
+     * @param  null|int                                  $newRev    if null, pulled from the query string
      * @return Response
      */
     public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)

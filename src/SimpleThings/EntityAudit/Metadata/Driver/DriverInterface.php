@@ -31,14 +31,14 @@ use SimpleThings\EntityAudit\Metadata\ClassMetadata;
 interface DriverInterface
 {
     /**
-     * @param string $class
-     * @param ClassMetadata $classMetadata
+     * @param  string        $class
+     * @param  ClassMetadata $classMetadata
      * @return void
      */
     public function loadMetadataForClass($class, ClassMetadata $classMetadata);
 
     /**
-     * @param string $class
+     * @param  string $class
      * @return bool
      */
     public function isTransient($class);

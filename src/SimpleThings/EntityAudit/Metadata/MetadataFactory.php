@@ -52,7 +52,7 @@ class MetadataFactory
 
     /**
      * @param EntityManagerInterface $entityManager
-     * @param DriverInterface $driver
+     * @param DriverInterface        $driver
      */
     public function __construct(EntityManagerInterface $entityManager, DriverInterface $driver)
     {
@@ -61,7 +61,7 @@ class MetadataFactory
     }
 
     /**
-     * @param string $class
+     * @param  string $class
      * @return bool
      */
     public function isAudited($class)
@@ -72,7 +72,7 @@ class MetadataFactory
     }
 
     /**
-     * @param string $class
+     * @param  string        $class
      * @return ClassMetadata
      */
     public function getMetadataFor($class)

@@ -142,7 +142,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return (bool)array_search($element, $this->entities);
+        return (bool) array_search($element, $this->entities);
     }
 
     /**

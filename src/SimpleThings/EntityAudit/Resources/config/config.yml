@@ -6,6 +6,7 @@ parameters:
   simplethings.entityaudit.revision_type_field_name: ''
   simplethings.entityaudit.revision_table_name: ''
   simplethings.entityaudit.revision_id_field_type: ''
+  simplethings.entityaudit.comparators: []
   simplethings.entityaudit.global_ignores: []
 
 services:
@@ -55,4 +56,4 @@ services:
       - [setUsernameCallable, ['@simplethings_entityaudit.username_callable']]
       - [setMetadataDriver, ['@simplethings_entityaudit.metadriver']]
       - [setComparators, [!tagged simple_things.comparator]]
-
+      - [setComparators, ['%simplethings.entityaudit.comparators%', '@service_container']]

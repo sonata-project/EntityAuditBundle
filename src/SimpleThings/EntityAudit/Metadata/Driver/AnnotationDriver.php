@@ -28,7 +28,6 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use SimpleThings\EntityAudit\Mapping\Annotation\AdditionalIgnore;
 use SimpleThings\EntityAudit\Mapping\Annotation\Auditable;
 use SimpleThings\EntityAudit\Mapping\Annotation\Ignore;
-use SimpleThings\EntityAudit\Mapping\Annotation\IgnoreInherited;
 use SimpleThings\EntityAudit\Mapping\Annotation\OverrideIgnore;
 use SimpleThings\EntityAudit\Metadata\ClassMetadata;
 
@@ -57,8 +56,8 @@ class AnnotationDriver implements DriverInterface
     }
 
     /**
-     * @param string $class
-     * @param ClassMetadata $classMetadata
+     * @param  string        $class
+     * @param  ClassMetadata $classMetadata
      * @return void
      */
     public function loadMetadataForClass($class, ClassMetadata $classMetadata)
@@ -100,14 +99,14 @@ class AnnotationDriver implements DriverInterface
     }
 
     /**
-     * @param string $class
+     * @param  string $class
      * @return bool
      */
     public function isTransient($class)
     {
         $reflection = new \ReflectionClass($class);
 
-        return (bool)$this->reader->getClassAnnotation($reflection, Auditable::class);
+        return (bool) $this->reader->getClassAnnotation($reflection, Auditable::class);
     }
 
     /**
