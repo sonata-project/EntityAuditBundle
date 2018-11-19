@@ -111,6 +111,10 @@ class LogRevisionsListener implements EventSubscriber
      */
     public function postFlush(PostFlushEventArgs $eventArgs)
     {
+        if ($this->revisionId === null) {
+            return;
+        }
+        
         $em = $eventArgs->getEntityManager();
         $quoteStrategy = $em->getConfiguration()->getQuoteStrategy();
         $uow = $em->getUnitOfWork();
