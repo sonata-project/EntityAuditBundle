@@ -96,7 +96,7 @@ class LogRevisionsListener implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return array(Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush);
+        return array(Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush, Events::onClear);
     }
 
     /**
@@ -239,6 +239,11 @@ class LogRevisionsListener implements EventSubscriber
 
         $entityData = array_merge($this->getOriginalEntityData($entity), $this->uow->getEntityIdentifier($entity));
         $this->saveRevisionEntityData($class, $entityData, 'UPD');
+    }
+
+    public function onClear()
+    {
+        $this->extraUpdates = array();
     }
 
     public function onFlush(OnFlushEventArgs $eventArgs)
