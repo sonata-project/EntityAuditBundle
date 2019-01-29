@@ -199,6 +199,13 @@ class LogRevisionsListener implements EventSubscriber
                 $this->em->getConnection()->executeQuery($sql, $params, $types);
             }
         }
+        $this->cleanUp();
+    }
+
+    private function cleanUp()
+    {
+        $this->extraUpdates = array();
+        gc_collect_cycles();
     }
 
     public function postPersist(LifecycleEventArgs $eventArgs)
