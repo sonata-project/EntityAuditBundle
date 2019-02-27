@@ -199,6 +199,8 @@ class LogRevisionsListener implements EventSubscriber
                 $this->em->getConnection()->executeQuery($sql, $params, $types);
             }
         }
+        
+        $this->extraUpdates = array();
     }
 
     public function postPersist(LifecycleEventArgs $eventArgs)
