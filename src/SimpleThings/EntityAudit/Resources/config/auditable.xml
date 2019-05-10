@@ -36,6 +36,7 @@
 
         <service id="simplethings_entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
+            <argument id="Doctrine\DBAL\Connection" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 
@@ -70,6 +71,9 @@
             </call>
             <call method="setUsernameCallable">
                 <argument type="service" id="simplethings_entityaudit.username_callable" />
+            </call>
+            <call method="setConvertEnumToString">
+                <argument>%simplethings.entityaudit.convert_enum_to_string%</argument>
             </call>
         </service>
 

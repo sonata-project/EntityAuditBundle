@@ -30,6 +30,8 @@ use SimpleThings\EntityAudit\AuditManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Connection;
 
 class CreateSchemaListener implements EventSubscriber
 {
@@ -43,10 +45,16 @@ class CreateSchemaListener implements EventSubscriber
      */
     private $metadataFactory;
 
-    public function __construct(AuditManager $auditManager)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(AuditManager $auditManager, Connection $connection)
     {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
+        $this->connection = $connection;
     }
 
     public function getSubscribedEvents()
@@ -81,10 +89,19 @@ class CreateSchemaListener implements EventSubscriber
             $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
         );
 
-        foreach ($entityTable->getColumns() AS $column) {
+        foreach ($entityTable->getColumns() as $column) {
+            $columnTypeName = $column->getType()->getName();
+            $columnArrayOptions = $column->toArray();
+            // change Enum type to String
+            $sqlString = $column->getType()->getSQLDeclaration(array(), $this->connection->getDatabasePlatform());
+            if ($this->config->convertEnumToString() && strpos($sqlString, "ENUM") !== false) {
+                $columnTypeName = Type::STRING;
+                $columnArrayOptions['type'] = Type::getType($columnTypeName);
+            }
+
             /* @var Column $column */
-            $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
-                $column->toArray(),
+            $revisionTable->addColumn($column->getName(), $columnTypeName, array_merge(
+                $columnArrayOptions,
                 array('notnull' => false, 'autoincrement' => false)
             ));
         }

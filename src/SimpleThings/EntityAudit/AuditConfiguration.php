@@ -188,4 +188,14 @@ class AuditConfiguration
     {
         return $this->revisionIdFieldType;
     }
+
+    public function setConvertEnumToString($convertEnum)
+    {
+        $this->convertEnumToString = $convertEnum;
+    }
+
+    public function convertEnumToString()
+    {
+        return $this->convertEnumToString;
+    }
 }
