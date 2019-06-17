@@ -51,6 +51,9 @@
             <call method="setGlobalIgnoreColumns">
                 <argument>%simplethings.entityaudit.global_ignore_columns%</argument>
             </call>
+            <call method="setTableIgnoreColumn">
+                <argument>%simplethings.entityaudit.table_ignore_columns%</argument>
+            </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
             </call>

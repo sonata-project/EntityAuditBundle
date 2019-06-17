@@ -92,6 +92,12 @@ class CreateSchemaListener implements EventSubscriber
         foreach ($entityTable->getColumns() as $column) {
             $columnTypeName = $column->getType()->getName();
             $columnArrayOptions = $column->toArray();
+
+            //ignore specific fields for table
+            if ($this->config->isIgnoredField($entityTable->getName()."." . $column->getName())) {
+                continue;
+            }
+
             // change Enum type to String
             $sqlString = $column->getType()->getSQLDeclaration(array(), $this->connection->getDatabasePlatform());
             if ($this->config->convertEnumToString() && strpos($sqlString, "ENUM") !== false) {
