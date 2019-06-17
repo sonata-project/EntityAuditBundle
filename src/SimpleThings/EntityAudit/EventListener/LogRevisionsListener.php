@@ -138,6 +138,11 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 }
 
+                //ignore specific fields for table
+                if ($this->config->isIgnoredField($meta->table['name'] . "." . $column)) {
+                    continue;
+                }
+
                 $sql = 'UPDATE ' . $this->config->getTableName($meta) . ' ' .
                     'SET ' . $field . ' = ' . $placeholder . ' ' .
                     'WHERE ' . $this->config->getRevisionFieldName() . ' = ? ';
