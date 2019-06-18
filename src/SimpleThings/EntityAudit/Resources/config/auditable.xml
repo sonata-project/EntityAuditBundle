@@ -18,6 +18,7 @@
     <services>
         <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager" public="true">
             <argument id="simplethings_entityaudit.config" type="service" />
+            <argument id="SimpleThings\EntityAudit\EntityCache" type="service" />
         </service>
 
         <service id="SimpleThings\EntityAudit\AuditManager" alias="simplethings_entityaudit.manager" public="true" />
@@ -29,6 +30,8 @@
 
         <service id="SimpleThings\EntityAudit\AuditReader" alias="simplethings_entityaudit.reader" />
 
+        <service id="SimpleThings\EntityAudit\EntityCache" class="SimpleThings\EntityAudit\EntityCache" public="true" />
+
         <service id="simplethings_entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
@@ -36,6 +39,11 @@
 
         <service id="simplethings_entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
             <argument id="simplethings_entityaudit.manager" type="service" />
+            <tag name="doctrine.event_subscriber" connection="default" />
+        </service>
+
+        <service id="simplethings_entityaudit.cache_listener" class="SimpleThings\EntityAudit\EventListener\CacheListener">
+            <argument id="SimpleThings\EntityAudit\EntityCache" type="service" />
             <tag name="doctrine.event_subscriber" connection="default" />
         </service>
 

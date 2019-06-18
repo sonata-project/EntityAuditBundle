@@ -34,6 +34,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\EntityCache;
 
 abstract class BaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -205,7 +206,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
             return 'beberlei';
         });
 
-        $auditManager = new AuditManager($auditConfig);
+        $auditManager = new AuditManager($auditConfig, new EntityCache());
         $auditManager->registerEvents($this->_getConnection()->getEventManager());
 
         return $this->auditManager = $auditManager;
