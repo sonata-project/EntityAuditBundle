@@ -21,7 +21,15 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $builder = new TreeBuilder('simple_things_entity_audit');
-        $builder->getRootNode()
+
+        // Keep BC with "symfony/config" < 4.2
+        if (!method_exists($builder, 'getRootNode')) {
+            $rootNode = $builder->root('simple_things_entity_audit');
+        } else {
+            $rootNode = $builder->getRootNode();
+        }
+
+        $rootNode
             ->children()
                 ->arrayNode('audited_entities')
                     ->prototype('scalar')->end()
