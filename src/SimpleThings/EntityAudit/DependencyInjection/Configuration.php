@@ -9,8 +9,17 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $builder = new TreeBuilder();
-        $builder->root('simple_things_entity_audit')
+        $builder = new TreeBuilder('simple_things_entity_audit');
+
+        if (\method_exists($builder, 'getRootNode')) {
+            // SF 4.3+ compatibility
+            $rootNode = $builder->getRootNode();
+        } else {
+            // Older SF
+            $rootNode = $builder->root('simple_things_entity_audit');
+        }
+
+        $rootNode
             ->children()
                 ->arrayNode('audited_entities')
                     ->prototype('scalar')->end()
