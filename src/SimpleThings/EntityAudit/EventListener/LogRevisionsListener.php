@@ -237,6 +237,14 @@ class LogRevisionsListener implements EventSubscriber
             }
         }
 
+        // Make sure that ignored columns for table are removed from the changeset
+        foreach ($this->config->getTableIgnoreColumns() as $column) {
+            $columnName = str_replace($class->getTableName() . '.', '', $column);
+            if (isset($changeset[$columnName])) {
+                unset($changeset[$columnName]);
+            }
+        }
+
         // if we have no changes left => don't create revision log
         if (count($changeset) == 0) {
             return;
