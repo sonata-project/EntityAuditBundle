@@ -32,7 +32,7 @@ class Revision
     private $timestamp;
     private $username;
 
-    public function __construct($rev, $timestamp, $username)
+    function __construct($rev, $timestamp, $username)
     {
         $this->rev = $rev;
         $this->timestamp = $timestamp;

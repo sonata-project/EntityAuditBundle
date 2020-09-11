@@ -23,100 +23,24 @@
 
 namespace SimpleThings\EntityAudit\Metadata;
 
-use Doctrine\ORM\EntityManagerInterface;
-use SimpleThings\EntityAudit\Metadata\Driver\DriverInterface;
-
-/**
- * @author David Badura <d.a.badura@gmail.com>
- */
 class MetadataFactory
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private $auditedEntities = array();
 
-    /**
-     * @var DriverInterface
-     */
-    private $driver;
-
-    /**
-     * @var ClassMetadata[]
-     */
-    private $classMetadatas = [];
-    /**
-     * @var bool
-     */
-    private $loaded = false;
-
-    /**
-     * @param EntityManagerInterface $entityManager
-     * @param DriverInterface $driver
-     */
-    public function __construct(EntityManagerInterface $entityManager, DriverInterface $driver)
+    public function __construct($auditedEntities)
     {
-        $this->entityManager = $entityManager;
-        $this->driver = $driver;
+        $this->auditedEntities = array_flip(array_filter($auditedEntities, function($record) {
+            return is_string($record) || is_int($record);
+        }));
     }
 
-    /**
-     * @param string $class
-     * @return bool
-     */
-    public function isAudited($class)
+    public function isAudited($entity)
     {
-        $this->load();
-
-        return array_key_exists($class, $this->classMetadatas);
+        return isset($this->auditedEntities[$entity]);
     }
-
-    /**
-     * @param string $class
-     * @return ClassMetadata
-     */
-    public function getMetadataFor($class)
-    {
-        $this->load();
-
-        return $this->classMetadatas[$class];
-    }
-
-    /**
-     * @return string[]
-     */
+    
     public function getAllClassNames()
     {
-        $this->load();
-
-        return array_keys($this->classMetadatas);
-    }
-
-    /**
-     *
-     */
-    private function load()
-    {
-        if ($this->loaded) {
-            return;
-        }
-
-        $doctrineClassMetadatas = $this->entityManager->getMetadataFactory()->getAllMetadata();
-
-        foreach ($doctrineClassMetadatas as $doctrineClassMetadata) {
-            $class = $doctrineClassMetadata->name;
-
-            if (!$this->driver->isTransient($class)) {
-                continue;
-            }
-
-            $classMetadata = new ClassMetadata($doctrineClassMetadata);
-
-            $this->driver->loadMetadataForClass($class, $classMetadata);
-
-            $this->classMetadatas[$class] = $classMetadata;
-        }
-
-        $this->loaded = true;
+        return array_flip($this->auditedEntities);
     }
 }

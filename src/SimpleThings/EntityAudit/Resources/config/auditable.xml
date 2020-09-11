@@ -1,36 +1,55 @@
 <?xml version="1.0" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="simplethings.entityaudit.entity_manager" type="string"/>
-        <parameter key="simplethings.entityaudit.table_prefix" type="string"/>
-        <parameter key="simplethings.entityaudit.table_suffix" type="string"/>
-        <parameter key="simplethings.entityaudit.revision_field_name" type="string"/>
-        <parameter key="simplethings.entityaudit.revision_type_field_name" type="string"/>
-        <parameter key="simplethings.entityaudit.revision_table_name" type="string"/>
-        <parameter key="simplethings.entityaudit.revision_id_field_type" type="string"/>
+        <parameter key="simplethings.entityaudit.audited_entities" type="collection" />
+        <parameter key="simplethings.entityaudit.global_ignore_columns" type="collection" />
+        <parameter key="simplethings.entityaudit.table_prefix" type="string" />
+        <parameter key="simplethings.entityaudit.table_suffix" type="string" />
+        <parameter key="simplethings.entityaudit.revision_field_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_type_field_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_table_name" type="string" />
+        <parameter key="simplethings.entityaudit.revision_id_field_type" type="string" />
     </parameters>
 
     <services>
-        <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager">
-            <argument type="service">
-                <service class="Doctrine\ORM\EntityManager">
-                    <factory service="doctrine" method="getManager"/>
-                    <argument type="string">%simplethings.entityaudit.entity_manager%</argument>
-                </service>
-            </argument>
-            <argument id="simplethings_entityaudit.config" type="service"/>
+        <service id="simplethings_entityaudit.manager" class="SimpleThings\EntityAudit\AuditManager" public="true">
+            <argument id="simplethings_entityaudit.config" type="service" />
         </service>
 
-        <service id="simplethings_entityaudit.username_callable.token_storage"
-                 class="SimpleThings\EntityAudit\User\TokenStorageUsernameCallable">
-            <argument id="service_container" type="service"/>
+        <service id="SimpleThings\EntityAudit\AuditManager" alias="simplethings_entityaudit.manager" public="true" />
+
+        <service id="simplethings_entityaudit.reader" class="SimpleThings\EntityAudit\AuditReader" public="true">
+            <factory service="simplethings_entityaudit.manager" method="createAuditReader" />
+            <argument type="service" id="doctrine.orm.default_entity_manager" />
         </service>
 
-        <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration">
+        <service id="SimpleThings\EntityAudit\AuditReader" alias="simplethings_entityaudit.reader" />
+
+        <service id="simplethings_entityaudit.log_revisions_listener" class="SimpleThings\EntityAudit\EventListener\LogRevisionsListener">
+            <argument id="simplethings_entityaudit.manager" type="service" />
+            <tag name="doctrine.event_subscriber" connection="default" />
+        </service>
+
+        <service id="simplethings_entityaudit.create_schema_listener" class="SimpleThings\EntityAudit\EventListener\CreateSchemaListener">
+            <argument id="simplethings_entityaudit.manager" type="service" />
+            <tag name="doctrine.event_subscriber" connection="default" />
+        </service>
+
+        <service id="simplethings_entityaudit.username_callable.token_storage" class="SimpleThings\EntityAudit\User\TokenStorageUsernameCallable">
+            <argument id="service_container" type="service" />
+        </service>
+
+        <service id="simplethings_entityaudit.config" class="SimpleThings\EntityAudit\AuditConfiguration" public="true">
+            <call method="setAuditedEntityClasses">
+                <argument>%simplethings.entityaudit.audited_entities%</argument>
+            </call>
+            <call method="setGlobalIgnoreColumns">
+                <argument>%simplethings.entityaudit.global_ignore_columns%</argument>
+            </call>
             <call method="setTablePrefix">
                 <argument>%simplethings.entityaudit.table_prefix%</argument>
             </call>
@@ -50,16 +69,12 @@
                 <argument>%simplethings.entityaudit.revision_type_field_name%</argument>
             </call>
             <call method="setUsernameCallable">
-                <argument type="service" id="simplethings_entityaudit.username_callable"/>
-            </call>
-
-            <call method="setMetadataDriver">
-                <argument type="service">
-                    <service class="SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver">
-                        <factory class="SimpleThings\EntityAudit\Metadata\Driver\AnnotationDriver" method="create"/>
-                    </service>
-                </argument>
+                <argument type="service" id="simplethings_entityaudit.username_callable" />
             </call>
         </service>
+
+        <service id="SimpleThings\EntityAudit\AuditConfiguration" alias="simplethings_entityaudit.config" />
+
     </services>
 </container>
+

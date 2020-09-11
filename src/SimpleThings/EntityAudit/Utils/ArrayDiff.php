@@ -21,25 +21,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Metadata\Driver;
-
-use SimpleThings\EntityAudit\Metadata\ClassMetadata;
+namespace SimpleThings\EntityAudit\Utils;
 
 /**
- * @author David Badura <d.a.badura@gmail.com>
+ * Creates a diff between 2 arrays.
+ *
+ * @author Tim Nagel <tim@nagel.com.au>
  */
-interface DriverInterface
+class ArrayDiff
 {
-    /**
-     * @param string $class
-     * @param ClassMetadata $classMetadata
-     * @return void
-     */
-    public function loadMetadataForClass($class, ClassMetadata $classMetadata);
+    public function diff($oldData, $newData)
+    {
+        $diff = array();
 
-    /**
-     * @param string $class
-     * @return bool
-     */
-    public function isTransient($class);
+        $keys = array_keys($oldData + $newData);
+        foreach ($keys as $field) {
+            $old = array_key_exists($field, $oldData) ? $oldData[$field] : null;
+            $new = array_key_exists($field, $newData) ? $newData[$field] : null;
+
+            if ($old == $new) {
+                $row = array('old' => '', 'new' => '', 'same' => $old);
+            } else {
+                $row = array('old' => $old, 'new' => $new, 'same' => '');
+            }
+
+            $diff[$field] = $row;
+        }
+
+        return $diff;
+    }
 }
