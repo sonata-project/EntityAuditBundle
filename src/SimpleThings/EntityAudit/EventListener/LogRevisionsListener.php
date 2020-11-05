@@ -389,7 +389,7 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 //ignore specific fields for table
-                if ($this->config->isIgnoredField($class->getTableName() . "." . $field)) {
+                if ($this->config->isIgnoredField($class->getTableName() . "." . $class->getColumnName($field))) {
                     continue;
                 }
 
@@ -474,7 +474,7 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             //ignore specific fields for table
-            if ($this->config->isIgnoredField($class->getTableName() . "." . $field)) {
+            if ($this->config->isIgnoredField($class->getTableName() . "." . $class->getColumnName($field))) {
                 continue;
             }
 
