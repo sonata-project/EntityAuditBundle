@@ -845,6 +845,10 @@ class AuditReader
         $columnMap  = array();
 
         foreach ($class->fieldNames as $columnName => $field) {
+            if ($this->config->isIgnoredField($class->getTableName() . '.' . $columnName)) {
+                continue;
+            }
+
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
                     $this->quoteStrategy->getColumnName($field, $class, $this->platform),
