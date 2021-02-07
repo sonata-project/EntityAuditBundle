@@ -9,18 +9,17 @@
     ],
     "description": "Audit for Doctrine Entities",
     "require": {
-        "php": "^5.3.9|~7.0",
-        "doctrine/dbal": "~2.5",
-        "doctrine/orm": "~2.4"
+        "php": "^7.3",
+        "doctrine/dbal": "^2.5",
+        "doctrine/orm": "^2.4"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "~1.4",
-        "gedmo/doctrine-extensions": "^2.3.1",
-        "matthiasnoback/symfony-dependency-injection-test": "^1.0",
-        "phpunit/phpunit": "^4.8",
-        "symfony/framework-bundle": "~2.7|~3.0",
-        "symfony/var-dumper": "^2.7",
-        "fabpot/php-cs-fixer": "^1.11"
+        "doctrine/doctrine-bundle": "^1.4 || ^2.2",
+        "gedmo/doctrine-extensions": "^3.0",
+        "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
+        "symfony/framework-bundle": "^4.4 || ^5.2",
+        "symfony/var-dumper": "^4.4 || ^5.2",
+        "symfony/phpunit-bridge": "^5.2"
     },
     "conflict": {
         "doctrine/dbal": "2.7.0",
@@ -30,12 +29,12 @@
     },
     "autoload": {
         "psr-4": {
-            "SimpleThings\\EntityAudit\\": "src/SimpleThings/EntityAudit"
+            "SimpleThings\\EntityAudit\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "SimpleThings\\EntityAudit\\Tests\\": "tests/SimpleThings/Tests/EntityAudit"
+            "SimpleThings\\EntityAudit\\Tests\\": "tests"
         }
     }
 }
