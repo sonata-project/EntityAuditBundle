@@ -101,10 +101,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'action');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getContainerExtensions()
+    protected function getContainerExtensions(): array
     {
         return array(
             new SimpleThingsEntityAuditExtension(),

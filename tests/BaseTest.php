@@ -32,10 +32,11 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
+use PHPUnit\Framework\TestCase;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 
-abstract class BaseTest extends \PHPUnit_Framework_TestCase
+abstract class BaseTest extends TestCase
 {
     /**
      * @var Connection|null
@@ -61,7 +62,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
 
     protected $auditedEntities = array();
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->getEntityManager();
         $this->getSchemaTool();
@@ -69,7 +70,7 @@ abstract class BaseTest extends \PHPUnit_Framework_TestCase
         $this->setUpEntitySchema();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->tearDownEntitySchema();
     }
