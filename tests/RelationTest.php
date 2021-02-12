@@ -797,6 +797,8 @@ class RelationTest extends BaseTest
     /**
      * Specific test for the case where a join condition is via an ORM/Id and where the column is also an object.
      * Used to result in an 'aray to string conversion' error
+     *
+     * @doesNotPerformAssertions
      */
     public function testJoinOnObject()
     {

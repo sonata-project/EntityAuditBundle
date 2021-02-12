@@ -103,6 +103,9 @@ class IssueTest extends BaseTest
         'upper' => 'SimpleThings\EntityAudit\Tests\Types\ConvertToPHPType',
     );
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIssue31()
     {
         $reve = new Issue31Reve();
@@ -142,6 +145,9 @@ class IssueTest extends BaseTest
         $this->assertInstanceOf('DateTime', $ae->getDeletedAt());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testEscapedColumns()
     {
         $e = new EscapedColumnsEntity();
@@ -218,6 +224,9 @@ class IssueTest extends BaseTest
         $this->assertEquals('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testDuplicateRevisionKeyConstraintFailure()
     {
         $primaryOwner = new DuplicateRevisionFailureTestPrimaryOwner();
@@ -244,6 +253,9 @@ class IssueTest extends BaseTest
         $this->em->flush();
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testIssue156()
     {
         $client = new Issue156Client();
