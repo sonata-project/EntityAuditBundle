@@ -378,9 +378,9 @@ class AuditedCollection implements Collection
 
         if (\is_object($entity)) {
             return $entity;
-        } else {
-            return $this->entities[$offset] = $this->resolve($entity);
         }
+
+        return $this->entities[$offset] = $this->resolve($entity);
     }
 
     /**

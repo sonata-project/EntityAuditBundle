@@ -654,7 +654,7 @@ class RelationTest extends BaseTest
         $this->assertInstanceOf(\get_class($food), $auditedFood);
         $this->assertCount(3, $auditedFood->getProducts());
 
-        list($productOne, $productTwo, $productThree) = $auditedFood->getProducts()->toArray();
+        [$productOne, $productTwo, $productThree] = $auditedFood->getProducts()->toArray();
 
         $this->assertInstanceOf(\get_class($parmesanCheese), $productOne);
         $this->assertInstanceOf(\get_class($cheddarCheese), $productTwo);

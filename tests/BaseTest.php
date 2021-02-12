@@ -101,7 +101,7 @@ abstract class BaseTest extends TestCase
 
         $this->em = EntityManager::create($connection, $config);
 
-        if (isset($this->customTypes) and \is_array($this->customTypes)) {
+        if (isset($this->customTypes) && \is_array($this->customTypes)) {
             foreach ($this->customTypes as $customTypeName => $customTypeClass) {
                 if (!Type::hasType($customTypeName)) {
                     Type::addType($customTypeName, $customTypeClass);

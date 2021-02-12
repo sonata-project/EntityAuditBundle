@@ -42,7 +42,8 @@ class SimpleDiff
         return array_merge(
             $this->diff(\array_slice($old, 0, $omax), \array_slice($new, 0, $nmax)),
             \array_slice($new, $nmax, $maxlen),
-            $this->diff(\array_slice($old, $omax + $maxlen), \array_slice($new, $nmax + $maxlen)));
+            $this->diff(\array_slice($old, $omax + $maxlen), \array_slice($new, $nmax + $maxlen))
+        );
     }
 
     public function htmlDiff($old, $new)

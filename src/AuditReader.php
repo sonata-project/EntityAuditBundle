@@ -520,7 +520,9 @@ class AuditReader
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
         $query = $this->platform->modifyLimitQuery(
-            'SELECT * FROM '.$this->config->getRevisionTableName().' ORDER BY id DESC', $limit, $offset
+            'SELECT * FROM '.$this->config->getRevisionTableName().' ORDER BY id DESC',
+            $limit,
+            $offset
         );
         $revisionsData = $this->em->getConnection()->fetchAll($query);
 
@@ -579,8 +581,9 @@ class AuditReader
                     ? 're' // root entity
                     : 'e';
                 $columnList .= ', '.$type->convertToPHPValueSQL(
-                        $tableAlias.'.'.$this->quoteStrategy->getColumnName($field, $class, $this->platform), $this->platform
-                    ).' AS '.$this->platform->quoteSingleIdentifier($field);
+                    $tableAlias.'.'.$this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                    $this->platform
+                ).' AS '.$this->platform->quoteSingleIdentifier($field);
                 $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
             }
 
@@ -655,9 +658,8 @@ class AuditReader
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
                 $revisionsData[0]['username']
             );
-        } else {
-            throw new InvalidRevisionException($rev);
         }
+        throw new InvalidRevisionException($rev);
     }
 
     /**
@@ -848,9 +850,9 @@ class AuditReader
         foreach ($class->fieldNames as $columnName => $field) {
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
-                    $this->quoteStrategy->getColumnName($field, $class, $this->platform),
-                    $this->platform
-                ).' AS '.$this->platform->quoteSingleIdentifier($field);
+                $this->quoteStrategy->getColumnName($field, $class, $this->platform),
+                $this->platform
+            ).' AS '.$this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
         }
 
