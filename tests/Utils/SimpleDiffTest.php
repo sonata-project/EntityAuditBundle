@@ -30,7 +30,7 @@ class SimpleDiffTest extends TestCase
         $diff = new SimpleDiff();
         $d = $diff->htmlDiff($old, $new);
 
-        $this->assertEquals($output, $d);
+        $this->assertSame($output, $d);
     }
 
     public static function dataDiff()

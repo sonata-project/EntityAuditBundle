@@ -120,13 +120,13 @@ class RelationTest extends BaseTest
         $changedOwned = $changedEntities[1]->getEntity();
 
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', $changedEntities[0]->getClassName());
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', \get_class($changedOwner));
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', \get_class($changedOwned));
-        $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
-        $this->assertEquals('DEL', $changedEntities[1]->getRevisionType());
-        $this->assertEquals(['id' => 1], $changedEntities[0]->getId());
-        $this->assertEquals(['id' => 1], $changedEntities[1]->getId());
+        $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', $changedEntities[0]->getClassName());
+        $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity', \get_class($changedOwner));
+        $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', \get_class($changedOwned));
+        $this->assertSame('DEL', $changedEntities[0]->getRevisionType());
+        $this->assertSame('DEL', $changedEntities[1]->getRevisionType());
+        $this->assertSame(['id' => 1], $changedEntities[0]->getId());
+        $this->assertSame(['id' => 1], $changedEntities[1]->getId());
         //uninit proxy messes up ids, it is fine
         $this->assertCount(0, $changedOwner->getOwned1());
         $this->assertCount(0, $changedOwner->getOwned2());
@@ -214,49 +214,49 @@ class RelationTest extends BaseTest
         $this->em->flush(); //#6
 
         $audited = $auditReader->find(\get_class($master), $master->getId(), 1);
-        $this->assertEquals('master#1', $audited->getTitle());
+        $this->assertSame('master#1', $audited->getTitle());
         $this->assertNull($audited->getAudited());
         $this->assertNull($audited->getNotAudited());
 
         $audited = $auditReader->find(\get_class($master), $master->getId(), 2);
-        $this->assertEquals('master#1', $audited->getTitle());
+        $this->assertSame('master#1', $audited->getTitle());
         $this->assertNull($audited->getAudited());
-        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+        $this->assertSame('notaudited', $audited->getNotAudited()->getTitle());
 
         $audited = $auditReader->find(\get_class($master), $master->getId(), 3);
-        $this->assertEquals('master#1', $audited->getTitle());
-        $this->assertEquals('audited', $audited->getAudited()->getTitle());
-        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+        $this->assertSame('master#1', $audited->getTitle());
+        $this->assertSame('audited', $audited->getAudited()->getTitle());
+        $this->assertSame('notaudited', $audited->getNotAudited()->getTitle());
 
         $audited = $auditReader->find(\get_class($master), $master->getId(), 4);
-        $this->assertEquals('master#1', $audited->getTitle());
-        $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
-        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+        $this->assertSame('master#1', $audited->getTitle());
+        $this->assertSame('changed#4', $audited->getAudited()->getTitle());
+        $this->assertSame('notaudited', $audited->getNotAudited()->getTitle());
 
         $auditReader->setLoadAuditedEntities(false);
         $auditReader->clearEntityCache();
         $audited = $auditReader->find(\get_class($master), $master->getId(), 4);
         $this->assertNull($audited->getAudited());
-        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+        $this->assertSame('notaudited', $audited->getNotAudited()->getTitle());
 
         $auditReader->setLoadAuditedEntities(true);
         $auditReader->setLoadNativeEntities(false);
         $auditReader->clearEntityCache();
         $audited = $auditReader->find(\get_class($master), $master->getId(), 4);
-        $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
+        $this->assertSame('changed#4', $audited->getAudited()->getTitle());
         $this->assertNull($audited->getNotAudited());
 
         $auditReader->setLoadNativeEntities(true);
 
         $audited = $auditReader->find(\get_class($master), $master->getId(), 5);
-        $this->assertEquals('changed#5', $audited->getTitle());
-        $this->assertEquals('changed#4', $audited->getAudited()->getTitle());
-        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+        $this->assertSame('changed#5', $audited->getTitle());
+        $this->assertSame('changed#4', $audited->getAudited()->getTitle());
+        $this->assertSame('notaudited', $audited->getNotAudited()->getTitle());
 
         $audited = $auditReader->find(\get_class($master), $master->getId(), 6);
-        $this->assertEquals('changed#5', $audited->getTitle());
+        $this->assertSame('changed#5', $audited->getTitle());
         $this->assertNull($audited->getAudited());
-        $this->assertEquals('notaudited', $audited->getNotAudited()->getTitle());
+        $this->assertSame('notaudited', $audited->getNotAudited()->getTitle());
     }
 
     /**
@@ -339,7 +339,7 @@ class RelationTest extends BaseTest
 
         //should not mess foreign keys
         $rows = $this->em->getConnection()->fetchAll('SELECT strange_owned_id_name FROM OwnedEntity1');
-        $this->assertEquals($owner->getId(), $rows[0]['strange_owned_id_name']);
+        $this->assertSame($owner->getId(), $rows[0]['strange_owned_id_name']);
         $this->em->refresh($owner);
         $this->assertCount(1, $owner->getOwned1());
         $this->assertCount(1, $owner->getOwned2());
@@ -372,24 +372,24 @@ class RelationTest extends BaseTest
         //checking third revision
         $audited = $auditReader->find(\get_class($owner), $owner->getId(), 3);
         $this->assertInstanceOf('Doctrine\Common\Collections\Collection', $audited->getOwned2());
-        $this->assertEquals('changed#2', $audited->getTitle());
+        $this->assertSame('changed#2', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        $this->assertEquals('created#3', $o1[0]->getTitle());
+        $this->assertSame('created#3', $o1[0]->getTitle());
         $o2 = $audited->getOwned2();
-        $this->assertEquals('owned21', $o2[0]->getTitle());
+        $this->assertSame('owned21', $o2[0]->getTitle());
 
         //checking forth revision
         $audited = $auditReader->find(\get_class($owner), $owner->getId(), 4);
-        $this->assertEquals('changed#2', $audited->getTitle());
+        $this->assertSame('changed#2', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        $this->assertEquals('created#3', $o1[0]->getTitle());
-        $this->assertEquals('created#4', $o1[1]->getTitle());
+        $this->assertSame('created#3', $o1[0]->getTitle());
+        $this->assertSame('created#4', $o1[1]->getTitle());
         $o2 = $audited->getOwned2();
-        $this->assertEquals('owned21', $o2[0]->getTitle());
+        $this->assertSame('owned21', $o2[0]->getTitle());
 
         //check skipping collections
         $auditReader->setLoadAuditedCollections(false);
@@ -409,35 +409,35 @@ class RelationTest extends BaseTest
         $auditReader->setLoadNativeCollections(true);
         $auditReader->clearEntityCache();
         $audited = $auditReader->find(\get_class($owner), $owner->getId(), 5);
-        $this->assertEquals('changed#5', $audited->getTitle());
+        $this->assertSame('changed#5', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        $this->assertEquals('created#3', $o1[0]->getTitle());
-        $this->assertEquals('created#4', $o1[1]->getTitle());
+        $this->assertSame('created#3', $o1[0]->getTitle());
+        $this->assertSame('created#4', $o1[1]->getTitle());
         $o2 = $audited->getOwned2();
-        $this->assertEquals('owned21', $o2[0]->getTitle());
+        $this->assertSame('owned21', $o2[0]->getTitle());
 
         //checking sixth revision
         $audited = $auditReader->find(\get_class($owner), $owner->getId(), 6);
-        $this->assertEquals('changed#6', $audited->getTitle());
+        $this->assertSame('changed#6', $audited->getTitle());
         $this->assertCount(2, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        $this->assertEquals('created#3', $o1[0]->getTitle());
-        $this->assertEquals('changed#6', $o1[1]->getTitle());
+        $this->assertSame('created#3', $o1[0]->getTitle());
+        $this->assertSame('changed#6', $o1[1]->getTitle());
         $o2 = $audited->getOwned2();
-        $this->assertEquals('owned21', $o2[0]->getTitle());
+        $this->assertSame('owned21', $o2[0]->getTitle());
 
         //checking seventh revision
         $audited = $auditReader->find(\get_class($owner), $owner->getId(), 7);
-        $this->assertEquals('changed#7', $audited->getTitle());
+        $this->assertSame('changed#7', $audited->getTitle());
         $this->assertCount(1, $audited->getOwned1());
         $this->assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        $this->assertEquals('changed#7', $o1[0]->getTitle());
+        $this->assertSame('changed#7', $o1[0]->getTitle());
         $o2 = $audited->getOwned2();
-        $this->assertEquals('owned21', $o2[0]->getTitle());
+        $this->assertSame('owned21', $o2[0]->getTitle());
 
         $history = $auditReader->getEntityHistory(\get_class($owner), $owner->getId());
 
@@ -564,13 +564,13 @@ class RelationTest extends BaseTest
         $this->em->flush(); //#7
 
         $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 1);
-        $this->assertEquals('created#1', $auditedEntity->getTitle());
+        $this->assertSame('created#1', $auditedEntity->getTitle());
         $this->assertCount(0, $auditedEntity->getOwned1());
 
         $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 2);
         $o1 = $auditedEntity->getOwned1();
         $this->assertCount(1, $o1);
-        $this->assertEquals($ownedId1, $o1[0]->getId());
+        $this->assertSame($ownedId1, $o1[0]->getId());
 
         $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 3);
         $this->assertCount(0, $auditedEntity->getOwned1());
@@ -584,7 +584,7 @@ class RelationTest extends BaseTest
         $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 6);
         $o1 = $auditedEntity->getOwned1();
         $this->assertCount(1, $o1);
-        $this->assertEquals($ownedId2, $o1[0]->getId());
+        $this->assertSame($ownedId2, $o1[0]->getId());
 
         $auditedEntity = $auditReader->find(\get_class($owned), $ownedId2, 7);
         $this->assertNull($auditedEntity->getOwner());
@@ -613,14 +613,14 @@ class RelationTest extends BaseTest
 
         //checking first revision
         $audited = $auditReader->find(\get_class($owned), $owner->getId(), 1);
-        $this->assertEquals('owned', $audited->getTitle());
-        $this->assertEquals('owner', $audited->getOwner()->getTitle());
+        $this->assertSame('owned', $audited->getTitle());
+        $this->assertSame('owner', $audited->getOwner()->getTitle());
 
         //checking second revision
         $audited = $auditReader->find(\get_class($owned), $owner->getId(), 2);
 
-        $this->assertEquals('changed#2', $audited->getTitle());
-        $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
+        $this->assertSame('changed#2', $audited->getTitle());
+        $this->assertSame('changed#2', $audited->getOwner()->getTitle());
     }
 
     public function testOneToManyJoinedInheritance(): void
@@ -660,8 +660,8 @@ class RelationTest extends BaseTest
         $this->assertInstanceOf(\get_class($cheddarCheese), $productTwo);
         $this->assertInstanceOf(\get_class($vine), $productThree);
 
-        $this->assertEquals($parmesanCheese->getId(), $productOne->getId());
-        $this->assertEquals($cheddarCheese->getId(), $productTwo->getId());
+        $this->assertSame($parmesanCheese->getId(), $productOne->getId());
+        $this->assertSame($cheddarCheese->getId(), $productTwo->getId());
     }
 
     public function testOneToManyWithIndexBy(): void
@@ -781,8 +781,8 @@ class RelationTest extends BaseTest
 
         $auditedBase = $reader->find(\get_class($base), $base->getId(), 1);
 
-        $this->assertEquals('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
-        $this->assertEquals('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
+        $this->assertSame('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
+        $this->assertSame('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
     }
 
     /**
@@ -834,6 +834,6 @@ class RelationTest extends BaseTest
 
         $legal2Base = $reader->find(\get_class($legal2), $legal2->getId(), 1);
 
-        $this->assertEquals('container3', $legal2Base->getDataContainer()->getName());
+        $this->assertSame('container3', $legal2Base->getDataContainer()->getName());
     }
 }

@@ -168,18 +168,18 @@ class IssueTest extends BaseTest
 
         $auditedProject = $auditReader->find(\get_class($project), $project->getId(), 1);
 
-        $this->assertEquals($org->getId(), $auditedProject->getOrganisation()->getId());
-        $this->assertEquals('test project', $auditedProject->getTitle());
-        $this->assertEquals('some property', $auditedProject->getSomeProperty());
+        $this->assertSame($org->getId(), $auditedProject->getOrganisation()->getId());
+        $this->assertSame('test project', $auditedProject->getTitle());
+        $this->assertSame('some property', $auditedProject->getSomeProperty());
 
         $auditedComment = $auditReader->find(\get_class($comment), $comment->getId(), 1);
-        $this->assertEquals('test project', $auditedComment->getProject()->getTitle());
+        $this->assertSame('test project', $auditedComment->getProject()->getTitle());
 
         $project->setTitle('changed project title');
         $this->em->flush();
 
         $auditedComment = $auditReader->find(\get_class($comment), $comment->getId(), 2);
-        $this->assertEquals('changed project title', $auditedComment->getProject()->getTitle());
+        $this->assertSame('changed project title', $auditedComment->getProject()->getTitle());
     }
 
     public function testIssue9(): void
@@ -201,13 +201,13 @@ class IssueTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $aAddress = $reader->find(\get_class($address), $address->getId(), 1);
-        $this->assertEquals($customer->getId(), $aAddress->getCustomer()->getId());
+        $this->assertSame($customer->getId(), $aAddress->getCustomer()->getId());
 
         /** @var Issue9Customer $aCustomer */
         $aCustomer = $reader->find(\get_class($customer), $customer->getId(), 1);
 
         $this->assertNotNull($aCustomer->getPrimaryAddress());
-        $this->assertEquals('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
+        $this->assertSame('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
     }
 
     /**
@@ -272,7 +272,7 @@ class IssueTest extends BaseTest
         $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
-        $this->assertEquals(
+        $this->assertSame(
             $persistedEntity,
             $currentRevisionEntity,
             'Current revision of audited entity is not equivalent to persisted entity:'
@@ -300,7 +300,7 @@ class IssueTest extends BaseTest
         $this->assertNull($car1->getOwner());
 
         $car2 = $auditReader->find(\get_class($car), $car->getId(), 2);
-        $this->assertEquals($car2->getOwner()->getId(), $owner->getId());
+        $this->assertSame($car2->getOwner()->getId(), $owner->getId());
     }
 
     public function testConvertToPHP(): void
@@ -317,7 +317,7 @@ class IssueTest extends BaseTest
         $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
-        $this->assertEquals(
+        $this->assertSame(
             $persistedEntity,
             $currentRevisionEntity,
             'Current revision of audited entity is not equivalent to persisted entity:'
