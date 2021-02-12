@@ -172,11 +172,11 @@ class CoreTest extends BaseTest
         $this->assertCount(2, $revisions);
         $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
 
-        $this->assertSame(2, $revisions[0]->getRev());
+        $this->assertSame('2', $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
         $this->assertSame('beberlei', $revisions[0]->getUsername());
 
-        $this->assertSame(1, $revisions[1]->getRev());
+        $this->assertSame('1', $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
         $this->assertSame('beberlei', $revisions[1]->getUsername());
     }
@@ -207,12 +207,12 @@ class CoreTest extends BaseTest
 
         $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getClassName());
         $this->assertSame('INS', $changedEntities[0]->getRevisionType());
-        $this->assertSame(['id' => 1], $changedEntities[0]->getId());
+        $this->assertSame(['id' => '1'], $changedEntities[0]->getId());
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getEntity());
 
         $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getClassName());
         $this->assertSame('INS', $changedEntities[1]->getRevisionType());
-        $this->assertSame(['id' => 1], $changedEntities[1]->getId());
+        $this->assertSame(['id' => '1'], $changedEntities[1]->getId());
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getEntity());
     }
 
@@ -290,11 +290,11 @@ class CoreTest extends BaseTest
         $this->assertCount(2, $revisions);
         $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
 
-        $this->assertSame(2, $revisions[0]->getRev());
+        $this->assertSame('2', $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
         $this->assertSame('beberlei', $revisions[0]->getUsername());
 
-        $this->assertSame(1, $revisions[1]->getRev());
+        $this->assertSame('1', $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
         $this->assertSame('beberlei', $revisions[1]->getUsername());
 
@@ -319,13 +319,13 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
-        $this->assertSame(2, $revision);
+        $this->assertSame('2', $revision);
 
         $user->setName('David');
         $this->em->flush();
 
         $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
-        $this->assertSame(3, $revision);
+        $this->assertSame('3', $revision);
     }
 
     public function testGlobalIgnoreColumns(): void
@@ -344,14 +344,14 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $revision = $reader->getCurrentRevision(\get_class($article), $article->getId());
-        $this->assertSame(2, $revision);
+        $this->assertSame('2', $revision);
 
         $article->setIgnoreme('textnew');
         $this->em->persist($article);
         $this->em->flush();
 
         $revision = $reader->getCurrentRevision(\get_class($article), $article->getId());
-        $this->assertSame(2, $revision);
+        $this->assertSame('2', $revision);
     }
 
     public function testDeleteUnInitProxy(): void
@@ -375,7 +375,7 @@ class CoreTest extends BaseTest
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
         $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[0]->getClassName());
         $this->assertSame('DEL', $changedEntities[0]->getRevisionType());
-        $this->assertSame(['id' => 1], $changedEntities[0]->getId());
+        $this->assertSame(['id' => '1'], $changedEntities[0]->getId());
     }
 
     public function testUsernameResolvingIsDynamic(): void

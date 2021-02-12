@@ -273,8 +273,8 @@ class IssueTest extends BaseTest
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
         $this->assertSame(
-            $persistedEntity,
-            $currentRevisionEntity,
+            $persistedEntity->getSqlConversionField(),
+            $currentRevisionEntity->getSqlConversionField(),
             'Current revision of audited entity is not equivalent to persisted entity:'
         );
     }
@@ -318,8 +318,8 @@ class IssueTest extends BaseTest
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
         $this->assertSame(
-            $persistedEntity,
-            $currentRevisionEntity,
+            $persistedEntity->getSqlConversionField(),
+            $currentRevisionEntity->getSqlConversionField(),
             'Current revision of audited entity is not equivalent to persisted entity:'
         );
     }

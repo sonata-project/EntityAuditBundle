@@ -125,8 +125,8 @@ class RelationTest extends BaseTest
         $this->assertSame('SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1', \get_class($changedOwned));
         $this->assertSame('DEL', $changedEntities[0]->getRevisionType());
         $this->assertSame('DEL', $changedEntities[1]->getRevisionType());
-        $this->assertSame(['id' => 1], $changedEntities[0]->getId());
-        $this->assertSame(['id' => 1], $changedEntities[1]->getId());
+        $this->assertSame(['id' => '1'], $changedEntities[0]->getId());
+        $this->assertSame(['id' => '1'], $changedEntities[1]->getId());
         //uninit proxy messes up ids, it is fine
         $this->assertCount(0, $changedOwner->getOwned1());
         $this->assertCount(0, $changedOwner->getOwned2());
@@ -339,7 +339,7 @@ class RelationTest extends BaseTest
 
         //should not mess foreign keys
         $rows = $this->em->getConnection()->fetchAll('SELECT strange_owned_id_name FROM OwnedEntity1');
-        $this->assertSame($owner->getId(), $rows[0]['strange_owned_id_name']);
+        $this->assertSame($owner->getId(), (int) $rows[0]['strange_owned_id_name']);
         $this->em->refresh($owner);
         $this->assertCount(1, $owner->getOwned1());
         $this->assertCount(1, $owner->getOwned2());
