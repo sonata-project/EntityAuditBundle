@@ -19,7 +19,7 @@ class MetadataFactory
 
     public function __construct($auditedEntities)
     {
-        $this->auditedEntities = array_flip(array_filter($auditedEntities, function ($record) {
+        $this->auditedEntities = array_flip(array_filter($auditedEntities, static function ($record) {
             return \is_string($record) || \is_int($record);
         }));
     }

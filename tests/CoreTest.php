@@ -380,7 +380,7 @@ class CoreTest extends BaseTest
 
     public function testUsernameResolvingIsDynamic(): void
     {
-        $this->auditManager->getConfiguration()->setUsernameCallable(function () {
+        $this->auditManager->getConfiguration()->setUsernameCallable(static function () {
             return 'user: '.uniqid();
         });
 

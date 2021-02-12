@@ -25,22 +25,6 @@ use Symfony\Component\HttpFoundation\Response;
 class AuditController extends Controller
 {
     /**
-     * @return \SimpleThings\EntityAudit\AuditReader
-     */
-    protected function getAuditReader()
-    {
-        return $this->get('simplethings_entityaudit.reader');
-    }
-
-    /**
-     * @return \SimpleThings\EntityAudit\AuditManager
-     */
-    protected function getAuditManager()
-    {
-        return $this->get('simplethings_entityaudit.manager');
-    }
-
-    /**
      * Renders a paginated list of revisions.
      *
      * @param int $page
@@ -62,9 +46,9 @@ class AuditController extends Controller
      *
      * @param int $rev
      *
-     * @return Response
-     *
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     *
+     * @return Response
      */
     public function viewRevisionAction($rev)
     {
@@ -157,5 +141,21 @@ class AuditController extends Controller
             'newRev' => $newRev,
             'diff' => $diff,
         ]);
+    }
+
+    /**
+     * @return \SimpleThings\EntityAudit\AuditReader
+     */
+    protected function getAuditReader()
+    {
+        return $this->get('simplethings_entityaudit.reader');
+    }
+
+    /**
+     * @return \SimpleThings\EntityAudit\AuditManager
+     */
+    protected function getAuditManager()
+    {
+        return $this->get('simplethings_entityaudit.manager');
     }
 }

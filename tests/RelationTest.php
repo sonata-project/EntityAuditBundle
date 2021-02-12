@@ -756,9 +756,9 @@ class RelationTest extends BaseTest
             $ids[] = $ownedElement->getId();
         }
 
-        $this->assertTrue(\in_array($ownedOne->getId(), $ids));
-        $this->assertTrue(\in_array($ownedThree->getId(), $ids));
-        $this->assertTrue(\in_array($ownedFour->getId(), $ids));
+        $this->assertTrue(\in_array($ownedOne->getId(), $ids, true));
+        $this->assertTrue(\in_array($ownedThree->getId(), $ids, true));
+        $this->assertTrue(\in_array($ownedFour->getId(), $ids, true));
     }
 
     public function testOneToOneEdgeCase(): void

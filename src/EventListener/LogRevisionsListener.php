@@ -134,7 +134,7 @@ class LogRevisionsListener implements EventSubscriber
 
                 $types = [];
 
-                if (\in_array($column, $meta->columnNames)) {
+                if (\in_array($column, $meta->columnNames, true)) {
                     $types[] = $meta->getTypeOfField($fieldName);
                 } else {
                     //try to find column in association mappings
@@ -242,7 +242,7 @@ class LogRevisionsListener implements EventSubscriber
             //doctrine is fine deleting elements multiple times. We are not.
             $hash = $this->getHash($entity);
 
-            if (\in_array($hash, $processedEntities)) {
+            if (\in_array($hash, $processedEntities, true)) {
                 continue;
             }
 
@@ -321,9 +321,9 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @param ClassMetadata $class
      *
-     * @return string
-     *
      * @throws \Doctrine\DBAL\DBALException
+     *
+     * @return string
      */
     private function getInsertRevisionSQL($class)
     {

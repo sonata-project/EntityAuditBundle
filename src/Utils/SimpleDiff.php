@@ -24,7 +24,7 @@ class SimpleDiff
     {
         $maxlen = 0;
         foreach ($old as $oindex => $ovalue) {
-            $nkeys = array_keys($new, $ovalue);
+            $nkeys = array_keys($new, $ovalue, true);
             foreach ($nkeys as $nindex) {
                 $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
                         $matrix[$oindex - 1][$nindex - 1] + 1 : 1;

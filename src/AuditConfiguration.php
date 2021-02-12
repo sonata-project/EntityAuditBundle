@@ -130,7 +130,7 @@ class AuditConfiguration
      */
     public function setCurrentUsername($username): void
     {
-        $this->setUsernameCallable(function () use ($username) {
+        $this->setUsernameCallable(static function () use ($username) {
             return $username;
         });
     }

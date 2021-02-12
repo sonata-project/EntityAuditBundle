@@ -39,11 +39,6 @@ abstract class BaseTest extends TestCase
     protected $em;
 
     /**
-     * @var SchemaTool
-     */
-    private $schemaTool;
-
-    /**
      * @var AuditManager
      */
     protected $auditManager;
@@ -52,7 +47,12 @@ abstract class BaseTest extends TestCase
 
     protected $auditedEntities = [];
 
-    public function setUp(): void
+    /**
+     * @var SchemaTool
+     */
+    private $schemaTool;
+
+    protected function setUp(): void
     {
         $this->getEntityManager();
         $this->getSchemaTool();
@@ -60,7 +60,7 @@ abstract class BaseTest extends TestCase
         $this->setUpEntitySchema();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $this->tearDownEntitySchema();
     }
@@ -191,7 +191,7 @@ abstract class BaseTest extends TestCase
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
-        $auditConfig->setUsernameCallable(function () {
+        $auditConfig->setUsernameCallable(static function () {
             return 'beberlei';
         });
 
@@ -204,7 +204,7 @@ abstract class BaseTest extends TestCase
     protected function setUpEntitySchema(): void
     {
         $em = $this->getEntityManager();
-        $classes = array_map(function ($value) use ($em) {
+        $classes = array_map(static function ($value) use ($em) {
             return $em->getClassMetadata($value);
         }, $this->schemaEntities);
 
@@ -214,7 +214,7 @@ abstract class BaseTest extends TestCase
     protected function tearDownEntitySchema(): void
     {
         $em = $this->getEntityManager();
-        $classes = array_map(function ($value) use ($em) {
+        $classes = array_map(static function ($value) use ($em) {
             return $em->getClassMetadata($value);
         }, $this->schemaEntities);
 
