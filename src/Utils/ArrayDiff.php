@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -32,17 +34,17 @@ class ArrayDiff
 {
     public function diff($oldData, $newData)
     {
-        $diff = array();
+        $diff = [];
 
         $keys = array_keys($oldData + $newData);
         foreach ($keys as $field) {
-            $old = array_key_exists($field, $oldData) ? $oldData[$field] : null;
-            $new = array_key_exists($field, $newData) ? $newData[$field] : null;
+            $old = \array_key_exists($field, $oldData) ? $oldData[$field] : null;
+            $new = \array_key_exists($field, $newData) ? $newData[$field] : null;
 
             if ($old == $new) {
-                $row = array('old' => '', 'new' => '', 'same' => $old);
+                $row = ['old' => '', 'new' => '', 'same' => $old];
             } else {
-                $row = array('old' => $old, 'new' => $new, 'same' => '');
+                $row = ['old' => $old, 'new' => $new, 'same' => ''];
             }
 
             $diff[$field] = $row;

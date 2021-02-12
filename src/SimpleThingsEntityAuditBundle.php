@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
- * (c) SimpleThings
+ * (c) SimpleThings.
  *
- * @package SimpleThings\EntityAudit
  * @author  Benjamin Eberlei <eberlei@simplethings.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -26,5 +27,4 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class SimpleThingsEntityAuditBundle extends Bundle
 {
-
 }

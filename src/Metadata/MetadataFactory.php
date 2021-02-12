@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -25,12 +27,12 @@ namespace SimpleThings\EntityAudit\Metadata;
 
 class MetadataFactory
 {
-    private $auditedEntities = array();
+    private $auditedEntities = [];
 
     public function __construct($auditedEntities)
     {
-        $this->auditedEntities = array_flip(array_filter($auditedEntities, function($record) {
-            return is_string($record) || is_int($record);
+        $this->auditedEntities = array_flip(array_filter($auditedEntities, function ($record) {
+            return \is_string($record) || \is_int($record);
         }));
     }
 
@@ -38,7 +40,7 @@ class MetadataFactory
     {
         return isset($this->auditedEntities[$entity]);
     }
-    
+
     public function getAllClassNames()
     {
         return array_flip($this->auditedEntities);

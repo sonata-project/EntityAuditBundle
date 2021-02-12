@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -24,7 +26,7 @@
 namespace SimpleThings\EntityAudit;
 
 /**
- * Revision is returned from {@link AuditReader::getRevisions()}
+ * Revision is returned from {@link AuditReader::getRevisions()}.
  */
 class Revision
 {

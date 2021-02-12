@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit;
 
@@ -17,9 +19,6 @@ class AuditManager
 
     private $metadataFactory;
 
-    /**
-     * @param AuditConfiguration $config
-     */
     public function __construct(AuditConfiguration $config)
     {
         $this->config = $config;

@@ -1,18 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
-use \SimpleThings\EntityAudit\Utils\SimpleDiff;
+use SimpleThings\EntityAudit\Utils\SimpleDiff;
 
 class SimpleDiffTest extends TestCase
 {
     /**
      * @dataProvider dataDiff
+     *
      * @param $old
      * @param $new
      * @param $output
-     * @return void
      */
     public function testDiff($old, $new, $output): void
     {
@@ -24,12 +26,12 @@ class SimpleDiffTest extends TestCase
 
     public static function dataDiff()
     {
-        return array(
-            array('Foo', 'foo', '<del>Foo</del> <ins>foo</ins> '),
-            array('Foo Foo', 'Foo', 'Foo <del>Foo</del> '),
-            array('Foo', 'Foo Foo', 'Foo <ins>Foo</ins> '),
-            array('Foo Bar Baz', 'Foo Foo Foo', 'Foo <del>Bar Baz</del> <ins>Foo Foo</ins> '),
-            array('Foo Bar Baz', 'Foo Baz', 'Foo <del>Bar</del> Baz '),
-        );
+        return [
+            ['Foo', 'foo', '<del>Foo</del> <ins>foo</ins> '],
+            ['Foo Foo', 'Foo', 'Foo <del>Foo</del> '],
+            ['Foo', 'Foo Foo', 'Foo <ins>Foo</ins> '],
+            ['Foo Bar Baz', 'Foo Foo Foo', 'Foo <del>Bar Baz</del> <ins>Foo Foo</ins> '],
+            ['Foo Bar Baz', 'Foo Baz', 'Foo <del>Bar</del> Baz '],
+        ];
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\User;
 
@@ -12,9 +14,6 @@ class TokenStorageUsernameCallable
      */
     private $container;
 
-    /**
-     * @param Container $container
-     */
     public function __construct(Container $container)
     {
         $this->container = $container;

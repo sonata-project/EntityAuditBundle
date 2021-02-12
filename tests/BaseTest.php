@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -58,9 +60,9 @@ abstract class BaseTest extends TestCase
      */
     protected $auditManager;
 
-    protected $schemaEntities = array();
+    protected $schemaEntities = [];
 
-    protected $auditedEntities = array();
+    protected $auditedEntities = [];
 
     public function setUp(): void
     {
@@ -87,15 +89,15 @@ abstract class BaseTest extends TestCase
         $config = new Configuration();
         $config->setMetadataCacheImpl(new ArrayCache());
         $config->setQueryCacheImpl(new ArrayCache());
-        $config->setProxyDir(__DIR__ . '/Proxies');
+        $config->setProxyDir(__DIR__.'/Proxies');
         $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_EVAL);
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
-        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(
-            realpath(__DIR__ . '/Fixtures/Core'),
-            realpath(__DIR__ . '/Fixtures/Issue'),
-            realpath(__DIR__ . '/Fixtures/Relation'),
-        ), false));
+        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver([
+            realpath(__DIR__.'/Fixtures/Core'),
+            realpath(__DIR__.'/Fixtures/Issue'),
+            realpath(__DIR__.'/Fixtures/Relation'),
+        ], false));
 
         Gedmo\DoctrineExtensions::registerAnnotations();
 
@@ -105,18 +107,18 @@ abstract class BaseTest extends TestCase
         $evm = $connection->getEventManager();
         foreach ($evm->getListeners() as $event => $listeners) {
             foreach ($listeners as $listener) {
-                $evm->removeEventListener(array($event), $listener);
+                $evm->removeEventListener([$event], $listener);
             }
         }
 
         $this->em = EntityManager::create($connection, $config);
 
-        if (isset($this->customTypes) and is_array($this->customTypes)) {
+        if (isset($this->customTypes) and \is_array($this->customTypes)) {
             foreach ($this->customTypes as $customTypeName => $customTypeClass) {
                 if (!Type::hasType($customTypeName)) {
                     Type::addType($customTypeName, $customTypeClass);
                 }
-                $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_' . $customTypeName, $customTypeName);
+                $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_'.$customTypeName, $customTypeName);
             }
         }
 
@@ -141,22 +143,22 @@ abstract class BaseTest extends TestCase
     protected function _getConnection()
     {
         if (!isset(self::$conn)) {
-            if(isset(
+            if (isset(
                 $GLOBALS['db_type'],
                 $GLOBALS['db_username'],
                 $GLOBALS['db_password'],
                 $GLOBALS['db_host'],
                 $GLOBALS['db_name'],
                 $GLOBALS['db_port']
-            )){
-                $params = array(
+            )) {
+                $params = [
                     'driver' => $GLOBALS['db_type'],
                     'user' => $GLOBALS['db_username'],
                     'password' => $GLOBALS['db_password'],
                     'host' => $GLOBALS['db_host'],
                     'dbname' => $GLOBALS['db_name'],
                     'port' => $GLOBALS['db_port'],
-                );
+                ];
 
                 $tmpParams = $params;
                 $dbname = $params['dbname'];
@@ -177,12 +179,11 @@ abstract class BaseTest extends TestCase
                 }
 
                 $conn->close();
-
             } else {
-                $params = array(
+                $params = [
                     'driver' => 'pdo_sqlite',
                     'memory' => true,
-                );
+                ];
             }
 
             self::$conn = DriverManager::getConnection($params);
@@ -201,7 +202,7 @@ abstract class BaseTest extends TestCase
         }
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreColumns(array('ignoreme'));
+        $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
         $auditConfig->setUsernameCallable(function () {
             return 'beberlei';
         });

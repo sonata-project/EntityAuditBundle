@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -27,8 +29,8 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class AuditConfiguration
 {
-    private $auditedEntityClasses = array();
-    private $globalIgnoreColumns = array();
+    private $auditedEntityClasses = [];
+    private $globalIgnoreColumns = [];
     private $tablePrefix = '';
     private $tableSuffix = '_audit';
     private $revisionTableName = 'revisions';
@@ -38,21 +40,17 @@ class AuditConfiguration
     private $usernameCallable;
 
     /**
-     * @param array $classes
-     *
      * @return AuditConfiguration
      */
     public static function forEntities(array $classes)
     {
-        $conf = new self;
+        $conf = new self();
         $conf->auditedEntityClasses = $classes;
 
         return $conf;
     }
 
     /**
-     * @param ClassMetadataInfo $metadata
-     *
      * @return string
      */
     public function getTableName(ClassMetadataInfo $metadata)
@@ -61,10 +59,10 @@ class AuditConfiguration
 
         //## Fix for doctrine/orm >= 2.5
         if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
-            $tableName = $metadata->getSchemaName() . '.' . $tableName;
+            $tableName = $metadata->getSchemaName().'.'.$tableName;
         }
 
-        return $this->getTablePrefix() . $tableName . $this->getTableSuffix();
+        return $this->getTablePrefix().$tableName.$this->getTableSuffix();
     }
 
     public function getTablePrefix()
@@ -139,6 +137,7 @@ class AuditConfiguration
 
     /**
      * @deprecated
+     *
      * @param string|null $username
      */
     public function setCurrentUsername($username): void
@@ -155,17 +154,14 @@ class AuditConfiguration
     {
         $callable = $this->usernameCallable;
 
-        return (string) ($callable ? $callable() : "");
+        return (string) ($callable ? $callable() : '');
     }
 
     public function setUsernameCallable($usernameCallable): void
     {
         // php 5.3 compat
-        if (null !== $usernameCallable && !is_callable($usernameCallable)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Username Callable must be callable. Got: %s',
-                is_object($usernameCallable) ? get_class($usernameCallable) : gettype($usernameCallable)
-            ));
+        if (null !== $usernameCallable && !\is_callable($usernameCallable)) {
+            throw new \InvalidArgumentException(sprintf('Username Callable must be callable. Got: %s', \is_object($usernameCallable) ? \get_class($usernameCallable) : \gettype($usernameCallable)));
         }
 
         $this->usernameCallable = $usernameCallable;

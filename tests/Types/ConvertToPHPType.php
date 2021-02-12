@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests\Types;
 
-use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\TextType;
 
 class ConvertToPHPType extends TextType
 {

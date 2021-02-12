@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -29,7 +31,7 @@ class ChangedEntity
     private $id;
     private $revType;
     private $entity;
-    
+
     public function __construct($className, array $id, $revType, $entity)
     {
         $this->className = $className;
@@ -37,7 +39,7 @@ class ChangedEntity
         $this->revType = $revType;
         $this->entity = $entity;
     }
-    
+
     /**
      * @return string
      */
@@ -47,7 +49,6 @@ class ChangedEntity
     }
 
     /**
-     *
      * @return array
      */
     public function getId()
