@@ -126,7 +126,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return 0 == \count($this->entities);
+        return 0 === \count($this->entities);
     }
 
     /**

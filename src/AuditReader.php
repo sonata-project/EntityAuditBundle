@@ -262,7 +262,7 @@ class AuditReader
         }
 
         foreach ($class->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) == 0 || !$assoc['isOwningSide']) {
+            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || !$assoc['isOwningSide']) {
                 continue;
             }
 
@@ -278,7 +278,7 @@ class AuditReader
         }
 
         $joinSql = '';
-        if ($class->isInheritanceTypeJoined() && $class->name != $class->rootEntityName) {
+        if ($class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName) {
             /** @var ClassMetadataInfo|ClassMetadata $rootClass */
             $rootClass = $this->em->getClassMetadata($class->rootEntityName);
             $rootTableName = $this->config->getTableName($rootClass);
@@ -314,7 +314,7 @@ class AuditReader
             throw new NoRevisionFoundException($class->name, $id, $revision);
         }
 
-        if ($options['threatDeletionsAsExceptions'] && 'DEL' == $row[$this->config->getRevisionTypeFieldName()]) {
+        if ($options['threatDeletionsAsExceptions'] && 'DEL' === $row[$this->config->getRevisionTypeFieldName()]) {
             throw new DeletedException($class->name, $id, $revision);
         }
 
@@ -415,7 +415,7 @@ class AuditReader
                 $columnList .= ', e.'.$class->discriminatorColumn['name'];
                 $whereSQL .= ' AND e.'.$class->discriminatorColumn['fieldName'].' = ?';
                 $params[] = $class->discriminatorValue;
-            } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName != $class->name) {
+            } elseif ($class->isInheritanceTypeJoined() && $class->rootEntityName !== $class->name) {
                 $columnList .= ', re.'.$class->discriminatorColumn['name'];
 
                 /** @var ClassMetadataInfo|ClassMetadata $rootClass */
@@ -466,7 +466,7 @@ class AuditReader
         $query = 'SELECT * FROM '.$this->config->getRevisionTableName().' r WHERE r.id = ?';
         $revisionsData = $this->em->getConnection()->fetchAll($query, [$rev]);
 
-        if (1 == \count($revisionsData)) {
+        if (1 === \count($revisionsData)) {
             return new Revision(
                 $revisionsData[0]['id'],
                 \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
@@ -664,7 +664,7 @@ class AuditReader
         }
 
         foreach ($class->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) == 0 || !$assoc['isOwningSide']) {
+            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || !$assoc['isOwningSide']) {
                 continue;
             }
 

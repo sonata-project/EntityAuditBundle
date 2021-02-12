@@ -29,7 +29,7 @@ class ArrayDiff
             $old = \array_key_exists($field, $oldData) ? $oldData[$field] : null;
             $new = \array_key_exists($field, $newData) ? $newData[$field] : null;
 
-            if ($old == $new) {
+            if ($old === $new) {
                 $row = ['old' => '', 'new' => '', 'same' => $old];
             } else {
                 $row = ['old' => $old, 'new' => $new, 'same' => ''];

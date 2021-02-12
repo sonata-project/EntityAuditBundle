@@ -143,7 +143,7 @@ class LogRevisionsListener implements EventSubscriber
                     foreach ($meta->associationMappings as $mapping) {
                         if (isset($mapping['joinColumns'])) {
                             foreach ($mapping['joinColumns'] as $definition) {
-                                if ($definition['name'] == $column) {
+                                if ($definition['name'] === $column) {
                                     $targetTable = $em->getClassMetadata($mapping['targetEntity']);
                                     $type = $targetTable->getTypeOfColumn($definition['referencedColumnName']);
                                 }
@@ -219,7 +219,7 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         // if we have no changes left => don't create revision log
-        if (0 == \count($changeset)) {
+        if (0 === \count($changeset)) {
             return;
         }
 
@@ -369,7 +369,7 @@ class LogRevisionsListener implements EventSubscriber
                 $sql .= ', '.$this->quoteStrategy->getColumnName($field, $class, $this->platform);
             }
 
-            if (($class->isInheritanceTypeJoined() && $class->rootEntityName == $class->name)
+            if (($class->isInheritanceTypeJoined() && $class->rootEntityName === $class->name)
                 || $class->isInheritanceTypeSingleTable()
             ) {
                 $sql .= ', '.$class->discriminatorColumn['name'];
@@ -444,13 +444,13 @@ class LogRevisionsListener implements EventSubscriber
             $params[] = $class->discriminatorValue;
             $types[] = $class->discriminatorColumn['type'];
         } elseif ($class->isInheritanceTypeJoined()
-            && $class->name == $class->rootEntityName
+            && $class->name === $class->rootEntityName
         ) {
             $params[] = $entityData[$class->discriminatorColumn['name']];
             $types[] = $class->discriminatorColumn['type'];
         }
 
-        if ($class->isInheritanceTypeJoined() && $class->name != $class->rootEntityName) {
+        if ($class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName) {
             $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
                 $this->em->getClassMetadata($class->rootEntityName),
@@ -504,12 +504,12 @@ class LogRevisionsListener implements EventSubscriber
         $versionField = null;
         $result = [];
 
-        if (false != ($versioned = $classMetadata->isVersioned)) {
+        if (false !== ($versioned = $classMetadata->isVersioned)) {
             $versionField = $classMetadata->versionField;
         }
 
         foreach ($uow->getEntityChangeSet($entity) as $field => $change) {
-            if (isset($versionField) && $versionField == $field) {
+            if (isset($versionField) && $versionField === $field) {
                 continue;
             }
 

@@ -35,7 +35,7 @@ class SimpleDiff
                 }
             }
         }
-        if (0 == $maxlen) {
+        if (0 === $maxlen) {
             return [['d' => $old, 'i' => $new]];
         }
 
