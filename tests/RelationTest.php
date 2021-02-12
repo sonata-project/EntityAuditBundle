@@ -99,9 +99,8 @@ class RelationTest extends BaseTest
 
         $this->em->flush();
 
-        unset($owner);
-        unset($owned1);
-        unset($owned2);
+        unset($owner, $owned1, $owned2);
+
         $this->em->clear();
 
         $owner = $this->em->getReference('SimpleThings\\EntityAudit\\Tests\\Fixtures\\Relation\\OwnerEntity', 1);

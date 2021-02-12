@@ -353,9 +353,7 @@ class AuditReader
 
         $key = implode(':', $keyParts);
 
-        if (isset($this->entityCache[$className]) &&
-            isset($this->entityCache[$className][$key]) &&
-            isset($this->entityCache[$className][$key][$revision])
+        if (isset($this->entityCache[$className], $this->entityCache[$className][$key], $this->entityCache[$className][$key][$revision])
         ) {
             return $this->entityCache[$className][$key][$revision];
         }

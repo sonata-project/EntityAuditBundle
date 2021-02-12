@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Collection;
 
-use Closure;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -255,7 +254,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function exists(Closure $p)
+    public function exists(\Closure $p)
     {
         $this->forceLoad();
 
@@ -271,7 +270,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function filter(Closure $p)
+    public function filter(\Closure $p)
     {
         $this->forceLoad();
 
@@ -281,7 +280,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function forAll(Closure $p)
+    public function forAll(\Closure $p)
     {
         $this->forceLoad();
 
@@ -297,7 +296,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function map(Closure $func)
+    public function map(\Closure $func)
     {
         $this->forceLoad();
 
@@ -307,7 +306,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function partition(Closure $p)
+    public function partition(\Closure $p)
     {
         $this->forceLoad();
 
