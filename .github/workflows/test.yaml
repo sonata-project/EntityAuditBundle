@@ -7,7 +7,7 @@ name: Test
 on:
     push:
         branches:
-            - '1.0'
+            - 1.x
             - master
     pull_request:
 
