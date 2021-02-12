@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -104,7 +104,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function add($element)
+    public function add($element): void
     {
         throw new AuditedCollectionException('The AuditedCollection is read-only');
     }
@@ -112,7 +112,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function clear()
+    public function clear(): void
     {
         $this->entities = array();
         $this->initialized = false;
@@ -141,7 +141,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function remove($key)
+    public function remove($key): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -149,7 +149,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function removeElement($element)
+    public function removeElement($element): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -195,7 +195,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
@@ -395,7 +395,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
@@ -403,7 +403,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -428,7 +428,7 @@ class AuditedCollection implements Collection
             );
     }
 
-    protected function forceLoad()
+    protected function forceLoad(): void
     {
         $this->initialize();
 
@@ -439,7 +439,7 @@ class AuditedCollection implements Collection
         }
     }
 
-    protected function initialize()
+    protected function initialize(): void
     {
         if (!$this->initialized) {
             $params = array();

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -57,7 +57,7 @@ class CoreTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog'
     );
 
-    public function testAuditable()
+    public function testAuditable(): void
     {
         $user = new UserAudit("beberlei");
         $article = new ArticleAudit("test", "yadda!", $user, 'text');
@@ -74,10 +74,10 @@ class CoreTest extends BaseTest
         $this->em->persist($cat);
         $this->em->flush();
 
-        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
-        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
-        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit')));
+        $this->assertCount(1, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
+        $this->assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
+        $this->assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
+        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
 
         $article->setText("oeruoa");
         $rabbit->setName('Rabbit');
@@ -87,9 +87,9 @@ class CoreTest extends BaseTest
 
         $this->em->flush();
 
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
-        $this->assertEquals(4, count($this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit')));
+        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
+        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
+        $this->assertCount(4, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
 
         $this->em->remove($user);
         $this->em->remove($article);
@@ -97,13 +97,13 @@ class CoreTest extends BaseTest
         $this->em->remove($foxy);
         $this->em->flush();
 
-        $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
-        $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
-        $this->assertEquals(6, count($this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit')));
+        $this->assertCount(3, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
+        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
+        $this->assertCount(3, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
+        $this->assertCount(6, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
     }
 
-    public function testFind()
+    public function testFind(): void
     {
         $user = new UserAudit("beberlei");
         $foxy = new Fox('foxy', 55);
@@ -142,7 +142,7 @@ class CoreTest extends BaseTest
         $this->assertNotSame($this, $auditCat, "Audited and new entities should not be the same object for JOINED inheritance.");
     }
 
-    public function testFindNoRevisionFound()
+    public function testFindNoRevisionFound(): void
     {
         $reader = $this->auditManager->createAuditReader($this->em);
 
@@ -154,7 +154,7 @@ class CoreTest extends BaseTest
         $reader->find('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', 1, 1);
     }
 
-    public function testFindNotAudited()
+    public function testFindNotAudited(): void
     {
         $reader = $this->auditManager->createAuditReader($this->em);
 
@@ -164,7 +164,7 @@ class CoreTest extends BaseTest
         $reader->find("stdClass", 1, 1);
     }
 
-    public function testFindRevisionHistory()
+    public function testFindRevisionHistory(): void
     {
         $user = new UserAudit("beberlei");
 
@@ -179,7 +179,7 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
 
-        $this->assertEquals(2, count($revisions));
+        $this->assertCount(2, $revisions);
         $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
 
         $this->assertEquals(2, $revisions[0]->getRev());
@@ -191,7 +191,7 @@ class CoreTest extends BaseTest
         $this->assertEquals('beberlei', $revisions[1]->getUsername());
     }
 
-    public function testFindEntitesChangedAtRevision()
+    public function testFindEntitesChangedAtRevision(): void
     {
         $user = new UserAudit("beberlei");
         $article = new ArticleAudit("test", "yadda!", $user, 'text');
@@ -212,7 +212,7 @@ class CoreTest extends BaseTest
         $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
         //duplicated entries means a bug with discriminators
-        $this->assertEquals(6, count($changedEntities));
+        $this->assertCount(6, $changedEntities);
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
 
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit', $changedEntities[0]->getClassName());
@@ -226,7 +226,7 @@ class CoreTest extends BaseTest
         $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[1]->getEntity());
     }
 
-    public function testNotVersionedRelationFind()
+    public function testNotVersionedRelationFind(): void
     {
         // Insert user without the manager to skip revision registering.
         $this->em->getConnection()->insert(
@@ -252,7 +252,7 @@ class CoreTest extends BaseTest
         $this->assertSame('beberlei', $reader->find(get_class($article), 1, 1)->getAuthor()->getName());
     }
 
-    public function testNotVersionedReverseRelationFind()
+    public function testNotVersionedReverseRelationFind(): void
     {
         $user = new UserAudit('beberlei');
 
@@ -274,7 +274,7 @@ class CoreTest extends BaseTest
         $this->assertSame('He is an amazing contributor!', $reader->find(get_class($user), 1, 1)->getProfile()->getBiography());
     }
 
-    public function testFindRevisions()
+    public function testFindRevisions(): void
     {
         $user = new UserAudit("beberlei");
         $foxy = new Fox('foxy', 30);
@@ -297,7 +297,7 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisions(get_class($user), $user->getId());
 
-        $this->assertEquals(2, count($revisions));
+        $this->assertCount(2, $revisions);
         $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
 
         $this->assertEquals(2, $revisions[0]->getRev());
@@ -309,14 +309,14 @@ class CoreTest extends BaseTest
         $this->assertEquals('beberlei', $revisions[1]->getUsername());
 
         //SINGLE_TABLE should have separate revision history
-        $this->assertEquals(2, count($reader->findRevisions(get_class($foxy), $foxy->getId())));
-        $this->assertEquals(1, count($reader->findRevisions(get_class($rabbit), $rabbit->getId())));
+        $this->assertCount(2, $reader->findRevisions(get_class($foxy), $foxy->getId()));
+        $this->assertCount(1, $reader->findRevisions(get_class($rabbit), $rabbit->getId()));
         //JOINED too
-        $this->assertEquals(2, count($reader->findRevisions(get_class($dog), $dog->getId())));
-        $this->assertEquals(1, count($reader->findRevisions(get_class($cat), $cat->getId())));
+        $this->assertCount(2, $reader->findRevisions(get_class($dog), $dog->getId()));
+        $this->assertCount(1, $reader->findRevisions(get_class($cat), $cat->getId()));
     }
 
-    public function testFindCurrentRevision()
+    public function testFindCurrentRevision(): void
     {
         $user = new UserAudit('Broncha');
 
@@ -338,7 +338,7 @@ class CoreTest extends BaseTest
         $this->assertEquals(3, $revision);
     }
 
-    public function testGlobalIgnoreColumns()
+    public function testGlobalIgnoreColumns(): void
     {
         $user = new UserAudit("welante");
         $article = new ArticleAudit("testcolumn", "yadda!", $user, 'text');
@@ -364,7 +364,7 @@ class CoreTest extends BaseTest
         $this->assertEquals(2, $revision);
     }
 
-    public function testDeleteUnInitProxy()
+    public function testDeleteUnInitProxy(): void
     {
         $user = new UserAudit("beberlei");
 
@@ -381,14 +381,14 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
-        $this->assertEquals(1, count($changedEntities));
+        $this->assertCount(1, $changedEntities);
         $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
         $this->assertEquals('SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit', $changedEntities[0]->getClassName());
         $this->assertEquals('DEL', $changedEntities[0]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
     }
 
-    public function testUsernameResolvingIsDynamic()
+    public function testUsernameResolvingIsDynamic(): void
     {
         $this->auditManager->getConfiguration()->setUsernameCallable(function () {
             return 'user: ' . uniqid();
@@ -404,7 +404,7 @@ class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
 
-        $this->assertEquals(2, count($revisions));
+        $this->assertCount(2, $revisions);
         $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
 
         $this->assertStringStartsWith('user: ', $revisions[0]->getUsername());

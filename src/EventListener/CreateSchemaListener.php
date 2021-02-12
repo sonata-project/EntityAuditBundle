@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -57,7 +57,7 @@ class CreateSchemaListener implements EventSubscriber
         );
     }
 
-    public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
+    public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs): void
     {
         $cm = $eventArgs->getClassMetadata();
 
@@ -101,7 +101,7 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable->addIndex(array($this->config->getRevisionFieldName()),$revIndexName);
     }
 
-    public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
+    public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
     {
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());

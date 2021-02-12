@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -106,7 +106,7 @@ class IssueTest extends BaseTest
     /**
      * @doesNotPerformAssertions
      */
-    public function testIssue31()
+    public function testIssue31(): void
     {
         $reve = new Issue31Reve();
         $reve->setTitre('reve');
@@ -125,7 +125,7 @@ class IssueTest extends BaseTest
         $this->em->flush();
     }
 
-    public function testIssue111()
+    public function testIssue111(): void
     {
         $this->em->getEventManager()->addEventSubscriber(new \Gedmo\SoftDeleteable\SoftDeleteableListener());
 
@@ -148,7 +148,7 @@ class IssueTest extends BaseTest
     /**
      * @doesNotPerformAssertions
      */
-    public function testEscapedColumns()
+    public function testEscapedColumns(): void
     {
         $e = new EscapedColumnsEntity();
         $e->setLeft(1);
@@ -161,7 +161,7 @@ class IssueTest extends BaseTest
         $reader->find(get_class($e), $e->getId(), 1);
     }
 
-    public function testIssue87()
+    public function testIssue87(): void
     {
         $org = new Issue87Organization();
         $project = new Issue87Project();
@@ -196,7 +196,7 @@ class IssueTest extends BaseTest
 
     }
 
-    public function testIssue9()
+    public function testIssue9(): void
     {
         $address = new Issue9Address();
         $address->setAddressText('NY, Red Street 6');
@@ -227,7 +227,7 @@ class IssueTest extends BaseTest
     /**
      * @doesNotPerformAssertions
      */
-    public function testDuplicateRevisionKeyConstraintFailure()
+    public function testDuplicateRevisionKeyConstraintFailure(): void
     {
         $primaryOwner = new DuplicateRevisionFailureTestPrimaryOwner();
         $this->em->persist($primaryOwner);
@@ -256,7 +256,7 @@ class IssueTest extends BaseTest
     /**
      * @doesNotPerformAssertions
      */
-    public function testIssue156()
+    public function testIssue156(): void
     {
         $client = new Issue156Client();
 
@@ -272,7 +272,7 @@ class IssueTest extends BaseTest
         $object = $auditReader->find(get_class($number), $number->getId(), 1);
     }
 
-    public function testIssue196()
+    public function testIssue196(): void
     {
         $entity = new Issue196Entity();
         $entity->setSqlConversionField('THIS SHOULD BE LOWER CASE');
@@ -293,7 +293,7 @@ class IssueTest extends BaseTest
         );
     }
 
-    public function testIssue198()
+    public function testIssue198(): void
     {
         $owner = new Issue198Owner();
         $car = new Issue198Car();
@@ -317,7 +317,7 @@ class IssueTest extends BaseTest
         $this->assertEquals($car2->getOwner()->getId(), $owner->getId());
     }
 
-    public function testConvertToPHP()
+    public function testConvertToPHP(): void
     {
         $entity = new ConvertToPHPEntity();
         $entity->setSqlConversionField('TEST CONVERT TO PHP');
@@ -338,7 +338,7 @@ class IssueTest extends BaseTest
         );
     }
 
-    public function testIssue318()
+    public function testIssue318(): void
     {
         $user = new Issue318User();
         $user->setAlias('alias');

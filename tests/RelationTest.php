@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -92,7 +92,7 @@ class RelationTest extends BaseTest
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity',
     );
 
-    public function testUndefinedIndexesInUOWForRelations()
+    public function testUndefinedIndexesInUOWForRelations(): void
     {
         $owner = new OwnerEntity();
         $owner->setTitle('owner');
@@ -124,7 +124,7 @@ class RelationTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
-        $this->assertEquals(2, count($changedEntities));
+        $this->assertCount(2, $changedEntities);
         $changedOwner = $changedEntities[0]->getEntity();
         $changedOwned = $changedEntities[1]->getEntity();
 
@@ -142,7 +142,7 @@ class RelationTest extends BaseTest
         $this->assertNull($changedOwned->getOwner());
     }
 
-    public function testIssue92()
+    public function testIssue92(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -183,7 +183,7 @@ class RelationTest extends BaseTest
         $this->assertCount(1, $audited->getOwned1());
     }
 
-    public function testOneToOne()
+    public function testOneToOne(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -272,7 +272,7 @@ class RelationTest extends BaseTest
      * This test verifies the temporary behaviour of audited entities with M-M relationships
      * until https://github.com/simplethings/EntityAudit/issues/85 is implemented
      */
-    public function testManyToMany()
+    public function testManyToMany(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -302,7 +302,7 @@ class RelationTest extends BaseTest
     /**
      * @group mysql
      */
-    public function testRelations()
+    public function testRelations(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -456,7 +456,7 @@ class RelationTest extends BaseTest
     /**
      * @group mysql
      */
-    public function testRemoval()
+    public function testRemoval(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -523,7 +523,7 @@ class RelationTest extends BaseTest
     /**
      * @group mysql
      */
-    public function testDetaching()
+    public function testDetaching(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -599,7 +599,7 @@ class RelationTest extends BaseTest
         $this->assertEquals(null, $auditedEntity->getOwner());
     }
 
-    public function testOneXRelations()
+    public function testOneXRelations(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
@@ -632,7 +632,7 @@ class RelationTest extends BaseTest
         $this->assertEquals('changed#2', $audited->getOwner()->getTitle());
     }
 
-    public function testOneToManyJoinedInheritance()
+    public function testOneToManyJoinedInheritance(): void
     {
         $food = new FoodCategory();
         $this->em->persist($food);
@@ -673,7 +673,7 @@ class RelationTest extends BaseTest
         $this->assertEquals($cheddarCheese->getId(), $productTwo->getId());
     }
 
-    public function testOneToManyWithIndexBy()
+    public function testOneToManyWithIndexBy(): void
     {
         $page = new Page();
         $this->em->persist($page);
@@ -708,7 +708,7 @@ class RelationTest extends BaseTest
     /**
      * @group mysql
      */
-    public function testOneToManyCollectionDeletedElements()
+    public function testOneToManyCollectionDeletedElements(): void
     {
         $owner = new OwnerEntity();
         $this->em->persist($owner);
@@ -770,7 +770,7 @@ class RelationTest extends BaseTest
         $this->assertTrue(in_array($ownedFour->getId(), $ids));
     }
 
-    public function testOneToOneEdgeCase()
+    public function testOneToOneEdgeCase(): void
     {
         $base = new RelationOneToOneEntity();
 
@@ -800,7 +800,7 @@ class RelationTest extends BaseTest
      *
      * @doesNotPerformAssertions
      */
-    public function testJoinOnObject()
+    public function testJoinOnObject(): void
     {
         $page = new Page();
         $this->em->persist($page);
@@ -811,7 +811,7 @@ class RelationTest extends BaseTest
         $this->em->flush();
     }
 
-    public function testOneToOneBidirectional()
+    public function testOneToOneBidirectional(): void
     {
         $private1  = new DataPrivateEntity();
         $private1->setName('private1');

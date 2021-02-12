@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -212,7 +212,7 @@ abstract class BaseTest extends TestCase
         return $this->auditManager = $auditManager;
     }
 
-    protected function setUpEntitySchema()
+    protected function setUpEntitySchema(): void
     {
         $em = $this->getEntityManager();
         $classes = array_map(function ($value) use ($em) {
@@ -222,7 +222,7 @@ abstract class BaseTest extends TestCase
         $this->getSchemaTool()->createSchema($classes);
     }
 
-    protected function tearDownEntitySchema()
+    protected function tearDownEntitySchema(): void
     {
         $em = $this->getEntityManager();
         $classes = array_map(function ($value) use ($em) {

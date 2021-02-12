@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -72,7 +72,7 @@ class AuditConfiguration
         return $this->tablePrefix;
     }
 
-    public function setTablePrefix($prefix)
+    public function setTablePrefix($prefix): void
     {
         $this->tablePrefix = $prefix;
     }
@@ -82,7 +82,7 @@ class AuditConfiguration
         return $this->tableSuffix;
     }
 
-    public function setTableSuffix($suffix)
+    public function setTableSuffix($suffix): void
     {
         $this->tableSuffix = $suffix;
     }
@@ -92,7 +92,7 @@ class AuditConfiguration
         return $this->revisionFieldName;
     }
 
-    public function setRevisionFieldName($revisionFieldName)
+    public function setRevisionFieldName($revisionFieldName): void
     {
         $this->revisionFieldName = $revisionFieldName;
     }
@@ -102,7 +102,7 @@ class AuditConfiguration
         return $this->revisionTypeFieldName;
     }
 
-    public function setRevisionTypeFieldName($revisionTypeFieldName)
+    public function setRevisionTypeFieldName($revisionTypeFieldName): void
     {
         $this->revisionTypeFieldName = $revisionTypeFieldName;
     }
@@ -112,12 +112,12 @@ class AuditConfiguration
         return $this->revisionTableName;
     }
 
-    public function setRevisionTableName($revisionTableName)
+    public function setRevisionTableName($revisionTableName): void
     {
         $this->revisionTableName = $revisionTableName;
     }
 
-    public function setAuditedEntityClasses(array $classes)
+    public function setAuditedEntityClasses(array $classes): void
     {
         $this->auditedEntityClasses = $classes;
     }
@@ -127,7 +127,7 @@ class AuditConfiguration
         return $this->globalIgnoreColumns;
     }
 
-    public function setGlobalIgnoreColumns(array $columns)
+    public function setGlobalIgnoreColumns(array $columns): void
     {
         $this->globalIgnoreColumns = $columns;
     }
@@ -141,7 +141,7 @@ class AuditConfiguration
      * @deprecated
      * @param string|null $username
      */
-    public function setCurrentUsername($username)
+    public function setCurrentUsername($username): void
     {
         $this->setUsernameCallable(function () use ($username) {
             return $username;
@@ -158,7 +158,7 @@ class AuditConfiguration
         return (string) ($callable ? $callable() : "");
     }
 
-    public function setUsernameCallable($usernameCallable)
+    public function setUsernameCallable($usernameCallable): void
     {
         // php 5.3 compat
         if (null !== $usernameCallable && !is_callable($usernameCallable)) {
@@ -179,7 +179,7 @@ class AuditConfiguration
         return $this->usernameCallable;
     }
 
-    public function setRevisionIdFieldType($revisionIdFieldType)
+    public function setRevisionIdFieldType($revisionIdFieldType): void
     {
         $this->revisionIdFieldType = $revisionIdFieldType;
     }

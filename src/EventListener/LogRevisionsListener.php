@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -106,7 +106,7 @@ class LogRevisionsListener implements EventSubscriber
      * @throws MappingException
      * @throws \Exception
      */
-    public function postFlush(PostFlushEventArgs $eventArgs)
+    public function postFlush(PostFlushEventArgs $eventArgs): void
     {
         $em = $eventArgs->getEntityManager();
         $quoteStrategy = $em->getConfiguration()->getQuoteStrategy();
@@ -201,7 +201,7 @@ class LogRevisionsListener implements EventSubscriber
         }
     }
 
-    public function postPersist(LifecycleEventArgs $eventArgs)
+    public function postPersist(LifecycleEventArgs $eventArgs): void
     {
         // onFlush was executed before, everything already initialized
         $entity = $eventArgs->getEntity();
@@ -214,7 +214,7 @@ class LogRevisionsListener implements EventSubscriber
         $this->saveRevisionEntityData($class, $this->getOriginalEntityData($entity), 'INS');
     }
 
-    public function postUpdate(LifecycleEventArgs $eventArgs)
+    public function postUpdate(LifecycleEventArgs $eventArgs): void
     {
         // onFlush was executed before, everything already initialized
         $entity = $eventArgs->getEntity();
@@ -241,7 +241,7 @@ class LogRevisionsListener implements EventSubscriber
         $this->saveRevisionEntityData($class, $entityData, 'UPD');
     }
 
-    public function onFlush(OnFlushEventArgs $eventArgs)
+    public function onFlush(OnFlushEventArgs $eventArgs): void
     {
         $this->em = $eventArgs->getEntityManager();
         $this->quoteStrategy = $this->em->getConfiguration()->getQuoteStrategy();
@@ -401,7 +401,7 @@ class LogRevisionsListener implements EventSubscriber
      * @param array         $entityData
      * @param string        $revType
      */
-    private function saveRevisionEntityData($class, $entityData, $revType)
+    private function saveRevisionEntityData($class, $entityData, $revType): void
     {
         $params = array($this->getRevisionId(), $revType);
         $types = array(\PDO::PARAM_INT, \PDO::PARAM_STR);
@@ -416,7 +416,7 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $data = isset($entityData[$field]) ? $entityData[$field] : null;
+            $data = $entityData[$field] ?? null;
             $relatedId = false;
 
             if ($data !== null && $this->uow->isInIdentityMap($data)) {
@@ -449,7 +449,7 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $params[] = isset($entityData[$field]) ? $entityData[$field] : null;
+            $params[] = $entityData[$field] ?? null;
             $types[] = $class->fieldMappings[$field]['type'];
         }
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
 	Paul's Simple Diff Algorithm v 0.1

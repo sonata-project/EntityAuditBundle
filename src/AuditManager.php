@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit;
 
@@ -41,7 +41,7 @@ class AuditManager
         return new AuditReader($em, $this->config, $this->metadataFactory);
     }
 
-    public function registerEvents(EventManager $evm)
+    public function registerEvents(EventManager $evm): void
     {
         $evm->addEventSubscriber(new CreateSchemaListener($this));
         $evm->addEventSubscriber(new LogRevisionsListener($this));

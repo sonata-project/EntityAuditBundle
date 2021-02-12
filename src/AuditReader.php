@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -108,7 +108,7 @@ class AuditReader
     /**
      * @param boolean $loadAuditedCollections
      */
-    public function setLoadAuditedCollections($loadAuditedCollections)
+    public function setLoadAuditedCollections($loadAuditedCollections): void
     {
         $this->loadAuditedCollections = $loadAuditedCollections;
     }
@@ -124,7 +124,7 @@ class AuditReader
     /**
      * @param boolean $loadAuditedEntities
      */
-    public function setLoadAuditedEntities($loadAuditedEntities)
+    public function setLoadAuditedEntities($loadAuditedEntities): void
     {
         $this->loadAuditedEntities = $loadAuditedEntities;
     }
@@ -140,7 +140,7 @@ class AuditReader
     /**
      * @param boolean $loadNativeCollections
      */
-    public function setLoadNativeCollections($loadNativeCollections)
+    public function setLoadNativeCollections($loadNativeCollections): void
     {
         $this->loadNativeCollections = $loadNativeCollections;
     }
@@ -156,7 +156,7 @@ class AuditReader
     /**
      * @param boolean $loadNativeEntities
      */
-    public function setLoadNativeEntities($loadNativeEntities)
+    public function setLoadNativeEntities($loadNativeEntities): void
     {
         $this->loadNativeEntities = $loadNativeEntities;
     }
@@ -194,7 +194,7 @@ class AuditReader
     /**
      * Clears entity cache. Call this if you are fetching subsequent revisions using same AuditManager.
      */
-    public function clearEntityCache()
+    public function clearEntityCache(): void
     {
         $this->entityCache = array();
     }
@@ -463,7 +463,7 @@ class AuditReader
                         if ($assoc['isOwningSide']) {
                             $associatedId = array();
                             foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                                $joinColumnValue = isset($data[$columnMap[$srcColumn]]) ? $data[$columnMap[$srcColumn]] : null;
+                                $joinColumnValue = $data[$columnMap[$srcColumn]] ?? null;
                                 if ($joinColumnValue !== null) {
                                     $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
                                 }

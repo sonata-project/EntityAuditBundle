@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests\Utils;
 
@@ -14,7 +14,7 @@ class SimpleDiffTest extends TestCase
      * @param $output
      * @return void
      */
-    public function testDiff($old, $new, $output)
+    public function testDiff($old, $new, $output): void
     {
         $diff = new SimpleDiff();
         $d = $diff->htmlDiff($old, $new);
@@ -22,7 +22,7 @@ class SimpleDiffTest extends TestCase
         $this->assertEquals($output, $d);
     }
 
-    static public function dataDiff()
+    public static function dataDiff()
     {
         return array(
             array('Foo', 'foo', '<del>Foo</del> <ins>foo</ins> '),

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests\DependencyInjection;
 
@@ -7,7 +7,7 @@ use SimpleThings\EntityAudit\DependencyInjection\SimpleThingsEntityAuditExtensio
 
 class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 {
-    public function testItRegistersDefaultServices()
+    public function testItRegistersDefaultServices(): void
     {
         $this->load(array());
 
@@ -40,7 +40,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setUsernameCallable', array('simplethings_entityaudit.username_callable'));
     }
 
-    public function testItAliasesDefaultServices()
+    public function testItAliasesDefaultServices(): void
     {
         $this->load(array());
 
@@ -50,7 +50,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         );
     }
 
-    public function testItAliasesConfiguredServices()
+    public function testItAliasesConfiguredServices(): void
     {
         $this->load(array(
             'service' => array(
@@ -64,7 +64,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         );
     }
 
-    public function testItSetsDefaultParameters()
+    public function testItSetsDefaultParameters(): void
     {
         $this->load(array());
 
@@ -78,7 +78,7 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'integer');
     }
 
-    public function testItSetsConfiguredParameters()
+    public function testItSetsConfiguredParameters(): void
     {
         $this->load(array(
             'audited_entities' => array('Entity1', 'Entity2'),

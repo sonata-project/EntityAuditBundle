@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /*
  * (c) 2011 SimpleThings GmbH
  *
@@ -32,7 +32,7 @@ class Revision
     private $timestamp;
     private $username;
 
-    function __construct($rev, $timestamp, $username)
+    public function __construct($rev, $timestamp, $username)
     {
         $this->rev = $rev;
         $this->timestamp = $timestamp;
