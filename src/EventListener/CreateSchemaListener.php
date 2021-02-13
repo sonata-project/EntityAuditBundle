@@ -1,35 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 /*
- * (c) 2011 SimpleThings GmbH
+ * This file is part of the Sonata Project package.
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
+use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditManager;
-use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
-use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
-use Doctrine\Common\EventSubscriber;
 
 class CreateSchemaListener implements EventSubscriber
 {
@@ -51,19 +41,19 @@ class CreateSchemaListener implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             ToolEvents::postGenerateSchemaTable,
             ToolEvents::postGenerateSchema,
-        );
+        ];
     }
 
-    public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
+    public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs): void
     {
         $cm = $eventArgs->getClassMetadata();
 
         if (!$this->metadataFactory->isAudited($cm->name)) {
             $audited = false;
-            if ($cm->isInheritanceTypeJoined() && $cm->rootEntityName == $cm->name) {
+            if ($cm->isInheritanceTypeJoined() && $cm->rootEntityName === $cm->name) {
                 foreach ($cm->subClasses as $subClass) {
                     if ($this->metadataFactory->isAudited($subClass)) {
                         $audited = true;
@@ -81,16 +71,16 @@ class CreateSchemaListener implements EventSubscriber
             $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
         );
 
-        foreach ($entityTable->getColumns() AS $column) {
+        foreach ($entityTable->getColumns() as $column) {
             /* @var Column $column */
             $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
                 $column->toArray(),
-                array('notnull' => false, 'autoincrement' => false)
+                ['notnull' => false, 'autoincrement' => false]
             ));
         }
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
-        if (!in_array($cm->inheritanceType, array(ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE))) {
+        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', ['length' => 4]);
+        if (!\in_array($cm->inheritanceType, [ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
             throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
 
@@ -98,18 +88,18 @@ class CreateSchemaListener implements EventSubscriber
         $pkColumns[] = $this->config->getRevisionFieldName();
         $revisionTable->setPrimaryKey($pkColumns);
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
-        $revisionTable->addIndex(array($this->config->getRevisionFieldName()),$revIndexName);
+        $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
     }
 
-    public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
+    public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
     {
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
+        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), [
             'autoincrement' => true,
-        ));
+        ]);
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string')->setNotnull(false);
-        $revisionsTable->setPrimaryKey(array('id'));
+        $revisionsTable->setPrimaryKey(['id']);
     }
 }

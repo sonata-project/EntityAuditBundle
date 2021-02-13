@@ -1,30 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 /*
- * (c) 2011 SimpleThings GmbH
+ * This file is part of the Sonata Project package.
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @author Andrew Tch <andrew.tchircoff@gmail.com>
- * @link http://www.simplethings.de
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\Collection;
 
-use Closure;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -34,26 +22,29 @@ use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
 class AuditedCollection implements Collection
 {
     /**
-     * Related audit reader instance
+     * Related audit reader instance.
      *
      * @var AuditReader
      */
     protected $auditReader;
 
     /**
-     * Class to fetch
+     * Class to fetch.
+     *
      * @var string
      */
     protected $class;
 
     /**
-     * Foreign keys for target entity
+     * Foreign keys for target entity.
+     *
      * @var array
      */
     protected $foreignKeys;
 
     /**
-     * Maximum revision to fetch
+     * Maximum revision to fetch.
+     *
      * @var string
      */
     protected $revision;
@@ -72,18 +63,18 @@ class AuditedCollection implements Collection
      * Entity array. If can be:
      * - empty, if the collection has not been initialized yet
      * - store entity
-     * - contain audited entity
+     * - contain audited entity.
      *
      * @var array
      */
-    protected $entities = array();
+    protected $entities = [];
 
     /**
-     * Definition of current association
+     * Definition of current association.
      *
      * @var array
      */
-    protected $associationDefinition = array();
+    protected $associationDefinition = [];
 
     /**
      * @var bool
@@ -104,7 +95,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function add($element)
+    public function add($element): void
     {
         throw new AuditedCollectionException('The AuditedCollection is read-only');
     }
@@ -112,9 +103,9 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function clear()
+    public function clear(): void
     {
-        $this->entities = array();
+        $this->entities = [];
         $this->initialized = false;
     }
 
@@ -125,7 +116,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return (bool)array_search($element, $this->entities);
+        return (bool) array_search($element, $this->entities, true);
     }
 
     /**
@@ -135,13 +126,13 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return count($this->entities) == 0;
+        return 0 === \count($this->entities);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function remove($key)
+    public function remove($key): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -149,7 +140,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function removeElement($element)
+    public function removeElement($element): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -161,7 +152,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return array_key_exists($key, $this->entities);
+        return \array_key_exists($key, $this->entities);
     }
 
     /**
@@ -195,7 +186,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function set($key, $value)
+    public function set($key, $value): void
     {
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
@@ -263,7 +254,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function exists(Closure $p)
+    public function exists(\Closure $p)
     {
         $this->forceLoad();
 
@@ -279,7 +270,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function filter(Closure $p)
+    public function filter(\Closure $p)
     {
         $this->forceLoad();
 
@@ -289,7 +280,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function forAll(Closure $p)
+    public function forAll(\Closure $p)
     {
         $this->forceLoad();
 
@@ -305,7 +296,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function map(Closure $func)
+    public function map(\Closure $func)
     {
         $this->forceLoad();
 
@@ -315,11 +306,11 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function partition(Closure $p)
+    public function partition(\Closure $p)
     {
         $this->forceLoad();
 
-        $true = $false = array();
+        $true = $false = [];
 
         foreach ($this->entities as $entity) {
             if ($p($entity)) {
@@ -329,7 +320,7 @@ class AuditedCollection implements Collection
             }
         }
 
-        return array($true, $false);
+        return [$true, $false];
     }
 
     /**
@@ -349,7 +340,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return array_slice($this->entities, $offset, $length);
+        return \array_slice($this->entities, $offset, $length);
     }
 
     /**
@@ -369,7 +360,7 @@ class AuditedCollection implements Collection
     {
         $this->forceLoad();
 
-        return array_key_exists($offset, $this->entities);
+        return \array_key_exists($offset, $this->entities);
     }
 
     /**
@@ -385,17 +376,17 @@ class AuditedCollection implements Collection
 
         $entity = $this->entities[$offset];
 
-        if (is_object($entity)) {
+        if (\is_object($entity)) {
             return $entity;
-        } else {
-            return $this->entities[$offset] = $this->resolve($entity);
         }
+
+        return $this->entities[$offset] = $this->resolve($entity);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
@@ -403,7 +394,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -415,7 +406,7 @@ class AuditedCollection implements Collection
     {
         $this->initialize();
 
-        return count($this->entities);
+        return \count($this->entities);
     }
 
     protected function resolve($entity)
@@ -428,29 +419,29 @@ class AuditedCollection implements Collection
             );
     }
 
-    protected function forceLoad()
+    protected function forceLoad(): void
     {
         $this->initialize();
 
         foreach ($this->entities as $key => $entity) {
-            if (is_array($entity)) {
+            if (\is_array($entity)) {
                 $this->entities[$key] = $this->resolve($entity);
             }
         }
     }
 
-    protected function initialize()
+    protected function initialize(): void
     {
         if (!$this->initialized) {
-            $params = array();
+            $params = [];
 
             $sql = 'SELECT MAX('.$this->configuration->getRevisionFieldName().') as rev, ';
             $sql .= implode(', ', $this->metadata->getIdentifierColumnNames()).' ';
             if (isset($this->associationDefinition['indexBy'])) {
                 $sql .= ', '.$this->associationDefinition['indexBy'].' ';
             }
-            $sql .= 'FROM ' . $this->configuration->getTableName($this->metadata) . ' t ';
-            $sql .= 'WHERE ' . $this->configuration->getRevisionFieldName() . ' <= ' . $this->revision . ' ';
+            $sql .= 'FROM '.$this->configuration->getTableName($this->metadata).' t ';
+            $sql .= 'WHERE '.$this->configuration->getRevisionFieldName().' <= '.$this->revision.' ';
 
             foreach ($this->foreignKeys as $column => $value) {
                 $sql .= 'AND '.$column.' = ? ';
@@ -458,7 +449,7 @@ class AuditedCollection implements Collection
             }
 
             //we check for revisions greater than current belonging to other entities
-            $sql .= 'AND NOT EXISTS (SELECT * FROM '. $this->configuration->getTableName($this->metadata) . ' st WHERE';
+            $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTableName($this->metadata).' st WHERE';
 
             //ids
             foreach ($this->metadata->getIdentifierColumnNames() as $name) {
@@ -469,8 +460,8 @@ class AuditedCollection implements Collection
             $sql .= ' ((';
 
             //master entity query, not equals
-            $notEqualParts = $nullParts = array();
-            foreach($this->foreignKeys as $column => $value) {
+            $notEqualParts = $nullParts = [];
+            foreach ($this->foreignKeys as $column => $value) {
                 $notEqualParts[] = $column.' <> ?';
                 $nullParts[] = $column.' IS NULL';
                 $params[] = $value;
@@ -486,7 +477,7 @@ class AuditedCollection implements Collection
             //end of check for for belonging to other entities
 
             //check for deleted revisions older than requested
-            $sql .= 'AND NOT EXISTS (SELECT * FROM ' . $this->configuration->getTableName($this->metadata) . ' sd WHERE';
+            $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTableName($this->metadata).' sd WHERE';
 
             //ids
             foreach ($this->metadata->getIdentifierColumnNames() as $name) {
@@ -516,9 +507,9 @@ class AuditedCollection implements Collection
             $rows = $this->auditReader->getConnection()->fetchAll($sql, $params);
 
             foreach ($rows as $row) {
-                $entity = array(
-                    'rev' => $row['rev']
-                );
+                $entity = [
+                    'rev' => $row['rev'],
+                ];
 
                 unset($row['rev']);
 

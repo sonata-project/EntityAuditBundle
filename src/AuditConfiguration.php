@@ -1,24 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /*
- * (c) 2011 SimpleThings GmbH
+ * This file is part of the Sonata Project package.
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit;
@@ -27,8 +17,8 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class AuditConfiguration
 {
-    private $auditedEntityClasses = array();
-    private $globalIgnoreColumns = array();
+    private $auditedEntityClasses = [];
+    private $globalIgnoreColumns = [];
     private $tablePrefix = '';
     private $tableSuffix = '_audit';
     private $revisionTableName = 'revisions';
@@ -38,21 +28,17 @@ class AuditConfiguration
     private $usernameCallable;
 
     /**
-     * @param array $classes
-     *
      * @return AuditConfiguration
      */
     public static function forEntities(array $classes)
     {
-        $conf = new self;
+        $conf = new self();
         $conf->auditedEntityClasses = $classes;
 
         return $conf;
     }
 
     /**
-     * @param ClassMetadataInfo $metadata
-     *
      * @return string
      */
     public function getTableName(ClassMetadataInfo $metadata)
@@ -61,10 +47,10 @@ class AuditConfiguration
 
         //## Fix for doctrine/orm >= 2.5
         if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
-            $tableName = $metadata->getSchemaName() . '.' . $tableName;
+            $tableName = $metadata->getSchemaName().'.'.$tableName;
         }
 
-        return $this->getTablePrefix() . $tableName . $this->getTableSuffix();
+        return $this->getTablePrefix().$tableName.$this->getTableSuffix();
     }
 
     public function getTablePrefix()
@@ -72,7 +58,7 @@ class AuditConfiguration
         return $this->tablePrefix;
     }
 
-    public function setTablePrefix($prefix)
+    public function setTablePrefix($prefix): void
     {
         $this->tablePrefix = $prefix;
     }
@@ -82,7 +68,7 @@ class AuditConfiguration
         return $this->tableSuffix;
     }
 
-    public function setTableSuffix($suffix)
+    public function setTableSuffix($suffix): void
     {
         $this->tableSuffix = $suffix;
     }
@@ -92,7 +78,7 @@ class AuditConfiguration
         return $this->revisionFieldName;
     }
 
-    public function setRevisionFieldName($revisionFieldName)
+    public function setRevisionFieldName($revisionFieldName): void
     {
         $this->revisionFieldName = $revisionFieldName;
     }
@@ -102,7 +88,7 @@ class AuditConfiguration
         return $this->revisionTypeFieldName;
     }
 
-    public function setRevisionTypeFieldName($revisionTypeFieldName)
+    public function setRevisionTypeFieldName($revisionTypeFieldName): void
     {
         $this->revisionTypeFieldName = $revisionTypeFieldName;
     }
@@ -112,12 +98,12 @@ class AuditConfiguration
         return $this->revisionTableName;
     }
 
-    public function setRevisionTableName($revisionTableName)
+    public function setRevisionTableName($revisionTableName): void
     {
         $this->revisionTableName = $revisionTableName;
     }
 
-    public function setAuditedEntityClasses(array $classes)
+    public function setAuditedEntityClasses(array $classes): void
     {
         $this->auditedEntityClasses = $classes;
     }
@@ -127,7 +113,7 @@ class AuditConfiguration
         return $this->globalIgnoreColumns;
     }
 
-    public function setGlobalIgnoreColumns(array $columns)
+    public function setGlobalIgnoreColumns(array $columns): void
     {
         $this->globalIgnoreColumns = $columns;
     }
@@ -139,11 +125,12 @@ class AuditConfiguration
 
     /**
      * @deprecated
+     *
      * @param string|null $username
      */
-    public function setCurrentUsername($username)
+    public function setCurrentUsername($username): void
     {
-        $this->setUsernameCallable(function () use ($username) {
+        $this->setUsernameCallable(static function () use ($username) {
             return $username;
         });
     }
@@ -155,17 +142,14 @@ class AuditConfiguration
     {
         $callable = $this->usernameCallable;
 
-        return (string) ($callable ? $callable() : "");
+        return (string) ($callable ? $callable() : '');
     }
 
-    public function setUsernameCallable($usernameCallable)
+    public function setUsernameCallable($usernameCallable): void
     {
         // php 5.3 compat
-        if (null !== $usernameCallable && !is_callable($usernameCallable)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Username Callable must be callable. Got: %s',
-                is_object($usernameCallable) ? get_class($usernameCallable) : gettype($usernameCallable)
-            ));
+        if (null !== $usernameCallable && !\is_callable($usernameCallable)) {
+            throw new \InvalidArgumentException(sprintf('Username Callable must be callable. Got: %s', \is_object($usernameCallable) ? \get_class($usernameCallable) : \gettype($usernameCallable)));
         }
 
         $this->usernameCallable = $usernameCallable;
@@ -179,7 +163,7 @@ class AuditConfiguration
         return $this->usernameCallable;
     }
 
-    public function setRevisionIdFieldType($revisionIdFieldType)
+    public function setRevisionIdFieldType($revisionIdFieldType): void
     {
         $this->revisionIdFieldType = $revisionIdFieldType;
     }
