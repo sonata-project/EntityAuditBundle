@@ -10,5 +10,3 @@ composer.lock
 phpunit.xml
 phpstan.neon
 /.phpunit.result.cache
-/docs/_build/
-/tests/App/public/bundles
