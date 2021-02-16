@@ -7,14 +7,21 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class UserAudit
+final class UserAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     private $id;
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     private $name;
 
-    /** @ORM\OneToOne(targetEntity="ProfileAudit", mappedBy="user") */
+    /**
+     * @ORM\OneToOne(targetEntity="ProfileAudit", mappedBy="user")
+     */
     private $profile;
 
     function __construct($name)

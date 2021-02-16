@@ -15,10 +15,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
  * @ORM\Entity()
  */
-class Issue156ContactTelephoneNumber
+final class Issue156ContactTelephoneNumber
 {
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    private $id;
 
     /**
      * @var Issue156Contact

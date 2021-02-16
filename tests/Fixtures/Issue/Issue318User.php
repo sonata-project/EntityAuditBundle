@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class Issue318User
+final class Issue318User
 {
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
     private $id;
@@ -16,7 +16,7 @@ class Issue318User
      * @var string
      * @ORM\Column(type="string", nullable=false, length=255)
      */
-    protected $alias;
+    private $alias;
 
     public function getId()
     {

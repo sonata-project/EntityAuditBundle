@@ -7,22 +7,26 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class Issue9Address
+final class Issue9Address
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
     /**
      * @ORM\Column
      */
-    protected $address_text;
+    private $address_text;
 
     /**
      * @ORM\ManyToOne(targetEntity="Issue9Customer", inversedBy="addresses")
      */
-    protected $customer;
+    private $customer;
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -32,17 +36,17 @@ class Issue9Address
         return $this->address_text;
     }
 
-    public function setAddressText($address_text)
+    public function setAddressText($address_text): void
     {
         $this->address_text = $address_text;
     }
 
-    public function getCustomer()
+    public function getCustomer(): ?Issue9Customer
     {
         return $this->customer;
     }
 
-    public function setCustomer($customer)
+    public function setCustomer($customer): void
     {
         $this->customer = $customer;
     }

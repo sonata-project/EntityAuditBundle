@@ -14,9 +14,9 @@ abstract class DuplicateRevisionFailureTestEntity
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
-    protected $id;
+    private $id;
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }

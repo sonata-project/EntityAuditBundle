@@ -7,15 +7,20 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity()
  */
-class ConvertToPHPEntity
+final class ConvertToPHPEntity
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
-    /** @ORM\Column(type="upper") */
-    protected $sqlConversionField;
+    /**
+     * @ORM\Column(type="upper")
+     */
+    private $sqlConversionField;
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }

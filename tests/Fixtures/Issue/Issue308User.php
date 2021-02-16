@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class Issue308User
+final class Issue308User
 {
     /**
      * @var int

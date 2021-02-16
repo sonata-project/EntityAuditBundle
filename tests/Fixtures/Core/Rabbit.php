@@ -7,9 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class Rabbit extends AnimalAudit
+final class Rabbit extends AnimalAudit
 {
-    /** @ORM\Column(type="string", name="cute_rabbit_color") */
+    /**
+     * @ORM\Column(type="string", name="cute_rabbit_color")
+     */
     private $color;
 
     function __construct($name, $color)

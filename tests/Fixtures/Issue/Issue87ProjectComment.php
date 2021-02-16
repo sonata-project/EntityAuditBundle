@@ -7,38 +7,47 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class Issue87ProjectComment
+final class Issue87ProjectComment
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
-    /** @ORM\ManytoOne(targetEntity="Issue87AbstractProject") @ORM\JoinColumn(name="a_join_column") */
-    protected $project;
+    /**
+     * @ORM\ManytoOne(targetEntity="Issue87AbstractProject")
+     * @ORM\JoinColumn(name="a_join_column")
+     */
+    private $project;
 
-    /** @ORM\Column(type="text") */
-    protected $text;
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $text;
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getProject()
+    public function getProject(): ?Issue87AbstractProject
     {
         return $this->project;
     }
 
-    public function setProject($project)
+    public function setProject($project): void
     {
         $this->project = $project;
     }
 
-    public function getText()
+    public function getText(): ?string
     {
         return $this->text;
     }
 
-    public function setText($text)
+    public function setText($text): void
     {
         $this->text = $text;
     }

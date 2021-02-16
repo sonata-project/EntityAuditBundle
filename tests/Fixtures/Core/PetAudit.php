@@ -12,10 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class PetAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     private $id;
 
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     private $name;
 
     function __construct($name)

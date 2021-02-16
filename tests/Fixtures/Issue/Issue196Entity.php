@@ -7,13 +7,13 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class Issue196Entity
+final class Issue196Entity
 {
     /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    private $id;
 
     /** @ORM\Column(type="issue196type") */
-    protected $sqlConversionField;
+    private $sqlConversionField;
 
     public function getId()
     {

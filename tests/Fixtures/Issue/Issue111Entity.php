@@ -9,18 +9,25 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Entity
  * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  */
-class Issue111Entity
+final class Issue111Entity
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
-    /** @ORM\Column */
-    protected $status;
+    /**
+     * @ORM\Column
+     */
+    private $status;
 
-    /** @ORM\Column(type="datetime", nullable=true, name="deleted_at") */
-    protected $deletedAt;
+    /**
+     * @ORM\Column(type="datetime", nullable=true, name="deleted_at")
+     */
+    private $deletedAt;
 
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -30,17 +37,17 @@ class Issue111Entity
         return $this->status;
     }
 
-    public function setStatus($status)
+    public function setStatus($status): void
     {
         $this->status = $status;
     }
 
-    public function getDeletedAt()
+    public function getDeletedAt(): \DateTimeInterface
     {
         return $this->deletedAt;
     }
 
-    public function setDeletedAt($deletedAt)
+    public function setDeletedAt(\DateTimeInterface $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
     }

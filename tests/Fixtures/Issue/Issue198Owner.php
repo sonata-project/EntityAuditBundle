@@ -1,4 +1,5 @@
 <?php
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -7,31 +8,34 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * @ORM\Entity()
  */
-class Issue198Owner
+final class Issue198Owner
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
-    
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
     /**
      * @ORM\OneToMany(targetEntity="Issue198Car", mappedBy="owner")
      */
-    protected $cars;
-    
+    private $cars;
+
     public function __construct()
     {
         $this->cars = new ArrayCollection();
     }
-    
+
     public function setId($id)
     {
         $this->id = $id;
     }
-    
+
     public function getId()
     {
         return $this->id;
     }
-    
+
     public function addCar(Issue198Car $car)
     {
         if (!$this->cars->contains($car)) {
@@ -39,12 +43,12 @@ class Issue198Owner
             $this->cars[] = $car;
         }
     }
-    
+
     public function removeCar(Issue198Car $car)
     {
         $this->cars->removeElement($car);
     }
-    
+
     public function getCars()
     {
         return $this->cars;

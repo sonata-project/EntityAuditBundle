@@ -10,20 +10,26 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  */
-class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
+final class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
-     * @ORM\OneToMany(targetEntity="DuplicateRevisionFailureTestOwnedElement", mappedBy="primaryOwner",
-     *                                                                         cascade={"persist", "remove"},
-     *                                                                         fetch="LAZY")
+     * @ORM\OneToMany(
+     *     targetEntity="DuplicateRevisionFailureTestOwnedElement",
+     *     mappedBy="primaryOwner",
+     *     cascade={"persist", "remove"},
+     *     fetch="LAZY"
+     * )
      */
-    protected $elements;
+    private $elements;
 
     /**
-     * @ORM\OneToMany(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", mappedBy="primaryOwner",
-     *                                                                           cascade={"persist", "remove"})
+     * @ORM\OneToMany(
+     *     targetEntity="DuplicateRevisionFailureTestSecondaryOwner",
+     *     mappedBy="primaryOwner",
+     *     cascade={"persist", "remove"}
+     * )
      */
-    protected $secondaryOwners;
+    private $secondaryOwners;
 
     public function __construct()
     {
@@ -31,13 +37,13 @@ class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureT
         $this->elements        = new ArrayCollection();
     }
 
-    public function addSecondaryOwner(DuplicateRevisionFailureTestSecondaryOwner $secondaryOwner)
+    public function addSecondaryOwner(DuplicateRevisionFailureTestSecondaryOwner $secondaryOwner): void
     {
         $secondaryOwner->setPrimaryOwner($this);
         $this->secondaryOwners->add($secondaryOwner);
     }
 
-    public function addElement(DuplicateRevisionFailureTestOwnedElement $element)
+    public function addElement(DuplicateRevisionFailureTestOwnedElement $element): void
     {
         $element->setPrimaryOwner($this);
         $this->elements->add($element);

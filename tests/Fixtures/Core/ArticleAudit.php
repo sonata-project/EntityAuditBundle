@@ -7,21 +7,32 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class ArticleAudit
+final class ArticleAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     private $id;
 
-    /** @ORM\Column(type="string", name="my_title_column") */
+    /**
+     * @ORM\Column(type="string", name="my_title_column")
+     */
     private $title;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @ORM\Column(type="text")
+     */
     private $text;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @ORM\Column(type="text")
+     */
     private $ignoreme;
 
-    /** @ORM\ManyToOne(targetEntity="UserAudit") */
+    /**
+     * @ORM\ManyToOne(targetEntity="UserAudit")
+     */
     private $author;
 
     function __construct($title, $text, $author, $ignoreme)

@@ -15,18 +15,14 @@ use Doctrine\ORM\Mapping as ORM;
  * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
  * @ORM\Entity()
  */
-class Issue156Client extends Issue156Contact
+final class Issue156Client extends Issue156Contact
 {
     /**
      * @ORM\Column(type="string", length=255)
      */
-    protected $clientSpecificField;
+    private $clientSpecificField;
 
-    /**
-     * @param string $clientSpecificField
-     * @return $this
-     */
-    public function setClientSpecificField($clientSpecificField)
+    public function setClientSpecificField(string $clientSpecificField): self
     {
         $this->clientSpecificField = $clientSpecificField;
 
@@ -36,7 +32,7 @@ class Issue156Client extends Issue156Contact
     /**
      * @return string
      */
-    public function getClientSpecificField()
+    public function getClientSpecificField(): ?string
     {
         return $this->clientSpecificField;
     }

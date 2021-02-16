@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
- */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
@@ -21,13 +15,13 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue156Contact
 {
     /** @var int @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    private $id;
 
     /**
      * @var ArrayCollection|Issue156ContactTelephoneNumber[]
      * ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
-    protected $telephoneNumbers;
+    private $telephoneNumbers;
 
     public function __construct()
     {
