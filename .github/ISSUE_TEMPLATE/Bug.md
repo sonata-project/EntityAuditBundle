@@ -68,5 +68,5 @@ $ php -v
     If it's an error message or piece of code, use code block tags,
     and make sure you provide the whole stack trace(s),
     not just the first error message you can see.
-    More details here: https://github.com/sonata-project/EntityAuditBundle/blob/3.x/CONTRIBUTING.md#issues
+    More details here: https://github.com/sonata-project/EntityAuditBundle/blob/1.x/CONTRIBUTING.md#issues
 -->
