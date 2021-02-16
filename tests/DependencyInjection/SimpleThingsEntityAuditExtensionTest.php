@@ -26,15 +26,15 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.manager', 0, 'simplethings_entityaudit.config');
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.reader', 'SimpleThings\EntityAudit\AuditReader');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.reader', 0, 'doctrine.orm.default_entity_manager');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.reader', 0);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.log_revisions_listener', 'SimpleThings\EntityAudit\EventListener\LogRevisionsListener');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.log_revisions_listener', 0, 'simplethings_entityaudit.manager');
-        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
+        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%']);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.create_schema_listener', 'SimpleThings\EntityAudit\EventListener\CreateSchemaListener');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.create_schema_listener', 0, 'simplethings_entityaudit.manager');
-        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
+        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%']);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.username_callable.token_storage', 'SimpleThings\EntityAudit\User\TokenStorageUsernameCallable');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.username_callable.token_storage', 0, 'service_container');
@@ -79,6 +79,8 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
     {
         $this->load([]);
 
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.connection', 'default');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.entity_manager', 'default');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', []);
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_columns', []);
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', '');
@@ -92,6 +94,8 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
     public function testItSetsConfiguredParameters(): void
     {
         $this->load([
+            'connection' => 'my_custom_connection',
+            'entity_manager' => 'my_custom_entity_manager',
             'audited_entities' => ['Entity1', 'Entity2'],
             'global_ignore_columns' => ['created_at', 'updated_at'],
             'table_prefix' => 'prefix',
@@ -102,6 +106,8 @@ class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
             'revision_type_field_name' => 'action',
         ]);
 
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.connection', 'my_custom_connection');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.entity_manager', 'my_custom_entity_manager');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.audited_entities', ['Entity1', 'Entity2']);
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.global_ignore_columns', ['created_at', 'updated_at']);
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', 'prefix');

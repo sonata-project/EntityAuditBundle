@@ -78,12 +78,19 @@ simple_things_entity_audit:
         - updated_at
 ```
 
+In order to work with other connection or entity manager than "default", use these settings:
+```yml
+simple_things_entity_audit:
+    connection: custom
+    entity_manager: custom
+```
+
 ### Creating new tables
 
 Call the command below to see the new tables in the update schema queue.
 
 ```bash
-./app/console doctrine:schema:update --dump-sql 
+./app/console doctrine:schema:update --dump-sql
 ```
 
 **Notice**: EntityAudit currently **only** works with a DBAL Connection and EntityManager named **"default"**.
