@@ -28,6 +28,8 @@ class SimpleThingsEntityAuditExtension extends Extension
         $loader->load('auditable.xml');
 
         $configurables = [
+            'connection',
+            'entity_manager',
             'audited_entities',
             'table_prefix',
             'table_suffix',
