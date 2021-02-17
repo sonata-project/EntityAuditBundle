@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Core;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -9,45 +20,57 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ArticleAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     private $id;
 
-    /** @ORM\Column(type="string", name="my_title_column") */
+    /**
+     * @ORM\Column(type="string", name="my_title_column")
+     */
     private $title;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @ORM\Column(type="text")
+     */
     private $text;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @ORM\Column(type="text")
+     */
     private $ignoreme;
 
-    /** @ORM\ManyToOne(targetEntity="UserAudit") */
+    /**
+     * @ORM\ManyToOne(targetEntity="UserAudit")
+     */
     private $author;
 
-    function __construct($title, $text, $author, $ignoreme)
+    public function __construct(string $title, string $text, UserAudit $author, string $ignoreme)
     {
-        $this->title    = $title;
-        $this->text     = $text;
-        $this->author   = $author;
+        $this->title = $title;
+        $this->text = $text;
+        $this->author = $author;
         $this->ignoreme = $ignoreme;
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAuthor()
+    public function getAuthor(): ?UserAudit
     {
         return $this->author;
     }
 
-    public function setText($text)
+    public function setText(string $text): void
     {
         $this->text = $text;
     }
 
-    public function setIgnoreme($ignoreme)
+    public function setIgnoreme(string $ignoreme): void
     {
         $this->ignoreme = $ignoreme;
     }

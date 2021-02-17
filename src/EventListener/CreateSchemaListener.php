@@ -19,17 +19,19 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
+use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class CreateSchemaListener implements EventSubscriber
 {
     /**
-     * @var \SimpleThings\EntityAudit\AuditConfiguration
+     * @var AuditConfiguration
      */
     private $config;
 
     /**
-     * @var \SimpleThings\EntityAudit\Metadata\MetadataFactory
+     * @var MetadataFactory
      */
     private $metadataFactory;
 

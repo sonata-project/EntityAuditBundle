@@ -65,10 +65,7 @@ abstract class BaseTest extends TestCase
         $this->tearDownEntitySchema();
     }
 
-    /**
-     * @return EntityManager
-     */
-    protected function getEntityManager()
+    protected function getEntityManager(): EntityManager
     {
         if (null !== $this->em) {
             return $this->em;
@@ -113,10 +110,7 @@ abstract class BaseTest extends TestCase
         return $this->em;
     }
 
-    /**
-     * @return SchemaTool
-     */
-    protected function getSchemaTool()
+    protected function getSchemaTool(): SchemaTool
     {
         if (null !== $this->schemaTool) {
             return $this->schemaTool;
@@ -125,10 +119,7 @@ abstract class BaseTest extends TestCase
         return $this->schemaTool = new SchemaTool($this->getEntityManager());
     }
 
-    /**
-     * @return Connection
-     */
-    protected function _getConnection()
+    protected function _getConnection(): Connection
     {
         if (!isset(self::$conn)) {
             if (isset(
@@ -180,10 +171,7 @@ abstract class BaseTest extends TestCase
         return self::$conn;
     }
 
-    /**
-     * @return AuditManager
-     */
-    protected function getAuditManager()
+    protected function getAuditManager(): AuditManager
     {
         if (null !== $this->auditManager) {
             return $this->auditManager;

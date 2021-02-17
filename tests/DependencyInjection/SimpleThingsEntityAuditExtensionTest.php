@@ -16,7 +16,7 @@ namespace SimpleThings\EntityAudit\Tests\DependencyInjection;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use SimpleThings\EntityAudit\DependencyInjection\SimpleThingsEntityAuditExtension;
 
-class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
+final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 {
     public function testItRegistersDefaultServices(): void
     {

@@ -1,42 +1,63 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\Entity */
+/**
+ * @ORM\Entity
+ */
 class EscapedColumnsEntity
 {
-    /** @ORM\Id @ORM\GeneratedValue() @ORM\Column(type="integer") */
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
 
-    /** @ORM\Column(type="integer", name="lft") */
-    protected $left;
+    /**
+     * @ORM\Column(type="integer", name="lft")
+     */
+    private $left;
 
-    /** @ORM\Column(type="integer", name="`left`") */
-    protected $lft;
+    /**
+     * @ORM\Column(type="integer", name="`left`")
+     */
+    private $lft;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getLeft()
+    public function getLeft(): int
     {
         return $this->left;
     }
 
-    public function setLeft($left)
+    public function setLeft(int $left): void
     {
         $this->left = $left;
     }
 
-    public function getLft()
+    public function getLft(): int
     {
         return $this->lft;
     }
 
-    public function setLft($lft)
+    public function setLft(int $lft): void
     {
         $this->lft = $lft;
     }

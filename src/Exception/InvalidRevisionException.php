@@ -19,7 +19,7 @@ class InvalidRevisionException extends AuditException
     {
         parent::__construct(null, null, $revision);
         $this->message = sprintf(
-            "No revision '%s' exists.",
+            'No revision "%s" exists.',
             $revision
         );
     }
