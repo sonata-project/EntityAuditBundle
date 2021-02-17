@@ -348,7 +348,8 @@ final class IssueTest extends BaseTest
         $userIdColumnName = 'id';
         $revisionsTableUser = $schema->getTable(sprintf(
             '%s.%sissue318user%s',
-            $schemaName, $config->getTablePrefix(),
+            $schemaName,
+            $config->getTablePrefix(),
             $config->getTableSuffix()
         ));
 

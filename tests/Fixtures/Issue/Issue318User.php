@@ -45,11 +45,6 @@ class Issue318User
         return $this->alias;
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return self
-     */
     public function setAlias(string $alias): self
     {
         $this->alias = $alias;

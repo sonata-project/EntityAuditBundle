@@ -39,7 +39,7 @@ class PageAlias
      */
     protected $alias;
 
-    public function __construct(Page $page, string $alias = null)
+    public function __construct(Page $page, ?string $alias = null)
     {
         $this->page = $page;
         $this->alias = $alias;
