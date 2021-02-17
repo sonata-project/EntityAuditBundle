@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
@@ -11,8 +16,8 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Issue156ContactTelephoneNumber
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * Class Issue156ContactTelephoneNumber.
+ *
  * @ORM\Entity()
  */
 final class Issue156ContactTelephoneNumber
@@ -34,6 +39,7 @@ final class Issue156ContactTelephoneNumber
 
     /**
      * @param mixed $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -53,9 +59,10 @@ final class Issue156ContactTelephoneNumber
 
     /**
      * @param Issue156Contact $contact
+     *
      * @return $this
      */
-    public function setContact(Issue156Contact $contact = null)
+    public function setContact(?Issue156Contact $contact = null)
     {
         $this->contact = $contact;
 
@@ -72,6 +79,7 @@ final class Issue156ContactTelephoneNumber
 
     /**
      * @param string $number
+     *
      * @return $this
      */
     public function setNumber($number)
