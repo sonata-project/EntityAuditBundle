@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: doconnell
- * Date: 12/10/16
- * Time: 08:49
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
@@ -12,6 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A slightly contrived entity which has an entity (Page) as an ID.
+ *
  * @ORM\Entity
  */
 class PageAlias
@@ -20,6 +26,7 @@ class PageAlias
      * @ORM\ManyToOne(targetEntity="Page", inversedBy="associatedEmails", cascade={"persist"})
      * @ORM\JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
      * @ORM\Id
+     *
      * @var Page
      */
     protected $page;
@@ -47,11 +54,13 @@ class PageAlias
 
     /**
      * @param string $alias
+     *
      * @return self
      */
     public function setAlias($alias)
     {
         $this->alias = $alias;
+
         return $this;
     }
 }

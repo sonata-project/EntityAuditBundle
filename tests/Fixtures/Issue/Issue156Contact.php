@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
@@ -12,8 +17,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Issue156Contact
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * Class Issue156Contact.
+ *
  * @ORM\Entity()
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
@@ -25,7 +30,7 @@ class Issue156Contact
 
     /**
      * @var ArrayCollection|Issue156ContactTelephoneNumber[]
-     * ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
+     *                                                       ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
     protected $telephoneNumbers;
 
@@ -36,6 +41,7 @@ class Issue156Contact
 
     /**
      * @param int $id
+     *
      * @return $this
      */
     public function setId($id)
@@ -54,7 +60,6 @@ class Issue156Contact
     }
 
     /**
-     * @param Issue156ContactTelephoneNumber $telephoneNumber
      * @return $this
      */
     public function addTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber)
@@ -68,7 +73,6 @@ class Issue156Contact
     }
 
     /**
-     * @param Issue156ContactTelephoneNumber $telephoneNumber
      * @return $this
      */
     public function removeTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber)

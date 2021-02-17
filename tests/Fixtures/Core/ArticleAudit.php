@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Core;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -24,11 +35,11 @@ class ArticleAudit
     /** @ORM\ManyToOne(targetEntity="UserAudit") */
     private $author;
 
-    function __construct($title, $text, $author, $ignoreme)
+    public function __construct($title, $text, $author, $ignoreme)
     {
-        $this->title    = $title;
-        $this->text     = $text;
-        $this->author   = $author;
+        $this->title = $title;
+        $this->text = $text;
+        $this->author = $author;
         $this->ignoreme = $ignoreme;
     }
 
