@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  */
-final class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
+class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
      * @ORM\OneToMany(

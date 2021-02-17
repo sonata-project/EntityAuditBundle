@@ -15,39 +15,49 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\Entity */
+/**
+ * @ORM\Entity
+ */
 class OneToOneNotAuditedEntity
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     protected $id;
 
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     protected $title;
 
-    /** @ORM\OneToOne(targetEntity="OneToOneMasterEntity") */
+    /**
+     * @ORM\OneToOne(targetEntity="OneToOneMasterEntity")
+     */
     protected $master;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    public function getMaster()
+    public function getMaster(): ?OneToOneMasterEntity
     {
         return $this->master;
     }
 
-    public function setMaster($master)
+    public function setMaster(OneToOneMasterEntity $master): void
     {
         $this->master = $master;
     }

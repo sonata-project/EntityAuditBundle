@@ -20,10 +20,14 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class SomeEntity
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
     private $id;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }

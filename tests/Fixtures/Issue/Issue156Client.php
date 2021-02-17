@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity()
  */
-final class Issue156Client extends Issue156Contact
+class Issue156Client extends Issue156Contact
 {
     /**
      * @ORM\Column(type="string", length=255)
@@ -34,9 +34,6 @@ final class Issue156Client extends Issue156Contact
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getClientSpecificField(): ?string
     {
         return $this->clientSpecificField;

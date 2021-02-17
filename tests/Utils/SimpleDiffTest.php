@@ -16,7 +16,7 @@ namespace SimpleThings\EntityAudit\Tests\Utils;
 use PHPUnit\Framework\TestCase;
 use SimpleThings\EntityAudit\Utils\SimpleDiff;
 
-class SimpleDiffTest extends TestCase
+final class SimpleDiffTest extends TestCase
 {
     /**
      * @dataProvider dataDiff

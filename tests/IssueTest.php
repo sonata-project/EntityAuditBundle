@@ -35,7 +35,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer;
 
-class IssueTest extends BaseTest
+final class IssueTest extends BaseTest
 {
     protected $schemaEntities = [
         'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',

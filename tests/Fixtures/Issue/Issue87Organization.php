@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class Issue87Organization
+class Issue87Organization
 {
     /**
      * @ORM\Id @ORM\Column(type="integer")
@@ -26,7 +26,7 @@ final class Issue87Organization
      */
     private $id;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

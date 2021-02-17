@@ -23,18 +23,22 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class Product extends SomeEntity
 {
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     private $name;
 
-    /** @ORM\ManyToOne(targetEntity="Category", inversedBy="products") */
+    /**
+     * @ORM\ManyToOne(targetEntity="Category", inversedBy="products")
+     */
     private $category;
 
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->name = $name;
     }
 
-    public function setCategory(Category $category)
+    public function setCategory(Category $category): void
     {
         $this->category = $category;
     }

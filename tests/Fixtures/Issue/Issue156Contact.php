@@ -25,12 +25,19 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Issue156Contact
 {
-    /** @var int @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @var int
+     *
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private $id;
 
     /**
      * @var ArrayCollection|Issue156ContactTelephoneNumber[]
-     *                                                       ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
+     *
+     * @ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
     private $telephoneNumbers;
 
@@ -39,30 +46,12 @@ class Issue156Contact
         $this->telephoneNumbers = new ArrayCollection();
     }
 
-    /**
-     * @param int $id
-     *
-     * @return $this
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return $this
-     */
-    public function addTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber)
+    public function addTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber): self
     {
         if (!$this->telephoneNumbers->contains($telephoneNumber)) {
             $telephoneNumber->setContact($this);
@@ -72,10 +61,7 @@ class Issue156Contact
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function removeTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber)
+    public function removeTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber): self
     {
         $this->telephoneNumbers->removeElement($telephoneNumber);
 
@@ -85,7 +71,7 @@ class Issue156Contact
     /**
      * @return ArrayCollection|Issue156ContactTelephoneNumber[]
      */
-    public function getTelephoneNumbers()
+    public function getTelephoneNumbers(): iterable
     {
         return $this->telephoneNumbers;
     }

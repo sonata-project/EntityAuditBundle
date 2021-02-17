@@ -20,7 +20,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @ORM\Entity
  * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  */
-final class Issue111Entity
+class Issue111Entity
 {
     /**
      * @ORM\Id @ORM\Column(type="integer")
@@ -38,7 +38,7 @@ final class Issue111Entity
      */
     private $deletedAt;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }

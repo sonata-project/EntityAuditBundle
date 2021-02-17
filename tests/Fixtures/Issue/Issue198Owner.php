@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity()
  */
-final class Issue198Owner
+class Issue198Owner
 {
     /**
      * @ORM\Id @ORM\Column(type="integer")
@@ -37,17 +37,12 @@ final class Issue198Owner
         $this->cars = new ArrayCollection();
     }
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function addCar(Issue198Car $car)
+    public function addCar(Issue198Car $car): void
     {
         if (!$this->cars->contains($car)) {
             $car->setOwner($this);
@@ -55,12 +50,12 @@ final class Issue198Owner
         }
     }
 
-    public function removeCar(Issue198Car $car)
+    public function removeCar(Issue198Car $car): void
     {
         $this->cars->removeElement($car);
     }
 
-    public function getCars()
+    public function getCars(): ArrayCollection
     {
         return $this->cars;
     }

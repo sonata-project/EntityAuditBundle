@@ -33,7 +33,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
 
-class RelationTest extends BaseTest
+final class RelationTest extends BaseTest
 {
     protected $schemaEntities = [
         'SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity',

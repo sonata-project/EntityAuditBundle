@@ -46,7 +46,7 @@ abstract class Issue87AbstractProject
      */
     private $organisation; //This association is NOT in the _audit table for the subclasses
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -56,7 +56,7 @@ abstract class Issue87AbstractProject
         return $this->description;
     }
 
-    public function setDescription($description): void
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
@@ -66,7 +66,7 @@ abstract class Issue87AbstractProject
         return $this->organisation;
     }
 
-    public function setOrganisation($organisation): void
+    public function setOrganisation(Issue87Organization $organisation): void
     {
         $this->organisation = $organisation;
     }
@@ -76,7 +76,7 @@ abstract class Issue87AbstractProject
         return $this->title;
     }
 
-    public function setTitle($title): void
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }

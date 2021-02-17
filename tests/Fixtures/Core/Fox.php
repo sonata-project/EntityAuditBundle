@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class Fox extends AnimalAudit
+class Fox extends AnimalAudit
 {
     /**
      * @ORM\Column(type="integer", name="fox_tail_length")

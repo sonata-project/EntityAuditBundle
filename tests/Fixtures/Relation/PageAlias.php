@@ -33,31 +33,24 @@ class PageAlias
 
     /**
      * @var string
+     *
      * @ORM\Column( type="string", nullable=false, length=255, unique=true)
      * )
      */
     protected $alias;
 
-    public function __construct(Page $page, $alias = null)
+    public function __construct(Page $page, string $alias = null)
     {
         $this->page = $page;
         $this->alias = $alias;
     }
 
-    /**
-     * @return string
-     */
-    public function getAlias()
+    public function getAlias(): ?string
     {
         return $this->alias;
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return self
-     */
-    public function setAlias($alias)
+    public function setAlias(string $alias): self
     {
         $this->alias = $alias;
 

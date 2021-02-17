@@ -29,18 +29,12 @@ class DataLegalEntity extends AbstractDataEntity
      */
     private $company;
 
-    /**
-     * @return string
-     */
-    public function getCompany()
+    public function getCompany(): ?string
     {
         return $this->company;
     }
 
-    /**
-     * @param string $company
-     */
-    public function setCompany($company)
+    public function setCompany(string $company): void
     {
         $this->company = $company;
     }

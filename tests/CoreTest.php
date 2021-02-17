@@ -22,7 +22,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit;
 use SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit;
 
-class CoreTest extends BaseTest
+final class CoreTest extends BaseTest
 {
     protected $schemaEntities = [
         'SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit',

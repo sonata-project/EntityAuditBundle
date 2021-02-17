@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailureTestEntity
+class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
      * @ORM\ManyToOne(

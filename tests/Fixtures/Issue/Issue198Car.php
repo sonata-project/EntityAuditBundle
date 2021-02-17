@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity()
  */
-final class Issue198Car
+class Issue198Car
 {
     /**
      * @ORM\Id @ORM\Column(type="integer")
@@ -32,22 +32,17 @@ final class Issue198Car
      */
     private $owner;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    public function getOwner()
+    public function getOwner(): ?Issue198Owner
     {
         return $this->owner;
     }
 
-    public function setOwner(Issue198Owner $owner)
+    public function setOwner(Issue198Owner $owner): void
     {
         $this->owner = $owner;
     }

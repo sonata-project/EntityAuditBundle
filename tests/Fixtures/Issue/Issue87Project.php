@@ -19,7 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="project_project")
  */
-final class Issue87Project extends Issue87AbstractProject
+class Issue87Project extends Issue87AbstractProject
 {
     /**
      * @ORM\Column(type="string")
@@ -31,7 +31,7 @@ final class Issue87Project extends Issue87AbstractProject
         return $this->someProperty;
     }
 
-    public function setSomeProperty($someProperty): void
+    public function setSomeProperty(string $someProperty): void
     {
         $this->someProperty = $someProperty;
     }

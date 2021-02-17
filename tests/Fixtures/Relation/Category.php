@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -24,7 +25,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class Category extends SomeEntity
 {
-    /** @ORM\OneToMany(targetEntity="Product", mappedBy="category") */
+    /**
+     * @ORM\OneToMany(targetEntity="Product", mappedBy="category")
+     */
     private $products;
 
     public function __construct()
@@ -32,13 +35,13 @@ abstract class Category extends SomeEntity
         $this->products = new ArrayCollection();
     }
 
-    public function addProduct(Product $product)
+    public function addProduct(Product $product): void
     {
         $product->setCategory($this);
         $this->products->add($product);
     }
 
-    public function getProducts()
+    public function getProducts(): Collection
     {
         return $this->products;
     }

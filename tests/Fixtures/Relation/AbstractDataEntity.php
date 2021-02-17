@@ -41,26 +41,17 @@ abstract class AbstractDataEntity
      */
     private $dataContainer;
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return DataContainerEntity
-     */
-    public function getDataContainer()
+    public function getDataContainer(): ?DataContainerEntity
     {
         return $this->dataContainer;
     }
 
-    /**
-     * @param DataContainerEntity $dataContainer
-     */
-    public function setDataContainer($dataContainer)
+    public function setDataContainer(DataContainerEntity $dataContainer)
     {
         $this->dataContainer = $dataContainer;
     }

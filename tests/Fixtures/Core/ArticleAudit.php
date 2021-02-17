@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class ArticleAudit
+class ArticleAudit
 {
     /**
      * @ORM\Id @ORM\Column(type="integer")

@@ -15,19 +15,31 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\Entity */
+/**
+ * @ORM\Entity
+ */
 class OwnerEntity
 {
-    /** @ORM\Id @ORM\Column(type="integer", name="some_strange_key_name") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer", name="some_strange_key_name")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     protected $id;
 
-    /** @ORM\Column(type="string", name="crazy_title_to_mess_up_audit") */
+    /**
+     * @ORM\Column(type="string", name="crazy_title_to_mess_up_audit")
+     */
     protected $title;
 
-    /** @ORM\OneToMany(targetEntity="OwnedEntity1", mappedBy="owner")*/
+    /**
+     * @ORM\OneToMany(targetEntity="OwnedEntity1", mappedBy="owner")
+     */
     protected $owned1;
 
-    /** @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner") */
+    /**
+     * @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner")
+     */
     protected $owned2;
 
     /**
@@ -39,17 +51,17 @@ class OwnerEntity
      */
     protected $owned3;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -59,7 +71,7 @@ class OwnerEntity
         return $this->owned1;
     }
 
-    public function addOwned1($owned1)
+    public function addOwned1(OwnedEntity1 $owned1): void
     {
         $this->owned1[] = $owned1;
     }
@@ -69,7 +81,7 @@ class OwnerEntity
         return $this->owned2;
     }
 
-    public function addOwned2($owned2)
+    public function addOwned2(OwnedEntity2 $owned2): void
     {
         $this->owned2[] = $owned2;
     }
@@ -79,7 +91,7 @@ class OwnerEntity
         return $this->owned3;
     }
 
-    public function addOwned3($owned3)
+    public function addOwned3(OwnedEntity3 $owned3): void
     {
         $this->owned3[] = $owned3;
     }

@@ -18,9 +18,12 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class Issue318User
+class Issue318User
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    /** @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private $id;
 
     /**
@@ -29,7 +32,7 @@ final class Issue318User
      */
     private $alias;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -37,7 +40,7 @@ final class Issue318User
     /**
      * @return string
      */
-    public function getAlias()
+    public function getAlias(): ?string
     {
         return $this->alias;
     }
@@ -47,7 +50,7 @@ final class Issue318User
      *
      * @return self
      */
-    public function setAlias($alias)
+    public function setAlias(string $alias): self
     {
         $this->alias = $alias;
 

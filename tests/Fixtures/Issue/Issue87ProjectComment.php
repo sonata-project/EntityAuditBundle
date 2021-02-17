@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class Issue87ProjectComment
+class Issue87ProjectComment
 {
     /**
      * @ORM\Id
@@ -38,7 +38,7 @@ final class Issue87ProjectComment
      */
     private $text;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -48,7 +48,7 @@ final class Issue87ProjectComment
         return $this->project;
     }
 
-    public function setProject($project): void
+    public function setProject(Issue87AbstractProject $project): void
     {
         $this->project = $project;
     }
@@ -58,7 +58,7 @@ final class Issue87ProjectComment
         return $this->text;
     }
 
-    public function setText($text): void
+    public function setText(string $text): void
     {
         $this->text = $text;
     }

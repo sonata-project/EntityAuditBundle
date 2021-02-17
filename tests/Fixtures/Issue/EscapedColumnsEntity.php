@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class EscapedColumnsEntity
+class EscapedColumnsEntity
 {
     /**
      * @ORM\Id
@@ -37,7 +37,7 @@ final class EscapedColumnsEntity
      */
     private $lft;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -47,7 +47,7 @@ final class EscapedColumnsEntity
         return $this->left;
     }
 
-    public function setLeft($left): void
+    public function setLeft(int $left): void
     {
         $this->left = $left;
     }
@@ -57,7 +57,7 @@ final class EscapedColumnsEntity
         return $this->lft;
     }
 
-    public function setLft($lft): void
+    public function setLft(int $lft): void
     {
         $this->lft = $lft;
     }

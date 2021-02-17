@@ -18,10 +18,11 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity()
  */
-final class ConvertToPHPEntity
+class ConvertToPHPEntity
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -31,17 +32,17 @@ final class ConvertToPHPEntity
      */
     private $sqlConversionField;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getSqlConversionField()
+    public function getSqlConversionField(): ?string
     {
         return $this->sqlConversionField;
     }
 
-    public function setSqlConversionField($sqlConversionField)
+    public function setSqlConversionField(string $sqlConversionField): void
     {
         $this->sqlConversionField = $sqlConversionField;
     }

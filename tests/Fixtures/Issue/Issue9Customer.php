@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
-final class Issue9Customer
+class Issue9Customer
 {
     /**
      * @ORM\Id
@@ -37,11 +38,14 @@ final class Issue9Customer
      */
     private $primary_address;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return ArrayCollection|Issue9Address[]
+     */
     public function getAddresses()
     {
         return $this->addresses;
@@ -60,7 +64,7 @@ final class Issue9Customer
         return $this->primary_address;
     }
 
-    public function setPrimaryAddress($primary_address): void
+    public function setPrimaryAddress(Issue9Address $primary_address): void
     {
         $this->primary_address = $primary_address;
     }

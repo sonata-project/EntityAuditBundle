@@ -20,79 +20,61 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity()
  */
-final class Issue156ContactTelephoneNumber
+class Issue156ContactTelephoneNumber
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private $id;
 
     /**
      * @var Issue156Contact
+     *
      * @ORM\ManyToOne(targetEntity="Issue156Contact", inversedBy="telephoneNumbers")
      */
     private $contact;
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
     private $number;
 
-    /**
-     * @param mixed $id
-     *
-     * @return $this
-     */
-    public function setId($id)
+    public function setId(int $id): self
     {
         $this->id = $id;
 
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param Issue156Contact $contact
-     *
-     * @return $this
-     */
-    public function setContact(?Issue156Contact $contact = null)
+    public function setContact(?Issue156Contact $contact = null): self
     {
         $this->contact = $contact;
 
         return $this;
     }
 
-    /**
-     * @return Issue156Contact
-     */
-    public function getContact()
+    public function getContact(): ?Issue156Contact
     {
         return $this->contact;
     }
 
-    /**
-     * @param string $number
-     *
-     * @return $this
-     */
-    public function setNumber($number)
+    public function setNumber(string $number): self
     {
         $this->number = $number;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getNumber()
+    public function getNumber(): ?string
     {
         return $this->number;
     }

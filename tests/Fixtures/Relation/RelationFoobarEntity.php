@@ -15,18 +15,22 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\Entity */
+/**
+ * @ORM\Entity
+ */
 class RelationFoobarEntity extends RelationReferencedEntity
 {
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     protected $foobarField;
 
-    public function getFoobarField()
+    public function getFoobarField(): ?string
     {
         return $this->foobarField;
     }
 
-    public function setFoobarField($foobarField)
+    public function setFoobarField(string $foobarField): void
     {
         $this->foobarField = $foobarField;
     }

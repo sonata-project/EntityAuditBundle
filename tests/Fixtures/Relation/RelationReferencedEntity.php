@@ -23,28 +23,32 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class RelationReferencedEntity extends RelationAbstractEntityBase
 {
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     protected $referencedField;
 
-    /** @ORM\OneToOne(targetEntity="RelationOneToOneEntity", mappedBy="referencedEntity") */
+    /**
+     * @ORM\OneToOne(targetEntity="RelationOneToOneEntity", mappedBy="referencedEntity")
+     */
     protected $oneToOne;
 
-    public function getOneToOne()
+    public function getOneToOne(): ?RelationOneToOneEntity
     {
         return $this->oneToOne;
     }
 
-    public function setOneToOne($oneToOne)
+    public function setOneToOne(RelationOneToOneEntity $oneToOne): void
     {
         $this->oneToOne = $oneToOne;
     }
 
-    public function getReferencedField()
+    public function getReferencedField(): ?string
     {
         return $this->referencedField;
     }
 
-    public function setReferencedField($referencedField)
+    public function setReferencedField(string $referencedField): void
     {
         $this->referencedField = $referencedField;
     }

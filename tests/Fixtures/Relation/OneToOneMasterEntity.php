@@ -15,52 +15,65 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\Entity */
+/**
+ * @ORM\Entity
+ */
 class OneToOneMasterEntity
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     protected $id;
 
-    /** @ORM\Column(type="string") */
+    /**
+     * @ORM\Column(type="string")
+     */
     protected $title;
 
-    /** @ORM\OneToOne(targetEntity="OneToOneAuditedEntity") @ORM\JoinColumn(onDelete="SET NULL") */
+    /**
+     * @ORM\OneToOne(targetEntity="OneToOneAuditedEntity")
+     * @ORM\JoinColumn(onDelete="SET NULL")
+     */
     protected $audited;
 
-    /** @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity") */
+    /**
+     * @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity")
+     */
     protected $notAudited;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle($title)
+    public function setTitle(string $title)
     {
         $this->title = $title;
     }
 
-    public function getAudited()
+    public function getAudited(): ?OneToOneAuditedEntity
     {
         return $this->audited;
     }
 
-    public function setAudited($audited)
+    public function setAudited(OneToOneAuditedEntity $audited): void
     {
         $this->audited = $audited;
     }
 
-    public function getNotAudited()
+    public function getNotAudited(): ?OneToOneNotAuditedEntity
     {
         return $this->notAudited;
     }
 
-    public function setNotAudited($notAudited)
+    public function setNotAudited(OneToOneNotAuditedEntity $notAudited): void
     {
         $this->notAudited = $notAudited;
     }

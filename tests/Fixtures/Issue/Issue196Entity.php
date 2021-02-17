@@ -18,25 +18,30 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class Issue196Entity
+class Issue196Entity
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private $id;
 
-    /** @ORM\Column(type="issue196type") */
+    /**
+     * @ORM\Column(type="issue196type")
+     */
     private $sqlConversionField;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setSqlConversionField($sqlConversionField)
+    public function setSqlConversionField(string $sqlConversionField): void
     {
         $this->sqlConversionField = $sqlConversionField;
     }
 
-    public function getSqlConversionField()
+    public function getSqlConversionField(): ?string
     {
         return $this->sqlConversionField;
     }

@@ -18,7 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-final class Issue31User
+class Issue31User
 {
     /**
      * @ORM\Id
@@ -37,7 +37,7 @@ final class Issue31User
      */
     private $titre;
 
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -47,7 +47,7 @@ final class Issue31User
         return $this->reve;
     }
 
-    public function setReve($reve): void
+    public function setReve(Issue31Reve $reve): void
     {
         $this->reve = $reve;
     }
@@ -57,7 +57,7 @@ final class Issue31User
         return $this->titre;
     }
 
-    public function setTitre($titre): void
+    public function setTitre(string $titre): void
     {
         $this->titre = $titre;
     }

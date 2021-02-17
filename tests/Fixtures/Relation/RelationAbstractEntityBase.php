@@ -15,13 +15,19 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/** @ORM\MappedSuperclass */
-class RelationAbstractEntityBase
+/**
+ * @ORM\MappedSuperclass
+ */
+abstract class RelationAbstractEntityBase
 {
-    /** @ORM\Id @ORM\Column(type="integer", name="id_column") @ORM\GeneratedValue(strategy="AUTO") */
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer", name="id_column")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     protected $id;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
