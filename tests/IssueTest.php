@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\Tests;
 
 use Doctrine\Common\Collections\Collection;
+use Gedmo\SoftDeleteable\SoftDeleteableListener;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner;
@@ -21,6 +22,7 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSe
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car;
@@ -29,69 +31,72 @@ use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue308User;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address;
 use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer;
+use SimpleThings\EntityAudit\Tests\Types\ConvertToPHPType;
+use SimpleThings\EntityAudit\Tests\Types\Issue196Type;
 
 final class IssueTest extends BaseTest
 {
     protected $schemaEntities = [
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue308User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity',
+        EscapedColumnsEntity::class,
+        Issue87Project::class,
+        Issue87ProjectComment::class,
+        Issue87AbstractProject::class,
+        Issue87Organization::class,
+        Issue9Address::class,
+        Issue9Customer::class,
+        Issue87Organization::class,
+        DuplicateRevisionFailureTestPrimaryOwner::class,
+        DuplicateRevisionFailureTestSecondaryOwner::class,
+        DuplicateRevisionFailureTestOwnedElement::class,
+        Issue111Entity::class,
+        Issue31User::class,
+        Issue31Reve::class,
+        Issue156Contact::class,
+        Issue156ContactTelephoneNumber::class,
+        Issue156Client::class,
+        Issue198Car::class,
+        Issue198Owner::class,
+        Issue196Entity::class,
+        Issue308User::class,
+        Issue318User::class,
+        ConvertToPHPEntity::class,
     ];
 
     protected $auditedEntities = [
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\EscapedColumnsEntity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Project',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87ProjectComment',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87AbstractProject',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Address',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue9Customer',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue87Organization',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue31Reve',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue196Entity',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Car',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue198Owner',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue308User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User',
-        'SimpleThings\EntityAudit\Tests\Fixtures\Issue\ConvertToPHPEntity',
+        EscapedColumnsEntity::class,
+        Issue87Project::class,
+        Issue87ProjectComment::class,
+        Issue87AbstractProject::class,
+        Issue87Organization::class,
+        Issue9Address::class,
+        Issue9Customer::class,
+        Issue87Organization::class,
+        DuplicateRevisionFailureTestPrimaryOwner::class,
+        DuplicateRevisionFailureTestSecondaryOwner::class,
+        DuplicateRevisionFailureTestOwnedElement::class,
+        Issue111Entity::class,
+        Issue31User::class,
+        Issue31Reve::class,
+        Issue156Contact::class,
+        Issue156ContactTelephoneNumber::class,
+        Issue156Client::class,
+        Issue196Entity::class,
+        Issue198Car::class,
+        Issue198Owner::class,
+        Issue308User::class,
+        Issue318User::class,
+        ConvertToPHPEntity::class,
     ];
 
     protected $customTypes = [
-        'issue196type' => 'SimpleThings\EntityAudit\Tests\Types\Issue196Type',
-        'upper' => 'SimpleThings\EntityAudit\Tests\Types\ConvertToPHPType',
+        'issue196type' => Issue196Type::class,
+        'upper' => ConvertToPHPType::class,
     ];
 
     /**
@@ -118,7 +123,7 @@ final class IssueTest extends BaseTest
 
     public function testIssue111(): void
     {
-        $this->em->getEventManager()->addEventSubscriber(new \Gedmo\SoftDeleteable\SoftDeleteableListener());
+        $this->em->getEventManager()->addEventSubscriber(new SoftDeleteableListener());
 
         $e = new Issue111Entity();
         $e->setStatus('test status');
@@ -131,7 +136,7 @@ final class IssueTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $ae = $reader->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue111Entity', 1, 2);
+        $ae = $reader->find(Issue111Entity::class, 1, 2);
 
         $this->assertInstanceOf('DateTime', $ae->getDeletedAt());
     }
@@ -237,7 +242,7 @@ final class IssueTest extends BaseTest
 
         $this->em->getUnitOfWork()->clear();
 
-        $primaryOwner = $this->em->find('SimpleThings\EntityAudit\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner', 1);
+        $primaryOwner = $this->em->find(DuplicateRevisionFailureTestPrimaryOwner::class, 1);
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
@@ -339,9 +344,13 @@ final class IssueTest extends BaseTest
         $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
         $schemaName = $schema->getName();
         $config = $this->getAuditManager()->getConfiguration();
-        $revisionsTableUser = $schema->getTable(sprintf('%s.%sissue318user%s', $schemaName, $config->getTablePrefix(), $config->getTableSuffix()));
         $userNotNullColumnName = 'alias';
         $userIdColumnName = 'id';
+        $revisionsTableUser = $schema->getTable(sprintf(
+            '%s.%sissue318user%s',
+            $schemaName, $config->getTablePrefix(),
+            $config->getTableSuffix()
+        ));
 
         $this->assertFalse($revisionsTableUser->getColumn($userNotNullColumnName)->getNotnull());
         $this->assertFalse($revisionsTableUser->getColumn($userIdColumnName)->getAutoincrement());

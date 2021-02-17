@@ -19,7 +19,7 @@ class NotAuditedException extends AuditException
     {
         parent::__construct($className, null, null);
         $this->message = sprintf(
-            "Class '$className' is not audited.",
+            "Class '%s' is not audited.",
             $className
         );
     }

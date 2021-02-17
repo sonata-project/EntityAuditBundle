@@ -15,45 +15,53 @@ namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Mapping\MappingException;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
+use Doctrine\ORM\UnitOfWork;
+use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class LogRevisionsListener implements EventSubscriber
 {
     /**
-     * @var \SimpleThings\EntityAudit\AuditConfiguration
+     * @var AuditConfiguration
      */
     private $config;
 
     /**
-     * @var \SimpleThings\EntityAudit\Metadata\MetadataFactory
+     * @var MetadataFactory
      */
     private $metadataFactory;
 
     /**
-     * @var \Doctrine\DBAL\Connection
+     * @var Connection
      */
     private $conn;
 
     /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var AbstractPlatform
      */
     private $platform;
 
     /**
-     * @var \Doctrine\ORM\EntityManager
+     * @var EntityManager
      */
     private $em;
 
     /**
-     * @var \Doctrine\ORM\Mapping\QuoteStrategy
+     * @var QuoteStrategy
      */
     private $quoteStrategy;
 
@@ -63,7 +71,7 @@ class LogRevisionsListener implements EventSubscriber
     private $insertRevisionSQL = [];
 
     /**
-     * @var \Doctrine\ORM\UnitOfWork
+     * @var UnitOfWork
      */
     private $uow;
 
@@ -90,7 +98,7 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * @throws MappingException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      * @throws MappingException
      * @throws \Exception
      */

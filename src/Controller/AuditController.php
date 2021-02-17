@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Controller;
 
+use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Controller for listing auditing information.
@@ -46,7 +49,7 @@ class AuditController extends Controller
      *
      * @param int $rev
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      *
      * @return Response
      */
@@ -144,7 +147,7 @@ class AuditController extends Controller
     }
 
     /**
-     * @return \SimpleThings\EntityAudit\AuditReader
+     * @return AuditReader
      */
     protected function getAuditReader()
     {
@@ -152,7 +155,7 @@ class AuditController extends Controller
     }
 
     /**
-     * @return \SimpleThings\EntityAudit\AuditManager
+     * @return AuditManager
      */
     protected function getAuditManager()
     {
