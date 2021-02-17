@@ -1,5 +1,5 @@
 {
-    "name": "simplethings/entity-audit-bundle",
+    "name": "sonata-project/entity-audit-bundle",
     "type": "symfony-bundle",
     "description": "Audit for Doctrine Entities",
     "keywords": [
