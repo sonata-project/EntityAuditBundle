@@ -19,7 +19,7 @@ class NoRevisionFoundException extends AuditException
     {
         parent::__construct($className, $id, $revision);
         $this->message = sprintf(
-            "No revision of class '%s' (%s) was found at revision %s or before. The entity did not exist at the specified revision yet.",
+            'No revision of class "%s" (%s) was found at revision %s or before. The entity did not exist at the specified revision yet.',
             $className,
             implode(', ', $id),
             $revision

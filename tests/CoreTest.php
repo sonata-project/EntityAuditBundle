@@ -156,7 +156,7 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $this->expectException(NotAuditedException::class);
-        $this->expectExceptionMessage("Class 'stdClass' is not audited.");
+        $this->expectExceptionMessage('Class "stdClass" is not audited.');
 
         $reader->find('stdClass', 1, 1);
     }
