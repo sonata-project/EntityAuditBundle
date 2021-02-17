@@ -25,7 +25,8 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class Issue87AbstractProject
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;

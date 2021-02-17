@@ -21,7 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class OwnedEntity2
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer", name="strange_owned_id_name")
+     * @ORM\Id
+     * @ORM\Column(type="integer", name="strange_owned_id_name")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;

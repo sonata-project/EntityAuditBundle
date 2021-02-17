@@ -21,7 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class OneToOneAuditedEntity
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
