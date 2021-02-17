@@ -1,33 +1,30 @@
 simple_things_entity_audit_home:
     path: /{page}
+    controller: SimpleThings\EntityAudit\Controller\AuditController::indexAction
     defaults:
-        _controller: SimpleThingsEntityAuditBundle:Audit:index
         page: 1
     requirements:
         page: \d+
 
 simple_things_entity_audit_viewrevision:
     path: /viewrev/{rev}
-    defaults:
-        _controller: SimpleThingsEntityAuditBundle:Audit:viewRevision
+    controller: SimpleThings\EntityAudit\Controller\AuditController::viewRevisionAction
     requirements:
         rev: \d+
 
 simple_things_entity_audit_viewentity_detail:
     path: /viewent/{className}/{id}/{rev}
-    defaults:
-        _controller: SimpleThingsEntityAuditBundle:Audit:viewDetail
+    controller: SimpleThings\EntityAudit\Controller\AuditController::viewDetailAction
     requirements:
         rev: \d+
 
 simple_things_entity_audit_viewentity:
     path: /viewent/{className}/{id}
-    defaults:
-        _controller: SimpleThingsEntityAuditBundle:Audit:viewEntity
+    controller: SimpleThings\EntityAudit\Controller\AuditController::viewEntityAction
 
 simple_things_entity_audit_compare:
     path: /compare/{className}/{id}/{oldRev}/{newRev}
+    controller: SimpleThings\EntityAudit\Controller\AuditController::compareAction
     defaults:
-        _controller: SimpleThingsEntityAuditBundle:Audit:compare
         oldRev: ~
         newRev: ~

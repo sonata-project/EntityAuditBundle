@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -13,52 +24,60 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class Issue87AbstractProject
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
-    /** @ORM\Column(name="title", type="string", length=50) */
-    protected $title; //This property is in the _audit table for each subclass
+    /**
+     * @ORM\Column(name="title", type="string", length=50)
+     */
+    private $title; //This property is in the _audit table for each subclass
 
-    /** @ORM\Column(name="description", type="string", length=1000, nullable=true) */
-    protected $description; //This property is in the _audit table for each subclass
+    /**
+     * @ORM\Column(name="description", type="string", length=1000, nullable=true)
+     */
+    private $description; //This property is in the _audit table for each subclass
 
     /**
      * @ORM\ManyToOne(targetEntity="Issue87Organization")
      * @ORM\JoinColumn(nullable=true)
      */
-    protected $organisation; //This association is NOT in the _audit table for the subclasses
+    private $organisation; //This association is NOT in the _audit table for the subclasses
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription($description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
 
-    public function getOrganisation()
+    public function getOrganisation(): ?Issue87Organization
     {
         return $this->organisation;
     }
 
-    public function setOrganisation($organisation)
+    public function setOrganisation(Issue87Organization $organisation): void
     {
         $this->organisation = $organisation;
     }
 
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }

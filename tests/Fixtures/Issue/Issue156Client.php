@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
@@ -11,8 +16,8 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Issue156Client
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * Class Issue156Client.
+ *
  * @ORM\Entity()
  */
 class Issue156Client extends Issue156Contact
@@ -20,23 +25,16 @@ class Issue156Client extends Issue156Contact
     /**
      * @ORM\Column(type="string", length=255)
      */
-    protected $clientSpecificField;
+    private $clientSpecificField;
 
-    /**
-     * @param string $clientSpecificField
-     * @return $this
-     */
-    public function setClientSpecificField($clientSpecificField)
+    public function setClientSpecificField(string $clientSpecificField): self
     {
         $this->clientSpecificField = $clientSpecificField;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getClientSpecificField()
+    public function getClientSpecificField(): ?string
     {
         return $this->clientSpecificField;
     }

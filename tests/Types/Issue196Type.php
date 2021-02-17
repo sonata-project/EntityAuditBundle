@@ -19,19 +19,19 @@ use Doctrine\DBAL\Types\TextType;
 /**
  * Extension of Doctrine's TextType that forces values to lower case when persisting.
  */
-class Issue196Type extends TextType
+final class Issue196Type extends TextType
 {
-    public function getName()
+    public function getName(): string
     {
         return 'issue196type';
     }
 
-    public function canRequireSQLConversion()
+    public function canRequireSQLConversion(): bool
     {
         return true;
     }
 
-    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform)
+    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform): string
     {
         return sprintf('lower(%s)', $sqlExpr);
     }

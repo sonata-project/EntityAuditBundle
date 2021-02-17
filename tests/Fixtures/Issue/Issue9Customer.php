@@ -1,7 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -9,30 +21,37 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Issue9Customer
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
     /**
      * @ORM\OneToMany(targetEntity="Issue9Address", mappedBy="customer")
      */
-    protected $addresses;
+    private $addresses;
 
     /**
      * @ORM\OneToOne(targetEntity="Issue9Address")
      */
-    protected $primary_address;
+    private $primary_address;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return ArrayCollection|Issue9Address[]
+     */
     public function getAddresses()
     {
         return $this->addresses;
     }
 
-    public function setAddresses($addresses)
+    public function setAddresses($addresses): void
     {
         $this->addresses = $addresses;
     }
@@ -40,12 +59,12 @@ class Issue9Customer
     /**
      * @return Issue9Address
      */
-    public function getPrimaryAddress()
+    public function getPrimaryAddress(): ?Issue9Address
     {
         return $this->primary_address;
     }
 
-    public function setPrimaryAddress($primary_address)
+    public function setPrimaryAddress(Issue9Address $primary_address): void
     {
         $this->primary_address = $primary_address;
     }

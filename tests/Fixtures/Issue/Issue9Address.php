@@ -1,5 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -9,20 +20,24 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Issue9Address
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
     /**
      * @ORM\Column
      */
-    protected $address_text;
+    private $address_text;
 
     /**
      * @ORM\ManyToOne(targetEntity="Issue9Customer", inversedBy="addresses")
      */
-    protected $customer;
+    private $customer;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -32,17 +47,17 @@ class Issue9Address
         return $this->address_text;
     }
 
-    public function setAddressText($address_text)
+    public function setAddressText($address_text): void
     {
         $this->address_text = $address_text;
     }
 
-    public function getCustomer()
+    public function getCustomer(): ?Issue9Customer
     {
         return $this->customer;
     }
 
-    public function setCustomer($customer)
+    public function setCustomer(Issue9Customer $customer): void
     {
         $this->customer = $customer;
     }

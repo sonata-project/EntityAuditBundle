@@ -1,11 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Data container entity
+ * Data container entity.
  *
  * @ORM\Entity
  */
@@ -34,42 +45,27 @@ class DataContainerEntity
      */
     private $name;
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @return AbstractDataEntity
-     */
-    public function getData()
+    public function getData(): ?AbstractDataEntity
     {
         return $this->data;
     }
 
-    /**
-     * @param AbstractDataEntity $data
-     */
-    public function setData($data)
+    public function setData(AbstractDataEntity $data)
     {
         $this->data = $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName($name)
+    public function setName(string $name)
     {
         $this->name = $name;
     }

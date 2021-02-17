@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Controller;
 
+use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Controller for listing auditing information.
@@ -36,7 +39,7 @@ class AuditController extends Controller
         $reader = $this->getAuditReader();
         $revisions = $reader->findRevisionHistory(20, 20 * ($page - 1));
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:index.html.twig', [
+        return $this->render('@SimpleThingsEntityAudit/Audit/index.html.twig', [
             'revisions' => $revisions,
         ]);
     }
@@ -46,7 +49,7 @@ class AuditController extends Controller
      *
      * @param int $rev
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      *
      * @return Response
      */
@@ -59,7 +62,7 @@ class AuditController extends Controller
 
         $changedEntities = $this->getAuditReader()->findEntitiesChangedAtRevision($rev);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_revision.html.twig', [
+        return $this->render('@SimpleThingsEntityAudit/Audit/view_revision.html.twig', [
             'revision' => $revision,
             'changedEntities' => $changedEntities,
         ]);
@@ -78,7 +81,7 @@ class AuditController extends Controller
         $ids = explode(',', $id);
         $revisions = $this->getAuditReader()->findRevisions($className, $ids);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_entity.html.twig', [
+        return $this->render('@SimpleThingsEntityAudit/Audit/view_entity.html.twig', [
             'id' => $id,
             'className' => $className,
             'revisions' => $revisions,
@@ -102,7 +105,7 @@ class AuditController extends Controller
         $data = $this->getAuditReader()->getEntityValues($className, $entity);
         krsort($data);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:view_detail.html.twig', [
+        return $this->render('@SimpleThingsEntityAudit/Audit/view_detail.html.twig', [
             'id' => $id,
             'rev' => $rev,
             'className' => $className,
@@ -134,7 +137,7 @@ class AuditController extends Controller
         $ids = explode(',', $id);
         $diff = $this->getAuditReader()->diff($className, $ids, $oldRev, $newRev);
 
-        return $this->render('SimpleThingsEntityAuditBundle:Audit:compare.html.twig', [
+        return $this->render('@SimpleThingsEntityAudit/Audit/compare.html.twig', [
             'className' => $className,
             'id' => $id,
             'oldRev' => $oldRev,
@@ -144,7 +147,7 @@ class AuditController extends Controller
     }
 
     /**
-     * @return \SimpleThings\EntityAudit\AuditReader
+     * @return AuditReader
      */
     protected function getAuditReader()
     {
@@ -152,7 +155,7 @@ class AuditController extends Controller
     }
 
     /**
-     * @return \SimpleThings\EntityAudit\AuditManager
+     * @return AuditManager
      */
     protected function getAuditManager()
     {

@@ -1,9 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: david
- * Date: 23/02/2016
- * Time: 15:57
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
@@ -12,52 +17,41 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Issue156Contact
- * @package SimpleThings\EntityAudit\Tests\Fixtures\Issue
+ * Class Issue156Contact.
+ *
  * @ORM\Entity()
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
  */
 class Issue156Contact
 {
-    /** @var int @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue(strategy="AUTO") */
-    protected $id;
+    /**
+     * @var int
+     *
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
 
     /**
      * @var ArrayCollection|Issue156ContactTelephoneNumber[]
-     * ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
+     *
+     * @ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
-    protected $telephoneNumbers;
+    private $telephoneNumbers;
 
     public function __construct()
     {
         $this->telephoneNumbers = new ArrayCollection();
     }
 
-    /**
-     * @param int $id
-     * @return $this
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param Issue156ContactTelephoneNumber $telephoneNumber
-     * @return $this
-     */
-    public function addTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber)
+    public function addTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber): self
     {
         if (!$this->telephoneNumbers->contains($telephoneNumber)) {
             $telephoneNumber->setContact($this);
@@ -67,11 +61,7 @@ class Issue156Contact
         return $this;
     }
 
-    /**
-     * @param Issue156ContactTelephoneNumber $telephoneNumber
-     * @return $this
-     */
-    public function removeTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber)
+    public function removeTelephoneNumber(Issue156ContactTelephoneNumber $telephoneNumber): self
     {
         $this->telephoneNumbers->removeElement($telephoneNumber);
 
@@ -81,7 +71,7 @@ class Issue156Contact
     /**
      * @return ArrayCollection|Issue156ContactTelephoneNumber[]
      */
-    public function getTelephoneNumbers()
+    public function getTelephoneNumbers(): iterable
     {
         return $this->telephoneNumbers;
     }
