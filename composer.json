@@ -11,7 +11,7 @@
     "require": {
         "php": "^7.3 || ^8.0",
         "doctrine/dbal": "^2.5",
-        "doctrine/orm": "^2.4",
+        "doctrine/orm": "^2.7",
         "symfony/config": "^4.4 || ^5.2"
     },
     "conflict": {
