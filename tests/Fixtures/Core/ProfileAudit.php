@@ -43,27 +43,27 @@ class ProfileAudit
         $this->biography = $biography;
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getBiography()
+    public function getBiography(): ?string
     {
         return $this->biography;
     }
 
-    public function setBiography($biography)
+    public function setBiography(string $biography): void
     {
         $this->biography = $biography;
     }
 
-    public function getUser()
+    public function getUser(): ?UserAudit
     {
         return $this->user;
     }
 
-    public function setUser($user)
+    public function setUser(UserAudit $user): void
     {
         $this->user = $user;
     }

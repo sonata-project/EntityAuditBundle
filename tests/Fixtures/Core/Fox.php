@@ -31,12 +31,12 @@ class Fox extends AnimalAudit
         parent::__construct($name);
     }
 
-    public function getTailLength()
+    public function getTailLength(): ?int
     {
         return $this->tailLength;
     }
 
-    public function setTailLength($tailLength)
+    public function setTailLength(int $tailLength): void
     {
         $this->tailLength = $tailLength;
     }

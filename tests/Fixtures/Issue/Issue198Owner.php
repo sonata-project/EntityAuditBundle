@@ -22,7 +22,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue198Owner
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;

@@ -21,7 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ArticleAudit
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
      */
     private $id;
@@ -54,22 +55,22 @@ class ArticleAudit
         $this->ignoreme = $ignoreme;
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAuthor()
+    public function getAuthor(): ?UserAudit
     {
         return $this->author;
     }
 
-    public function setText($text)
+    public function setText(string $text): void
     {
         $this->text = $text;
     }
 
-    public function setIgnoreme($ignoreme)
+    public function setIgnoreme(string $ignoreme): void
     {
         $this->ignoreme = $ignoreme;
     }

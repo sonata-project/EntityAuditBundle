@@ -31,12 +31,12 @@ class Rabbit extends AnimalAudit
         parent::__construct($name);
     }
 
-    public function getColor()
+    public function getColor(): ?string
     {
         return $this->color;
     }
 
-    public function setColor($color)
+    public function setColor(string $color): void
     {
         $this->color = $color;
     }

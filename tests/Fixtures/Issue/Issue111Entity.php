@@ -23,7 +23,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Issue111Entity
 {
     /**
-     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;

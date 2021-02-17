@@ -20,7 +20,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Cat extends PetAudit
 {
-    /** @ORM\Column(type="string", name="cute_cat_color") */
+    /**
+     * @ORM\Column(type="string", name="cute_cat_color")
+     */
     private $color;
 
     public function __construct($name, $color)
@@ -29,12 +31,12 @@ class Cat extends PetAudit
         parent::__construct($name);
     }
 
-    public function getColor()
+    public function getColor(): ?string
     {
         return $this->color;
     }
 
-    public function setColor($color)
+    public function setColor(string $color): void
     {
         $this->color = $color;
     }

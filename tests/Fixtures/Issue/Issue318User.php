@@ -20,7 +20,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Issue318User
 {
-    /** @ORM\Id
+    /**
+     * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
@@ -28,6 +29,7 @@ class Issue318User
 
     /**
      * @var string
+     *
      * @ORM\Column(type="string", nullable=false, length=255)
      */
     private $alias;
