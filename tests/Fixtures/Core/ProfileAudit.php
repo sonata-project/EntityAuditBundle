@@ -38,7 +38,7 @@ class ProfileAudit
      */
     private $user;
 
-    public function __construct($biography)
+    public function __construct(string $biography)
     {
         $this->biography = $biography;
     }

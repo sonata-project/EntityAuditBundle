@@ -25,7 +25,7 @@ class Rabbit extends AnimalAudit
      */
     private $color;
 
-    public function __construct($name, $color)
+    public function __construct(string $name, string $color)
     {
         $this->color = $color;
         parent::__construct($name);

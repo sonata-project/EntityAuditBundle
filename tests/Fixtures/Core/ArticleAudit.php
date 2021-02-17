@@ -47,7 +47,7 @@ class ArticleAudit
      */
     private $author;
 
-    public function __construct($title, $text, $author, $ignoreme)
+    public function __construct(string $title, string $text, UserAudit $author, string $ignoreme)
     {
         $this->title = $title;
         $this->text = $text;

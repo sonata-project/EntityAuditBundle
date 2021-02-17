@@ -20,12 +20,8 @@ final class SimpleDiffTest extends TestCase
 {
     /**
      * @dataProvider dataDiff
-     *
-     * @param $old
-     * @param $new
-     * @param $output
      */
-    public function testDiff($old, $new, $output): void
+    public function testDiff(string $old, string $new, string $output): void
     {
         $diff = new SimpleDiff();
         $d = $diff->htmlDiff($old, $new);
@@ -33,7 +29,7 @@ final class SimpleDiffTest extends TestCase
         $this->assertSame($output, $d);
     }
 
-    public static function dataDiff()
+    public static function dataDiff(): iterable
     {
         return [
             ['Foo', 'foo', '<del>Foo</del> <ins>foo</ins> '],

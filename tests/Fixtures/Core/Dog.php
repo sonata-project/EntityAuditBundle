@@ -25,7 +25,7 @@ class Dog extends PetAudit
      */
     private $tailLength;
 
-    public function __construct($name, $tailLength)
+    public function __construct(string $name, int $tailLength)
     {
         $this->tailLength = $tailLength;
         parent::__construct($name);
