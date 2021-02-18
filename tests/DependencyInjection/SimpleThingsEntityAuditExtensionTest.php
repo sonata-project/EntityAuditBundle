@@ -30,11 +30,11 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.log_revisions_listener', 'SimpleThings\EntityAudit\EventListener\LogRevisionsListener');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.log_revisions_listener', 0, 'simplethings_entityaudit.manager');
-        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%']);
+        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.create_schema_listener', 'SimpleThings\EntityAudit\EventListener\CreateSchemaListener');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.create_schema_listener', 0, 'simplethings_entityaudit.manager');
-        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%']);
+        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.username_callable.token_storage', 'SimpleThings\EntityAudit\User\TokenStorageUsernameCallable');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.username_callable.token_storage', 0, 'service_container');
@@ -116,6 +116,9 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'guid');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'revision');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'action');
+
+        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_subscriber', ['connection' => 'my_custom_entity_manager']);
+        $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => 'my_custom_entity_manager']);
     }
 
     protected function getContainerExtensions(): array

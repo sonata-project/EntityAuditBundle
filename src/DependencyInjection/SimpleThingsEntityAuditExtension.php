@@ -49,5 +49,26 @@ class SimpleThingsEntityAuditExtension extends Extension
                 $container->setAlias('simplethings_entityaudit.'.$key, $service);
             }
         }
+
+        $this->fixConnectionForDoctrineTag($container, [
+            'simplethings_entityaudit.log_revisions_listener',
+            'simplethings_entityaudit.create_schema_listener',
+        ]);
+    }
+
+    private function fixConnectionForDoctrineTag(ContainerBuilder $container, array $definitionNames): void
+    {
+        foreach ($definitionNames as $definitionName) {
+            $definition = $container->getDefinition($definitionName);
+            $definition->clearTag('doctrine.event_subscriber');
+
+            foreach ($definition->getTag('doctrine.event_subscriber') as $id => $attributes) {
+                if (isset($attributes['connection']) && $container->hasParameter($attributes['connection'])) {
+                    $attributes['connection'] = (string) $container->getParameter('simplethings.entityaudit.connection');
+                }
+
+                $definition->addTag('doctrine.event_subscriber', $attributes);
+            }
+        }
     }
 }
