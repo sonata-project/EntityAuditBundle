@@ -17,7 +17,7 @@ use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-class IndexAction
+final class IndexAction
 {
     /**
      * @var AuditReader

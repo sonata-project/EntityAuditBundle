@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
 
-class ViewRevisionAction
+final class ViewRevisionAction
 {
     /**
      * @var AuditReader

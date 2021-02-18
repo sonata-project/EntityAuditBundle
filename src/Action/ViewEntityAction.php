@@ -17,7 +17,7 @@ use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-class ViewEntityAction
+final class ViewEntityAction
 {
     /**
      * @var AuditReader
