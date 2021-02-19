@@ -25,6 +25,7 @@ class SimpleThingsEntityAuditExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('actions.xml');
         $loader->load('auditable.xml');
 
         $configurables = [

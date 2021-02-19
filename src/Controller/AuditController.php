@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Controller;
 
+use SimpleThings\EntityAudit\Action\CompareAction;
+use SimpleThings\EntityAudit\Action\IndexAction;
+use SimpleThings\EntityAudit\Action\ViewDetailAction;
+use SimpleThings\EntityAudit\Action\ViewEntityAction;
+use SimpleThings\EntityAudit\Action\ViewRevisionAction;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -24,6 +29,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * Controller for listing auditing information.
  *
  * @author Tim Nagel <tim@nagel.com.au>
+ *
+ * @deprecated since sonata-project/entity-audit-bundle 1.x, will be remove in 2.0.
+ *
+ * NEXT_MAJOR: remove this controller
  */
 class AuditController extends Controller
 {
@@ -36,12 +45,9 @@ class AuditController extends Controller
      */
     public function indexAction($page = 1)
     {
-        $reader = $this->getAuditReader();
-        $revisions = $reader->findRevisionHistory(20, 20 * ($page - 1));
+        $indexAction = new IndexAction($this->get('twig'), $this->getAuditReader());
 
-        return $this->render('@SimpleThingsEntityAudit/Audit/index.html.twig', [
-            'revisions' => $revisions,
-        ]);
+        return $indexAction($page);
     }
 
     /**
@@ -55,17 +61,9 @@ class AuditController extends Controller
      */
     public function viewRevisionAction($rev)
     {
-        $revision = $this->getAuditReader()->findRevision($rev);
-        if (!$revision) {
-            throw $this->createNotFoundException(sprintf('Revision %i not found', $rev));
-        }
+        $viewRevisionAction = new ViewRevisionAction($this->get('twig'), $this->getAuditReader());
 
-        $changedEntities = $this->getAuditReader()->findEntitiesChangedAtRevision($rev);
-
-        return $this->render('@SimpleThingsEntityAudit/Audit/view_revision.html.twig', [
-            'revision' => $revision,
-            'changedEntities' => $changedEntities,
-        ]);
+        return $viewRevisionAction($rev);
     }
 
     /**
@@ -78,14 +76,9 @@ class AuditController extends Controller
      */
     public function viewEntityAction($className, $id)
     {
-        $ids = explode(',', $id);
-        $revisions = $this->getAuditReader()->findRevisions($className, $ids);
+        $viewEntityAction = new ViewEntityAction($this->get('twig'), $this->getAuditReader());
 
-        return $this->render('@SimpleThingsEntityAudit/Audit/view_entity.html.twig', [
-            'id' => $id,
-            'className' => $className,
-            'revisions' => $revisions,
-        ]);
+        return $viewEntityAction($className, $id);
     }
 
     /**
@@ -99,19 +92,9 @@ class AuditController extends Controller
      */
     public function viewDetailAction($className, $id, $rev)
     {
-        $ids = explode(',', $id);
-        $entity = $this->getAuditReader()->find($className, $ids, $rev);
+        $viewDetailAction = new ViewDetailAction($this->get('twig'), $this->getAuditReader());
 
-        $data = $this->getAuditReader()->getEntityValues($className, $entity);
-        krsort($data);
-
-        return $this->render('@SimpleThingsEntityAudit/Audit/view_detail.html.twig', [
-            'id' => $id,
-            'rev' => $rev,
-            'className' => $className,
-            'entity' => $entity,
-            'data' => $data,
-        ]);
+        return $viewDetailAction($className, $id, $rev);
     }
 
     /**
@@ -126,24 +109,9 @@ class AuditController extends Controller
      */
     public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)
     {
-        if (null === $oldRev) {
-            $oldRev = $request->query->get('oldRev');
-        }
+        $compareAction = new CompareAction($this->get('twig'), $this->getAuditReader());
 
-        if (null === $newRev) {
-            $newRev = $request->query->get('newRev');
-        }
-
-        $ids = explode(',', $id);
-        $diff = $this->getAuditReader()->diff($className, $ids, $oldRev, $newRev);
-
-        return $this->render('@SimpleThingsEntityAudit/Audit/compare.html.twig', [
-            'className' => $className,
-            'id' => $id,
-            'oldRev' => $oldRev,
-            'newRev' => $newRev,
-            'diff' => $diff,
-        ]);
+        return $compareAction($request, $className, $id, $oldRev, $newRev);
     }
 
     /**
