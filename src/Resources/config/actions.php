@@ -26,36 +26,36 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->set(CompareAction::class, CompareAction::class)
             ->public()
             ->args([
-                service('twig'),
-                service('simplethings_entityaudit.reader'),
+                new ReferenceConfigurator('twig'),
+                new ReferenceConfigurator('simplethings_entityaudit.reader'),
             ])
 
         ->set(IndexAction::class, IndexAction::class)
             ->public()
             ->args([
-                service('twig'),
-                service('simplethings_entityaudit.reader'),
+                new ReferenceConfigurator('twig'),
+                new ReferenceConfigurator('simplethings_entityaudit.reader'),
             ])
 
         ->set(ViewDetailAction::class, ViewDetailAction::class)
             ->public()
             ->args([
-                service('twig'),
-                service('simplethings_entityaudit.reader'),
+                new ReferenceConfigurator('twig'),
+                new ReferenceConfigurator('simplethings_entityaudit.reader'),
             ])
 
         ->set(ViewDetailAction::class, ViewEntityAction::class)
             ->public()
             ->args([
-                service('twig'),
-                service('simplethings_entityaudit.reader'),
+                new ReferenceConfigurator('twig'),
+                new ReferenceConfigurator('simplethings_entityaudit.reader'),
             ])
 
         ->set(ViewRevisionAction::class, ViewRevisionAction::class)
             ->public()
             ->args([
-                service('twig'),
-                service('simplethings_entityaudit.reader'),
+                new ReferenceConfigurator('twig'),
+                new ReferenceConfigurator('simplethings_entityaudit.reader'),
             ])
     ;
 };

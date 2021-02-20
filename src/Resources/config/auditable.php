@@ -19,6 +19,7 @@ use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\User\TokenStorageUsernameCallable;
+use Symfony\Component\DependencyInjection\Definition;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
@@ -39,30 +40,30 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->services()
         ->set('simplethings_entityaudit.manager', AuditManager::class)
             ->public()
-            ->args([service('simplethings_entityaudit.config')])
+            ->args([new ReferenceConfigurator('simplethings_entityaudit.config')])
             ->alias(AuditManager::class, 'simplethings_entityaudit.manager')
                 ->public()
 
         ->set('simplethings_entityaudit.reader', AuditReader::class)
             ->public()
-            ->factory([service('simplethings_entityaudit.manager'), 'createAuditReader'])
+            ->factory([new ReferenceConfigurator('simplethings_entityaudit.manager'), 'createAuditReader'])
             ->args([
-                inline_service('Doctrine\ORM\EntityManager')
-                    ->factory([service('doctrine'), 'getManager'])
+                (new InlineServiceConfigurator(new Definition('Doctrine\ORM\EntityManager')))
+                    ->factory([new ReferenceConfigurator('doctrine'), 'getManager'])
                     ->args(['%simplethings.entityaudit.entity_manager%']),
             ])
             ->alias(AuditReader::class, 'simplethings_entityaudit.reader')
 
         ->set('simplethings_entityaudit.log_revisions_listener', LogRevisionsListener::class)
             ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
-            ->args([service('simplethings_entityaudit.manager')])
+            ->args([new ReferenceConfigurator('simplethings_entityaudit.manager')])
 
         ->set('simplethings_entityaudit.create_schema_listener', CreateSchemaListener::class)
             ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
-            ->args([service('simplethings_entityaudit.manager')])
+            ->args([new ReferenceConfigurator('simplethings_entityaudit.manager')])
 
         ->set('simplethings_entityaudit.username_callable.token_storage', TokenStorageUsernameCallable::class)
-            ->args([service('service_container')])
+            ->args([new ReferenceConfigurator('service_container')])
 
         ->set('simplethings_entityaudit.config', AuditConfiguration::class)
             ->public()
@@ -74,7 +75,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->call('setRevisionIdFieldType', ['%simplethings.entityaudit.revision_id_field_type%'])
             ->call('setRevisionFieldName', ['%simplethings.entityaudit.revision_field_name%'])
             ->call('setRevisionTypeFieldName', ['%simplethings.entityaudit.revision_type_field_name%'])
-            ->call('setUsernameCallable', [service('simplethings_entityaudit.username_callable')])
+            ->call('setUsernameCallable', [new ReferenceConfigurator('simplethings_entityaudit.username_callable')])
             ->alias(AuditConfiguration::class, 'simplethings_entityaudit.config')
     ;
 };
