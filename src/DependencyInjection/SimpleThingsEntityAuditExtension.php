@@ -50,23 +50,23 @@ class SimpleThingsEntityAuditExtension extends Extension
             }
         }
 
-        $this->fixConnectionForDoctrineTag($container, [
+        $this->fixParametersFromDoctrineEventSubscriberTag($container, [
             'simplethings_entityaudit.log_revisions_listener',
             'simplethings_entityaudit.create_schema_listener',
         ]);
     }
 
-    private function fixConnectionForDoctrineTag(ContainerBuilder $container, array $definitionNames): void
+    private function fixParametersFromDoctrineEventSubscriberTag(ContainerBuilder $container, array $definitionNames): void
     {
         foreach ($definitionNames as $definitionName) {
             $definition = $container->getDefinition($definitionName);
+            $tags = $definition->getTag('doctrine.event_subscriber');
             $definition->clearTag('doctrine.event_subscriber');
 
-            foreach ($definition->getTag('doctrine.event_subscriber') as $id => $attributes) {
-                if (isset($attributes['connection']) && $container->hasParameter($attributes['connection'])) {
+            foreach ($tags as $id => $attributes) {
+                if (isset($attributes['connection'])) {
                     $attributes['connection'] = (string) $container->getParameter('simplethings.entityaudit.connection');
                 }
-
                 $definition->addTag('doctrine.event_subscriber', $attributes);
             }
         }
