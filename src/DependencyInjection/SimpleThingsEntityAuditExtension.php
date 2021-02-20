@@ -15,7 +15,7 @@ namespace SimpleThings\EntityAudit\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class SimpleThingsEntityAuditExtension extends Extension
@@ -24,9 +24,9 @@ class SimpleThingsEntityAuditExtension extends Extension
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('actions.xml');
-        $loader->load('auditable.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('actions.php');
+        $loader->load('auditable.php');
 
         $configurables = [
             'connection',
