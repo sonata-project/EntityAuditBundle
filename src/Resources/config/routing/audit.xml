@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<routes xmlns="http://symfony.com/schema/routing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/routing https://symfony.com/schema/routing/routing-1.0.xsd">
+    <route id="simple_things_entity_audit_home" path="/{page<\d+>?1}" controller="SimpleThings\EntityAudit\Action\IndexAction"/>
+    <route id="simple_things_entity_audit_viewrevision" path="/viewrev/{rev<\d+>}" controller="SimpleThings\EntityAudit\Action\ViewRevisionAction"/>
+    <route id="simple_things_entity_audit_viewentity_detail" path="/viewent/{className}/{id}/{rev<\d+>" controller="SimpleThings\EntityAudit\Action\ViewDetailAction"/>
+    <route id="simple_things_entity_audit_viewentity" path="/viewent/{className}/{id}" controller="SimpleThings\EntityAudit\Action\ViewEntityAction"/>
+    <route id="simple_things_entity_audit_compare" path="/compare/{className}/{id}/{oldRev?}/{newRev?}" controller="SimpleThings\EntityAudit\Action\CompareAction"/>
+</routes>
