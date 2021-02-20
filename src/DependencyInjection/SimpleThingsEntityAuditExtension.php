@@ -63,7 +63,7 @@ class SimpleThingsEntityAuditExtension extends Extension
             $tags = $definition->getTag('doctrine.event_subscriber');
             $definition->clearTag('doctrine.event_subscriber');
 
-            foreach ($tags as $id => $attributes) {
+            foreach ($tags as $attributes) {
                 if (isset($attributes['connection'])) {
                     $attributes['connection'] = (string) $container->getParameter('simplethings.entityaudit.connection');
                 }
