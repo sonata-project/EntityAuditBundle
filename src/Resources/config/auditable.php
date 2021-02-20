@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\AuditReader;
@@ -48,7 +49,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->public()
             ->factory([new ReferenceConfigurator('simplethings_entityaudit.manager'), 'createAuditReader'])
             ->args([
-                (new InlineServiceConfigurator(new Definition('Doctrine\ORM\EntityManager')))
+                (new InlineServiceConfigurator(new Definition(EntityManager::class)))
                     ->factory([new ReferenceConfigurator('doctrine'), 'getManager'])
                     ->args(['%simplethings.entityaudit.entity_manager%']),
             ])
