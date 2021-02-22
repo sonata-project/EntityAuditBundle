@@ -1,3 +1,4 @@
+# NEXT_MAJOR: remove this file and add upgrade note
 simple_things_entity_audit_home:
     path: /{page}
     controller: SimpleThings\EntityAudit\Action\IndexAction
