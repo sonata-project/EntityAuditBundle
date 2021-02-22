@@ -249,7 +249,7 @@ only appropriate users can get access)**
 ##### app/config/routing.yml
 ```yml
 simple_things_entity_audit:
-    resource: "@SimpleThingsEntityAuditBundle/Resources/config/routing.yml"
+    resource: "@SimpleThingsEntityAuditBundle/Resources/config/routing/audit.xml"
     prefix: /audit
 ```
 
