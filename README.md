@@ -27,8 +27,8 @@ If you think you found a bug or you have a feature idea to propose, feel free to
 
 This package is available under the [LGPL license](LICENSE).
 
-[test_stable_badge]: https://github.com/sonata-project/EntityAuditBundle/workflows/Test/badge.svg?branch=3.x
-[test_stable_link]: https://github.com/sonata-project/EntityAuditBundle/actions?query=workflow:test+branch:3.x
+[test_stable_badge]: https://github.com/sonata-project/EntityAuditBundle/workflows/Test/badge.svg?branch=1.x
+[test_stable_link]: https://github.com/sonata-project/EntityAuditBundle/actions?query=workflow:test+branch:1.x
 [test_unstable_badge]: https://github.com/sonata-project/EntityAuditBundle/workflows/Test/badge.svg?branch=master
 [test_unstable_link]: https://github.com/sonata-project/EntityAuditBundle/actions?query=workflow:test+branch:master
 
