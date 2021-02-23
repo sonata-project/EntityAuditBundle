@@ -1,16 +1,41 @@
-# EntityAudit Extension for Doctrine2
-
-| Master | 1.0 Branch |
-|:----------------:|:----------:|
-| [![Build Status](https://travis-ci.org/simplethings/EntityAudit.svg?branch=master)](https://travis-ci.org/simplethings/EntityAudit) | [![Build Status](https://travis-ci.org/simplethings/EntityAudit.svg?branch=1.0)](https://travis-ci.org/simplethings/EntityAudit) |
-
+# EntityAuditBundle
 
 This extension for Doctrine 2 is inspired by [Hibernate Envers](http://www.jboss.org/envers) and
 allows full versioning of entities and their associations.
 
-## Is this library still maintained?
+[![Latest Stable Version](https://poser.pugx.org/sonata-project/entity-audit-bundle/v/stable)](https://packagist.org/packages/sonata-project/entity-audit-bundle)
+[![Latest Unstable Version](https://poser.pugx.org/sonata-project/entity-audit-bundle/v/unstable)](https://packagist.org/packages/sonata-project/entity-audit-bundle)
+[![License](https://poser.pugx.org/sonata-project/entity-audit-bundle/license)](https://packagist.org/packages/sonata-project/entity-audit-bundle)
 
-[Maybe?](https://github.com/simplethings/EntityAudit/issues/203) - please discuss and support us in the linked issue
+[![Total Downloads](https://poser.pugx.org/sonata-project/entity-audit-bundle/downloads)](https://packagist.org/packages/sonata-project/entity-audit-bundle)
+[![Monthly Downloads](https://poser.pugx.org/sonata-project/entity-audit-bundle/d/monthly)](https://packagist.org/packages/sonata-project/entity-audit-bundle)
+[![Daily Downloads](https://poser.pugx.org/sonata-project/entity-audit-bundle/d/daily)](https://packagist.org/packages/sonata-project/entity-audit-bundle)
+
+Branch | Github Actions | Code Coverage |
+------ | -------------- | ------------- |
+1.x    | [![Test][test_stable_badge]][test_stable_link]     | [![Coverage Status][coverage_stable_badge]][coverage_stable_link]     |
+master | [![Test][test_unstable_badge]][test_unstable_link] | [![Coverage Status][coverage_unstable_badge]][coverage_unstable_link] |
+
+## Support
+
+For general support and questions, please use [StackOverflow](http://stackoverflow.com/questions/tagged/sonata).
+
+If you think you found a bug or you have a feature idea to propose, feel free to open an issue
+**after looking** at the [contributing guide](CONTRIBUTING.md).
+
+## License
+
+This package is available under the [LGPL license](LICENSE).
+
+[test_stable_badge]: https://github.com/sonata-project/EntityAuditBundle/workflows/Test/badge.svg?branch=3.x
+[test_stable_link]: https://github.com/sonata-project/EntityAuditBundle/actions?query=workflow:test+branch:3.x
+[test_unstable_badge]: https://github.com/sonata-project/EntityAuditBundle/workflows/Test/badge.svg?branch=master
+[test_unstable_link]: https://github.com/sonata-project/EntityAuditBundle/actions?query=workflow:test+branch:master
+
+[coverage_stable_badge]: https://codecov.io/gh/sonata-project/EntityAuditBundle/branch/1.x/graph/badge.svg
+[coverage_stable_link]: https://codecov.io/gh/sonata-project/EntityAuditBundle/branch/1.x
+[coverage_unstable_badge]: https://codecov.io/gh/sonata-project/EntityAuditBundle/branch/master/graph/badge.svg
+[coverage_unstable_link]: https://codecov.io/gh/sonata-project/EntityAuditBundle/branch/master
 
 ## How does it work?
 
@@ -29,40 +54,37 @@ points in time.
 This extension hooks into the SchemaTool generation process so that it will automatically
 create the necessary DDL statements for your audited entities.
 
-## Installation (In Symfony2 Application)
+## Installation
 
 ### Installing the bundle
 
-Simply run assuming you have installed composer.phar or composer binary:
+Simply run assuming you have composer:
 
-``` bash
-$ php composer.phar require simplethings/entity-audit-bundle
+```bash
+$ composer require sonata-project/entity-audit-bundle
 ```
 
 ### Enable the bundle
 
 Finally, enable the bundle in the kernel:
 
-``` php
-// app/AppKernel.php
+```php
+// config/bundles.php
 
-public function registerBundles()
-{
-    $bundles = array(
-        //...
-        new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
-        //...
-    );
-    return $bundles;
-}
+return [
+    //...
+    SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle::class => ['all' => true],
+    //...
+];
 ```
 
 ### Configuration
 
-Load extension "simple_things_entity_audit" and specify the audited entities (yes, that ugly for now!)
+Load extension "simple_things_entity_audit" and specify the audited entities
 
-##### app/config/config.yml
-```yml
+```yaml
+# config/packages/entity_audit.yaml
+
 simple_things_entity_audit:
     audited_entities:
         - MyBundle\Entity\MyEntity
@@ -70,8 +92,9 @@ simple_things_entity_audit:
 ```
 If you need to exclude some entity properties from triggering a revision use:
 
-##### app/config/config.yml
-```yml
+```yaml
+# config/packages/entity_audit.yaml
+
 simple_things_entity_audit:
     global_ignore_columns:
         - created_at
@@ -79,7 +102,9 @@ simple_things_entity_audit:
 ```
 
 In order to work with other connection or entity manager than "default", use these settings:
-```yml
+```yaml
+# config/packages/entity_audit.yaml
+
 simple_things_entity_audit:
     connection: custom
     entity_manager: custom
@@ -90,11 +115,8 @@ simple_things_entity_audit:
 Call the command below to see the new tables in the update schema queue.
 
 ```bash
-./app/console doctrine:schema:update --dump-sql
+./bin/console doctrine:schema:update --dump-sql
 ```
-
-**Notice**: EntityAudit currently **only** works with a DBAL Connection and EntityManager named **"default"**.
-
 
 ## Installation (Standalone)
 
@@ -102,44 +124,39 @@ For standalone usage you have to pass the entity class names to be audited to th
 instance and configure the two event listeners.
 
 ```php
+use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\EventManager;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\Tests\ArticleAudit;
+use SimpleThings\EntityAudit\Tests\UserAudit;
 
-$auditconfig = new AuditConfiguration();
-$auditconfig->setAuditedEntityClasses(array(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
-    'SimpleThings\EntityAudit\Tests\UserAudit'
-));
+$auditConfig = new AuditConfiguration();
+$auditConfig->setAuditedEntityClasses([ArticleAudit::class, UserAudit::class]);
+$auditConfig->setGlobalIgnoreColumns(['created_at', 'updated_at']);
 
-$auditconfig->setGlobalIgnoreColumns(array(
-    'created_at',
-    'updated_at'
-));
+$eventManager = new EventManager();
+$auditManager = new AuditManager($auditConfig);
+$auditManager->registerEvents($eventManager);
 
-$evm = new EventManager();
-$auditManager = new AuditManager($auditconfig);
-$auditManager->registerEvents($evm);
-
-$config = new \Doctrine\ORM\Configuration();
+$config = new Configuration();
 // $config ...
-$conn = array();
-$em = EntityManager::create($conn, $config, $evm);
+$connection = [];
+$entityManager = EntityManager::create($connection, $config, $eventManager);
 ```
 
 ## Usage
 
 Querying the auditing information is done using a `SimpleThings\EntityAudit\AuditReader` instance.
 
-In Symfony2 the AuditReader is registered as the service "simplethings_entityaudit.reader":
-
 ```php
+use SimpleThings\EntityAudit\AuditReader;
+
 class DefaultController extends Controller
 {
-    public function indexAction()
+    public function indexAction(AuditReader $auditReader)
     {
-        $auditReader = $this->container->get('simplethings_entityaudit.reader');
     }
 }
 ```
@@ -157,7 +174,7 @@ to that entity was made in a revision before the given one:
 
 ```php
 $articleAudit = $auditReader->find(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    SimpleThings\EntityAudit\Tests\ArticleAudit::class,
     $id = 1,
     $rev = 10
 );
@@ -171,7 +188,7 @@ in that old version.
 
 ```php
 $revisions = $auditReader->findRevisions(
-    'SimpleThings\EntityAudit\Tests\ArticleAudit',
+    SimpleThings\EntityAudit\Tests\ArticleAudit::class,
     $id = 1
 );
 ```
@@ -218,18 +235,20 @@ $revision = $auditReader->getCurrentRevision(
 
 Each revision automatically saves the username that changes it. For this to work, the username must be resolved.
 
-In the Symfony2 web context the username is resolved from the one in the current security context token.
+In the Symfony web context the username is resolved from the one in the current security context token.
 
-You can override this with your own behaviour by configuring the `username_callable` service in the bundle configuration. Your custom service must be a `callable` and should return a `string` or `null`.
+You can override this with your own behaviour by configuring the `username_callable` service in the bundle configuration.
+Your custom service must be a `callable` and should return a `string` or `null`.
 
-##### app/config/config.yml
-```yml
+```yaml
+# config/packages/entity_audit.yaml
+
 simple_things_entity_audit:
     service:
         username_callable: acme.username_callable
 ```
 
-In a standalone app or Symfony command you can username callable to a specific value using the `AuditConfiguration`.
+In a standalone app or Symfony command you can set an username callable to a specific value using the `AuditConfiguration`.
 
 ```php
 $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
@@ -241,13 +260,14 @@ $auditConfig->setUsernameCallable(function () {
 
 ## Viewing auditing
 
-A default Symfony2 controller is provided that gives basic viewing capabilities of audited data.
+A default Symfony controller is provided that gives basic viewing capabilities of audited data.
 
 To use the controller, import the routing **(don't forget to secure the prefix you set so that
 only appropriate users can get access)**
 
-##### app/config/routing.yml
-```yml
+```yaml
+# config/packages/entity_audit.yaml
+
 simple_things_entity_audit:
     resource: "@SimpleThingsEntityAuditBundle/Resources/config/routing/audit.xml"
     prefix: /audit
@@ -267,9 +287,3 @@ This provides you with a few different routes:
 * Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
 * It does NOT work with Joined-Table-Inheritance (Single Table Inheritance should work, but not tested)
 * Many-To-Many associations are NOT versioned
-
-## Contributing
-
-Please before commiting, run this command `./vendor/bin/php-cs-fixer fix --verbose` to normalize the coding style.
-
-If you already have the fixer locally you can run `php-cs-fixer fix .`.
