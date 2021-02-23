@@ -30,7 +30,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @author Tim Nagel <tim@nagel.com.au>
  *
- * @deprecated since sonata-project/entity-audit-bundle 1.x, will be remove in 2.0.
+ * @deprecated since sonata-project/entity-audit-bundle 1.1, will be remove in 2.0.
  *
  * NEXT_MAJOR: remove this controller
  */
