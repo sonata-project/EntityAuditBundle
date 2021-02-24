@@ -266,7 +266,7 @@ To use the controller, import the routing **(don't forget to secure the prefix y
 only appropriate users can get access)**
 
 ```yaml
-# config/packages/entity_audit.yaml
+# config/routes.yaml
 
 simple_things_entity_audit:
     resource: "@SimpleThingsEntityAuditBundle/Resources/config/routing/audit.xml"
