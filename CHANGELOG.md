@@ -1,6 +1,28 @@
 ## Change Log
 
-### upcoming (2017/MM/DD)
+## [v1.1.0](https://github.com/sonata-project/EntityAuditBundle/compare/v1.0.9...v1.1.0) - 2021-02-24
+### Added
+- [[#365](https://github.com/sonata-project/EntityAuditBundle/pull/365)] Added routing in xml: `src\Resources\config\routing\audit.xml` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Added `SimpleThings\EntityAudit\Action\CompareAction` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Added `SimpleThings\EntityAudit\Action\IndexAction` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Added `SimpleThings\EntityAudit\Action\ViewDetailAction` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Added `SimpleThings\EntityAudit\Action\ViewEntityAction` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Added `SimpleThings\EntityAudit\Action\ViewRevisionAction` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#350](https://github.com/sonata-project/EntityAuditBundle/pull/350)] PHP 8 support ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#355](https://github.com/sonata-project/EntityAuditBundle/pull/355)] `connection` configuration node in order to use a different connection than "default" ([@phansys](https://github.com/phansys))
+- [[#355](https://github.com/sonata-project/EntityAuditBundle/pull/355)] `entity_manager` configuration node in order to use a different entity manager than "default" ([@phansys](https://github.com/phansys))
+- [[#352](https://github.com/sonata-project/EntityAuditBundle/pull/352)] "symfony/config" dependency ([@phansys](https://github.com/phansys))
+
+### Changed
+- [[#366](https://github.com/sonata-project/EntityAuditBundle/pull/366)] Change `xml` configuration in favor of `php` ([@wbloszyk](https://github.com/wbloszyk))
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Changed controllers for routing from `AuditController` in favor for `Actions` ([@wbloszyk](https://github.com/wbloszyk))
+
+### Deprecated
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Deprecated `SimpleThings\EntityAudit\Controller\AuditController` ([@wbloszyk](https://github.com/wbloszyk))
+
+### Fixed
+- [[#364](https://github.com/sonata-project/EntityAuditBundle/pull/364)] Fixed page working with `symfony/framework-bundle` >= 5.0 ([@wbloszyk](https://github.com/wbloszyk))
+- [[#324](https://github.com/sonata-project/EntityAuditBundle/pull/324)] `AuditedCollection` methods in order to respect `Collection` interface ([@phansys](https://github.com/phansys))
 
 ### v1.0.5 (2017/05/26)
 - [#281](https://github.com/simplethings/EntityAuditBundle/pull/281) Removal of hardcoded revision field name (@c0ntax)
