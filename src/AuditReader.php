@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Mapping\QuoteStrategy;
+use Doctrine\ORM\ORMException;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
@@ -204,7 +206,9 @@ class AuditReader
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws Exception
+     * @throws ORMException
+     * @throws \RuntimeException
      *
      * @return object
      */
@@ -329,6 +333,8 @@ class AuditReader
      * @param int $limit
      * @param int $offset
      *
+     * @throws Exception
+     *
      * @return Revision[]
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
@@ -338,7 +344,7 @@ class AuditReader
             $limit,
             $offset
         );
-        $revisionsData = $this->em->getConnection()->fetchAll($query);
+        $revisionsData = $this->em->getConnection()->fetchAllAssociative($query);
 
         $revisions = [];
         foreach ($revisionsData as $row) {
@@ -353,6 +359,8 @@ class AuditReader
     }
 
     /**
+     * NEXT_MAJOR: Remove this method.
+     *
      * @deprecated this function name is misspelled.
      * Suggest using findEntitiesChangedAtRevision instead.
      */
@@ -365,6 +373,13 @@ class AuditReader
      * Return a list of ChangedEntity instances created at the given revision.
      *
      * @param int $revision
+     *
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws Exception
+     * @throws ORMException
+     * @throws \RuntimeException
      *
      * @return ChangedEntity[]
      */
@@ -458,13 +473,14 @@ class AuditReader
      * @param int $rev
      *
      * @throws InvalidRevisionException
+     * @throws Exception
      *
      * @return Revision
      */
     public function findRevision($rev)
     {
         $query = 'SELECT * FROM '.$this->config->getRevisionTableName().' r WHERE r.id = ?';
-        $revisionsData = $this->em->getConnection()->fetchAll($query, [$rev]);
+        $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, [$rev]);
 
         if (1 === \count($revisionsData)) {
             return new Revision(
@@ -483,6 +499,7 @@ class AuditReader
      * @param mixed  $id
      *
      * @throws NotAuditedException
+     * @throws Exception
      *
      * @return Revision[]
      */
@@ -517,7 +534,7 @@ class AuditReader
 
         $query = 'SELECT r.* FROM '.$this->config->getRevisionTableName().' r '.
                  'INNER JOIN '.$tableName.' e ON r.id = e.'.$this->config->getRevisionFieldName().' WHERE '.$whereSQL.' ORDER BY r.id DESC';
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
+        $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, array_values($id));
 
         $revisions = [];
         foreach ($revisionsData as $row) {
@@ -538,6 +555,7 @@ class AuditReader
      * @param mixed  $id
      *
      * @throws NotAuditedException
+     * @throws Exception
      *
      * @return int
      */
@@ -572,9 +590,8 @@ class AuditReader
 
         $query = 'SELECT e.'.$this->config->getRevisionFieldName().' FROM '.$tableName.' e '.
                         ' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
-        $revision = $this->em->getConnection()->fetchColumn($query, array_values($id));
 
-        return $revision;
+        return $this->em->getConnection()->fetchColumn($query, array_values($id));
     }
 
     /**
@@ -585,6 +602,13 @@ class AuditReader
      * @param int    $id
      * @param int    $oldRevision
      * @param int    $newRevision
+     *
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws Exception
+     * @throws ORMException
+     * @throws \RuntimeException
      *
      * @return array
      */
@@ -623,6 +647,18 @@ class AuditReader
         return $return;
     }
 
+    /**
+     * @param string $className
+     * @param int    $id
+     *
+     * @throws DeletedException
+     * @throws NoRevisionFoundException
+     * @throws NotAuditedException
+     * @throws Exception
+     * @throws ORMException
+     *
+     * @return array
+     */
     public function getEntityHistory($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
@@ -705,10 +741,9 @@ class AuditReader
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \Doctrine\ORM\Mapping\MappingException
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Exception
+     * @throws Exception
+     * @throws ORMException
+     * @throws \RuntimeException
      *
      * @return object
      */
