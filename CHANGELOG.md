@@ -1,5 +1,9 @@
 ## Change Log
 
+## [1.1.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.1.0...1.1.1) - 2021-03-21
+### Fixed
+- [[#373](https://github.com/sonata-project/EntityAuditBundle/pull/373)] Improved `AuditReader` phpdoc. ([@VincentLanglet](https://github.com/VincentLanglet))
+
 ## [v1.1.0](https://github.com/sonata-project/EntityAuditBundle/compare/v1.0.9...v1.1.0) - 2021-02-24
 ### Added
 - [[#365](https://github.com/sonata-project/EntityAuditBundle/pull/365)] Added routing in xml: `src\Resources\config\routing\audit.xml` ([@wbloszyk](https://github.com/wbloszyk))
