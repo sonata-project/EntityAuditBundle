@@ -211,6 +211,10 @@ class AuditReader
      * @throws \RuntimeException
      *
      * @return object
+     *
+     * @phpstan-template T of object
+     * @phpstan-param class-string<T> $className
+     * @phpstan-return T|null
      */
     public function find($className, $id, $revision, array $options = [])
     {
