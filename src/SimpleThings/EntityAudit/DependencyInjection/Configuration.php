@@ -9,8 +9,15 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        $builder = new TreeBuilder();
-        $builder->root('simple_things_entity_audit')
+        $builder = new TreeBuilder('simple_things_entity_audit');
+
+        if (method_exists($builder, 'getRootNode')) {
+            $root = $builder->getRootNode();
+        } else {
+            $root = $builder->root('simple_things_entity_audit');
+        }
+
+        $root
             ->children()
                 ->scalarNode('entity_manager')->defaultValue('default')->end()
                 ->scalarNode('table_prefix')->defaultValue('')->end()
