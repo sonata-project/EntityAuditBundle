@@ -1,5 +1,9 @@
 ## Change Log
 
+## [1.2.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.1.1...1.2.0) - 2021-03-24
+### Added
+- [[#375](https://github.com/sonata-project/EntityAuditBundle/pull/375)] Added phpstan annotation for `AuditReader::find()` method ([@VincentLanglet](https://github.com/VincentLanglet))
+
 ## [1.1.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.1.0...1.1.1) - 2021-03-21
 ### Fixed
 - [[#373](https://github.com/sonata-project/EntityAuditBundle/pull/373)] Improved `AuditReader` phpdoc. ([@VincentLanglet](https://github.com/VincentLanglet))
