@@ -56,6 +56,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->args([
                 new ReferenceConfigurator('twig'),
                 new ReferenceConfigurator('simplethings_entityaudit.reader'),
-            ])
-    ;
+            ]);
 };
