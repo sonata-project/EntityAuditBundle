@@ -33,8 +33,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->set('simplethings.entityaudit.revision_field_name', null)
         ->set('simplethings.entityaudit.revision_type_field_name', null)
         ->set('simplethings.entityaudit.revision_table_name', null)
-        ->set('simplethings.entityaudit.revision_id_field_type', null)
-    ;
+        ->set('simplethings.entityaudit.revision_id_field_type', null);
 
     // Use "service" function for creating references to services when dropping support for Symfony 4.4
     // Use "param" function for creating references to parameters when dropping support for Symfony 5.1
@@ -77,6 +76,5 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->call('setRevisionFieldName', ['%simplethings.entityaudit.revision_field_name%'])
             ->call('setRevisionTypeFieldName', ['%simplethings.entityaudit.revision_type_field_name%'])
             ->call('setUsernameCallable', [new ReferenceConfigurator('simplethings_entityaudit.username_callable')])
-            ->alias(AuditConfiguration::class, 'simplethings_entityaudit.config')
-    ;
+            ->alias(AuditConfiguration::class, 'simplethings_entityaudit.config');
 };
