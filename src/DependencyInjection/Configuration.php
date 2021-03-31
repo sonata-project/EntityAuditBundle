@@ -43,8 +43,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('username_callable')->defaultValue('simplethings_entityaudit.username_callable.token_storage')->end()
                     ->end()
                 ->end()
-            ->end()
-        ;
+            ->end();
 
         return $builder;
     }
