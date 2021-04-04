@@ -23,6 +23,7 @@ use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\PersistentCollection;
+use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
 use SimpleThings\EntityAudit\Exception\DeletedException;
@@ -199,9 +200,9 @@ class AuditReader
      * returns last revision INCLUDING "DEL" revision. If you want to throw exception instead, set
      * $threatDeletionAsException to true.
      *
-     * @param string $className
-     * @param mixed  $id
-     * @param int    $revision
+     * @param string           $className
+     * @param int|string|array $id
+     * @param int|string       $revision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -211,6 +212,10 @@ class AuditReader
      * @throws \RuntimeException
      *
      * @return object
+     *
+     * @phpstan-template T of object
+     * @phpstan-param class-string<T> $className
+     * @phpstan-return T|null
      */
     public function find($className, $id, $revision, array $options = [])
     {
@@ -363,6 +368,10 @@ class AuditReader
      *
      * @deprecated this function name is misspelled.
      * Suggest using findEntitiesChangedAtRevision instead.
+     *
+     * @param string|int $revision
+     *
+     * @return ChangedEntity[]
      */
     public function findEntitesChangedAtRevision($revision)
     {
@@ -372,7 +381,7 @@ class AuditReader
     /**
      * Return a list of ChangedEntity instances created at the given revision.
      *
-     * @param int $revision
+     * @param string|int $revision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -470,17 +479,17 @@ class AuditReader
     /**
      * Return the revision object for a particular revision.
      *
-     * @param int $rev
+     * @param string|int $revision
      *
      * @throws InvalidRevisionException
      * @throws Exception
      *
      * @return Revision
      */
-    public function findRevision($rev)
+    public function findRevision($revision)
     {
         $query = 'SELECT * FROM '.$this->config->getRevisionTableName().' r WHERE r.id = ?';
-        $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, [$rev]);
+        $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, [$revision]);
 
         if (1 === \count($revisionsData)) {
             return new Revision(
@@ -489,19 +498,21 @@ class AuditReader
                 $revisionsData[0]['username']
             );
         }
-        throw new InvalidRevisionException($rev);
+        throw new InvalidRevisionException($revision);
     }
 
     /**
      * Find all revisions that were made of entity class with given id.
      *
-     * @param string $className
-     * @param mixed  $id
+     * @param string           $className
+     * @param int|string|array $id
      *
      * @throws NotAuditedException
      * @throws Exception
      *
      * @return Revision[]
+     *
+     * @phpstan-param class-string $className
      */
     public function findRevisions($className, $id)
     {
@@ -551,13 +562,15 @@ class AuditReader
     /**
      * Gets the current revision of the entity with given ID.
      *
-     * @param string $className
-     * @param mixed  $id
+     * @param string           $className
+     * @param int|string|array $id
      *
      * @throws NotAuditedException
      * @throws Exception
      *
-     * @return int
+     * @return int|string
+     *
+     * @phpstan-param class-string $className
      */
     public function getCurrentRevision($className, $id)
     {
@@ -598,10 +611,10 @@ class AuditReader
      * Get an array with the differences of between two specific revisions of
      * an object with a given id.
      *
-     * @param string $className
-     * @param int    $id
-     * @param int    $oldRevision
-     * @param int    $newRevision
+     * @param string           $className
+     * @param int|string|array $id
+     * @param int|string       $oldRevision
+     * @param int|string       $newRevision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -610,7 +623,10 @@ class AuditReader
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return array
+     * @return array<string, array<string, mixed>>
+     *
+     * @phpstan-param class-string $className
+     * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
      */
     public function diff($className, $id, $oldRevision, $newRevision)
     {
@@ -632,6 +648,8 @@ class AuditReader
      * @param object $entity
      *
      * @return array
+     *
+     * @phpstan-param class-string $className
      */
     public function getEntityValues($className, $entity)
     {
@@ -648,8 +666,8 @@ class AuditReader
     }
 
     /**
-     * @param string $className
-     * @param int    $id
+     * @param string           $className
+     * @param int|string|array $id
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -657,7 +675,9 @@ class AuditReader
      * @throws Exception
      * @throws ORMException
      *
-     * @return array
+     * @return object[]
+     *
+     * @phpstan-param class-string $className
      */
     public function getEntityHistory($className, $id)
     {
@@ -725,18 +745,25 @@ class AuditReader
         return $result;
     }
 
-    protected function getEntityPersister($entity)
+    /**
+     * @param string $className
+     *
+     * @return EntityPersister
+     *
+     * @phpstan-param class-string $className
+     */
+    protected function getEntityPersister($className)
     {
         $uow = $this->em->getUnitOfWork();
 
-        return $uow->getEntityPersister($entity);
+        return $uow->getEntityPersister($className);
     }
 
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
-     * @param string $className
-     * @param $revision
+     * @param string     $className
+     * @param int|string $revision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -746,6 +773,10 @@ class AuditReader
      * @throws \RuntimeException
      *
      * @return object
+     *
+     * @phpstan-template T of object
+     * @phpstan-param class-string<T> $className
+     * @phpstan-return T
      */
     private function createEntity($className, array $columnMap, array $data, $revision)
     {

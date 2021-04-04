@@ -15,13 +15,22 @@ namespace SimpleThings\EntityAudit\Exception;
 
 abstract class AuditException extends \Exception
 {
+    /**
+     * @var string|null
+     */
     protected $className;
 
+    /**
+     * @var array|null
+     */
     protected $id;
 
+    /**
+     * @var int|string|null
+     */
     protected $revision;
 
-    public function __construct($className, $id, $revision)
+    public function __construct(?string $className, ?array $id, $revision)
     {
         $this->className = $className;
         $this->id = $id;
