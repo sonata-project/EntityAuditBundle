@@ -15,12 +15,27 @@ namespace SimpleThings\EntityAudit;
 
 class ChangedEntity
 {
+    /**
+     * @var string
+     */
     private $className;
+
+    /**
+     * @var array
+     */
     private $id;
+
+    /**
+     * @var string
+     */
     private $revType;
+
+    /**
+     * @var object
+     */
     private $entity;
 
-    public function __construct($className, array $id, $revType, $entity)
+    public function __construct(string $className, array $id, string $revType, object $entity)
     {
         $this->className = $className;
         $this->id = $id;

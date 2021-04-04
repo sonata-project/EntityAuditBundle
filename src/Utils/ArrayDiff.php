@@ -20,6 +20,14 @@ namespace SimpleThings\EntityAudit\Utils;
  */
 class ArrayDiff
 {
+    /**
+     * @param array $oldData
+     * @param array $newData
+     *
+     * @return array<string, array<string, mixed>>
+     *
+     * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
+     */
     public function diff($oldData, $newData)
     {
         $diff = [];
