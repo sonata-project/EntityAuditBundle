@@ -18,6 +18,14 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    private const ALLOWED_REVISION_ID_FIELD_TYPE = [
+        'string',
+        'integer',
+        'smallint',
+        'bigint',
+        'guid',
+    ];
+
     public function getConfigTreeBuilder()
     {
         $builder = new TreeBuilder('simple_things_entity_audit');
@@ -36,7 +44,25 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_field_name')->defaultValue('rev')->end()
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
-                ->scalarNode('revision_id_field_type')->defaultValue('integer')->end()
+                ->scalarNode('revision_id_field_type')
+                    ->defaultValue('integer')
+                    // NEXT_MAJOR: Use validate() instead.
+                    ->beforeNormalization()
+                        ->always(static function ($value) {
+                            if (null !== $value && !\in_array($value, self::ALLOWED_REVISION_ID_FIELD_TYPE, true)) {
+                                @trigger_error(sprintf(
+                                    'The value "%s" for the "revision_id_field_type" is deprecated'
+                                    .' since sonata-project/entity-audit-bundle 1.3 and will throw an error in version 2.0.'
+                                    .' You must pass one of the following values: "%s".',
+                                    $value,
+                                    implode('", "', self::ALLOWED_REVISION_ID_FIELD_TYPE)
+                                ), \E_USER_DEPRECATED);
+                            }
+
+                            return $value;
+                        })
+                    ->end()
+                ->end()
                 ->arrayNode('service')
                     ->addDefaultsIfNotSet()
                     ->children()
