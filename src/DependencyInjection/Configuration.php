@@ -46,7 +46,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
                 ->scalarNode('revision_id_field_type')
                     ->defaultValue('integer')
-                    // NEXT_MAJOR: Use validate() instead.
+                    // NEXT_MAJOR: Use enumNode() instead.
                     ->beforeNormalization()
                         ->always(static function ($value) {
                             if (null !== $value && !\in_array($value, self::ALLOWED_REVISION_ID_FIELD_TYPE, true)) {
