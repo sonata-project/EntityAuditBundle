@@ -333,10 +333,12 @@ class AuditReader
     }
 
     /**
+     * NEXT_MAJOR: Change the default value to `null`.
+     *
      * Return a list of all revisions.
      *
-     * @param int $limit
-     * @param int $offset
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @throws Exception
      *
