@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.3.0...1.3.1) - 2021-04-09
+### Fixed
+- [[#386](https://github.com/sonata-project/EntityAuditBundle/pull/386)] `AuditReader::findRevisionHistory()` phpdoc ([@VincentLanglet](https://github.com/VincentLanglet))
+
 ## [1.3.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.2.0...1.3.0) - 2021-04-08
 ### Added
 - [[#382](https://github.com/sonata-project/EntityAuditBundle/pull/382)] Allow `$revisions` param to be a string in `AuditManager` methods. ([@VincentLanglet](https://github.com/VincentLanglet))
