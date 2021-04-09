@@ -1,4 +1,13 @@
-## Change Log
+# Change Log
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
+
+## [1.3.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.2.0...1.3.0) - 2021-04-08
+### Added
+- [[#382](https://github.com/sonata-project/EntityAuditBundle/pull/382)] Allow `$revisions` param to be a string in `AuditManager` methods. ([@VincentLanglet](https://github.com/VincentLanglet))
+
+### Deprecated
+- [[#382](https://github.com/sonata-project/EntityAuditBundle/pull/382)] Passing another value than 'string', 'integer', 'smallint', 'bigint' or 'guid' for the `revision_id_field_type` value. ([@VincentLanglet](https://github.com/VincentLanglet))
 
 ## [1.2.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.1.1...1.2.0) - 2021-03-24
 ### Added

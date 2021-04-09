@@ -15,7 +15,7 @@ namespace SimpleThings\EntityAudit\Exception;
 
 class AuditedCollectionException extends AuditException
 {
-    public function __construct($message)
+    public function __construct(string $message)
     {
         \Exception::__construct($message);
     }

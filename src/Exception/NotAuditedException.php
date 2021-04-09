@@ -15,12 +15,10 @@ namespace SimpleThings\EntityAudit\Exception;
 
 class NotAuditedException extends AuditException
 {
-    public function __construct($className)
+    public function __construct(string $className)
     {
         parent::__construct($className, null, null);
-        $this->message = sprintf(
-            'Class "%s" is not audited.',
-            $className
-        );
+
+        $this->message = sprintf('Class "%s" is not audited.', $className);
     }
 }
