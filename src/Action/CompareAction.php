@@ -36,18 +36,17 @@ final class CompareAction
         $this->auditReader = $auditReader;
     }
 
-    public function __invoke(Request $request, string $className, string $id, ?int $oldRev = null, ?int $newRev = null): Response
+    public function __invoke(Request $request, string $className, string $id, ?string $oldRev = null, ?string $newRev = null): Response
     {
-        if (null === $oldRev) {
+        if (null === $oldRev || "" === $oldRev) {
             $oldRev = $request->query->get('oldRev');
         }
 
-        if (null === $newRev) {
+        if (null === $newRev || "" === $newRev) {
             $newRev = $request->query->get('newRev');
         }
 
-        $ids = explode(',', $id);
-        $diff = $this->auditReader->diff($className, $ids, $oldRev, $newRev);
+        $diff = $this->auditReader->diff($className, $id, $oldRev, $newRev);
 
         $content = $this->twig->render('@SimpleThingsEntityAudit/Audit/compare.html.twig', [
             'className' => $className,

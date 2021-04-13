@@ -37,8 +37,7 @@ final class ViewEntityAction
 
     public function __invoke(string $className, string $id): Response
     {
-        $ids = explode(',', $id);
-        $revisions = $this->auditReader->findRevisions($className, $ids);
+        $revisions = $this->auditReader->findRevisions($className, $id);
 
         $content = $this->twig->render('@SimpleThingsEntityAudit/Audit/view_entity.html.twig', [
             'id' => $id,

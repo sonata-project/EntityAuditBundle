@@ -230,11 +230,11 @@ class AuditReader
         $tableName = $this->config->getTableName($class);
 
         $whereSQL = 'e.'.$this->config->getRevisionFieldName().' <= ?';
-
         foreach ($class->identifier as $idField) {
-            if (\is_array($id) && \count($id) > 0) {
-                $idKeys = array_keys($id);
-                $columnName = $idKeys[0];
+            if ($idField == 'id') {
+                $columnName = $idField;
+            } elseif (\is_array($id) && \count($id) > 0) {
+                $columnName = 'id';
             } elseif (isset($class->fieldMappings[$idField])) {
                 $columnName = $class->fieldMappings[$idField]['columnName'];
             } elseif (isset($class->associationMappings[$idField])) {
