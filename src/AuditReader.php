@@ -231,7 +231,7 @@ class AuditReader
 
         $whereSQL = 'e.'.$this->config->getRevisionFieldName().' <= ?';
         foreach ($class->identifier as $idField) {
-            if ($idField == 'id') {
+            if ('id' === $idField) {
                 $columnName = $idField;
             } elseif (\is_array($id) && \count($id) > 0) {
                 $columnName = 'id';

@@ -56,7 +56,7 @@ class Configuration implements ConfigurationInterface
                                     .' You must pass one of the following values: "%s".',
                                     $value,
                                     implode('", "', self::ALLOWED_REVISION_ID_FIELD_TYPE)
-                                ), \E_USER_DEPRECATED);
+                                ), E_USER_DEPRECATED);
                             }
 
                             return $value;

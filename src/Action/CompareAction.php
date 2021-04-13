@@ -38,11 +38,11 @@ final class CompareAction
 
     public function __invoke(Request $request, string $className, string $id, ?string $oldRev = null, ?string $newRev = null): Response
     {
-        if (null === $oldRev || "" === $oldRev) {
+        if (null === $oldRev || '' === $oldRev) {
             $oldRev = $request->query->get('oldRev');
         }
 
-        if (null === $newRev || "" === $newRev) {
+        if (null === $newRev || '' === $newRev) {
             $newRev = $request->query->get('newRev');
         }
 
