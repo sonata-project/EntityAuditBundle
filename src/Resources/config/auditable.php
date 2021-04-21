@@ -60,7 +60,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
         ->set('simplethings_entityaudit.create_schema_listener', CreateSchemaListener::class)
             ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
-            ->args([new ReferenceConfigurator('simplethings_entityaudit.manager')])
+            ->args([new ReferenceConfigurator('simplethings_entityaudit.manager'), new ReferenceConfigurator(Doctrine\DBAL\Connection::class)])
+            ->call('setTableIgnoreColumn', ['%simplethings.entityaudit.table_ignore_columns%'])
 
         ->set('simplethings_entityaudit.username_callable.token_storage', TokenStorageUsernameCallable::class)
             ->args([new ReferenceConfigurator('service_container')])
@@ -69,6 +70,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->public()
             ->call('setAuditedEntityClasses', ['%simplethings.entityaudit.audited_entities%'])
             ->call('setGlobalIgnoreColumns', ['%simplethings.entityaudit.global_ignore_columns%'])
+            ->call('setConvertEnumToString', ['%simplethings.entityaudit.convert_enum_to_string%'])
             ->call('setTablePrefix', ['%simplethings.entityaudit.table_prefix%'])
             ->call('setTableSuffix', ['%simplethings.entityaudit.table_suffix%'])
             ->call('setRevisionTableName', ['%simplethings.entityaudit.revision_table_name%'])

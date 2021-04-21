@@ -713,6 +713,10 @@ class AuditReader
         $columnMap = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
+            if ($this->config->isIgnoredField($class->getTableName() . '.' . $columnName)) {
+                continue;
+            }
+
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
                 $this->quoteStrategy->getColumnName($field, $class, $this->platform),
@@ -828,7 +832,8 @@ class AuditReader
         $this->entityCache[$className][$key][$revision] = $entity;
 
         foreach ($data as $field => $value) {
-            if (isset($class->fieldMappings[$field])) {
+            $isIgnoredColumn = $this->config->isIgnoredField($class->getTableName() . '.' . $columnMap[$field]);
+            if (isset($class->fieldMappings[$field]) && !$isIgnoredColumn) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $value = $type->convertToPHPValue($value, $this->platform);
                 $class->reflFields[$field]->setValue($entity, $value);
