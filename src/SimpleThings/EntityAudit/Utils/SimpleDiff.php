@@ -64,3 +64,4 @@ class SimpleDiff
         return $ret;
     }
 }
+
