@@ -353,7 +353,7 @@ class LogRevisionsListener implements EventSubscriber
             $tableName = $this->config->getTableName($class);
 
             $sql = 'INSERT INTO '.$tableName.' ('.
-                $this->config->getRevisionFieldName().', '.$this->config->getRevisionTypeFieldName();
+                   $this->config->getRevisionFieldName().', '.$this->config->getRevisionTypeFieldName();
 
             $fields = [];
 
