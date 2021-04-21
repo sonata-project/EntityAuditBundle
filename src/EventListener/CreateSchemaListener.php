@@ -16,6 +16,7 @@ namespace SimpleThings\EntityAudit\EventListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
@@ -93,7 +94,7 @@ class CreateSchemaListener implements EventSubscriber
             // change Enum type to String
             $sqlString = $column->getType()->getSQLDeclaration($columnArrayOptions, $this->em->getConnection()->getDatabasePlatform());
             if ($this->config->convertEnumToString() && false !== strpos($sqlString, 'ENUM')) {
-                $columnTypeName = Type::STRING;
+                $columnTypeName = Types::STRING;
                 $columnArrayOptions['type'] = Type::getType($columnTypeName);
             }
 
