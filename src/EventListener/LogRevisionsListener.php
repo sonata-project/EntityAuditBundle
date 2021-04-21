@@ -135,7 +135,7 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 //ignore specific fields for table
-                if ($this->config->isIgnoredField($meta->table['name'] . "." . $column)) {
+                if ($this->config->isIgnoredField($meta->table['name'].'.'.$column)) {
                     continue;
                 }
 
@@ -233,7 +233,7 @@ class LogRevisionsListener implements EventSubscriber
 
         // Make sure that ignored columns for table are removed from the changeset
         foreach ($this->config->getTableIgnoreColumns() as $column) {
-            $columnName = str_replace($class->getTableName() . '.', '', $column);
+            $columnName = str_replace($class->getTableName().'.', '', $column);
             if (isset($changeset[$columnName])) {
                 unset($changeset[$columnName]);
             }
@@ -384,7 +384,7 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 //ignore specific fields for table
-                if ($this->config->isIgnoredField($class->getTableName() . "." . $class->getColumnName($field))) {
+                if ($this->config->isIgnoredField($class->getTableName().'.'.$class->getColumnName($field))) {
                     continue;
                 }
 
@@ -429,7 +429,7 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            if ($class->isIdentifier($field) and !empty($entityData[$field]) && is_scalar($entityData[$field])) {
+            if ($class->isIdentifier($field) && !empty($entityData[$field]) && is_scalar($entityData[$field])) {
                 $params[] = $entityData[$field];
                 $types[] = $class->getTypeOfField($field);
                 continue;
@@ -469,7 +469,7 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             //ignore specific fields for table
-            if ($this->config->isIgnoredField($class->getTableName() . "." . $class->getColumnName($field))) {
+            if ($this->config->isIgnoredField($class->getTableName().'.'.$class->getColumnName($field))) {
                 continue;
             }
 

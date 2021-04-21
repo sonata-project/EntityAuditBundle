@@ -186,7 +186,7 @@ class AuditConfiguration
 
     public function isIgnoredField(string $field)
     {
-        return in_array($field, $this->getTableIgnoreColumns());
+        return \in_array($field, $this->getTableIgnoreColumns(), true);
     }
 
     public function setConvertEnumToString($convertEnum)

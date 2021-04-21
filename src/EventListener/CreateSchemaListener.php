@@ -15,6 +15,7 @@ namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
@@ -23,7 +24,6 @@ use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
-use Doctrine\DBAL\Types\Type;
 
 class CreateSchemaListener implements EventSubscriber
 {
@@ -42,7 +42,8 @@ class CreateSchemaListener implements EventSubscriber
      */
     private $em;
 
-    public function __construct(AuditManager $auditManager, EntityManagerInterface $em)    {
+    public function __construct(AuditManager $auditManager, EntityManagerInterface $em)
+    {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
         $this->em = $em;
@@ -85,13 +86,13 @@ class CreateSchemaListener implements EventSubscriber
             $columnArrayOptions = $column->toArray();
 
             //ignore specific fields for table
-            if ($this->config->isIgnoredField($entityTable->getName()."." . $column->getName())) {
+            if ($this->config->isIgnoredField($entityTable->getName().'.'.$column->getName())) {
                 continue;
             }
 
             // change Enum type to String
             $sqlString = $column->getType()->getSQLDeclaration($columnArrayOptions, $this->em->getConnection()->getDatabasePlatform());
-            if ($this->config->convertEnumToString() && strpos($sqlString, "ENUM") !== false) {
+            if ($this->config->convertEnumToString() && false !== strpos($sqlString, 'ENUM')) {
                 $columnTypeName = Type::STRING;
                 $columnArrayOptions['type'] = Type::getType($columnTypeName);
             }
