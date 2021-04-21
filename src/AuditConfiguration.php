@@ -179,7 +179,7 @@ class AuditConfiguration
         return $this->tableIgnoreColumns;
     }
 
-    public function setTableIgnoreColumn(array $fields)
+    public function setTableIgnoreColumns(array $fields)
     {
         $this->tableIgnoreColumns = $fields;
     }
