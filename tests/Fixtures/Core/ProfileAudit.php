@@ -73,13 +73,13 @@ class ProfileAudit
         $this->user = $user;
     }
 
-    public function getGender(): ?string
+    public function setIgnoreme(string $ignoreme): void
     {
-        return $this->gender;
+        $this->ignoreme = $ignoreme;
     }
 
-    public function setGender(string $gender): void
+    public function getIgnoreme(): ?string
     {
-        $this->gender = $gender;
+        return $this->ignoreme;
     }
 }
