@@ -263,6 +263,7 @@ final class CoreTest extends BaseTest
                 'id' => 1,
                 'biography' => 'He is an amazing contributor!',
                 'user_id' => 1,
+                'ignoreme' => 'ignore',
             ]
         );
 

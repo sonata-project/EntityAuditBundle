@@ -254,6 +254,10 @@ class AuditReader
         $columnMap = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
+            if ($this->config->isIgnoredField($class->getTableName().'.'.$columnName)) {
+                continue;
+            }
+
             $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
                 ? 're' // root entity
                 : 'e';
@@ -416,6 +420,9 @@ class AuditReader
             $columnMap = [];
 
             foreach ($class->fieldNames as $columnName => $field) {
+                if ($this->config->isIgnoredField($class->getTableName().'.'.$columnName)) {
+                    continue;
+                }
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
                     ? 're' // root entity

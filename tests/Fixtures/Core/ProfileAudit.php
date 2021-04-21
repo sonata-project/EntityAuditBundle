@@ -33,6 +33,11 @@ class ProfileAudit
     private $biography;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $ignoreme;
+
+    /**
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
@@ -66,5 +71,15 @@ class ProfileAudit
     public function setUser(UserAudit $user): void
     {
         $this->user = $user;
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(string $gender): void
+    {
+        $this->gender = $gender;
     }
 }

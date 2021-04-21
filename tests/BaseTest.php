@@ -179,6 +179,7 @@ abstract class BaseTest extends TestCase
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
+        $auditConfig->setTableIgnoreColumns(['ProfileAudit.ignoreme']);
         $auditConfig->setUsernameCallable(static function () {
             return 'beberlei';
         });
