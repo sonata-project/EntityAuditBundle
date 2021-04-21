@@ -27,6 +27,7 @@ class AuditConfiguration
     private $revisionTypeFieldName = 'revtype';
     private $revisionIdFieldType = 'integer';
     private $usernameCallable;
+    private $convertEnumToString = false;
 
     /**
      * @return AuditConfiguration

@@ -184,7 +184,7 @@ abstract class BaseTest extends TestCase
         });
 
         $auditManager = new AuditManager($auditConfig);
-        $auditManager->registerEvents($this->_getConnection()->getEventManager());
+        $auditManager->registerEvents($this->_getConnection()->getEventManager(), $this->em);
 
         return $this->auditManager = $auditManager;
     }

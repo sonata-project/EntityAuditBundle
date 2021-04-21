@@ -15,6 +15,7 @@ namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 
@@ -49,9 +50,9 @@ class AuditManager
         return new AuditReader($em, $this->config, $this->metadataFactory);
     }
 
-    public function registerEvents(EventManager $evm): void
+    public function registerEvents(EventManager $evm, EntityManagerInterface $em): void
     {
-        $evm->addEventSubscriber(new CreateSchemaListener($this));
+        $evm->addEventSubscriber(new CreateSchemaListener($this, $em));
         $evm->addEventSubscriber(new LogRevisionsListener($this));
     }
 }

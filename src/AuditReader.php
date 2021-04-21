@@ -832,7 +832,7 @@ class AuditReader
         $this->entityCache[$className][$key][$revision] = $entity;
 
         foreach ($data as $field => $value) {
-            $isIgnoredColumn = $this->config->isIgnoredField($class->getTableName().'.'.$columnMap[$field]);
+            $isIgnoredColumn = isset($columnMap[$field]) && $this->config->isIgnoredField($class->getTableName().'.'.$columnMap[$field]);
             if (isset($class->fieldMappings[$field]) && !$isIgnoredColumn) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $value = $type->convertToPHPValue($value, $this->platform);
