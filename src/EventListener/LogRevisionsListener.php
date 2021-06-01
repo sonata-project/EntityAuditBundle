@@ -187,7 +187,7 @@ class LogRevisionsListener implements EventSubscriber
 
                     $params[] = $meta->reflFields[$idField]->getValue($entity);
 
-                    $sql .= 'AND '.$columnName.' = ?';
+                    $sql .= ' AND '.$columnName.' = ?';
                 }
 
                 $this->em->getConnection()->executeQuery($sql, $params, $types);
