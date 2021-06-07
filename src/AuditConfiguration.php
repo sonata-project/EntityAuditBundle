@@ -30,9 +30,9 @@ class AuditConfiguration
     private $convertEnumToString = false;
 
     /**
-     * @param string[] $classes
+     * @return AuditConfiguration
      */
-    public static function forEntities(array $classes): self
+    public static function forEntities(array $classes)
     {
         $conf = new self();
         $conf->auditedEntityClasses = $classes;
@@ -40,7 +40,10 @@ class AuditConfiguration
         return $conf;
     }
 
-    public function getTableName(ClassMetadataInfo $metadata): string
+    /**
+     * @return string
+     */
+    public function getTableName(ClassMetadataInfo $metadata)
     {
         $tableName = $metadata->getTableName();
 
@@ -52,52 +55,82 @@ class AuditConfiguration
         return $this->getTablePrefix().$tableName.$this->getTableSuffix();
     }
 
-    public function getTablePrefix(): string
+    /**
+     * @return string
+     */
+    public function getTablePrefix()
     {
         return $this->tablePrefix;
     }
 
-    public function setTablePrefix(string $prefix): void
+    /**
+     * @param string $prefix
+     */
+    public function setTablePrefix($prefix): void
     {
         $this->tablePrefix = $prefix;
     }
 
-    public function getTableSuffix(): string
+    /**
+     * @return string
+     */
+    public function getTableSuffix()
     {
         return $this->tableSuffix;
     }
 
-    public function setTableSuffix(string $suffix): void
+    /**
+     * @param string $suffix
+     */
+    public function setTableSuffix($suffix): void
     {
         $this->tableSuffix = $suffix;
     }
 
-    public function getRevisionFieldName(): string
+    /**
+     * @return string
+     */
+    public function getRevisionFieldName()
     {
         return $this->revisionFieldName;
     }
 
-    public function setRevisionFieldName(string $revisionFieldName): void
+    /**
+     * @param string $revisionFieldName
+     */
+    public function setRevisionFieldName($revisionFieldName): void
     {
         $this->revisionFieldName = $revisionFieldName;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionTypeFieldName()
     {
         return $this->revisionTypeFieldName;
     }
 
-    public function setRevisionTypeFieldName(string $revisionTypeFieldName): void
+    /**
+     * @param string $revisionTypeFieldName
+     */
+    public function setRevisionTypeFieldName($revisionTypeFieldName): void
     {
         $this->revisionTypeFieldName = $revisionTypeFieldName;
     }
 
-    public function getRevisionTableName(): string
+    /**
+     * @return string
+     */
+    public function getRevisionTableName()
     {
         return $this->revisionTableName;
     }
 
-    public function setRevisionTableName(string $revisionTableName): void
+    /**
+     * @param string $revisionTableName
+     */
+    public function setRevisionTableName($revisionTableName): void
     {
         $this->revisionTableName = $revisionTableName;
     }
@@ -113,7 +146,7 @@ class AuditConfiguration
     /**
      * @return string[]
      */
-    public function getGlobalIgnoreColumns(): array
+    public function getGlobalIgnoreColumns()
     {
         return $this->globalIgnoreColumns;
     }
@@ -126,7 +159,10 @@ class AuditConfiguration
         $this->globalIgnoreColumns = $columns;
     }
 
-    public function createMetadataFactory(): Metadata\MetadataFactory
+    /**
+     * @return Metadata\MetadataFactory
+     */
+    public function createMetadataFactory()
     {
         return new Metadata\MetadataFactory($this->auditedEntityClasses);
     }
@@ -143,7 +179,10 @@ class AuditConfiguration
         });
     }
 
-    public function getCurrentUsername(): string
+    /**
+     * @return string
+     */
+    public function getCurrentUsername()
     {
         $callable = $this->usernameCallable;
 
@@ -171,12 +210,18 @@ class AuditConfiguration
         return $this->usernameCallable;
     }
 
-    public function setRevisionIdFieldType(string $revisionIdFieldType): void
+    /**
+     * @param string $revisionIdFieldType
+     */
+    public function setRevisionIdFieldType($revisionIdFieldType): void
     {
         $this->revisionIdFieldType = $revisionIdFieldType;
     }
 
-    public function getRevisionIdFieldType(): string
+    /**
+     * @return string
+     */
+    public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
     }
