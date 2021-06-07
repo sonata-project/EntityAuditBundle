@@ -164,7 +164,7 @@ class DefaultController extends Controller
 In a standalone application you can create the audit reader from the audit manager:
 
 ```php
-$auditReader = $auditManager->createAuditReader($entityManager);
+$auditReader = $auditManager->createAuditReader();
 ```
 
 ### Find entity state at a particular revision

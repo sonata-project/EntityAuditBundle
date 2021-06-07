@@ -26,7 +26,6 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.manager', 0, 'simplethings_entityaudit.config');
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.reader', 'SimpleThings\EntityAudit\AuditReader');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.reader', 0);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.log_revisions_listener', 'SimpleThings\EntityAudit\EventListener\LogRevisionsListener');
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.log_revisions_listener', 0, 'simplethings_entityaudit.manager');

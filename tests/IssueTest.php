@@ -134,7 +134,7 @@ final class IssueTest extends BaseTest
         $this->em->remove($e);
         $this->em->flush(); //#2
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
 
         $ae = $reader->find(Issue111Entity::class, 1, 2);
 
@@ -152,7 +152,7 @@ final class IssueTest extends BaseTest
         $this->em->persist($e);
         $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
 
         $reader->find(\get_class($e), $e->getId(), 1);
     }
@@ -173,7 +173,7 @@ final class IssueTest extends BaseTest
         $this->em->persist($comment);
         $this->em->flush();
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
 
         $auditedProject = $auditReader->find(\get_class($project), $project->getId(), 1);
 
@@ -207,7 +207,7 @@ final class IssueTest extends BaseTest
 
         $this->em->flush(); //#1
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->auditManager->createAuditReader();
 
         $aAddress = $reader->find(\get_class($address), $address->getId(), 1);
         $this->assertSame($customer->getId(), $aAddress->getCustomer()->getId());
@@ -263,7 +263,7 @@ final class IssueTest extends BaseTest
         $this->em->persist($number);
         $this->em->flush();
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
         $object = $auditReader->find(\get_class($number), $number->getId(), 1);
     }
 
@@ -277,7 +277,7 @@ final class IssueTest extends BaseTest
 
         $persistedEntity = $this->em->find(\get_class($entity), $entity->getId());
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
         $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
@@ -303,7 +303,7 @@ final class IssueTest extends BaseTest
         $this->em->persist($car);
         $this->em->flush();
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
 
         $car1 = $auditReader->find(\get_class($car), $car->getId(), 1);
         $this->assertNull($car1->getOwner());
@@ -322,7 +322,7 @@ final class IssueTest extends BaseTest
 
         $persistedEntity = $this->em->find(\get_class($entity), $entity->getId());
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
         $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
@@ -368,7 +368,7 @@ final class IssueTest extends BaseTest
 
         $this->assertInstanceOf(Collection::class, $user->getChildren());
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->auditManager->createAuditReader();
         $auditReader->setLoadAuditedCollections(true);
         $userClass = \get_class($user);
         $revisions = $auditReader->findRevisions($userClass, $user->getId());

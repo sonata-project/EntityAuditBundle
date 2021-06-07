@@ -178,14 +178,14 @@ abstract class BaseTest extends TestCase
         }
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
-        $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
-        $auditConfig->setTableIgnoreColumns(['ProfileAudit.ignoreme']);
+        $auditConfig->setGlobalIgnoreColumns(['ignoreMe']);
+        $auditConfig->setTableIgnoreColumns(['ProfileAudit.ignoreMe']);
         $auditConfig->setUsernameCallable(static function () {
             return 'beberlei';
         });
 
-        $auditManager = new AuditManager($auditConfig);
-        $auditManager->registerEvents($this->_getConnection()->getEventManager(), $this->em);
+        $auditManager = new AuditManager($auditConfig, $this->em);
+        $auditManager->registerEvents($this->_getConnection()->getEventManager());
 
         return $this->auditManager = $auditManager;
     }

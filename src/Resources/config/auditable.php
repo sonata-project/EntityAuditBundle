@@ -40,18 +40,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->services()
         ->set('simplethings_entityaudit.manager', AuditManager::class)
             ->public()
-            ->args([new ReferenceConfigurator('simplethings_entityaudit.config')])
+            ->args([
+                new ReferenceConfigurator('simplethings_entityaudit.config'),
+                (new InlineServiceConfigurator(new Definition(EntityManager::class)))
+                    ->factory([new ReferenceConfigurator('doctrine'), 'getManager'])
+                    ->args(['%simplethings.entityaudit.entity_manager%']),
+            ])
             ->alias(AuditManager::class, 'simplethings_entityaudit.manager')
                 ->public()
 
         ->set('simplethings_entityaudit.reader', AuditReader::class)
             ->public()
             ->factory([new ReferenceConfigurator('simplethings_entityaudit.manager'), 'createAuditReader'])
-            ->args([
-                (new InlineServiceConfigurator(new Definition(EntityManager::class)))
-                    ->factory([new ReferenceConfigurator('doctrine'), 'getManager'])
-                    ->args(['%simplethings.entityaudit.entity_manager%']),
-            ])
             ->alias(AuditReader::class, 'simplethings_entityaudit.reader')
 
         ->set('simplethings_entityaudit.log_revisions_listener', LogRevisionsListener::class)

@@ -35,7 +35,7 @@ class ProfileAudit
     /**
      * @ORM\Column(type="string")
      */
-    private $ignoreme;
+    private $ignoreMe;
 
     /**
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
@@ -73,13 +73,13 @@ class ProfileAudit
         $this->user = $user;
     }
 
-    public function setIgnoreme(string $ignoreme): void
+    public function setIgnoreMe(string $ignoreMe): void
     {
-        $this->ignoreme = $ignoreme;
+        $this->ignoreMe = $ignoreMe;
     }
 
-    public function getIgnoreme(): ?string
+    public function getIgnoreMe(): ?string
     {
-        return $this->ignoreme;
+        return $this->ignoreMe;
     }
 }
