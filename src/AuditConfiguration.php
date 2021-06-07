@@ -19,7 +19,7 @@ class AuditConfiguration
 {
     private $auditedEntityClasses = [];
     private $globalIgnoreColumns = [];
-    private $tableIgnoreColumns = [];
+    private $entityIgnoredProperties = [];
     private $tablePrefix = '';
     private $tableSuffix = '_audit';
     private $revisionTableName = 'revisions';
@@ -182,24 +182,24 @@ class AuditConfiguration
     }
 
     /**
-     * @return string[]
+     * @return array<string, string[]>
      */
-    public function getTableIgnoreColumns(): array
+    public function getEntityIgnoredProperties(): array
     {
-        return $this->tableIgnoreColumns;
+        return $this->entityIgnoredProperties;
     }
 
     /**
-     * @param string[] $fields
+     * @param array<string, string[]> $fields
      */
-    public function setTableIgnoreColumns(array $fields): void
+    public function setEntityIgnoredProperties(array $fields): void
     {
-        $this->tableIgnoreColumns = $fields;
+        $this->entityIgnoredProperties = $fields;
     }
 
-    public function isIgnoredField(string $field): bool
+    public function isEntityIgnoredProperty(string $entity, $propertyName): bool
     {
-        return \in_array($field, $this->getTableIgnoreColumns(), true);
+        return \array_key_exists($entity, $this->getEntityIgnoredProperties()) && \in_array($propertyName, $this->getEntityIgnoredProperties()[$entity], true);
     }
 
     public function setConvertEnumToString(bool $convertEnum): void

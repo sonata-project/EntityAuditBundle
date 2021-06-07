@@ -254,7 +254,7 @@ class AuditReader
         $columnMap = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
-            if ($this->config->isIgnoredField($class->getTableName().'.'.$columnName)) {
+            if ($this->config->isEntityIgnoredProperty($class->getName(), $class->getFieldForColumn($columnName))) {
                 continue;
             }
 
@@ -420,7 +420,7 @@ class AuditReader
             $columnMap = [];
 
             foreach ($class->fieldNames as $columnName => $field) {
-                if ($this->config->isIgnoredField($class->getTableName().'.'.$columnName)) {
+                if ($this->config->isEntityIgnoredProperty($class->getName(), $class->getFieldForColumn($columnName))) {
                     continue;
                 }
                 $type = Type::getType($class->fieldMappings[$field]['type']);
@@ -720,7 +720,7 @@ class AuditReader
         $columnMap = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
-            if ($this->config->isIgnoredField($class->getTableName().'.'.$columnName)) {
+            if ($this->config->isEntityIgnoredProperty($class->getName(), $class->getFieldForColumn($columnName))) {
                 continue;
             }
 
@@ -839,8 +839,8 @@ class AuditReader
         $this->entityCache[$className][$key][$revision] = $entity;
 
         foreach ($data as $field => $value) {
-            $isIgnoredColumn = isset($columnMap[$field]) && $this->config->isIgnoredField($class->getTableName().'.'.$columnMap[$field]);
-            if (isset($class->fieldMappings[$field]) && !$isIgnoredColumn) {
+            $isIgnoredProperty = isset($columnMap[$field]) && $this->config->isEntityIgnoredProperty($class->getName(), $field);
+            if (isset($class->fieldMappings[$field]) && !$isIgnoredProperty) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $value = $type->convertToPHPValue($value, $this->platform);
                 $class->reflFields[$field]->setValue($entity, $value);

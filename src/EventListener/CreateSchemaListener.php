@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use App\Entity\AbstractCouponConstraint;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\Type;
@@ -86,8 +87,17 @@ class CreateSchemaListener implements EventSubscriber
             $columnTypeName = $column->getType()->getName();
             $columnArrayOptions = $column->toArray();
 
+            //ignore specific fields for subclasses in-case of using discriminator column
+            foreach($cm->subClasses as $subClass){
+                if($cm->hasField($column->getName()) || $cm->hasAssociation($column->getName())){
+                    if($this->config->isEntityIgnoredProperty($subClass, $cm->getFieldForColumn($column->getName()))){
+                        continue 2;
+                    }
+                }
+            }
+
             //ignore specific fields for table
-            if ($this->config->isIgnoredField($entityTable->getName().'.'.$column->getName())) {
+            if (empty($cm->discriminatorColumn) && $this->config->isEntityIgnoredProperty($cm->getName(), $cm->getFieldForColumn($column->getName()))) {
                 continue;
             }
 
