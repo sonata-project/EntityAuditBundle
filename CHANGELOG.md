@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.2](https://github.com/sonata-project/EntityAuditBundle/compare/1.3.1...1.3.2) - 2021-06-13
+### Fixed
+- [[#398](https://github.com/sonata-project/EntityAuditBundle/pull/398)] Fix missing space in identifier WHERE clausule if the entity has multiple columns as the primary key ([@Vantomas](https://github.com/Vantomas))
+
 ## [1.3.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.3.0...1.3.1) - 2021-04-09
 ### Fixed
 - [[#386](https://github.com/sonata-project/EntityAuditBundle/pull/386)] `AuditReader::findRevisionHistory()` phpdoc ([@VincentLanglet](https://github.com/VincentLanglet))
