@@ -86,7 +86,7 @@ class CreateSchemaListener implements EventSubscriber
             $columnTypeName = $column->getType()->getName();
             $columnArrayOptions = $column->toArray();
 
-            //ignore specific fields for subclasses in-case of using discriminator column
+            // Ignore specific fields for subclasses in-case of using discriminator column.
             foreach ($cm->subClasses as $subClass) {
                 if ($cm->hasField($column->getName()) || $cm->hasAssociation($column->getName())) {
                     if ($this->config->isEntityIgnoredProperty($subClass, $cm->getFieldForColumn($column->getName()))) {
@@ -95,14 +95,14 @@ class CreateSchemaListener implements EventSubscriber
                 }
             }
 
-            //ignore specific fields for table
+            // Ignore specific fields for table.
             if (empty($cm->discriminatorColumn) && $this->config->isEntityIgnoredProperty($cm->getName(), $cm->getFieldForColumn($column->getName()))) {
                 continue;
             }
 
-            // change Enum type to String
+            // Change Enum type to String.
             $sqlString = $column->getType()->getSQLDeclaration($columnArrayOptions, $this->em->getConnection()->getDatabasePlatform());
-            if ($this->config->convertEnumToString() && false !== strpos($sqlString, 'ENUM')) {
+            if ($this->config->getConvertEnumToString() && false !== strpos($sqlString, 'ENUM')) {
                 $columnTypeName = Types::STRING;
                 $columnArrayOptions['type'] = Type::getType($columnTypeName);
             }

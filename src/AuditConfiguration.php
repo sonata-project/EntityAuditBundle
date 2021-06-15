@@ -252,7 +252,7 @@ class AuditConfiguration
         $this->convertEnumToString = $convertEnum;
     }
 
-    public function convertEnumToString(): bool
+    public function getConvertEnumToString(): bool
     {
         return $this->convertEnumToString;
     }
