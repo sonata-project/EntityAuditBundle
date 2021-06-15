@@ -40,6 +40,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('global_ignore_columns')
                     ->prototype('scalar')->end()
                 ->end()
+                ->scalarNode('convert_enum_to_string')->defaultFalse()->end()
                 ->scalarNode('table_prefix')->defaultValue('')->end()
                 ->scalarNode('table_suffix')->defaultValue('_audit')->end()
                 ->scalarNode('revision_field_name')->defaultValue('rev')->end()
