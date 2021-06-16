@@ -254,6 +254,10 @@ class AuditReader
         $columnMap = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
+            if ($this->config->isEntityIgnoredProperty($class->getName(), $class->getFieldForColumn($columnName))) {
+                continue;
+            }
+
             $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
                 ? 're' // root entity
                 : 'e';
@@ -416,6 +420,10 @@ class AuditReader
             $columnMap = [];
 
             foreach ($class->fieldNames as $columnName => $field) {
+                if ($this->config->isEntityIgnoredProperty($class->getName(), $class->getFieldForColumn($columnName))) {
+                    continue;
+                }
+
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $tableAlias = $class->isInheritanceTypeJoined() && $class->isInheritedField($field) && !$class->isIdentifier($field)
                     ? 're' // root entity
@@ -713,6 +721,10 @@ class AuditReader
         $columnMap = [];
 
         foreach ($class->fieldNames as $columnName => $field) {
+            if ($this->config->isEntityIgnoredProperty($class->getName(), $class->getFieldForColumn($columnName))) {
+                continue;
+            }
+
             $type = Type::getType($class->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
                 $this->quoteStrategy->getColumnName($field, $class, $this->platform),
@@ -828,7 +840,8 @@ class AuditReader
         $this->entityCache[$className][$key][$revision] = $entity;
 
         foreach ($data as $field => $value) {
-            if (isset($class->fieldMappings[$field])) {
+            $isIgnoredProperty = isset($columnMap[$field]) && $this->config->isEntityIgnoredProperty($class->getName(), $field);
+            if (isset($class->fieldMappings[$field]) && !$isIgnoredProperty) {
                 $type = Type::getType($class->fieldMappings[$field]['type']);
                 $value = $type->convertToPHPValue($value, $this->platform);
                 $class->reflFields[$field]->setValue($entity, $value);

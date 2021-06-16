@@ -33,6 +33,11 @@ class ProfileAudit
     private $biography;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $ignoreProperty;
+
+    /**
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
@@ -66,5 +71,15 @@ class ProfileAudit
     public function setUser(UserAudit $user): void
     {
         $this->user = $user;
+    }
+
+    public function setIgnoreProperty($ignoreProperty): void
+    {
+        $this->ignoreProperty = $ignoreProperty;
+    }
+
+    public function getIgnoreProperty(): ?string
+    {
+        return $this->ignoreProperty;
     }
 }

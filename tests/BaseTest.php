@@ -148,6 +148,7 @@ abstract class BaseTest extends TestCase
         $auditConfig->setConvertEnumToString(true);
         $auditConfig->setDatabasePlatform($this->getEntityManager()->getConnection()->getDatabasePlatform());
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
+        $auditConfig->setEntityIgnoredProperties(['SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit' => ['ignoreProperty']]);
         $auditConfig->setUsernameCallable(static function () {
             return 'beberlei';
         });
