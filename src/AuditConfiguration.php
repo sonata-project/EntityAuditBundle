@@ -142,7 +142,7 @@ class AuditConfiguration
     }
 
     /**
-     * @param string[] $classes
+     * @phpstan-param class-string[] $classes
      */
     public function setAuditedEntityClasses(array $classes): void
     {
