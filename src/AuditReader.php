@@ -614,7 +614,7 @@ class AuditReader
      * an object with a given id.
      *
      * @param string           $className
-     * @param int|string|array $id
+     * @param int|string       $id
      * @param int|string       $oldRevision
      * @param int|string       $newRevision
      *
