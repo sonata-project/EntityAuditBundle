@@ -12,7 +12,7 @@
     </route>
     <route id="simple_things_entity_audit_viewentity" path="/viewent/{className}/{id}" controller="SimpleThings\EntityAudit\Action\ViewEntityAction"/>
     <route id="simple_things_entity_audit_compare" path="/compare/{className}/{id}/{oldRev}/{newRev}" controller="SimpleThings\EntityAudit\Action\CompareAction">
-        <default key="oldRev"/>
-        <default key="newRev"/>
+        <default key="oldRev" xsi:nil="true"/>
+        <default key="newRev" xsi:nil="true"/>
     </route>
 </routes>
