@@ -580,26 +580,26 @@ class AuditReader
             throw new NotAuditedException($className);
         }
 
-        /** @var ClassMetadataInfo|ClassMetadata $class */
-        $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTableName($class);
+        /** @var ClassMetadataInfo|ClassMetadata $classMetadata */
+        $classMetadata = $this->em->getClassMetadata($className);
+        $tableName = $this->config->getTableName($classMetadata);
 
         if (!\is_array($id)) {
-            $id = [$class->identifier[0] => $id];
+            $id = [$classMetadata->identifier[0] => $id];
         }
 
         $whereSQL = '';
-        foreach ($class->identifier as $idField) {
-            if (isset($class->fieldMappings[$idField])) {
+        foreach ($classMetadata->identifier as $idField) {
+            if (isset($classMetadata->fieldMappings[$idField])) {
                 if ($whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$class->fieldMappings[$idField]['columnName'].' = ?';
-            } elseif (isset($class->associationMappings[$idField])) {
+                $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
+            } elseif (isset($classMetadata->associationMappings[$idField])) {
                 if ($whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$class->associationMappings[$idField]['joinColumns'][0].' = ?';
+                $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0].' = ?';
             }
         }
 
