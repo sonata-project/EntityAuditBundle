@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests;
 
+use Doctrine\DBAL\Exception\DriverException;
 use SimpleThings\EntityAudit\ChangedEntity;
 use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
@@ -408,5 +409,50 @@ final class CoreTest extends BaseTest
         $this->assertStringStartsWith('user: ', $revisions[1]->getUsername());
 
         $this->assertNotSame($revisions[0]->getUsername(), $revisions[1]->getUsername());
+    }
+
+    public function testRevisionForeignKeys(): void
+    {
+        $isSqlitePlatform = 'sqlite' === $this->em->getConnection()->getDatabasePlatform()->getName();
+        $updateForeignKeysConfig = false;
+
+        if ($isSqlitePlatform) {
+            $updateForeignKeysConfig = '0' === $this->em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne();
+
+            if ($updateForeignKeysConfig) {
+                // Enable the "foreign_keys" pragma.
+                $this->em->getConnection()->executeQuery('PRAGMA foreign_keys = ON;');
+            }
+        }
+
+        $user = new UserAudit('phansys');
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        $reader = $this->auditManager->createAuditReader($this->em);
+
+        $revisions = $reader->findRevisions(\get_class($user), $user->getId());
+
+        $this->assertCount(1, $revisions);
+
+        $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
+        $this->assertSame('1', $revision);
+
+        $revisionsTableName = $this->auditManager->getConfiguration()->getRevisionTableName();
+
+        $this->expectException(DriverException::class);
+        $this->expectExceptionMessage('SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed');
+
+        try {
+            $this->em->getConnection()->delete($revisionsTableName, ['id' => $revision]);
+        } catch (DriverException $e) {
+            throw $e;
+        } finally {
+            if ($updateForeignKeysConfig) {
+                // Restore the original value for the "foreign_keys" pragma.
+                $this->em->getConnection()->executeQuery('PRAGMA foreign_keys = OFF;');
+            }
+        }
     }
 }
