@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests\DependencyInjection;
 
+use Doctrine\DBAL\Types\Types;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use SimpleThings\EntityAudit\DependencyInjection\SimpleThingsEntityAuditExtension;
 
@@ -88,7 +89,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_table_name', 'revisions');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'rev');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'revtype');
-        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'integer');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', Types::INTEGER);
     }
 
     public function testItSetsConfiguredParameters(): void
@@ -101,7 +102,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
             'table_prefix' => 'prefix',
             'table_suffix' => 'suffix',
             'revision_table_name' => 'log',
-            'revision_id_field_type' => 'guid',
+            'revision_id_field_type' => Types::GUID,
             'revision_field_name' => 'revision',
             'revision_type_field_name' => 'action',
         ]);
@@ -113,7 +114,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_prefix', 'prefix');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.table_suffix', 'suffix');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_table_name', 'log');
-        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', 'guid');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', Types::GUID);
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'revision');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'action');
 
