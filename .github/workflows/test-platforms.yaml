@@ -1,0 +1,99 @@
+name: Test on platforms
+
+on:
+    push:
+        branches:
+            - 1.x
+            - master
+    pull_request:
+
+jobs:
+    test-mysql:
+        name: PHP 8.0 + MySQL + highest
+
+        runs-on: ubuntu-latest
+
+        continue-on-error: false
+
+        env:
+            DATABASE_URL: "mysql://root@127.0.0.1:3306/sonata_tests"
+
+        services:
+            mysql:
+                image: "mysql:8.0"
+
+                options: >-
+                    --health-cmd "mysqladmin ping --silent"
+                    -e MYSQL_ALLOW_EMPTY_PASSWORD=yes
+                    -e MYSQL_DATABASE=sonata_tests
+                ports:
+                    - "3306:3306"
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Install PHP with extensions
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.0
+                  coverage: pcov
+                  tools: composer:v2
+                  extensions: zip, mysqli, pdo_mysql
+
+            - name: Add PHPUnit matcher
+              run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+            - name: "Install Composer dependencies (highest)"
+              uses: "ramsey/composer-install@v1"
+              with:
+                  dependency-versions: "highest"
+                  composer-options: "--prefer-dist --prefer-stable"
+
+            - name: Run Tests
+              run: make test
+
+    test-postgres:
+        name: PHP 8.0 + PostgreSQL + highest
+
+        runs-on: ubuntu-latest
+
+        continue-on-error: false
+
+        env:
+            DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/postgres?serverVersion=13&charset=utf8"
+
+        services:
+            postgres:
+                image: "postgres:13"
+                env:
+                    POSTGRES_PASSWORD: "postgres"
+
+                options: >-
+                    --health-cmd "pg_isready"
+                ports:
+                    - "5432:5432"
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Install PHP with extensions
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.0
+                  coverage: pcov
+                  tools: composer:v2
+                  extensions: zip
+
+            - name: Add PHPUnit matcher
+              run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+            - name: "Install Composer dependencies (highest)"
+              uses: "ramsey/composer-install@v1"
+              with:
+                  dependency-versions: "highest"
+                  composer-options: "--prefer-dist --prefer-stable"
+
+            - name: Run Tests
+              run: make test

@@ -131,8 +131,10 @@ final class RelationTest extends BaseTest
         $this->assertSame(OwnedEntity1::class, \get_class($changedOwned));
         $this->assertSame('DEL', $changedEntities[0]->getRevisionType());
         $this->assertSame('DEL', $changedEntities[1]->getRevisionType());
-        $this->assertSame(['id' => '1'], $changedEntities[0]->getId());
-        $this->assertSame(['id' => '1'], $changedEntities[1]->getId());
+        $this->assertArrayHasKey('id', $changedEntities[0]->getId());
+        $this->assertSame('1', (string) $changedEntities[0]->getId()['id']);
+        $this->assertArrayHasKey('id', $changedEntities[1]->getId());
+        $this->assertSame('1', (string) $changedEntities[1]->getId()['id']);
         //uninit proxy messes up ids, it is fine
         $this->assertCount(0, $changedOwner->getOwned1());
         $this->assertCount(0, $changedOwner->getOwned2());
