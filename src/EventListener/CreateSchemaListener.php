@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
@@ -59,6 +59,8 @@ class CreateSchemaListener implements EventSubscriber
                 foreach ($cm->subClasses as $subClass) {
                     if ($this->metadataFactory->isAudited($subClass)) {
                         $audited = true;
+
+                        break;
                     }
                 }
             }
@@ -74,14 +76,13 @@ class CreateSchemaListener implements EventSubscriber
         );
 
         foreach ($entityTable->getColumns() as $column) {
-            /* @var Column $column */
             $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
                 $column->toArray(),
                 ['notnull' => false, 'autoincrement' => false]
             ));
         }
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', ['length' => 4]);
+        $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), Types::STRING, ['length' => 4]);
         if (!\in_array($cm->inheritanceType, [ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
             throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
@@ -100,8 +101,8 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), [
             'autoincrement' => true,
         ]);
-        $revisionsTable->addColumn('timestamp', 'datetime');
-        $revisionsTable->addColumn('username', 'string')->setNotnull(false);
+        $revisionsTable->addColumn('timestamp', Types::DATETIME_MUTABLE);
+        $revisionsTable->addColumn('username', Types::STRING)->setNotnull(false);
         $revisionsTable->setPrimaryKey(['id']);
     }
 }
