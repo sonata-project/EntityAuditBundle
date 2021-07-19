@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 class AuditConfiguration
@@ -24,7 +25,7 @@ class AuditConfiguration
     private $revisionTableName = 'revisions';
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
-    private $revisionIdFieldType = 'integer';
+    private $revisionIdFieldType = Types::INTEGER;
     private $usernameCallable;
 
     /**
