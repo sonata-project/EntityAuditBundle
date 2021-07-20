@@ -46,8 +46,7 @@ final class CompareAction
             $newRev = $request->query->get('newRev');
         }
 
-        $ids = explode(',', $id);
-        $diff = $this->auditReader->diff($className, $ids, $oldRev, $newRev);
+        $diff = $this->auditReader->diff($className, $id, $oldRev, $newRev);
 
         $content = $this->twig->render('@SimpleThingsEntityAudit/Audit/compare.html.twig', [
             'className' => $className,

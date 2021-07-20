@@ -613,10 +613,10 @@ class AuditReader
      * Get an array with the differences of between two specific revisions of
      * an object with a given id.
      *
-     * @param string           $className
-     * @param int|string|array $id
-     * @param int|string       $oldRevision
-     * @param int|string       $newRevision
+     * @param string     $className
+     * @param int|string $id
+     * @param int|string $oldRevision
+     * @param int|string $newRevision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
