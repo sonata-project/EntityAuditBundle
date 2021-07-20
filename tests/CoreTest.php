@@ -440,12 +440,12 @@ final class CoreTest extends BaseTest
         $this->assertCount(1, $revisions);
 
         $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
-        $this->assertSame('1', $revision);
+        $this->assertSame('1', (string) $revision);
 
         $revisionsTableName = $this->auditManager->getConfiguration()->getRevisionTableName();
 
         $this->expectException(DriverException::class);
-        $this->expectExceptionMessage('SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed');
+        $this->expectExceptionMessageMatches('#SQLSTATE\[[\d]+\]: #');
 
         try {
             $this->em->getConnection()->delete($revisionsTableName, ['id' => $revision]);
