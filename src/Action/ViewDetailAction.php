@@ -37,8 +37,7 @@ final class ViewDetailAction
 
     public function __invoke(string $className, string $id, int $rev): Response
     {
-        $ids = explode(',', $id);
-        $entity = $this->auditReader->find($className, $ids, $rev);
+        $entity = $this->auditReader->find($className, $id, $rev);
 
         $data = $this->auditReader->getEntityValues($className, $entity);
         krsort($data);

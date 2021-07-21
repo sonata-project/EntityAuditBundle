@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
@@ -45,7 +47,6 @@ class CreateSchemaListener implements EventSubscriber
     {
         return [
             ToolEvents::postGenerateSchemaTable,
-            ToolEvents::postGenerateSchema,
         ];
     }
 
@@ -70,6 +71,9 @@ class CreateSchemaListener implements EventSubscriber
         }
 
         $schema = $eventArgs->getSchema();
+
+        $revisionsTable = $this->createRevisionsTable($schema);
+
         $entityTable = $eventArgs->getClassTable();
         $revisionTable = $schema->createTable(
             $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
@@ -92,8 +96,15 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable->setPrimaryKey($pkColumns);
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
+        $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
+        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $revisionsTable->getPrimaryKeyColumns(), [], $revisionForeignKeyName);
     }
 
+    /**
+     * NEXT_MAJOR: Remove this method.
+     *
+     * @deprecated since sonata-project/entity-audit-bundle 1.x, will be removed in 2.0.
+     */
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
     {
         $schema = $eventArgs->getSchema();
@@ -104,5 +115,24 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable->addColumn('timestamp', Types::DATETIME_MUTABLE);
         $revisionsTable->addColumn('username', Types::STRING)->setNotnull(false);
         $revisionsTable->setPrimaryKey(['id']);
+    }
+
+    private function createRevisionsTable(Schema $schema): Table
+    {
+        $revisionsTableName = $this->config->getRevisionTableName();
+
+        if ($schema->hasTable($revisionsTableName)) {
+            return $schema->getTable($revisionsTableName);
+        }
+
+        $revisionsTable = $schema->createTable($revisionsTableName);
+        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), [
+            'autoincrement' => true,
+        ]);
+        $revisionsTable->addColumn('timestamp', Types::DATETIME_MUTABLE);
+        $revisionsTable->addColumn('username', Types::STRING)->setNotnull(false);
+        $revisionsTable->setPrimaryKey(['id']);
+
+        return $revisionsTable;
     }
 }
