@@ -2,6 +2,20 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.4.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.3.2...1.4.0) - 2021-07-21
+### Added
+- [[#408](https://github.com/sonata-project/EntityAuditBundle/pull/408)] Foreign key constraint for the relation between the entity audit tables and the revisions index ([@phansys](https://github.com/phansys))
+
+### Deprecated
+- [[#408](https://github.com/sonata-project/EntityAuditBundle/pull/408)] `CreateSchemaListener::postGenerateSchema()` method ([@phansys](https://github.com/phansys))
+
+### Fixed
+- [[#408](https://github.com/sonata-project/EntityAuditBundle/pull/408)] Orphan records between the entity audit tables and the revisions index ([@phansys](https://github.com/phansys))
+- [[#406](https://github.com/sonata-project/EntityAuditBundle/pull/406)] The CompareAction route is now working ([@BurningDog](https://github.com/BurningDog))
+
+### Removed
+- [[#408](https://github.com/sonata-project/EntityAuditBundle/pull/408)] Listening for the "postGenerateSchema" event at `CreateSchemaListener` ([@phansys](https://github.com/phansys))
+
 ## [1.3.2](https://github.com/sonata-project/EntityAuditBundle/compare/1.3.1...1.3.2) - 2021-06-13
 ### Fixed
 - [[#398](https://github.com/sonata-project/EntityAuditBundle/pull/398)] Fix missing space in identifier WHERE clausule if the entity has multiple columns as the primary key ([@Vantomas](https://github.com/Vantomas))

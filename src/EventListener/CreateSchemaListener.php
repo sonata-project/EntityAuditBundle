@@ -103,7 +103,7 @@ class CreateSchemaListener implements EventSubscriber
     /**
      * NEXT_MAJOR: Remove this method.
      *
-     * @deprecated since sonata-project/entity-audit-bundle 1.x, will be removed in 2.0.
+     * @deprecated since sonata-project/entity-audit-bundle 1.4, will be removed in 2.0.
      */
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
     {
