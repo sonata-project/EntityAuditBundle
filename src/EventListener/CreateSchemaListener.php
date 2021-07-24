@@ -46,6 +46,8 @@ class CreateSchemaListener implements EventSubscriber
     }
 
     /**
+     * @todo Remove the "@return array" docblock when support for "symfony/error-handler" 5.x is dropped.
+     *
      * @return array
      */
     public function getSubscribedEvents()

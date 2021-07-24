@@ -45,11 +45,17 @@ class Revision
         return $this->rev;
     }
 
+    /**
+     * @return \DateTime
+     */
     public function getTimestamp()
     {
         return $this->timestamp;
     }
 
+    /**
+     * @return string
+     */
     public function getUsername()
     {
         return $this->username;

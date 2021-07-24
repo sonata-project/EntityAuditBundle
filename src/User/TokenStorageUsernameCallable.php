@@ -19,6 +19,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class TokenStorageUsernameCallable
 {
     /**
+     * NEXT_MAJOR: Inject the required services instead of using the container.
+     *
      * @var Container
      */
     private $container;
@@ -38,5 +40,7 @@ class TokenStorageUsernameCallable
         if (null !== $token && $token->isAuthenticated()) {
             return $token->getUsername();
         }
+
+        return null;
     }
 }

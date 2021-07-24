@@ -209,7 +209,7 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
-        //duplicated entries means a bug with discriminators
+        // duplicated entries means a bug with discriminators
         static::assertCount(6, $changedEntities);
         static::assertContainsOnly(ChangedEntity::class, $changedEntities);
 
