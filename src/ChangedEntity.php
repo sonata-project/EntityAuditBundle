@@ -13,10 +13,15 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit;
 
+/**
+ * @phpstan-template T of object
+ */
 class ChangedEntity
 {
     /**
      * @var string
+     *
+     * @phpstan-var class-string<T>
      */
     private $className;
 
@@ -32,9 +37,15 @@ class ChangedEntity
 
     /**
      * @var object
+     *
+     * @phpstan-var T
      */
     private $entity;
 
+    /**
+     * @phpstan-param class-string<T> $className
+     * @phpstan-param T $entity
+     */
     public function __construct(string $className, array $id, string $revType, object $entity)
     {
         $this->className = $className;
@@ -45,6 +56,8 @@ class ChangedEntity
 
     /**
      * @return string
+     *
+     * @phpstan-return class-string<T>
      */
     public function getClassName()
     {
@@ -69,6 +82,8 @@ class ChangedEntity
 
     /**
      * @return object
+     *
+     * @phpstan-return T
      */
     public function getEntity()
     {

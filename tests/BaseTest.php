@@ -19,6 +19,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use PHPUnit\Framework\TestCase;
@@ -34,6 +35,8 @@ abstract class BaseTest extends TestCase
     protected static $conn;
 
     /**
+     * NEXT_MAJOR: Use `\Doctrine\ORM\EntityManagerInterface` instead.
+     *
      * @var EntityManager
      */
     protected $em;
@@ -43,8 +46,18 @@ abstract class BaseTest extends TestCase
      */
     protected $auditManager;
 
+    /**
+     * @var string[]
+     *
+     * @phpstan-var class-string[]
+     */
     protected $schemaEntities = [];
 
+    /**
+     * @var string[]
+     *
+     * @phpstan-var class-string[]
+     */
     protected $auditedEntities = [];
 
     /**
@@ -145,7 +158,7 @@ abstract class BaseTest extends TestCase
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
-        $auditConfig->setUsernameCallable(static function () {
+        $auditConfig->setUsernameCallable(static function (): string {
             return 'beberlei';
         });
 
@@ -158,7 +171,7 @@ abstract class BaseTest extends TestCase
     protected function setUpEntitySchema(): void
     {
         $em = $this->getEntityManager();
-        $classes = array_map(static function ($value) use ($em) {
+        $classes = array_map(static function (string $value) use ($em): ClassMetadata {
             return $em->getClassMetadata($value);
         }, $this->schemaEntities);
 
@@ -168,7 +181,7 @@ abstract class BaseTest extends TestCase
     protected function tearDownEntitySchema(): void
     {
         $em = $this->getEntityManager();
-        $classes = array_map(static function ($value) use ($em) {
+        $classes = array_map(static function (string $value) use ($em): ClassMetadata {
             return $em->getClassMetadata($value);
         }, $this->schemaEntities);
 

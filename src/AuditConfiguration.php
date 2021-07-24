@@ -15,10 +15,19 @@ namespace SimpleThings\EntityAudit;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class AuditConfiguration
 {
+    /**
+     * @var string[]
+     *
+     * @phpstan-var class-string[]
+     */
     private $auditedEntityClasses = [];
+    /**
+     * @var string[]
+     */
     private $globalIgnoreColumns = [];
     private $tablePrefix = '';
     private $tableSuffix = '_audit';
@@ -26,10 +35,17 @@ class AuditConfiguration
     private $revisionFieldName = 'rev';
     private $revisionTypeFieldName = 'revtype';
     private $revisionIdFieldType = Types::INTEGER;
+    /**
+     * @var callable|null
+     */
     private $usernameCallable;
 
     /**
+     * @param string[] $classes
+     *
      * @return AuditConfiguration
+     *
+     * @phpstan-param class-string[] $classes
      */
     public static function forEntities(array $classes)
     {
@@ -46,8 +62,7 @@ class AuditConfiguration
     {
         $tableName = $metadata->getTableName();
 
-        //## Fix for doctrine/orm >= 2.5
-        if (method_exists($metadata, 'getSchemaName') && $metadata->getSchemaName()) {
+        if (null !== $metadata->getSchemaName()) {
             $tableName = $metadata->getSchemaName().'.'.$tableName;
         }
 
@@ -121,7 +136,7 @@ class AuditConfiguration
 
     public function createMetadataFactory()
     {
-        return new Metadata\MetadataFactory($this->auditedEntityClasses);
+        return new MetadataFactory($this->auditedEntityClasses);
     }
 
     /**

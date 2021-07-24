@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\DependencyInjection;
 
 use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -33,7 +34,10 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $builder = new TreeBuilder('simple_things_entity_audit');
-        $builder->getRootNode()
+        $rootNode = $builder->getRootNode();
+        \assert($rootNode instanceof ArrayNodeDefinition);
+
+        $rootNode
             ->children()
                 ->scalarNode('connection')->defaultValue('default')->end()
                 ->scalarNode('entity_manager')->defaultValue('default')->end()

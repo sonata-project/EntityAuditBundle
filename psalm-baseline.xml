@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.11.1@e33492398bd4e5e2ab60e331d445979bd83feecd">
+    <!-- NEXT_MAJOR: Remove this file -->
+    <file src="src/Controller/AuditController.php">
+        <UndefinedClass occurrences="1">
+            <code>Controller</code>
+        </UndefinedClass>
+    </file>
+</files>

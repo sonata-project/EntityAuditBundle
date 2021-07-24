@@ -20,6 +20,11 @@ use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
 
+/**
+ * @phpstan-template TKey of array-key
+ * @phpstan-template T of object
+ * @phpstan-implements Collection<TKey, T|array{keys: array, rev: string|int}>
+ */
 class AuditedCollection implements Collection
 {
     /**
@@ -34,7 +39,7 @@ class AuditedCollection implements Collection
      *
      * @var string
      *
-     * @phpstan-var class-string
+     * @phpstan-var class-string<T>
      */
     protected $class;
 
@@ -59,6 +64,8 @@ class AuditedCollection implements Collection
 
     /**
      * @var ClassMetadataInfo
+     *
+     * @phpstan-var ClassMetadataInfo<T> $metadata
      */
     protected $metadata;
 
@@ -68,9 +75,9 @@ class AuditedCollection implements Collection
      * - store entity
      * - contain audited entity.
      *
-     * @var ArrayCollection<int|string, object|array<string, mixed>>
+     * @var Collection<int|string, object|array<string, mixed>>
      *
-     * @phpstan-var ArrayCollection<array-key, object|array<string, mixed>>
+     * @phpstan-var Collection<TKey, T|array{keys: array, rev: string|int}>
      */
     protected $entities;
 
@@ -91,7 +98,8 @@ class AuditedCollection implements Collection
      * @param array<string, mixed> $associationDefinition
      * @param array<string, mixed> $foreignKeys
      *
-     * @phpstan-param class-string $class
+     * @phpstan-param class-string<T> $class
+     * @phpstan-param ClassMetadataInfo<T> $classMeta
      */
     public function __construct(AuditReader $auditReader, $class, ClassMetadataInfo $classMeta, array $associationDefinition, array $foreignKeys, $revision)
     {
@@ -131,6 +139,9 @@ class AuditedCollection implements Collection
 
     /**
      * @return bool
+     *
+     * @psalm-mutation-free See https://github.com/psalm/psalm-plugin-doctrine/issues/97
+     * @psalm-suppress ImpureMethodCall
      */
     public function isEmpty()
     {
@@ -300,6 +311,8 @@ class AuditedCollection implements Collection
 
     /**
      * @return Collection
+     *
+     * @phpstan-return array{0: Collection<TKey, T|array{keys: array, rev: string|int}>, 1: Collection<TKey, T|array{keys: array, rev: string|int}>}
      */
     public function partition(\Closure $p)
     {
@@ -391,6 +404,9 @@ class AuditedCollection implements Collection
         return $this->entities->count();
     }
 
+    /**
+     * @param array{keys: mixed} $entity
+     */
     protected function resolve($entity)
     {
         return $this->auditReader
