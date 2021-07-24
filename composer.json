@@ -30,6 +30,9 @@
         "symfony/phpunit-bridge": "^5.2",
         "symfony/var-dumper": "^4.4 || ^5.2"
     },
+    "config": {
+        "sort-packages": true
+    },
     "autoload": {
         "psr-4": {
             "SimpleThings\\EntityAudit\\": "src"
