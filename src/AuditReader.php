@@ -836,11 +836,6 @@ class AuditReader
         }
 
         foreach ($class->associationMappings as $field => $assoc) {
-            // Check if the association is not among the fetch-joined associations already.
-            if (isset($hints['fetched'][$className][$field])) {
-                continue;
-            }
-
             /** @var ClassMetadataInfo|ClassMetadata $targetClass */
             $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 

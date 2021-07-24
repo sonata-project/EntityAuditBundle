@@ -97,7 +97,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function add($element): void
+    public function add($element)
     {
         throw new AuditedCollectionException('The AuditedCollection is read-only');
     }
@@ -134,7 +134,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function remove($key): void
+    public function remove($key)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -142,7 +142,7 @@ class AuditedCollection implements Collection
     /**
      * {@inheritdoc}
      */
-    public function removeElement($element): void
+    public function removeElement($element)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
