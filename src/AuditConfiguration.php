@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\Exception\ConfigurationNotSetException;
 
