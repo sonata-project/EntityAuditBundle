@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
@@ -74,8 +74,9 @@ abstract class BaseTest extends TestCase
         }
 
         $config = new Configuration();
-        $config->setMetadataCache(new ArrayAdapter());
-        $config->setQueryCacheImpl(DoctrineProvider::wrap(new ArrayAdapter()));
+        $cache = new ArrayCache();
+        $config->setMetadataCacheImpl($cache);
+        $config->setQueryCacheImpl($cache);
         $config->setProxyDir(__DIR__.'/Proxies');
         $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_EVAL);
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
