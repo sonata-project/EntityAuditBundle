@@ -71,10 +71,10 @@ final class CoreTest extends BaseTest
         $this->em->persist($cat);
         $this->em->flush();
 
-        $this->assertCount(1, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
-        $this->assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
-        $this->assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
-        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
+        static::assertCount(1, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
+        static::assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
+        static::assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
+        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
 
         $article->setText('oeruoa');
         $rabbit->setName('Rabbit');
@@ -84,9 +84,9 @@ final class CoreTest extends BaseTest
 
         $this->em->flush();
 
-        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
-        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
-        $this->assertCount(4, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
+        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
+        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
+        static::assertCount(4, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
 
         $this->em->remove($user);
         $this->em->remove($article);
@@ -94,10 +94,10 @@ final class CoreTest extends BaseTest
         $this->em->remove($foxy);
         $this->em->flush();
 
-        $this->assertCount(3, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
-        $this->assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
-        $this->assertCount(3, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
-        $this->assertCount(6, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
+        static::assertCount(3, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
+        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
+        static::assertCount(3, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
+        static::assertCount(6, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
     }
 
     public function testFind(): void
@@ -114,29 +114,29 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $auditUser = $reader->find(\get_class($user), $user->getId(), 1);
 
-        $this->assertInstanceOf(\get_class($user), $auditUser, 'Audited User is also a User instance.');
-        $this->assertSame($user->getId(), $auditUser->getId(), 'Ids of audited user and real user should be the same.');
-        $this->assertSame($user->getName(), $auditUser->getName(), 'Name of audited user and real user should be the same.');
-        $this->assertFalse($this->em->contains($auditUser), 'Audited User should not be in the identity map.');
-        $this->assertNotSame($user, $auditUser, 'User and Audited User instances are not the same.');
+        static::assertInstanceOf(\get_class($user), $auditUser, 'Audited User is also a User instance.');
+        static::assertSame($user->getId(), $auditUser->getId(), 'Ids of audited user and real user should be the same.');
+        static::assertSame($user->getName(), $auditUser->getName(), 'Name of audited user and real user should be the same.');
+        static::assertFalse($this->em->contains($auditUser), 'Audited User should not be in the identity map.');
+        static::assertNotSame($user, $auditUser, 'User and Audited User instances are not the same.');
 
         $auditFox = $reader->find(\get_class($foxy), $foxy->getId(), 1);
 
-        $this->assertInstanceOf(\get_class($foxy), $auditFox, "Audited SINGLE_TABLE class keeps it's class.");
-        $this->assertSame($foxy->getId(), $auditFox->getId(), 'Ids of audited SINGLE_TABLE class and real SINGLE_TABLE class should be the same.');
-        $this->assertSame($foxy->getName(), $auditFox->getName(), 'Loaded and original attributes should be the same for SINGLE_TABLE inheritance.');
-        $this->assertSame($foxy->getTailLength(), $auditFox->getTailLength(), 'Loaded and original attributes should be the same for SINGLE_TABLE inheritance.');
-        $this->assertFalse($this->em->contains($auditFox), 'Audited SINGLE_TABLE inheritance class should not be in the identity map.');
-        $this->assertNotSame($this, $auditFox, 'Audited and new entities should not be the same object for SINGLE_TABLE inheritance.');
+        static::assertInstanceOf(\get_class($foxy), $auditFox, "Audited SINGLE_TABLE class keeps it's class.");
+        static::assertSame($foxy->getId(), $auditFox->getId(), 'Ids of audited SINGLE_TABLE class and real SINGLE_TABLE class should be the same.');
+        static::assertSame($foxy->getName(), $auditFox->getName(), 'Loaded and original attributes should be the same for SINGLE_TABLE inheritance.');
+        static::assertSame($foxy->getTailLength(), $auditFox->getTailLength(), 'Loaded and original attributes should be the same for SINGLE_TABLE inheritance.');
+        static::assertFalse($this->em->contains($auditFox), 'Audited SINGLE_TABLE inheritance class should not be in the identity map.');
+        static::assertNotSame($this, $auditFox, 'Audited and new entities should not be the same object for SINGLE_TABLE inheritance.');
 
         $auditCat = $reader->find(\get_class($cat), $cat->getId(), 1);
 
-        $this->assertInstanceOf(\get_class($cat), $auditCat, "Audited JOINED class keeps it's class.");
-        $this->assertSame($cat->getId(), $auditCat->getId(), 'Ids of audited JOINED class and real JOINED class should be the same.');
-        $this->assertSame($cat->getName(), $auditCat->getName(), 'Loaded and original attributes should be the same for JOINED inheritance.');
-        $this->assertSame($cat->getColor(), $auditCat->getColor(), 'Loaded and original attributes should be the same for JOINED inheritance.');
-        $this->assertFalse($this->em->contains($auditCat), 'Audited JOINED inheritance class should not be in the identity map.');
-        $this->assertNotSame($this, $auditCat, 'Audited and new entities should not be the same object for JOINED inheritance.');
+        static::assertInstanceOf(\get_class($cat), $auditCat, "Audited JOINED class keeps it's class.");
+        static::assertSame($cat->getId(), $auditCat->getId(), 'Ids of audited JOINED class and real JOINED class should be the same.');
+        static::assertSame($cat->getName(), $auditCat->getName(), 'Loaded and original attributes should be the same for JOINED inheritance.');
+        static::assertSame($cat->getColor(), $auditCat->getColor(), 'Loaded and original attributes should be the same for JOINED inheritance.');
+        static::assertFalse($this->em->contains($auditCat), 'Audited JOINED inheritance class should not be in the identity map.');
+        static::assertNotSame($this, $auditCat, 'Audited and new entities should not be the same object for JOINED inheritance.');
     }
 
     public function testFindNoRevisionFound(): void
@@ -177,16 +177,16 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
 
-        $this->assertCount(2, $revisions);
-        $this->assertContainsOnly(Revision::class, $revisions);
+        static::assertCount(2, $revisions);
+        static::assertContainsOnly(Revision::class, $revisions);
 
-        $this->assertSame('2', (string) $revisions[0]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
-        $this->assertSame('beberlei', $revisions[0]->getUsername());
+        static::assertSame('2', (string) $revisions[0]->getRev());
+        static::assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
+        static::assertSame('beberlei', $revisions[0]->getUsername());
 
-        $this->assertSame('1', (string) $revisions[1]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
-        $this->assertSame('beberlei', $revisions[1]->getUsername());
+        static::assertSame('1', (string) $revisions[1]->getRev());
+        static::assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
+        static::assertSame('beberlei', $revisions[1]->getUsername());
     }
 
     public function testFindEntitesChangedAtRevision(): void
@@ -210,20 +210,20 @@ final class CoreTest extends BaseTest
         $changedEntities = $reader->findEntitiesChangedAtRevision(1);
 
         //duplicated entries means a bug with discriminators
-        $this->assertCount(6, $changedEntities);
-        $this->assertContainsOnly(ChangedEntity::class, $changedEntities);
+        static::assertCount(6, $changedEntities);
+        static::assertContainsOnly(ChangedEntity::class, $changedEntities);
 
-        $this->assertSame(ArticleAudit::class, $changedEntities[0]->getClassName());
-        $this->assertSame('INS', $changedEntities[0]->getRevisionType());
-        $this->assertArrayHasKey('id', $changedEntities[0]->getId());
-        $this->assertSame('1', (string) $changedEntities[0]->getId()['id']);
-        $this->assertInstanceOf(ArticleAudit::class, $changedEntities[0]->getEntity());
+        static::assertSame(ArticleAudit::class, $changedEntities[0]->getClassName());
+        static::assertSame('INS', $changedEntities[0]->getRevisionType());
+        static::assertArrayHasKey('id', $changedEntities[0]->getId());
+        static::assertSame('1', (string) $changedEntities[0]->getId()['id']);
+        static::assertInstanceOf(ArticleAudit::class, $changedEntities[0]->getEntity());
 
-        $this->assertSame(UserAudit::class, $changedEntities[1]->getClassName());
-        $this->assertSame('INS', $changedEntities[1]->getRevisionType());
-        $this->assertArrayHasKey('id', $changedEntities[1]->getId());
-        $this->assertSame('1', (string) $changedEntities[1]->getId()['id']);
-        $this->assertInstanceOf(UserAudit::class, $changedEntities[1]->getEntity());
+        static::assertSame(UserAudit::class, $changedEntities[1]->getClassName());
+        static::assertSame('INS', $changedEntities[1]->getRevisionType());
+        static::assertArrayHasKey('id', $changedEntities[1]->getId());
+        static::assertSame('1', (string) $changedEntities[1]->getId()['id']);
+        static::assertInstanceOf(UserAudit::class, $changedEntities[1]->getEntity());
     }
 
     public function testNotVersionedRelationFind(): void
@@ -249,7 +249,7 @@ final class CoreTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $this->assertSame('beberlei', $reader->find(\get_class($article), 1, 1)->getAuthor()->getName());
+        static::assertSame('beberlei', $reader->find(\get_class($article), 1, 1)->getAuthor()->getName());
     }
 
     public function testNotVersionedReverseRelationFind(): void
@@ -271,7 +271,7 @@ final class CoreTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $this->assertSame('He is an amazing contributor!', $reader->find(\get_class($user), 1, 1)->getProfile()->getBiography());
+        static::assertSame('He is an amazing contributor!', $reader->find(\get_class($user), 1, 1)->getProfile()->getBiography());
     }
 
     public function testFindRevisions(): void
@@ -297,23 +297,23 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisions(\get_class($user), $user->getId());
 
-        $this->assertCount(2, $revisions);
-        $this->assertContainsOnly(Revision::class, $revisions);
+        static::assertCount(2, $revisions);
+        static::assertContainsOnly(Revision::class, $revisions);
 
-        $this->assertSame('2', (string) $revisions[0]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
-        $this->assertSame('beberlei', $revisions[0]->getUsername());
+        static::assertSame('2', (string) $revisions[0]->getRev());
+        static::assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
+        static::assertSame('beberlei', $revisions[0]->getUsername());
 
-        $this->assertSame('1', (string) $revisions[1]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
-        $this->assertSame('beberlei', $revisions[1]->getUsername());
+        static::assertSame('1', (string) $revisions[1]->getRev());
+        static::assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
+        static::assertSame('beberlei', $revisions[1]->getUsername());
 
         //SINGLE_TABLE should have separate revision history
-        $this->assertCount(2, $reader->findRevisions(\get_class($foxy), $foxy->getId()));
-        $this->assertCount(1, $reader->findRevisions(\get_class($rabbit), $rabbit->getId()));
+        static::assertCount(2, $reader->findRevisions(\get_class($foxy), $foxy->getId()));
+        static::assertCount(1, $reader->findRevisions(\get_class($rabbit), $rabbit->getId()));
         //JOINED too
-        $this->assertCount(2, $reader->findRevisions(\get_class($dog), $dog->getId()));
-        $this->assertCount(1, $reader->findRevisions(\get_class($cat), $cat->getId()));
+        static::assertCount(2, $reader->findRevisions(\get_class($dog), $dog->getId()));
+        static::assertCount(1, $reader->findRevisions(\get_class($cat), $cat->getId()));
     }
 
     public function testFindCurrentRevision(): void
@@ -329,13 +329,13 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
-        $this->assertSame('2', (string) $revision);
+        static::assertSame('2', (string) $revision);
 
         $user->setName('David');
         $this->em->flush();
 
         $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
-        $this->assertSame('3', (string) $revision);
+        static::assertSame('3', (string) $revision);
     }
 
     public function testGlobalIgnoreColumns(): void
@@ -354,14 +354,14 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $revision = $reader->getCurrentRevision(\get_class($article), $article->getId());
-        $this->assertSame('2', (string) $revision);
+        static::assertSame('2', (string) $revision);
 
         $article->setIgnoreme('textnew');
         $this->em->persist($article);
         $this->em->flush();
 
         $revision = $reader->getCurrentRevision(\get_class($article), $article->getId());
-        $this->assertSame('2', (string) $revision);
+        static::assertSame('2', (string) $revision);
     }
 
     public function testDeleteUnInitProxy(): void
@@ -381,12 +381,12 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
-        $this->assertCount(1, $changedEntities);
-        $this->assertContainsOnly(ChangedEntity::class, $changedEntities);
-        $this->assertSame(UserAudit::class, $changedEntities[0]->getClassName());
-        $this->assertSame('DEL', $changedEntities[0]->getRevisionType());
-        $this->assertArrayHasKey('id', $changedEntities[0]->getId());
-        $this->assertSame('1', (string) $changedEntities[0]->getId()['id']);
+        static::assertCount(1, $changedEntities);
+        static::assertContainsOnly(ChangedEntity::class, $changedEntities);
+        static::assertSame(UserAudit::class, $changedEntities[0]->getClassName());
+        static::assertSame('DEL', $changedEntities[0]->getRevisionType());
+        static::assertArrayHasKey('id', $changedEntities[0]->getId());
+        static::assertSame('1', (string) $changedEntities[0]->getId()['id']);
     }
 
     public function testUsernameResolvingIsDynamic(): void
@@ -405,13 +405,13 @@ final class CoreTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
 
-        $this->assertCount(2, $revisions);
-        $this->assertContainsOnly(Revision::class, $revisions);
+        static::assertCount(2, $revisions);
+        static::assertContainsOnly(Revision::class, $revisions);
 
-        $this->assertStringStartsWith('user: ', $revisions[0]->getUsername());
-        $this->assertStringStartsWith('user: ', $revisions[1]->getUsername());
+        static::assertStringStartsWith('user: ', $revisions[0]->getUsername());
+        static::assertStringStartsWith('user: ', $revisions[1]->getUsername());
 
-        $this->assertNotSame($revisions[0]->getUsername(), $revisions[1]->getUsername());
+        static::assertNotSame($revisions[0]->getUsername(), $revisions[1]->getUsername());
     }
 
     public function testRevisionForeignKeys(): void
@@ -437,10 +437,10 @@ final class CoreTest extends BaseTest
 
         $revisions = $reader->findRevisions(\get_class($user), $user->getId());
 
-        $this->assertCount(1, $revisions);
+        static::assertCount(1, $revisions);
 
         $revision = $reader->getCurrentRevision(\get_class($user), $user->getId());
-        $this->assertSame('1', (string) $revision);
+        static::assertSame('1', (string) $revision);
 
         $revisionsTableName = $this->auditManager->getConfiguration()->getRevisionTableName();
 
