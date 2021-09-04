@@ -26,7 +26,7 @@ final class SimpleDiffTest extends TestCase
         $diff = new SimpleDiff();
         $d = $diff->htmlDiff($old, $new);
 
-        $this->assertSame($output, $d);
+        static::assertSame($output, $d);
     }
 
     public static function dataDiff(): iterable
