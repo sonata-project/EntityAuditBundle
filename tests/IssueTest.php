@@ -138,7 +138,7 @@ final class IssueTest extends BaseTest
 
         $ae = $reader->find(Issue111Entity::class, 1, 2);
 
-        $this->assertInstanceOf('DateTime', $ae->getDeletedAt());
+        static::assertInstanceOf('DateTime', $ae->getDeletedAt());
     }
 
     /**
@@ -177,18 +177,18 @@ final class IssueTest extends BaseTest
 
         $auditedProject = $auditReader->find(\get_class($project), $project->getId(), 1);
 
-        $this->assertSame($org->getId(), $auditedProject->getOrganisation()->getId());
-        $this->assertSame('test project', $auditedProject->getTitle());
-        $this->assertSame('some property', $auditedProject->getSomeProperty());
+        static::assertSame($org->getId(), $auditedProject->getOrganisation()->getId());
+        static::assertSame('test project', $auditedProject->getTitle());
+        static::assertSame('some property', $auditedProject->getSomeProperty());
 
         $auditedComment = $auditReader->find(\get_class($comment), $comment->getId(), 1);
-        $this->assertSame('test project', $auditedComment->getProject()->getTitle());
+        static::assertSame('test project', $auditedComment->getProject()->getTitle());
 
         $project->setTitle('changed project title');
         $this->em->flush();
 
         $auditedComment = $auditReader->find(\get_class($comment), $comment->getId(), 2);
-        $this->assertSame('changed project title', $auditedComment->getProject()->getTitle());
+        static::assertSame('changed project title', $auditedComment->getProject()->getTitle());
     }
 
     public function testIssue9(): void
@@ -210,13 +210,13 @@ final class IssueTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $aAddress = $reader->find(\get_class($address), $address->getId(), 1);
-        $this->assertSame($customer->getId(), $aAddress->getCustomer()->getId());
+        static::assertSame($customer->getId(), $aAddress->getCustomer()->getId());
 
         /** @var Issue9Customer $aCustomer */
         $aCustomer = $reader->find(\get_class($customer), $customer->getId(), 1);
 
-        $this->assertNotNull($aCustomer->getPrimaryAddress());
-        $this->assertSame('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
+        static::assertNotNull($aCustomer->getPrimaryAddress());
+        static::assertSame('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
     }
 
     /**
@@ -281,7 +281,7 @@ final class IssueTest extends BaseTest
         $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
-        $this->assertSame(
+        static::assertSame(
             $persistedEntity->getSqlConversionField(),
             $currentRevisionEntity->getSqlConversionField(),
             'Current revision of audited entity is not equivalent to persisted entity:'
@@ -306,10 +306,10 @@ final class IssueTest extends BaseTest
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
         $car1 = $auditReader->find(\get_class($car), $car->getId(), 1);
-        $this->assertNull($car1->getOwner());
+        static::assertNull($car1->getOwner());
 
         $car2 = $auditReader->find(\get_class($car), $car->getId(), 2);
-        $this->assertSame($car2->getOwner()->getId(), $owner->getId());
+        static::assertSame($car2->getOwner()->getId(), $owner->getId());
     }
 
     public function testConvertToPHP(): void
@@ -326,7 +326,7 @@ final class IssueTest extends BaseTest
         $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
         $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
 
-        $this->assertSame(
+        static::assertSame(
             $persistedEntity->getSqlConversionField(),
             $currentRevisionEntity->getSqlConversionField(),
             'Current revision of audited entity is not equivalent to persisted entity:'
@@ -353,8 +353,8 @@ final class IssueTest extends BaseTest
             $config->getTableSuffix()
         ));
 
-        $this->assertFalse($revisionsTableUser->getColumn($userNotNullColumnName)->getNotnull());
-        $this->assertFalse($revisionsTableUser->getColumn($userIdColumnName)->getAutoincrement());
+        static::assertFalse($revisionsTableUser->getColumn($userNotNullColumnName)->getNotnull());
+        static::assertFalse($revisionsTableUser->getColumn($userIdColumnName)->getAutoincrement());
     }
 
     public function testIssue308(): void
@@ -366,16 +366,16 @@ final class IssueTest extends BaseTest
         $this->em->persist($user);
         $this->em->flush();
 
-        $this->assertInstanceOf(Collection::class, $user->getChildren());
+        static::assertInstanceOf(Collection::class, $user->getChildren());
 
         $auditReader = $this->auditManager->createAuditReader($this->em);
         $auditReader->setLoadAuditedCollections(true);
         $userClass = \get_class($user);
         $revisions = $auditReader->findRevisions($userClass, $user->getId());
-        $this->assertCount(1, $revisions);
+        static::assertCount(1, $revisions);
         $revision = reset($revisions);
         $auditedUser = $auditReader->find($userClass, ['id' => $user->getId()], $revision->getRev());
 
-        $this->assertInstanceOf(Collection::class, $auditedUser->getChildren());
+        static::assertInstanceOf(Collection::class, $auditedUser->getChildren());
     }
 }
