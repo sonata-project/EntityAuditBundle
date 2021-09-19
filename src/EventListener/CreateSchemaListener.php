@@ -43,6 +43,9 @@ class CreateSchemaListener implements EventSubscriber
         $this->metadataFactory = $auditManager->getMetadataFactory();
     }
 
+    /**
+     * @return array
+     */
     public function getSubscribedEvents()
     {
         return [
