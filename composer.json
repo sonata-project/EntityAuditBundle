@@ -14,7 +14,7 @@
         "doctrine/dbal": "^2.11",
         "doctrine/event-manager": "^1.1",
         "doctrine/orm": "^2.9",
-        "symfony/config": "^4.4 || ^5.3",
+        "symfony/config": "^4.4 || ^5.3 || ^6.0",
         "twig/twig": "^2.6 || ^3.0"
     },
     "conflict": {
@@ -27,13 +27,13 @@
         "doctrine/doctrine-bundle": "^1.4 || ^2.2",
         "gedmo/doctrine-extensions": "^3.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
-        "symfony/cache": "^4.4 || ^5.3",
-        "symfony/dependency-injection": "^4.4 || ^5.3",
-        "symfony/framework-bundle": "^4.4 || ^5.3",
-        "symfony/http-foundation": "^4.4 || ^5.3",
-        "symfony/http-kernel": "^4.4 || ^5.3",
-        "symfony/phpunit-bridge": "^5.3",
-        "symfony/security-core": "^4.4 || ^5.3"
+        "symfony/cache": "^4.4 || ^5.3 || ^6.0",
+        "symfony/dependency-injection": "^4.4 || ^5.3 || ^6.0",
+        "symfony/framework-bundle": "^4.4 || ^5.3 || ^6.0",
+        "symfony/http-foundation": "^4.4 || ^5.3 || ^6.0",
+        "symfony/http-kernel": "^4.4 || ^5.3 || ^6.0",
+        "symfony/phpunit-bridge": "^5.3 || ^6.0",
+        "symfony/security-core": "^4.4 || ^5.3 || ^6.0"
     },
     "config": {
         "sort-packages": true
