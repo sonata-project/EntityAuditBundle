@@ -91,6 +91,9 @@ class LogRevisionsListener implements EventSubscriber
         $this->metadataFactory = $auditManager->getMetadataFactory();
     }
 
+    /**
+     * @return array
+     */
     public function getSubscribedEvents()
     {
         return [Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush];

@@ -105,6 +105,9 @@ class AuditedCollection implements Collection
         $this->entities = new ArrayCollection();
     }
 
+    /**
+     * @return bool
+     */
     public function add($element)
     {
         throw new AuditedCollectionException('The AuditedCollection is read-only');
@@ -116,6 +119,9 @@ class AuditedCollection implements Collection
         $this->initialized = false;
     }
 
+    /**
+     * @return bool
+     */
     public function contains($element)
     {
         $this->forceLoad();
@@ -123,6 +129,9 @@ class AuditedCollection implements Collection
         return $this->entities->contains($element);
     }
 
+    /**
+     * @return bool
+     */
     public function isEmpty()
     {
         $this->initialize();
@@ -130,16 +139,25 @@ class AuditedCollection implements Collection
         return $this->entities->isEmpty();
     }
 
+    /**
+     * @return mixed
+     */
     public function remove($key)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
 
+    /**
+     * @return bool
+     */
     public function removeElement($element)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
 
+    /**
+     * @return bool
+     */
     public function containsKey($key)
     {
         $this->initialize();
@@ -147,11 +165,17 @@ class AuditedCollection implements Collection
         return $this->entities->containsKey($key);
     }
 
+    /**
+     * @return mixed
+     */
     public function get($key)
     {
         return $this->offsetGet($key);
     }
 
+    /**
+     * @return array
+     */
     public function getKeys()
     {
         $this->initialize();
@@ -159,6 +183,9 @@ class AuditedCollection implements Collection
         return $this->entities->getKeys();
     }
 
+    /**
+     * @return array
+     */
     public function getValues()
     {
         $this->forceLoad();
@@ -171,6 +198,9 @@ class AuditedCollection implements Collection
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $this->forceLoad();
@@ -178,6 +208,9 @@ class AuditedCollection implements Collection
         return $this->entities->toArray();
     }
 
+    /**
+     * @return mixed
+     */
     public function first()
     {
         $this->forceLoad();
@@ -185,6 +218,9 @@ class AuditedCollection implements Collection
         return $this->entities->first();
     }
 
+    /**
+     * @return mixed
+     */
     public function last()
     {
         $this->forceLoad();
@@ -192,6 +228,9 @@ class AuditedCollection implements Collection
         return $this->entities->last();
     }
 
+    /**
+     * @return int|string|null
+     */
     public function key()
     {
         $this->forceLoad();
@@ -199,6 +238,9 @@ class AuditedCollection implements Collection
         return $this->entities->key();
     }
 
+    /**
+     * @return mixed
+     */
     public function current()
     {
         $this->forceLoad();
@@ -206,6 +248,9 @@ class AuditedCollection implements Collection
         return $this->entities->current();
     }
 
+    /**
+     * @return mixed
+     */
     public function next()
     {
         $this->forceLoad();
@@ -213,6 +258,9 @@ class AuditedCollection implements Collection
         return $this->entities->next();
     }
 
+    /**
+     * @return bool
+     */
     public function exists(\Closure $p)
     {
         $this->forceLoad();
@@ -220,6 +268,9 @@ class AuditedCollection implements Collection
         return $this->entities->exists($p);
     }
 
+    /**
+     * @return Collection
+     */
     public function filter(\Closure $p)
     {
         $this->forceLoad();
@@ -227,6 +278,9 @@ class AuditedCollection implements Collection
         return $this->entities->filter($p);
     }
 
+    /**
+     * @return bool
+     */
     public function forAll(\Closure $p)
     {
         $this->forceLoad();
@@ -234,6 +288,9 @@ class AuditedCollection implements Collection
         return $this->entities->forAll($p);
     }
 
+    /**
+     * @return Collection
+     */
     public function map(\Closure $func)
     {
         $this->forceLoad();
@@ -241,6 +298,9 @@ class AuditedCollection implements Collection
         return $this->entities->map($func);
     }
 
+    /**
+     * @return Collection
+     */
     public function partition(\Closure $p)
     {
         $this->forceLoad();
@@ -248,6 +308,9 @@ class AuditedCollection implements Collection
         return $this->entities->partition($p);
     }
 
+    /**
+     * @return int|string|bool
+     */
     public function indexOf($element)
     {
         $this->forceLoad();
@@ -255,6 +318,9 @@ class AuditedCollection implements Collection
         return $this->entities->indexOf($element);
     }
 
+    /**
+     * @return array
+     */
     public function slice($offset, $length = null)
     {
         $this->forceLoad();
@@ -262,6 +328,9 @@ class AuditedCollection implements Collection
         return $this->entities->slice($offset, $length);
     }
 
+    /**
+     * @return \Traversable
+     */
     public function getIterator()
     {
         $this->forceLoad();
@@ -269,6 +338,9 @@ class AuditedCollection implements Collection
         return $this->entities->getIterator();
     }
 
+    /**
+     * @return bool
+     */
     public function offsetExists($offset)
     {
         $this->forceLoad();
@@ -276,6 +348,9 @@ class AuditedCollection implements Collection
         return $this->entities->offsetExists($offset);
     }
 
+    /**
+     * @return mixed
+     */
     public function offsetGet($offset)
     {
         $this->initialize();
@@ -306,6 +381,9 @@ class AuditedCollection implements Collection
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
 
+    /**
+     * @return int
+     */
     public function count()
     {
         $this->initialize();

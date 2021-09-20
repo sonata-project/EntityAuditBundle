@@ -27,6 +27,9 @@ class Configuration implements ConfigurationInterface
         Types::GUID,
     ];
 
+    /**
+     * @return TreeBuilder
+     */
     public function getConfigTreeBuilder()
     {
         $builder = new TreeBuilder('simple_things_entity_audit');
