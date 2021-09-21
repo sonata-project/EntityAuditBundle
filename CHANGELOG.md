@@ -8,8 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added support for Symfony 6 ([@jordisala1991](https://github.com/jordisala1991))
 
 ### Fixed
-- [[#414](https://github.com/sonata-project/EntityAuditBundle/pull/414)] Wrong return type declarations in `AuditedCollection` methods; ([@phansys](https://github.com/phansys))
-- [[#414](https://github.com/sonata-project/EntityAuditBundle/pull/414)] Obsolete check in `AuditReader::createEntity()`. ([@phansys](https://github.com/phansys))
+- [[#414](https://github.com/sonata-project/EntityAuditBundle/pull/414)] Wrong return type declarations in `AuditedCollection` methods ([@phansys](https://github.com/phansys))
+- [[#414](https://github.com/sonata-project/EntityAuditBundle/pull/414)] Obsolete check in `AuditReader::createEntity()` ([@phansys](https://github.com/phansys))
 
 ### Removed
 - [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Removed support for Symfony 5.2 ([@jordisala1991](https://github.com/jordisala1991))
