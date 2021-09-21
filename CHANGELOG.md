@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.5.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.4.0...1.5.0) - 2021-09-21
 ### Added
-- [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added explicit dependencies with Doctrine and Symfony. ([@jordisala1991](https://github.com/jordisala1991))
+- [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added explicit dependencies with Doctrine and Symfony ([@jordisala1991](https://github.com/jordisala1991))
 - [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added support for Symfony 6 ([@jordisala1991](https://github.com/jordisala1991))
 
 ### Fixed
