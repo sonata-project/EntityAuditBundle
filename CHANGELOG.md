@@ -2,6 +2,18 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.5.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.4.0...1.5.0) - 2021-09-21
+### Added
+- [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added explicit dependencies with Doctrine and Symfony ([@jordisala1991](https://github.com/jordisala1991))
+- [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added support for Symfony 6 ([@jordisala1991](https://github.com/jordisala1991))
+
+### Fixed
+- [[#414](https://github.com/sonata-project/EntityAuditBundle/pull/414)] Wrong return type declarations in `AuditedCollection` methods ([@phansys](https://github.com/phansys))
+- [[#414](https://github.com/sonata-project/EntityAuditBundle/pull/414)] Obsolete check in `AuditReader::createEntity()` ([@phansys](https://github.com/phansys))
+
+### Removed
+- [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Removed support for Symfony 5.2 ([@jordisala1991](https://github.com/jordisala1991))
+
 ## [1.4.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.3.2...1.4.0) - 2021-07-21
 ### Added
 - [[#408](https://github.com/sonata-project/EntityAuditBundle/pull/408)] Foreign key constraint for the relation between the entity audit tables and the revisions index ([@phansys](https://github.com/phansys))
