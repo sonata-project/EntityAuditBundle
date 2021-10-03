@@ -145,7 +145,7 @@ class LogRevisionsListener implements EventSubscriber
 
                 $types = [];
 
-                if (\in_array($column, $meta->columnNames, true)) {
+                if (\array_key_exists($column, $meta->fieldNames)) {
                     $types[] = $meta->getTypeOfField($fieldName);
                 } else {
                     //try to find column in association mappings
@@ -156,7 +156,7 @@ class LogRevisionsListener implements EventSubscriber
                             foreach ($mapping['joinColumns'] as $definition) {
                                 if ($definition['name'] === $column) {
                                     $targetTable = $em->getClassMetadata($mapping['targetEntity']);
-                                    $type = $targetTable->getTypeOfColumn($definition['referencedColumnName']);
+                                    $type = $targetTable->getTypeOfField($targetTable->getFieldForColumn($definition['referencedColumnName']));
                                 }
                             }
                         }
@@ -430,7 +430,7 @@ class LogRevisionsListener implements EventSubscriber
                     $types[] = \PDO::PARAM_STR;
                 } else {
                     $params[] = $relatedId ? $relatedId[$targetClass->fieldNames[$targetColumn]] : null;
-                    $types[] = $targetClass->getTypeOfColumn($targetColumn);
+                    $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
                 }
             }
         }
@@ -531,7 +531,7 @@ class LogRevisionsListener implements EventSubscriber
             $newVal = $change[1];
 
             if (!isset($classMetadata->associationMappings[$field])) {
-                $columnName = $classMetadata->columnNames[$field];
+                $columnName = $classMetadata->fieldMappings[$field]['columnName'];
                 $result[$persister->getOwningTable($field)][$columnName] = $newVal;
 
                 continue;

@@ -486,7 +486,7 @@ class AuditedCollection implements Collection
             $sql .= ' GROUP BY '.implode(', ', $groupBy);
             $sql .= ' ORDER BY '.implode(' ASC, ', $this->metadata->getIdentifierColumnNames()).' ASC';
 
-            $rows = $this->auditReader->getConnection()->fetchAll($sql, $params);
+            $rows = $this->auditReader->getConnection()->fetchAllAssociative($sql, $params);
 
             foreach ($rows as $row) {
                 $entity = [

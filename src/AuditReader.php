@@ -458,7 +458,7 @@ class AuditReader
             }
 
             $query = 'SELECT '.$columnList.' FROM '.$tableName.' e '.$joinSql.' WHERE '.$whereSQL;
-            $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
+            $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, $params);
 
             foreach ($revisionsData as $row) {
                 $id = [];

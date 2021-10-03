@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
@@ -98,7 +99,15 @@ class CreateSchemaListener implements EventSubscriber
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
         $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
-        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $revisionsTable->getPrimaryKeyColumns(), [], $revisionForeignKeyName);
+
+        $foreignColumnNames = $revisionsTable->getPrimaryKeyColumns();
+
+        // TODO: Use always array_keys when dropping support for DBAL 2
+        if (!interface_exists(Result::class)) {
+            $foreignColumnNames = array_keys($foreignColumnNames);
+        }
+
+        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $foreignColumnNames, [], $revisionForeignKeyName);
     }
 
     /**
