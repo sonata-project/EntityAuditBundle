@@ -27,6 +27,7 @@
         "doctrine/doctrine-bundle": "^1.4 || ^2.2",
         "gedmo/doctrine-extensions": "^3.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
+        "phpunit/phpunit": "^9.5",
         "symfony/cache": "^4.4 || ^5.3 || ^6.0",
         "symfony/dependency-injection": "^4.4 || ^5.3 || ^6.0",
         "symfony/framework-bundle": "^4.4 || ^5.3 || ^6.0",
