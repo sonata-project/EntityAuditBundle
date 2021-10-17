@@ -25,34 +25,34 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - 7.3
-                    - 7.4
-                    - 8.0
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
                 dependencies: [highest]
                 allowed-to-fail: [false]
                 symfony-require: ['']
                 variant: [normal]
                 include:
-                    - php-version: 7.3
+                    - php-version: '7.3'
                       dependencies: lowest
                       allowed-to-fail: false
                       variant: normal
-                    - php-version: 8.0
+                    - php-version: '8.0'
                       dependencies: highest
                       allowed-to-fail: false
                       symfony-require: 4.4.*
                       variant: symfony/symfony:"4.4.*"
-                    - php-version: 8.0
+                    - php-version: '8.0'
                       dependencies: highest
                       allowed-to-fail: false
                       symfony-require: 5.3.*
                       variant: symfony/symfony:"5.3.*"
-                    - php-version: 8.0
+                    - php-version: '8.0'
                       dependencies: highest
                       allowed-to-fail: false
                       symfony-require: 5.4.*
                       variant: symfony/symfony:"5.4.*"
-                    - php-version: 8.0
+                    - php-version: '8.0'
                       dependencies: highest
                       allowed-to-fail: false
                       symfony-require: 6.0.*
