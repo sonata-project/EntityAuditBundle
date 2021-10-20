@@ -71,10 +71,10 @@ final class CoreTest extends BaseTest
         $this->em->persist($cat);
         $this->em->flush();
 
-        static::assertCount(1, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
-        static::assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
-        static::assertCount(1, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
-        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
+        static::assertCount(1, $this->em->getConnection()->fetchAllAssociative('SELECT id FROM revisions'));
+        static::assertCount(1, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM UserAudit_audit'));
+        static::assertCount(1, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM ArticleAudit_audit'));
+        static::assertCount(2, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM AnimalAudit_audit'));
 
         $article->setText('oeruoa');
         $rabbit->setName('Rabbit');
@@ -84,9 +84,9 @@ final class CoreTest extends BaseTest
 
         $this->em->flush();
 
-        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
-        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
-        static::assertCount(4, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
+        static::assertCount(2, $this->em->getConnection()->fetchAllAssociative('SELECT id FROM revisions'));
+        static::assertCount(2, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM ArticleAudit_audit'));
+        static::assertCount(4, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM AnimalAudit_audit'));
 
         $this->em->remove($user);
         $this->em->remove($article);
@@ -94,10 +94,10 @@ final class CoreTest extends BaseTest
         $this->em->remove($foxy);
         $this->em->flush();
 
-        static::assertCount(3, $this->em->getConnection()->fetchAll('SELECT id FROM revisions'));
-        static::assertCount(2, $this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit'));
-        static::assertCount(3, $this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit'));
-        static::assertCount(6, $this->em->getConnection()->fetchAll('SELECT * FROM AnimalAudit_audit'));
+        static::assertCount(3, $this->em->getConnection()->fetchAllAssociative('SELECT id FROM revisions'));
+        static::assertCount(2, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM UserAudit_audit'));
+        static::assertCount(3, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM ArticleAudit_audit'));
+        static::assertCount(6, $this->em->getConnection()->fetchAllAssociative('SELECT * FROM AnimalAudit_audit'));
     }
 
     public function testFind(): void

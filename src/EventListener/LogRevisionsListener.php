@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
-use Doctrine\Common\Persistence\Mapping\MappingException;
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -29,6 +29,7 @@ use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
+use Doctrine\Persistence\Mapping\MappingException;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
@@ -101,8 +102,7 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * @throws MappingException
-     * @throws DBALException
-     * @throws MappingException
+     * @throws Exception
      * @throws \Exception
      */
     public function postFlush(PostFlushEventArgs $eventArgs): void
@@ -314,8 +314,8 @@ class LogRevisionsListener implements EventSubscriber
                     'username' => $this->config->getCurrentUsername(),
                 ],
                 [
-                    Type::DATETIME,
-                    Type::STRING,
+                    Types::DATETIME_MUTABLE,
+                    Types::STRING,
                 ]
             );
 
@@ -332,7 +332,7 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @param ClassMetadata $class
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws Exception
      *
      * @return string
      */
@@ -470,7 +470,7 @@ class LogRevisionsListener implements EventSubscriber
             );
         }
 
-        $this->conn->executeUpdate($this->getInsertRevisionSQL($class), $params, $types);
+        $this->conn->executeStatement($this->getInsertRevisionSQL($class), $params, $types);
     }
 
     /**
