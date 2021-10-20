@@ -13,13 +13,12 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Tests;
 
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
+use Doctrine\Common\Proxy\AbstractProxyFactory;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo;
 use PHPUnit\Framework\TestCase;
@@ -74,9 +73,9 @@ abstract class BaseTest extends TestCase
 
         $config = new Configuration();
         $config->setMetadataCache(new ArrayAdapter());
-        $config->setQueryCacheImpl(DoctrineProvider::wrap(new ArrayAdapter()));
+        $config->setQueryCache(new ArrayAdapter());
         $config->setProxyDir(__DIR__.'/Proxies');
-        $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_EVAL);
+        $config->setAutoGenerateProxyClasses(AbstractProxyFactory::AUTOGENERATE_EVAL);
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver([
