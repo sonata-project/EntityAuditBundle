@@ -129,7 +129,7 @@ final class IssueTest extends BaseTest
         $e->setStatus('test status');
 
         $this->em->persist($e);
-        $this->em->flush($e); //#1
+        $this->em->flush(); //#1
 
         $this->em->remove($e);
         $this->em->flush(); //#2

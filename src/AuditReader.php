@@ -18,13 +18,13 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Internal\SQLResultCasing;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
-use Doctrine\ORM\Query;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
 use SimpleThings\EntityAudit\Exception\DeletedException;
 use SimpleThings\EntityAudit\Exception\InvalidRevisionException;
@@ -35,6 +35,8 @@ use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
 class AuditReader
 {
+    use SQLResultCasing;
+
     /**
      * @var EntityManagerInterface
      */
@@ -267,7 +269,7 @@ class AuditReader
                 ),
                 $this->platform->quoteSingleIdentifier($field)
             );
-            $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
+            $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
         }
 
         foreach ($class->associationMappings as $assoc) {
@@ -282,7 +284,7 @@ class AuditReader
                     ? 're' // root entity
                     : 'e';
                 $columnList[] = $tableAlias.'.'.$sourceCol;
-                $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
+                $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
             }
         }
 
@@ -317,7 +319,7 @@ class AuditReader
 
         $query = 'SELECT '.implode(', ', $columnList).' FROM '.$tableName.' e '.$joinSql.' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
 
-        $row = $this->em->getConnection()->fetchAssoc($query, $values);
+        $row = $this->em->getConnection()->fetchAssociative($query, $values);
 
         if (!$row) {
             throw new NoRevisionFoundException($class->name, $id, $revision);
@@ -424,14 +426,14 @@ class AuditReader
                     $tableAlias.'.'.$this->quoteStrategy->getColumnName($field, $class, $this->platform),
                     $this->platform
                 ).' AS '.$this->platform->quoteSingleIdentifier($field);
-                $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
+                $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
             }
 
             foreach ($class->associationMappings as $assoc) {
                 if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $columnList .= ', '.$sourceCol;
-                        $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
+                        $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
                     }
                 }
             }
@@ -456,7 +458,7 @@ class AuditReader
             }
 
             $query = 'SELECT '.$columnList.' FROM '.$tableName.' e '.$joinSql.' WHERE '.$whereSQL;
-            $revisionsData = $this->em->getConnection()->executeQuery($query, $params);
+            $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, $params);
 
             foreach ($revisionsData as $row) {
                 $id = [];
@@ -606,7 +608,7 @@ class AuditReader
         $query = 'SELECT e.'.$this->config->getRevisionFieldName().' FROM '.$tableName.' e '.
                         ' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
 
-        return $this->em->getConnection()->fetchColumn($query, array_values($id));
+        return $this->em->getConnection()->fetchOne($query, array_values($id));
     }
 
     /**
@@ -718,7 +720,7 @@ class AuditReader
                 $this->quoteStrategy->getColumnName($field, $class, $this->platform),
                 $this->platform
             ).' AS '.$this->platform->quoteSingleIdentifier($field);
-            $columnMap[$field] = $this->platform->getSQLResultCasing($columnName);
+            $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
         }
 
         foreach ($class->associationMappings as $assoc) {
@@ -728,7 +730,7 @@ class AuditReader
 
             foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                 $columnList[] = $sourceCol;
-                $columnMap[$sourceCol] = $this->platform->getSQLResultCasing($sourceCol);
+                $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
             }
         }
 
@@ -738,7 +740,7 @@ class AuditReader
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
         $result = [];
-        while ($row = $stmt->fetch(Query::HYDRATE_ARRAY)) {
+        while ($row = $stmt->fetchAssociative()) {
             $rev = $row[$this->config->getRevisionFieldName()];
             unset($row[$this->config->getRevisionFieldName()]);
             $result[] = $this->createEntity($class->name, $columnMap, $row, $rev);

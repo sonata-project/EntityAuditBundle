@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\EventListener;
 
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\Result;
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -83,10 +85,7 @@ class CreateSchemaListener implements EventSubscriber
         );
 
         foreach ($entityTable->getColumns() as $column) {
-            $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
-                $column->toArray(),
-                ['notnull' => false, 'autoincrement' => false]
-            ));
+            $this->addColumnToTable($column, $revisionTable);
         }
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
         $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), Types::STRING, ['length' => 4]);
@@ -100,7 +99,15 @@ class CreateSchemaListener implements EventSubscriber
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
         $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
-        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $revisionsTable->getPrimaryKeyColumns(), [], $revisionForeignKeyName);
+
+        $foreignColumnNames = $revisionsTable->getPrimaryKeyColumns();
+
+        // TODO: Use always array_keys when dropping support for DBAL 2
+        if (!interface_exists(Result::class)) {
+            $foreignColumnNames = array_keys($foreignColumnNames);
+        }
+
+        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $foreignColumnNames, [], $revisionForeignKeyName);
     }
 
     /**
@@ -118,6 +125,30 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable->addColumn('timestamp', Types::DATETIME_MUTABLE);
         $revisionsTable->addColumn('username', Types::STRING)->setNotnull(false);
         $revisionsTable->setPrimaryKey(['id']);
+    }
+
+    /**
+     * Copies $column to another table. All its options are copied but notnull and autoincrement which are set to false.
+     */
+    private function addColumnToTable(Column $column, Table $targetTable): void
+    {
+        $columnName = $column->getName();
+        $targetTable->addColumn($columnName, $column->getType()->getName());
+
+        $targetColumn = $targetTable->getColumn($columnName);
+        $targetColumn->setLength($column->getLength());
+        $targetColumn->setPrecision($column->getPrecision());
+        $targetColumn->setScale($column->getScale());
+        $targetColumn->setUnsigned($column->getUnsigned());
+        $targetColumn->setFixed($column->getFixed());
+        $targetColumn->setDefault($column->getDefault());
+        $targetColumn->setColumnDefinition($column->getColumnDefinition());
+        $targetColumn->setComment($column->getComment());
+        $targetColumn->setPlatformOptions($column->getPlatformOptions());
+        $targetColumn->setCustomSchemaOptions($column->getCustomSchemaOptions());
+
+        $targetColumn->setNotnull(false);
+        $targetColumn->setAutoincrement(false);
     }
 
     private function createRevisionsTable(Schema $schema): Table
