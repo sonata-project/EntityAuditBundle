@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.6.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.5.0...1.6.0) - 2021-10-28
+### Added
+- [[#444](https://github.com/sonata-project/EntityAuditBundle/pull/444)] Added support for Doctrine DBAL 3 ([@jordisala1991](https://github.com/jordisala1991))
+
+### Changed
+- [[#413](https://github.com/sonata-project/EntityAuditBundle/pull/413)] Several docblock types detected by PHPStan ([@phansys](https://github.com/phansys))
+
+### Fixed
+- [[#413](https://github.com/sonata-project/EntityAuditBundle/pull/413)] Return value at `TokenStorageUsernameCallable::__invoke()` ([@phansys](https://github.com/phansys))
+- [[#452](https://github.com/sonata-project/EntityAuditBundle/pull/452)] `InvalidRevisionException` exception handling when a revision is not found at `ViewRevisionAction::__invoke()` ([@phansys](https://github.com/phansys))
+- [[#415](https://github.com/sonata-project/EntityAuditBundle/pull/415)] Missing dependencies required by this package ([@phansys](https://github.com/phansys))
+- [[#446](https://github.com/sonata-project/EntityAuditBundle/pull/446)] Avoid passing unknown options to a column during its creation ([@simonberger](https://github.com/simonberger))
+
+### Removed
+- [[#451](https://github.com/sonata-project/EntityAuditBundle/pull/451)] Removed support for Doctrine ORM < 2.10 ([@jordisala1991](https://github.com/jordisala1991))
+- [[#451](https://github.com/sonata-project/EntityAuditBundle/pull/451)] Removed support for Doctrine DBAL < 2.13 ([@jordisala1991](https://github.com/jordisala1991))
+
 ## [1.5.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.4.0...1.5.0) - 2021-09-21
 ### Added
 - [[#439](https://github.com/sonata-project/EntityAuditBundle/pull/439)] Added explicit dependencies with Doctrine and Symfony ([@jordisala1991](https://github.com/jordisala1991))
