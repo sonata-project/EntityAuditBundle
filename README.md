@@ -82,10 +82,10 @@ return [
 
 Load extension "simple_things_entity_audit" and specify the audited entities
 
+NOTE: All Entities are audited by default, even specifying here will not take affect unless `force.audit` option for `sonata_doctrine_orm_admin` is set to `false`. See https://github.com/sonata-project/EntityAuditBundle/issues/199
+
 ```yaml
 # config/packages/entity_audit.yaml
-
-NOTE: All Entities are audited by default, even specifying here will not take affect unless `force.audit` option for `sonata_doctrine_orm_admin` is set to `false`. See https://github.com/sonata-project/EntityAuditBundle/issues/199
 
 simple_things_entity_audit:
     audited_entities:
