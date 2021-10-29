@@ -1,0 +1,14 @@
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests
+    excludePaths:
+        # The class "AuditController" is deprecated and extends a class that is only supported in "symfony/http-foundation" < 5.
+        # NEXT_MAJOR: Remove these files
+        - src/Controller/AuditController.php
+    treatPhpDocTypesAsCertain: false
+    checkGenericClassInNonGenericObjectType: true
+    checkMissingIterableValueType: true
+    checkMissingVarTagTypehint: true
+    checkMissingTypehints: true

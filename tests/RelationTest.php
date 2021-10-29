@@ -121,6 +121,7 @@ final class RelationTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
+        static::assertIsArray($changedEntities);
         static::assertCount(2, $changedEntities);
         $changedOwner = $changedEntities[0]->getEntity();
         $changedOwned = $changedEntities[1]->getEntity();

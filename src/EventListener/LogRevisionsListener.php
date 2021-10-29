@@ -19,14 +19,13 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\QuoteStrategy;
-use Doctrine\ORM\Persisters\Entity\BasicEntityPersister;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\Persistence\Mapping\MappingException;
@@ -57,7 +56,7 @@ class LogRevisionsListener implements EventSubscriber
     private $platform;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $em;
 
@@ -67,7 +66,9 @@ class LogRevisionsListener implements EventSubscriber
     private $quoteStrategy;
 
     /**
-     * @var array
+     * @var string[]
+     *
+     * @phpstan-var array<string, string>
      */
     private $insertRevisionSQL = [];
 
@@ -77,12 +78,14 @@ class LogRevisionsListener implements EventSubscriber
     private $uow;
 
     /**
-     * @var int
+     * @var int|string|null
      */
     private $revisionId;
 
     /**
-     * @var array
+     * @var object[]
+     *
+     * @phpstan-var array<string, object>
      */
     private $extraUpdates = [];
 
@@ -93,6 +96,8 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
+     * @todo Remove the "@return array" docblock when support for "symfony/error-handler" 5.x is dropped.
+     *
      * @return array
      */
     public function getSubscribedEvents()
@@ -178,17 +183,19 @@ class LogRevisionsListener implements EventSubscriber
                     } elseif (isset($meta->associationMappings[$idField])) {
                         $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
                         if (\is_array($columnName)) {
-                            if (isset($columnName['name'])) {
-                                $columnName = $columnName['name'];
-                            } else {
+                            if (!isset($columnName['name'])) {
                                 // Not much we can do to recover this - we need a column name...
                                 throw new MappingException('Column name not set within meta');
                             }
+
+                            $columnName = $columnName['name'];
                         }
                         $types[] = $meta->associationMappings[$idField]['type'];
                     }
 
                     $params[] = $meta->reflFields[$idField]->getValue($entity);
+
+                    \assert(isset($columnName));
 
                     $sql .= ' AND '.$columnName.' = ?';
                 }
@@ -286,13 +293,9 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * get original entity data, including versioned field, if "version" constraint is used.
-     *
-     * @param mixed $entity
-     *
-     * @return array
+     * Get original entity data, including versioned field, if "version" constraint is used.
      */
-    private function getOriginalEntityData($entity)
+    private function getOriginalEntityData(object $entity): array
     {
         $class = $this->em->getClassMetadata(\get_class($entity));
         $data = $this->uow->getOriginalEntityData($entity);
@@ -304,6 +307,9 @@ class LogRevisionsListener implements EventSubscriber
         return $data;
     }
 
+    /**
+     * @return string|int
+     */
     private function getRevisionId()
     {
         if (null === $this->revisionId) {
@@ -330,13 +336,9 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param ClassMetadata $class
-     *
      * @throws Exception
-     *
-     * @return string
      */
-    private function getInsertRevisionSQL($class)
+    private function getInsertRevisionSQL(ClassMetadata $class): string
     {
         if (!isset($this->insertRevisionSQL[$class->name])) {
             $placeholders = ['?', '?'];
@@ -395,11 +397,9 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param ClassMetadata $class
-     * @param array         $entityData
-     * @param string        $revType
+     * @param array<string, object> $entityData
      */
-    private function saveRevisionEntityData($class, $entityData, $revType): void
+    private function saveRevisionEntityData(ClassMetadata $class, array $entityData, string $revType): void
     {
         $params = [$this->getRevisionId(), $revType];
         $types = [\PDO::PARAM_INT, \PDO::PARAM_STR];
@@ -473,12 +473,7 @@ class LogRevisionsListener implements EventSubscriber
         $this->conn->executeStatement($this->getInsertRevisionSQL($class), $params, $types);
     }
 
-    /**
-     * @param $entity
-     *
-     * @return string
-     */
-    private function getHash($entity)
+    private function getHash(object $entity): string
     {
         return implode(
             ' ',
@@ -490,7 +485,7 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * Modified version of BasicEntityPersister::prepareUpdateData()
+     * Modified version of \Doctrine\ORM\Persisters\Entity\BasicEntityPersister::prepareUpdateData()
      * git revision d9fc5388f1aa1751a0e148e76b4569bd207338e9 (v2.5.3).
      *
      * @license MIT
@@ -502,12 +497,9 @@ class LogRevisionsListener implements EventSubscriber
      * @author  Rob Caiger <rob@clocal.co.uk>
      * @author  Simon Mönch <simonmoench@gmail.com>
      *
-     * @param EntityPersister|BasicEntityPersister $persister
-     * @param                                      $entity
-     *
-     * @return array
+     * @return array<string, array<string, mixed>>
      */
-    private function prepareUpdateData($persister, $entity)
+    private function prepareUpdateData(EntityPersister $persister, object $entity): array
     {
         $uow = $this->em->getUnitOfWork();
         $classMetadata = $persister->getClassMetadata();

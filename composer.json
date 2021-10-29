@@ -31,10 +31,20 @@
         "doctrine/doctrine-bundle": "^1.4 || ^2.2",
         "gedmo/doctrine-extensions": "^3.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan": "^0.12.93",
+        "phpstan/phpstan-doctrine": "^0.12.44",
+        "phpstan/phpstan-phpunit": "^0.12.22",
+        "phpstan/phpstan-symfony": "^0.12.44",
         "phpunit/phpunit": "^9.5",
+        "psalm/plugin-phpunit": "^0.16.1",
+        "psalm/plugin-symfony": "^3.0",
         "symfony/cache": "^4.4 || ^5.3 || ^6.0",
         "symfony/http-foundation": "^4.4 || ^5.3 || ^6.0",
-        "symfony/phpunit-bridge": "^5.3 || ^6.0"
+        "symfony/phpunit-bridge": "^5.3 || ^6.0",
+        "symfony/var-dumper": "^4.4 || ^5.3 || ^6.0",
+        "vimeo/psalm": "^4.8",
+        "weirdan/doctrine-psalm-plugin": "^1.1"
     },
     "config": {
         "sort-packages": true

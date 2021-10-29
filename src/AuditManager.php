@@ -17,6 +17,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
+use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 /**
  * Audit Manager grants access to metadata and configuration
@@ -24,8 +25,14 @@ use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
  */
 class AuditManager
 {
+    /**
+     * @var AuditConfiguration
+     */
     private $config;
 
+    /**
+     * @var MetadataFactory
+     */
     private $metadataFactory;
 
     public function __construct(AuditConfiguration $config)
@@ -34,16 +41,27 @@ class AuditManager
         $this->metadataFactory = $config->createMetadataFactory();
     }
 
+    /**
+     * @return MetadataFactory
+     */
     public function getMetadataFactory()
     {
         return $this->metadataFactory;
     }
 
+    /**
+     * @return AuditConfiguration
+     */
     public function getConfiguration()
     {
         return $this->config;
     }
 
+    /**
+     * NEXT_MAJOR: Use `\Doctrine\ORM\EntityManagerInterface` for argument 1.
+     *
+     * @return AuditReader
+     */
     public function createAuditReader(EntityManager $em)
     {
         return new AuditReader($em, $this->config, $this->metadataFactory);
