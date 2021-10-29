@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns="http://symfony.com/schema/routing" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/routing https://symfony.com/schema/routing/routing-1.0.xsd">
+    <route id="simple_things_entity_audit_home" path="/{page}" controller="SimpleThings\EntityAudit\Action\IndexAction">
+        <default key="page">1</default>
+        <requirement key="page">\d+</requirement>
+    </route>
+    <route id="simple_things_entity_audit_viewrevision" path="/viewrev/{rev}" controller="SimpleThings\EntityAudit\Action\ViewRevisionAction">
+        <requirement key="page">\d+</requirement>
+    </route>
+    <route id="simple_things_entity_audit_viewentity_detail" path="/viewent/{className}/{id}/{rev}" controller="SimpleThings\EntityAudit\Action\ViewDetailAction">
+        <requirement key="page">\d+</requirement>
+    </route>
+    <route id="simple_things_entity_audit_viewentity" path="/viewent/{className}/{id}" controller="SimpleThings\EntityAudit\Action\ViewEntityAction"/>
+    <route id="simple_things_entity_audit_compare" path="/compare/{className}/{id}/{oldRev}/{newRev}" controller="SimpleThings\EntityAudit\Action\CompareAction">
+        <default key="oldRev" xsi:nil="true"/>
+        <default key="newRev" xsi:nil="true"/>
+    </route>
+</routes>
