@@ -419,6 +419,9 @@ final class CoreTest extends BaseTest
         $isSqlitePlatform = 'sqlite' === $this->em->getConnection()->getDatabasePlatform()->getName();
         $updateForeignKeysConfig = false;
 
+        dump($this->em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne());
+        dump($this->em->getConnection()->getDatabasePlatform()->getName());
+
         if ($isSqlitePlatform) {
             $updateForeignKeysConfig = '0' === $this->em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne();
 
@@ -444,8 +447,8 @@ final class CoreTest extends BaseTest
 
         $revisionsTableName = $this->auditManager->getConfiguration()->getRevisionTableName();
 
-        // $this->expectException(DriverException::class);
-        // $this->expectExceptionMessageMatches('#SQLSTATE\[[\d]+\]: #');
+        $this->expectException(DriverException::class);
+        $this->expectExceptionMessageMatches('#SQLSTATE\[[\d]+\]: #');
 
         try {
             $this->em->getConnection()->delete($revisionsTableName, ['id' => $revision]);
