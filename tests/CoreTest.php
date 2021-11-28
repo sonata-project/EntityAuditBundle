@@ -421,7 +421,7 @@ final class CoreTest extends BaseTest
 
         if ($isSqlitePlatform) {
             $foreignKeysConfig = $this->em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne();
-            $updateForeignKeysConfig = $foreignKeysConfig === '0' || $foreignKeysConfig === 0;
+            $updateForeignKeysConfig = '0' === $foreignKeysConfig || 0 === $foreignKeysConfig;
 
             if ($updateForeignKeysConfig) {
                 // Enable the "foreign_keys" pragma.
