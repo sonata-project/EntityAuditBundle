@@ -29,11 +29,11 @@ class Revision
     private $timestamp;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $username;
 
-    public function __construct($rev, \DateTime $timestamp, string $username)
+    public function __construct($rev, \DateTime $timestamp, ?string $username)
     {
         $this->rev = $rev;
         $this->timestamp = $timestamp;
