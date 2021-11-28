@@ -88,3 +88,11 @@ test:
 coverage:
 	vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover build/logs/clover.xml
 .PHONY: coverage
+
+phpstan:
+	vendor/bin/phpstan --memory-limit=1G analyse
+.PHONY: phpstan
+
+psalm:
+	vendor/bin/psalm
+.PHONY: psalm
