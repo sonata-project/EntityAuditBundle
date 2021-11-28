@@ -449,8 +449,6 @@ final class CoreTest extends BaseTest
 
         try {
             $this->em->getConnection()->delete($revisionsTableName, ['id' => $revision]);
-        } catch (DriverException $e) {
-            throw $e;
         } finally {
             if ($updateForeignKeysConfig) {
                 // Restore the original value for the "foreign_keys" pragma.
