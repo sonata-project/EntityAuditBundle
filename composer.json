@@ -44,7 +44,7 @@
         "symfony/phpunit-bridge": "^5.3 || ^6.0",
         "symfony/var-dumper": "^4.4 || ^5.3 || ^6.0",
         "vimeo/psalm": "^4.8",
-        "weirdan/doctrine-psalm-plugin": "^1.1"
+        "weirdan/doctrine-psalm-plugin": "^2.0"
     },
     "config": {
         "sort-packages": true

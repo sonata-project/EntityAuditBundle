@@ -420,7 +420,8 @@ final class CoreTest extends BaseTest
         $updateForeignKeysConfig = false;
 
         if ($isSqlitePlatform) {
-            $updateForeignKeysConfig = '0' === $this->em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne();
+            $foreignKeysConfig = $this->em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne();
+            $updateForeignKeysConfig = '0' === $foreignKeysConfig || 0 === $foreignKeysConfig;
 
             if ($updateForeignKeysConfig) {
                 // Enable the "foreign_keys" pragma.
@@ -449,8 +450,6 @@ final class CoreTest extends BaseTest
 
         try {
             $this->em->getConnection()->delete($revisionsTableName, ['id' => $revision]);
-        } catch (DriverException $e) {
-            throw $e;
         } finally {
             if ($updateForeignKeysConfig) {
                 // Restore the original value for the "foreign_keys" pragma.

@@ -344,6 +344,7 @@ class AuditedCollection implements Collection
     /**
      * @return \Traversable
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         $this->forceLoad();
@@ -354,6 +355,7 @@ class AuditedCollection implements Collection
     /**
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         $this->forceLoad();
@@ -364,6 +366,7 @@ class AuditedCollection implements Collection
     /**
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         $this->initialize();
@@ -397,6 +400,7 @@ class AuditedCollection implements Collection
     /**
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         $this->initialize();
