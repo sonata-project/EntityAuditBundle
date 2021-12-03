@@ -32,7 +32,7 @@ class Issue156Contact
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var ArrayCollection|Issue156ContactTelephoneNumber[]

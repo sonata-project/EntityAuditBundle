@@ -23,12 +23,12 @@ class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureT
     /**
      * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestPrimaryOwner", inversedBy="elements")
      */
-    private $primaryOwner;
+    protected $primaryOwner;
 
     /**
      * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", inversedBy="elements")
      */
-    private $secondaryOwner;
+    protected $secondaryOwner;
 
     public function setPrimaryOwner(DuplicateRevisionFailureTestPrimaryOwner $owner): void
     {

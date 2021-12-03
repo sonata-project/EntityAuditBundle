@@ -29,7 +29,7 @@ abstract class Issue87AbstractProject
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(name="title", type="string", length=50)

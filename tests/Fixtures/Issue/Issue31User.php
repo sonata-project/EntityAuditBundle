@@ -25,7 +25,7 @@ class Issue31User
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\OneToOne(targetEntity="Issue31Reve", cascade={"persist", "remove"})

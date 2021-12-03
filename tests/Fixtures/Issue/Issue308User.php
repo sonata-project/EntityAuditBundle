@@ -29,7 +29,14 @@ class Issue308User
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
+
+    /**
+     * @var Issue308User
+     *
+     * @ORM\ManyToOne(targetEntity="Issue308User", inversedBy="children")
+     */
+    protected $parent;
 
     /**
      * @var Collection
@@ -37,13 +44,6 @@ class Issue308User
      * @ORM\OneToMany(targetEntity="Issue308User", mappedBy="parent")
      */
     private $children;
-
-    /**
-     * @var Issue308User
-     *
-     * @ORM\ManyToOne(targetEntity="Issue308User", inversedBy="children")
-     */
-    private $parent;
 
     public function __construct()
     {
