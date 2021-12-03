@@ -25,7 +25,7 @@ class Issue87ProjectComment
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManytoOne(targetEntity="Issue87AbstractProject")

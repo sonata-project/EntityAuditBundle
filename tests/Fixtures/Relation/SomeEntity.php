@@ -25,7 +25,7 @@ abstract class SomeEntity
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
      */
-    private $id;
+    protected $id;
 
     public function getId(): ?int
     {

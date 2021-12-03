@@ -27,7 +27,7 @@ class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailur
      *     inversedBy="secondaryOwners"
      * )
      */
-    private $primaryOwner;
+    protected $primaryOwner;
 
     /**
      * @ORM\OneToMany(

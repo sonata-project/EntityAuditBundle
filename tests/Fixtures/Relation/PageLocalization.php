@@ -30,12 +30,12 @@ class PageLocalization
     /**
      * @ORM\Column(type="string")
      */
-    private $locale;
+    protected $locale;
 
     /**
      * @ORM\ManyToOne(targetEntity="Page", inversedBy="localizations")
      */
-    private $page;
+    protected $page;
 
     public function __construct(string $locale)
     {

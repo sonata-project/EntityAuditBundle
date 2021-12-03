@@ -25,7 +25,7 @@ class Issue198Car
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="Issue198Owner", inversedBy="cars")

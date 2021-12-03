@@ -25,22 +25,22 @@ class ArticleAudit
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\Column(type="string", name="my_title_column")
      */
-    private $title;
+    protected $title;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $text;
+    protected $text;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $ignoreme;
+    protected $ignoreme;
 
     /**
      * @ORM\ManyToOne(targetEntity="UserAudit")
