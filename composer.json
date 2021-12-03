@@ -24,7 +24,7 @@
     },
     "conflict": {
         "doctrine/doctrine-bundle": "<1.4",
-        "gedmo/doctrine-extensions": "<2.3.1",
+        "gedmo/doctrine-extensions": "<3.0",
         "symfony/framework-bundle": "<4.4"
     },
     "require-dev": {
