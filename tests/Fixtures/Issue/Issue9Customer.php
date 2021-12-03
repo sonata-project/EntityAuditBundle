@@ -26,7 +26,7 @@ class Issue9Customer
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\OneToMany(targetEntity="Issue9Address", mappedBy="customer")

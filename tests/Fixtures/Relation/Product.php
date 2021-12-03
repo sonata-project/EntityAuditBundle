@@ -26,12 +26,12 @@ abstract class Product extends SomeEntity
     /**
      * @ORM\Column(type="string")
      */
-    private $name;
+    protected $name;
 
     /**
      * @ORM\ManyToOne(targetEntity="Category", inversedBy="products")
      */
-    private $category;
+    protected $category;
 
     public function __construct(string $name)
     {

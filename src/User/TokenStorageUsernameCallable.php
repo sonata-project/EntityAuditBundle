@@ -31,14 +31,17 @@ class TokenStorageUsernameCallable
     }
 
     /**
+     * TODO: Simplify this when dropping support for Symfony < 5.3.
+     *
      * @return string|null
      */
     public function __invoke()
     {
         /** @var TokenInterface $token */
         $token = $this->container->get('security.token_storage')->getToken();
-        if (null !== $token && $token->isAuthenticated()) {
-            return $token->getUsername();
+        if (null !== $token && null !== $token->getUser()) {
+            // @phpstan-ignore-next-line
+            return method_exists($token, 'getUserIdentifier') ? $token->getUserIdentifier() : $token->getUsername();
         }
 
         return null;
