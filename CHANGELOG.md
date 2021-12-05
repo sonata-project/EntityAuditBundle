@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.6.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.6.0...1.6.1) - 2021-12-04
+### Fixed
+- [[#459](https://github.com/sonata-project/EntityAuditBundle/pull/459)] Re add support for nullable username in a revision ([@VincentLanglet](https://github.com/VincentLanglet))
+
 ## [1.6.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.5.0...1.6.0) - 2021-10-28
 ### Added
 - [[#444](https://github.com/sonata-project/EntityAuditBundle/pull/444)] Added support for Doctrine DBAL 3 ([@jordisala1991](https://github.com/jordisala1991))
