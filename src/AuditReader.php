@@ -890,7 +890,7 @@ class AuditReader
                                 if (null !== $joinColumnValue) {
                                     $targetField = $targetClass->fieldNames[$targetColumn];
                                     $joinColumnType = Type::getType($targetClass->fieldMappings[$targetField]['type']);
-                                    $joinColumnValue = $type->convertToPHPValue($joinColumnValue, $this->platform);
+                                    $joinColumnValue = $joinColumnType->convertToPHPValue($joinColumnValue, $this->platform);
                                     $associatedId[$targetField] = $joinColumnValue;
                                 }
                             }
