@@ -70,25 +70,19 @@ class AuditedCollection implements Collection
     protected $metadata;
 
     /**
-     * Entity collection. If can be:
-     * - empty, if the collection has not been initialized yet
-     * - store entity
-     * - contain audited entity.
+     * Entity collection. It can be empty if the collection has not been
+     * initialized yet or contain identifiers to load the entities.
      *
      * @var Collection<int|string, array>
-     *
      * @phpstan-var Collection<TKey, array{keys: array, rev: string|int}>
      */
     protected $entities;
 
     /**
-     * Entity collection. If can be:
-     * - empty, if the collection has not been initialized yet
-     * - store entity
-     * - contain audited entity.
+     * Loaded entity collection. It can be empty if the collection has not
+     * been loaded yet or contain audited entities.
      *
      * @var Collection<int|string, object>
-     *
      * @phpstan-var Collection<TKey, T>
      */
     protected $loadedEntities;
