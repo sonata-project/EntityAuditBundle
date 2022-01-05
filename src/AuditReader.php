@@ -888,7 +888,10 @@ class AuditReader
                             foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
                                 $joinColumnValue = $data[$columnMap[$srcColumn]] ?? null;
                                 if (null !== $joinColumnValue) {
-                                    $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
+                                    $targetField = $targetClass->fieldNames[$targetColumn];
+                                    $joinColumnType = Type::getType($targetClass->fieldMappings[$targetField]['type']);
+                                    $joinColumnValue = $type->convertToPHPValue($joinColumnValue, $this->platform);
+                                    $associatedId[$targetField] = $joinColumnValue;
                                 }
                             }
                             if (!$associatedId) {
