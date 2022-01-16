@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue87ProjectComment
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,12 +30,16 @@ class Issue87ProjectComment
     protected $id;
 
     /**
+     * @var Issue87AbstractProject|null
+     *
      * @ORM\ManytoOne(targetEntity="Issue87AbstractProject")
      * @ORM\JoinColumn(name="a_join_column")
      */
     private $project;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="text")
      */
     private $text;

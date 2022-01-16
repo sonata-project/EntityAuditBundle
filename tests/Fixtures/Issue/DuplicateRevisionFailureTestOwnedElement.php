@@ -21,11 +21,15 @@ use Doctrine\ORM\Mapping as ORM;
 class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureTestEntity
 {
     /**
+     * @var DuplicateRevisionFailureTestPrimaryOwner|null
+     *
      * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestPrimaryOwner", inversedBy="elements")
      */
     protected $primaryOwner;
 
     /**
+     * @var DuplicateRevisionFailureTestSecondaryOwner|null
+     *
      * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", inversedBy="elements")
      */
     protected $secondaryOwner;

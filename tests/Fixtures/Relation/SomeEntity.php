@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class SomeEntity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue

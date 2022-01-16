@@ -23,6 +23,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Page
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -32,12 +34,14 @@ class Page
     /**
      * A page can have many aliases.
      *
-     * @var PageAlias[]
+     * @var Collection<int, PageAlias>
      * @ORM\OneToMany(targetEntity="PageAlias", mappedBy="page", cascade={"persist"})
      */
     protected $pageAliases;
 
     /**
+     * @var Collection<string, PageLocalization>
+     *
      * @ORM\OneToMany(targetEntity="PageLocalization", mappedBy="page", indexBy="locale")
      */
     protected $localizations;
@@ -57,7 +61,10 @@ class Page
         return $this->id;
     }
 
-    public function getLocalizations(): ?Collection
+    /**
+     * @return Collection<string, PageLocalization>
+     */
+    public function getLocalizations(): Collection
     {
         return $this->localizations;
     }

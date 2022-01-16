@@ -14,11 +14,10 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Issue156Contact.
- *
  * @ORM\Entity()
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
@@ -35,7 +34,7 @@ class Issue156Contact
     protected $id;
 
     /**
-     * @var ArrayCollection|Issue156ContactTelephoneNumber[]
+     * @var Collection<int, Issue156ContactTelephoneNumber>
      *
      * @ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
@@ -69,7 +68,7 @@ class Issue156Contact
     }
 
     /**
-     * @return ArrayCollection|Issue156ContactTelephoneNumber[]
+     * @return iterable<int, Issue156ContactTelephoneNumber>
      */
     public function getTelephoneNumbers(): iterable
     {

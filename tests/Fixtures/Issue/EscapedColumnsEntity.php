@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class EscapedColumnsEntity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -28,11 +30,15 @@ class EscapedColumnsEntity
     protected $id;
 
     /**
+     * @var int|null
+     *
      * @ORM\Column(type="integer", name="lft")
      */
     private $left;
 
     /**
+     * @var int|null
+     *
      * @ORM\Column(type="integer", name="`left`")
      */
     private $lft;

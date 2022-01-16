@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue196Entity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,6 +30,8 @@ class Issue196Entity
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="issue196type")
      */
     private $sqlConversionField;

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,6 +23,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue198Owner
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -29,6 +32,8 @@ class Issue198Owner
     protected $id;
 
     /**
+     * @var Collection<int, Issue198Car>
+     *
      * @ORM\OneToMany(targetEntity="Issue198Car", mappedBy="owner")
      */
     private $cars;
@@ -56,7 +61,10 @@ class Issue198Owner
         $this->cars->removeElement($car);
     }
 
-    public function getCars(): ArrayCollection
+    /**
+     * @return Collection<int, Issue198Car>
+     */
+    public function getCars(): Collection
     {
         return $this->cars;
     }

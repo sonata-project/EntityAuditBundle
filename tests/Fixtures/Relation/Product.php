@@ -24,11 +24,15 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class Product extends SomeEntity
 {
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     protected $name;
 
     /**
+     * @var Category|null
+     *
      * @ORM\ManyToOne(targetEntity="Category", inversedBy="products")
      */
     protected $category;

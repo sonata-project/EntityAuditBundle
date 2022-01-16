@@ -35,7 +35,7 @@ abstract class AbstractDataEntity
     protected $id;
 
     /**
-     * @var DataContainerEntity
+     * @var DataContainerEntity|null
      *
      * @ORM\OneToOne(targetEntity="DataContainerEntity", mappedBy="data")
      */

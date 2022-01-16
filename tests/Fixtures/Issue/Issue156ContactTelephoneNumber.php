@@ -16,13 +16,13 @@ namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class Issue156ContactTelephoneNumber.
- *
  * @ORM\Entity()
  */
 class Issue156ContactTelephoneNumber
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -30,14 +30,14 @@ class Issue156ContactTelephoneNumber
     private $id;
 
     /**
-     * @var Issue156Contact
+     * @var Issue156Contact|null
      *
      * @ORM\ManyToOne(targetEntity="Issue156Contact", inversedBy="telephoneNumbers")
      */
     private $contact;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(type="string", length=255, nullable=false)
      */

@@ -32,14 +32,14 @@ class DataContainerEntity
     protected $id;
 
     /**
-     * @var AbstractDataEntity
+     * @var AbstractDataEntity|null
      *
      * @ORM\OneToOne(targetEntity="AbstractDataEntity", inversedBy="dataContainer", cascade={"persist", "remove"})
      */
     private $data;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(type="string")
      */

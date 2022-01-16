@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ArticleAudit
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
@@ -28,21 +30,29 @@ class ArticleAudit
     protected $id;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="string", name="my_title_column")
      */
     protected $title;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="text")
      */
     protected $text;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="text")
      */
     protected $ignoreme;
 
     /**
+     * @var UserAudit
+     *
      * @ORM\ManyToOne(targetEntity="UserAudit")
      */
     private $author;
