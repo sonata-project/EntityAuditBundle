@@ -25,16 +25,42 @@ class AuditConfiguration
      * @phpstan-var class-string[]
      */
     private $auditedEntityClasses = [];
+
     /**
      * @var string[]
      */
     private $globalIgnoreColumns = [];
+
+    /**
+     * @var string
+     */
     private $tablePrefix = '';
+
+    /**
+     * @var string
+     */
     private $tableSuffix = '_audit';
+
+    /**
+     * @var string
+     */
     private $revisionTableName = 'revisions';
+
+    /**
+     * @var string
+     */
     private $revisionFieldName = 'rev';
+
+    /**
+     * @var string
+     */
     private $revisionTypeFieldName = 'revtype';
+
+    /**
+     * @var string
+     */
     private $revisionIdFieldType = Types::INTEGER;
+
     /**
      * @var callable|null
      */
@@ -69,71 +95,115 @@ class AuditConfiguration
         return $this->getTablePrefix().$tableName.$this->getTableSuffix();
     }
 
+    /**
+     * @return string
+     */
     public function getTablePrefix()
     {
         return $this->tablePrefix;
     }
 
+    /**
+     * @param string $prefix
+     */
     public function setTablePrefix($prefix): void
     {
         $this->tablePrefix = $prefix;
     }
 
+    /**
+     * @return string
+     */
     public function getTableSuffix()
     {
         return $this->tableSuffix;
     }
 
+    /**
+     * @param string $suffix
+     */
     public function setTableSuffix($suffix): void
     {
         $this->tableSuffix = $suffix;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionFieldName()
     {
         return $this->revisionFieldName;
     }
 
+    /**
+     * @param string $revisionFieldName
+     */
     public function setRevisionFieldName($revisionFieldName): void
     {
         $this->revisionFieldName = $revisionFieldName;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionTypeFieldName()
     {
         return $this->revisionTypeFieldName;
     }
 
+    /**
+     * @param string $revisionTypeFieldName
+     */
     public function setRevisionTypeFieldName($revisionTypeFieldName): void
     {
         $this->revisionTypeFieldName = $revisionTypeFieldName;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionTableName()
     {
         return $this->revisionTableName;
     }
 
+    /**
+     * @param string $revisionTableName
+     */
     public function setRevisionTableName($revisionTableName): void
     {
         $this->revisionTableName = $revisionTableName;
     }
 
+    /**
+     * @param string[] $classes
+     *
+     * @phpstan-param class-string[] $classes
+     */
     public function setAuditedEntityClasses(array $classes): void
     {
         $this->auditedEntityClasses = $classes;
     }
 
+    /**
+     * @return string[]
+     */
     public function getGlobalIgnoreColumns()
     {
         return $this->globalIgnoreColumns;
     }
 
+    /**
+     * @param string[] $columns
+     */
     public function setGlobalIgnoreColumns(array $columns): void
     {
         $this->globalIgnoreColumns = $columns;
     }
 
+    /**
+     * @return MetadataFactory
+     */
     public function createMetadataFactory()
     {
         return new MetadataFactory($this->auditedEntityClasses);
@@ -161,6 +231,9 @@ class AuditConfiguration
         return (string) ($callable ? $callable() : '');
     }
 
+    /**
+     * @param callable $usernameCallable
+     */
     public function setUsernameCallable($usernameCallable): void
     {
         // php 5.3 compat
@@ -179,11 +252,17 @@ class AuditConfiguration
         return $this->usernameCallable;
     }
 
+    /**
+     * @param string $revisionIdFieldType
+     */
     public function setRevisionIdFieldType($revisionIdFieldType): void
     {
         $this->revisionIdFieldType = $revisionIdFieldType;
     }
 
+    /**
+     * @return string
+     */
     public function getRevisionIdFieldType()
     {
         return $this->revisionIdFieldType;
