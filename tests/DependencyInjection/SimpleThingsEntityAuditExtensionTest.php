@@ -38,7 +38,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.username_callable.token_storage', 'SimpleThings\EntityAudit\User\TokenStorageUsernameCallable');
-        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.username_callable.token_storage', 0, 'service_container');
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.username_callable.token_storage', 0, 'security.token_storage');
 
         $this->assertContainerBuilderHasService('simplethings_entityaudit.config', 'SimpleThings\EntityAudit\AuditConfiguration');
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setAuditedEntityClasses', ['%simplethings.entityaudit.audited_entities%']);

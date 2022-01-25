@@ -63,7 +63,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->args([new ReferenceConfigurator('simplethings_entityaudit.manager')])
 
         ->set('simplethings_entityaudit.username_callable.token_storage', TokenStorageUsernameCallable::class)
-            ->args([new ReferenceConfigurator('service_container')])
+            ->args([new ReferenceConfigurator('security.token_storage')])
 
         ->set('simplethings_entityaudit.config', AuditConfiguration::class)
             ->public()

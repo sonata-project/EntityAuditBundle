@@ -44,7 +44,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 new ReferenceConfigurator('simplethings_entityaudit.reader'),
             ])
 
-        ->set(ViewDetailAction::class, ViewEntityAction::class)
+        ->set(ViewEntityAction::class, ViewEntityAction::class)
             ->public()
             ->args([
                 new ReferenceConfigurator('twig'),
