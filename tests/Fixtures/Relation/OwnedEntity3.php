@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class OwnedEntity3
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer", name="strange_owned_id_name")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,11 +30,15 @@ class OwnedEntity3
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string", name="even_strangier_column_name")
      */
     protected $title;
 
     /**
+     * @var OwnerEntity|null
+     *
      * @ORM\ManyToMany(targetEntity="OwnerEntity", inversedBy="owned3")
      * @ORM\JoinTable(
      *     name="owner_owned3",

@@ -22,6 +22,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue87Project extends Issue87AbstractProject
 {
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     private $someProperty;

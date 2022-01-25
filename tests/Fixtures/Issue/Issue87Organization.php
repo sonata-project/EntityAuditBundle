@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue87Organization
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")

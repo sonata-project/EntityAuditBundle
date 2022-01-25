@@ -32,14 +32,14 @@ class Issue308User
     protected $id;
 
     /**
-     * @var Issue308User
+     * @var Issue308User|null
      *
      * @ORM\ManyToOne(targetEntity="Issue308User", inversedBy="children")
      */
     protected $parent;
 
     /**
-     * @var Collection
+     * @var Collection<int, self>
      *
      * @ORM\OneToMany(targetEntity="Issue308User", mappedBy="parent")
      */
@@ -68,6 +68,9 @@ class Issue308User
         $this->children->add($child);
     }
 
+    /**
+     * @return Collection<int, self>
+     */
     public function getChildren(): Collection
     {
         $activeChildren = $this->children->filter(static function (self $user): bool {

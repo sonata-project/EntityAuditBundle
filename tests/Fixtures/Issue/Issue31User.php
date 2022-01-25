@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue31User
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,11 +30,15 @@ class Issue31User
     protected $id;
 
     /**
+     * @var Issue31Reve|null
+     *
      * @ORM\OneToOne(targetEntity="Issue31Reve", cascade={"persist", "remove"})
      */
     private $reve;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     private $titre;

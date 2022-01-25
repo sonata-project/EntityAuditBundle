@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue198Car
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,6 +30,8 @@ class Issue198Car
     protected $id;
 
     /**
+     * @var Issue198Owner|null
+     *
      * @ORM\ManyToOne(targetEntity="Issue198Owner", inversedBy="cars")
      * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
      */

@@ -26,6 +26,8 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class Category extends SomeEntity
 {
     /**
+     * @var Collection<int, Product>
+     *
      * @ORM\OneToMany(targetEntity="Product", mappedBy="category")
      */
     private $products;
@@ -41,6 +43,9 @@ abstract class Category extends SomeEntity
         $this->products->add($product);
     }
 
+    /**
+     * @return Collection<int, Product>
+     */
     public function getProducts(): Collection
     {
         return $this->products;

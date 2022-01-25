@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue9Address
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,11 +30,15 @@ class Issue9Address
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column
      */
-    private $address_text;
+    private $addressText;
 
     /**
+     * @var Issue9Customer|null
+     *
      * @ORM\ManyToOne(targetEntity="Issue9Customer", inversedBy="addresses")
      */
     private $customer;
@@ -42,14 +48,14 @@ class Issue9Address
         return $this->id;
     }
 
-    public function getAddressText()
+    public function getAddressText(): ?string
     {
-        return $this->address_text;
+        return $this->addressText;
     }
 
-    public function setAddressText($address_text): void
+    public function setAddressText(?string $addressText): void
     {
-        $this->address_text = $address_text;
+        $this->addressText = $addressText;
     }
 
     public function getCustomer(): ?Issue9Customer

@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Fox extends AnimalAudit
 {
     /**
+     * @var int
+     *
      * @ORM\Column(type="integer", name="fox_tail_length")
      */
     private $tailLength;

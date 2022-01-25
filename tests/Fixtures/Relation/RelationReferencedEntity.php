@@ -24,11 +24,15 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class RelationReferencedEntity extends RelationAbstractEntityBase
 {
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     protected $referencedField;
 
     /**
+     * @var RelationOneToOneEntity|null
+     *
      * @ORM\OneToOne(targetEntity="RelationOneToOneEntity", mappedBy="referencedEntity")
      */
     protected $oneToOne;

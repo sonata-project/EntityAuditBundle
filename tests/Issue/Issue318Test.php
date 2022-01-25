@@ -1,0 +1,52 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the Sonata Project package.
+ *
+ * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace SimpleThings\EntityAudit\Tests\Issue;
+
+use SimpleThings\EntityAudit\Tests\BaseTest;
+use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue318User;
+
+final class Issue318Test extends BaseTest
+{
+    protected $schemaEntities = [
+        Issue318User::class,
+    ];
+
+    protected $auditedEntities = [
+        Issue318User::class,
+    ];
+
+    public function testIssue318(): void
+    {
+        $user = new Issue318User();
+        $user->setAlias('alias');
+        $this->em->persist($user);
+        $this->em->flush();
+        $userMetadata = $this->em->getClassMetadata(\get_class($user));
+        $classes = [$userMetadata];
+        $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
+        $schemaName = $schema->getName();
+        $config = $this->getAuditManager()->getConfiguration();
+        $userNotNullColumnName = 'alias';
+        $userIdColumnName = 'id';
+        $revisionsTableUser = $schema->getTable(sprintf(
+            '%s.%sissue318user%s',
+            $schemaName,
+            $config->getTablePrefix(),
+            $config->getTableSuffix()
+        ));
+
+        static::assertFalse($revisionsTableUser->getColumn($userNotNullColumnName)->getNotnull());
+        static::assertFalse($revisionsTableUser->getColumn($userIdColumnName)->getAutoincrement());
+    }
+}

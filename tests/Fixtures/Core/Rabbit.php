@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Rabbit extends AnimalAudit
 {
     /**
+     * @var string
+     *
      * @ORM\Column(type="string", name="cute_rabbit_color")
      */
     private $color;

@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class DuplicateRevisionFailureTestEntity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
