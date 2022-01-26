@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue318User
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,7 +30,7 @@ class Issue318User
     protected $id;
 
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(type="string", nullable=false, length=255)
      */
@@ -39,9 +41,6 @@ class Issue318User
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getAlias(): ?string
     {
         return $this->alias;

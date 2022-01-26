@@ -24,6 +24,8 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class PetAudit
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
@@ -31,6 +33,8 @@ abstract class PetAudit
     protected $id;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="string")
      */
     private $name;

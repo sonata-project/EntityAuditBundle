@@ -23,6 +23,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Issue111Entity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -30,11 +32,15 @@ class Issue111Entity
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column
      */
     private $status;
 
     /**
+     * @var \DateTimeInterface|null
+     *
      * @ORM\Column(type="datetime", nullable=true, name="deleted_at")
      */
     private $deletedAt;

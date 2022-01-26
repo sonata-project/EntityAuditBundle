@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class OneToOneMasterEntity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,17 +30,23 @@ class OneToOneMasterEntity
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     protected $title;
 
     /**
+     * @var OneToOneAuditedEntity|null
+     *
      * @ORM\OneToOne(targetEntity="OneToOneAuditedEntity")
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
     protected $audited;
 
     /**
+     * @var OneToOneNotAuditedEntity|null
+     *
      * @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity")
      */
     protected $notAudited;
@@ -53,7 +61,7 @@ class OneToOneMasterEntity
         return $this->title;
     }
 
-    public function setTitle(string $title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }

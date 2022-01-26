@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class PageLocalization
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,11 +30,15 @@ class PageLocalization
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     protected $locale;
 
     /**
+     * @var Page|null
+     *
      * @ORM\ManyToOne(targetEntity="Page", inversedBy="localizations")
      */
     protected $page;

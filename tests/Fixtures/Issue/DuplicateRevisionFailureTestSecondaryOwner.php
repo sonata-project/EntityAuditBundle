@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,6 +23,8 @@ use Doctrine\ORM\Mapping as ORM;
 class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
+     * @var DuplicateRevisionFailureTestPrimaryOwner|null
+     *
      * @ORM\ManyToOne(
      *     targetEntity="DuplicateRevisionFailureTestPrimaryOwner",
      *     inversedBy="secondaryOwners"
@@ -30,6 +33,8 @@ class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailur
     protected $primaryOwner;
 
     /**
+     * @var Collection<int, DuplicateRevisionFailureTestOwnedElement>
+     *
      * @ORM\OneToMany(
      *     targetEntity="DuplicateRevisionFailureTestOwnedElement",
      *     mappedBy="secondaryOwner",

@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ConvertToPHPEntity
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
@@ -28,6 +30,8 @@ class ConvertToPHPEntity
     protected $id;
 
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="upper")
      */
     private $sqlConversionField;

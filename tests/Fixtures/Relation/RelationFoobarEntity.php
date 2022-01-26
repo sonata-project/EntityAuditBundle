@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class RelationFoobarEntity extends RelationReferencedEntity
 {
     /**
+     * @var string|null
+     *
      * @ORM\Column(type="string")
      */
     protected $foobarField;

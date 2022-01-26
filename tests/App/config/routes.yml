@@ -1,0 +1,3 @@
+simple_things_entity_audit:
+    resource: "@SimpleThingsEntityAuditBundle/Resources/config/routing/audit.xml"
+    prefix: /audit

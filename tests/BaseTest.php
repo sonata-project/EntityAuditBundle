@@ -61,6 +61,13 @@ abstract class BaseTest extends TestCase
     protected $auditedEntities = [];
 
     /**
+     * @var string[]
+     *
+     * @phpstan-var array<string, class-string>
+     */
+    protected $customTypes = [];
+
+    /**
      * @var SchemaTool
      */
     private $schemaTool;
@@ -111,13 +118,11 @@ abstract class BaseTest extends TestCase
 
         $this->em = EntityManager::create($connection, $config);
 
-        if (isset($this->customTypes) && \is_array($this->customTypes)) {
-            foreach ($this->customTypes as $customTypeName => $customTypeClass) {
-                if (!Type::hasType($customTypeName)) {
-                    Type::addType($customTypeName, $customTypeClass);
-                }
-                $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_'.$customTypeName, $customTypeName);
+        foreach ($this->customTypes as $customTypeName => $customTypeClass) {
+            if (!Type::hasType($customTypeName)) {
+                Type::addType($customTypeName, $customTypeClass);
             }
+            $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_'.$customTypeName, $customTypeName);
         }
 
         return $this->em;

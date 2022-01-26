@@ -23,7 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
 class DataPrivateEntity extends AbstractDataEntity
 {
     /**
-     * @var string
+     * @var string|null
      *
      * @ORM\Column(type="string")
      */

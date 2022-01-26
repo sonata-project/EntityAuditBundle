@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class Cat extends PetAudit
 {
     /**
+     * @var string
+     *
      * @ORM\Column(type="string", name="cute_cat_color")
      */
     private $color;

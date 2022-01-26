@@ -21,6 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ProfileAudit
 {
     /**
+     * @var int|null
+     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
@@ -28,11 +30,15 @@ class ProfileAudit
     protected $id;
 
     /**
+     * @var string
+     *
      * @ORM\Column(type="text")
      */
     private $biography;
 
     /**
+     * @var UserAudit|null
+     *
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
