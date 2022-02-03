@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.7.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.6.1...1.7.0) - 2022-01-27
+## [1.7.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.6.1...1.7.0) - 2022-02-03
 ### Deprecated
 - [[#472](https://github.com/sonata-project/EntityAuditBundle/pull/472)] Constructing `TokenStorageUsernameCallable` with an instance of `Container`, use an instance of `TokenStorageInterface` instead ([@franmomu](https://github.com/franmomu))
 
