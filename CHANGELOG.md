@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.7.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.6.1...1.7.0) - 2022-02-03
+### Deprecated
+- [[#472](https://github.com/sonata-project/EntityAuditBundle/pull/472)] Constructing `TokenStorageUsernameCallable` with an instance of `Container`, use an instance of `TokenStorageInterface` instead ([@franmomu](https://github.com/franmomu))
+
+### Fixed
+- [[#469](https://github.com/sonata-project/EntityAuditBundle/pull/469)] Fixed `AuditReader` to process to-many associations using IDs with custom types ([@webmozart](https://github.com/webmozart))
+- [[#472](https://github.com/sonata-project/EntityAuditBundle/pull/472)] Fixed service id of `ViewEntityAction` ([@franmomu](https://github.com/franmomu))
+
+### Removed
+- [[#472](https://github.com/sonata-project/EntityAuditBundle/pull/472)] Support for `doctrine/orm` < 1.12.8 ([@franmomu](https://github.com/franmomu))
+
 ## [1.6.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.6.0...1.6.1) - 2021-12-04
 ### Fixed
 - [[#459](https://github.com/sonata-project/EntityAuditBundle/pull/459)] Re add support for nullable username in a revision ([@VincentLanglet](https://github.com/VincentLanglet))
