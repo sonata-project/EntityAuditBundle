@@ -9,7 +9,7 @@
         "Audit"
     ],
     "require": {
-        "php": "^7.3 || ^8.0",
+        "php": "^7.4 || ^8.0",
         "doctrine/collections": "^1.6",
         "doctrine/common": "^3.1",
         "doctrine/dbal": "^2.13 || ^3.0",
@@ -23,7 +23,7 @@
         "twig/twig": "^2.6 || ^3.0"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^1.12.8 || ^2.3.2",
+        "doctrine/doctrine-bundle": "^2.4.4",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "gedmo/doctrine-extensions": "^3.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
@@ -32,7 +32,7 @@
         "phpstan/phpstan-doctrine": "^1.0",
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-symfony": "^1.0",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^9.5.13",
         "psalm/plugin-phpunit": "^0.16.1",
         "psalm/plugin-symfony": "^3.0",
         "symfony/browser-kit": "^4.4 || ^5.3 || ^6.0",
@@ -47,7 +47,8 @@
         "weirdan/doctrine-psalm-plugin": "^2.0"
     },
     "conflict": {
-        "doctrine/doctrine-bundle": "<1.12.8",
+        "doctrine/annotations": "<1.7",
+        "doctrine/doctrine-bundle": "<2.4.4",
         "gedmo/doctrine-extensions": "<3.0",
         "symfony/framework-bundle": "<4.4"
     },
