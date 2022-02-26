@@ -23,7 +23,7 @@
         "twig/twig": "^2.6 || ^3.0"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^1.12.8 || ^2.3.2",
+        "doctrine/doctrine-bundle": "^2.4.4",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "gedmo/doctrine-extensions": "^3.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
@@ -48,7 +48,7 @@
     },
     "conflict": {
         "doctrine/annotations": "<1.7",
-        "doctrine/doctrine-bundle": "<1.12.8",
+        "doctrine/doctrine-bundle": "<2.4.4",
         "gedmo/doctrine-extensions": "<3.0",
         "symfony/framework-bundle": "<4.4"
     },
