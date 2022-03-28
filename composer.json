@@ -25,6 +25,7 @@
     "require-dev": {
         "doctrine/doctrine-bundle": "^2.4.4",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
+        "friendsofphp/php-cs-fixer": "^3.4",
         "gedmo/doctrine-extensions": "^3.0",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
         "phpstan/extension-installer": "^1.1",

@@ -308,10 +308,10 @@ final class CoreTest extends BaseTest
         static::assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
         static::assertSame('beberlei', $revisions[1]->getUsername());
 
-        //SINGLE_TABLE should have separate revision history
+        // SINGLE_TABLE should have separate revision history
         static::assertCount(2, $reader->findRevisions(\get_class($foxy), $foxy->getId()));
         static::assertCount(1, $reader->findRevisions(\get_class($rabbit), $rabbit->getId()));
-        //JOINED too
+        // JOINED too
         static::assertCount(2, $reader->findRevisions(\get_class($dog), $dog->getId()));
         static::assertCount(1, $reader->findRevisions(\get_class($cat), $cat->getId()));
     }
