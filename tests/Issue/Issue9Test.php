@@ -44,7 +44,7 @@ final class Issue9Test extends BaseTest
         $this->em->persist($customer);
         $this->em->persist($address);
 
-        $this->em->flush(); //#1
+        $this->em->flush(); // #1
 
         $reader = $this->auditManager->createAuditReader($this->em);
 

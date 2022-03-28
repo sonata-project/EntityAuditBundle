@@ -153,7 +153,7 @@ class LogRevisionsListener implements EventSubscriber
                 if (\array_key_exists($column, $meta->fieldNames)) {
                     $types[] = $meta->getTypeOfField($fieldName);
                 } else {
-                    //try to find column in association mappings
+                    // try to find column in association mappings
                     $type = null;
 
                     foreach ($meta->associationMappings as $mapping) {
@@ -257,7 +257,7 @@ class LogRevisionsListener implements EventSubscriber
         $processedEntities = [];
 
         foreach ($this->uow->getScheduledEntityDeletions() as $entity) {
-            //doctrine is fine deleting elements multiple times. We are not.
+            // doctrine is fine deleting elements multiple times. We are not.
             $hash = $this->getHash($entity);
 
             if (\in_array($hash, $processedEntities, true)) {
