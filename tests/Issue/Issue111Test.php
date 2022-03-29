@@ -35,10 +35,10 @@ final class Issue111Test extends BaseTest
         $e->setStatus('test status');
 
         $this->em->persist($e);
-        $this->em->flush(); //#1
+        $this->em->flush(); // #1
 
         $this->em->remove($e);
-        $this->em->flush(); //#2
+        $this->em->flush(); // #2
 
         $reader = $this->auditManager->createAuditReader($this->em);
 

@@ -496,18 +496,18 @@ class AuditedCollection implements Collection
             $params[] = $value;
         }
 
-        //we check for revisions greater than current belonging to other entities
+        // we check for revisions greater than current belonging to other entities
         $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTableName($this->metadata).' st WHERE';
 
-        //ids
+        // ids
         foreach ($this->metadata->getIdentifierColumnNames() as $name) {
             $sql .= ' st.'.$name.' = t.'.$name.' AND';
         }
 
-        //foreigns
+        // foreigns
         $sql .= ' ((';
 
-        //master entity query, not equals
+        // master entity query, not equals
         $notEqualParts = $nullParts = [];
         foreach ($this->foreignKeys as $column => $value) {
             $notEqualParts[] = $column.' <> ?';
@@ -517,22 +517,22 @@ class AuditedCollection implements Collection
 
         $sql .= implode(' AND ', $notEqualParts).') OR ('.implode(' AND ', $nullParts).'))';
 
-        //revision
+        // revision
         $sql .= ' AND st.'.$this->configuration->getRevisionFieldName().' <= '.$this->revision;
         $sql .= ' AND st.'.$this->configuration->getRevisionFieldName().' > t.'.$this->configuration->getRevisionFieldName();
 
         $sql .= ') ';
-        //end of check for for belonging to other entities
+        // end of check for for belonging to other entities
 
-        //check for deleted revisions older than requested
+        // check for deleted revisions older than requested
         $sql .= 'AND NOT EXISTS (SELECT * FROM '.$this->configuration->getTableName($this->metadata).' sd WHERE';
 
-        //ids
+        // ids
         foreach ($this->metadata->getIdentifierColumnNames() as $name) {
             $sql .= ' sd.'.$name.' = t.'.$name.' AND';
         }
 
-        //revision
+        // revision
         $sql .= ' sd.'.$this->configuration->getRevisionFieldName().' <= '.$this->revision;
         $sql .= ' AND sd.'.$this->configuration->getRevisionFieldName().' > t.'.$this->configuration->getRevisionFieldName();
 
@@ -540,7 +540,7 @@ class AuditedCollection implements Collection
         $params[] = 'DEL';
 
         $sql .= ') ';
-        //end check for deleted revisions older than requested
+        // end check for deleted revisions older than requested
 
         $sql .= 'AND '.$this->configuration->getRevisionTypeFieldName().' <> ? ';
         $params[] = 'DEL';

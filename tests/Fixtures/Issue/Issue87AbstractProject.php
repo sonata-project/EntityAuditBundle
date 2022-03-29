@@ -38,14 +38,14 @@ abstract class Issue87AbstractProject
      *
      * @ORM\Column(name="title", type="string", length=50)
      */
-    private $title; //This property is in the _audit table for each subclass
+    private $title; // This property is in the _audit table for each subclass
 
     /**
      * @var string|null
      *
      * @ORM\Column(name="description", type="string", length=1000, nullable=true)
      */
-    private $description; //This property is in the _audit table for each subclass
+    private $description; // This property is in the _audit table for each subclass
 
     /**
      * @var Issue87Organization|null
@@ -53,7 +53,7 @@ abstract class Issue87AbstractProject
      * @ORM\ManyToOne(targetEntity="Issue87Organization")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $organisation; //This association is NOT in the _audit table for the subclasses
+    private $organisation; // This association is NOT in the _audit table for the subclasses
 
     public function getId(): ?int
     {
