@@ -1,7 +1,7 @@
 {
     "name": "sonata-project/entity-audit-bundle",
     "description": "Audit for Doctrine Entities",
-    "license": "LGPL-2.1",
+    "license": "MIT",
     "type": "symfony-bundle",
     "keywords": [
         "Persistence",
