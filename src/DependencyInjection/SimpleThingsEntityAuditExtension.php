@@ -57,6 +57,9 @@ class SimpleThingsEntityAuditExtension extends Extension
         ]);
     }
 
+    /**
+     * @param string[] $definitionNames
+     */
     private function fixParametersFromDoctrineEventSubscriberTag(ContainerBuilder $container, array $definitionNames): void
     {
         foreach ($definitionNames as $definitionName) {
