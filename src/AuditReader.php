@@ -206,9 +206,10 @@ class AuditReader
      * returns last revision INCLUDING "DEL" revision. If you want to throw exception instead, set
      * $threatDeletionAsException to true.
      *
-     * @param string           $className
-     * @param int|string|array $id
-     * @param int|string       $revision
+     * @param string                                    $className
+     * @param int|string|array<string, int|string>      $id
+     * @param int|string                                $revision
+     * @param array{threatDeletionsAsExceptions?: bool} $options
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -377,7 +378,7 @@ class AuditReader
      *
      * @param string|int $revision
      *
-     * @return ChangedEntity[]
+     * @return ChangedEntity<object>[]
      */
     public function findEntitesChangedAtRevision($revision)
     {
@@ -396,7 +397,7 @@ class AuditReader
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return ChangedEntity[]
+     * @return ChangedEntity<object>[]
      */
     public function findEntitiesChangedAtRevision($revision)
     {
@@ -508,8 +509,8 @@ class AuditReader
     /**
      * Find all revisions that were made of entity class with given id.
      *
-     * @param string           $className
-     * @param int|string|array $id
+     * @param string                               $className
+     * @param int|string|array<string, int|string> $id
      *
      * @throws NotAuditedException
      * @throws Exception
@@ -566,8 +567,8 @@ class AuditReader
      * NEXT_MAJOR: Add NoRevisionFoundException as possible exception.
      * Gets the current revision of the entity with given ID.
      *
-     * @param string           $className
-     * @param int|string|array $id
+     * @param string                               $className
+     * @param int|string|array<string, int|string> $id
      *
      * @throws NotAuditedException
      * @throws Exception
@@ -677,8 +678,8 @@ class AuditReader
     }
 
     /**
-     * @param string           $className
-     * @param int|string|array $id
+     * @param string                               $className
+     * @param int|string|array<string, int|string> $id
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -774,8 +775,10 @@ class AuditReader
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
-     * @param string     $className
-     * @param int|string $revision
+     * @param string                $className
+     * @param array<string, string> $columnMap
+     * @param array<string, mixed>  $data
+     * @param int|string            $revision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException

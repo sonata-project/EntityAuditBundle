@@ -44,7 +44,9 @@ final class Issue308Test extends BaseTest
         $revisions = $auditReader->findRevisions($userClass, $user->getId());
         static::assertCount(1, $revisions);
         $revision = reset($revisions);
-        $auditedUser = $auditReader->find($userClass, ['id' => $user->getId()], $revision->getRev());
+        $userId = $user->getId();
+        static::assertNotNull($userId);
+        $auditedUser = $auditReader->find($userClass, ['id' => $userId], $revision->getRev());
 
         static::assertInstanceOf(Collection::class, $auditedUser->getChildren());
     }

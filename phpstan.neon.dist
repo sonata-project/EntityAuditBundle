@@ -1,5 +1,5 @@
 parameters:
-    level: 5
+    level: 6
     paths:
         - src
         - tests
@@ -12,3 +12,5 @@ parameters:
     checkMissingIterableValueType: true
     checkMissingVarTagTypehint: true
     checkMissingTypehints: true
+    ignoreErrors:
+        - '#Test::(data|provide)[a-zA-Z0-9_]+\(\) return type has no value type specified in iterable type#'
