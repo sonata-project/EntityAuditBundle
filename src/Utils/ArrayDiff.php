@@ -21,8 +21,8 @@ namespace SimpleThings\EntityAudit\Utils;
 class ArrayDiff
 {
     /**
-     * @param array $oldData
-     * @param array $newData
+     * @param mixed[] $oldData
+     * @param mixed[] $newData
      *
      * @return array<string, array<string, mixed>>
      *

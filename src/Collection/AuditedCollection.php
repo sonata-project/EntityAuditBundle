@@ -122,7 +122,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return bool
+     * @return true
      */
     public function add($element)
     {
@@ -160,7 +160,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return object|null
+     * @return T|null
      */
     public function remove($key)
     {
@@ -198,7 +198,7 @@ class AuditedCollection implements Collection
     /**
      * @return array
      *
-     * @phpstan-return array<TKey>
+     * @phpstan-return list<TKey>
      */
     public function getKeys()
     {
@@ -210,7 +210,7 @@ class AuditedCollection implements Collection
     /**
      * @return object[]
      *
-     * @phpstan-return array<T>
+     * @phpstan-return list<T>
      */
     public function getValues()
     {
@@ -261,7 +261,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return int|string|null
+     * @return TKey|null
      */
     public function key()
     {
@@ -359,7 +359,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return int|string|bool
+     * @return TKey|false
      */
     public function indexOf($element)
     {
@@ -381,7 +381,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return \Traversable
+     * @return \Traversable<TKey, T>
      */
     #[\ReturnTypeWillChange]
     public function getIterator()

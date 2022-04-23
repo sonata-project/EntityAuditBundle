@@ -50,22 +50,22 @@ class Issue111Entity
         return $this->id;
     }
 
-    public function getStatus()
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus($status): void
+    public function setStatus(?string $status): void
     {
         $this->status = $status;
     }
 
-    public function getDeletedAt(): \DateTimeInterface
+    public function getDeletedAt(): ?\DateTimeInterface
     {
         return $this->deletedAt;
     }
 
-    public function setDeletedAt(\DateTimeInterface $deletedAt): void
+    public function setDeletedAt(?\DateTimeInterface $deletedAt = null): void
     {
         $this->deletedAt = $deletedAt;
     }

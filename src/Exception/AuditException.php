@@ -21,7 +21,7 @@ abstract class AuditException extends \Exception
     protected $className;
 
     /**
-     * @var array|null
+     * @var array<int|string>|null
      */
     protected $id;
 
@@ -31,7 +31,8 @@ abstract class AuditException extends \Exception
     protected $revision;
 
     /**
-     * @param int|string|null $revision
+     * @param array<int|string>|null $id
+     * @param int|string|null        $revision
      */
     public function __construct(?string $className, ?array $id, $revision)
     {

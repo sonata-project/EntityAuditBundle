@@ -51,7 +51,7 @@ abstract class AbstractDataEntity
         return $this->dataContainer;
     }
 
-    public function setDataContainer(DataContainerEntity $dataContainer)
+    public function setDataContainer(DataContainerEntity $dataContainer): void
     {
         $this->dataContainer = $dataContainer;
     }
