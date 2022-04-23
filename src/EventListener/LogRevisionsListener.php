@@ -96,9 +96,9 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @todo Remove the "@return array" docblock when support for "symfony/error-handler" 5.x is dropped.
+     * @todo Remove the "@return string[]" docblock when support for "symfony/error-handler" 5.x is dropped.
      *
-     * @return array
+     * @return string[]
      */
     public function getSubscribedEvents()
     {
@@ -294,6 +294,8 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * Get original entity data, including versioned field, if "version" constraint is used.
+     *
+     * @return array<string, mixed>
      */
     private function getOriginalEntityData(object $entity): array
     {
@@ -330,6 +332,10 @@ class LogRevisionsListener implements EventSubscriber
                 : null;
 
             $this->revisionId = $this->conn->lastInsertId($sequenceName);
+
+            if (false === $this->revisionId) {
+                throw new \RuntimeException('Unable to retrieve the last revision id.');
+            }
         }
 
         return $this->revisionId;

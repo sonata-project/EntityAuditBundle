@@ -20,6 +20,12 @@ namespace SimpleThings\EntityAudit\Utils;
  */
 class SimpleDiff
 {
+    /**
+     * @param array<int, string> $old
+     * @param array<int, string> $new
+     *
+     * @return string[]|array<int, array{d: array<int, string>, i: array<int, string>}>
+     */
     public function diff(array $old, array $new)
     {
         $maxlen = 0;
@@ -48,6 +54,12 @@ class SimpleDiff
         );
     }
 
+    /**
+     * @param string $old
+     * @param string $new
+     *
+     * @return string
+     */
     public function htmlDiff($old, $new)
     {
         $ret = '';

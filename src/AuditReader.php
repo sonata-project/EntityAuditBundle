@@ -563,6 +563,7 @@ class AuditReader
     }
 
     /**
+     * NEXT_MAJOR: Add NoRevisionFoundException as possible exception.
      * Gets the current revision of the entity with given ID.
      *
      * @param string           $className
@@ -571,7 +572,7 @@ class AuditReader
      * @throws NotAuditedException
      * @throws Exception
      *
-     * @return int|string
+     * @return int|string|null
      *
      * @phpstan-param class-string<T> $className
      */
@@ -606,7 +607,15 @@ class AuditReader
         $query = 'SELECT e.'.$this->config->getRevisionFieldName().' FROM '.$tableName.' e '.
                         ' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
 
-        return $this->em->getConnection()->fetchOne($query, array_values($id));
+        $revision = $this->em->getConnection()->fetchOne($query, array_values($id));
+
+        if (false === $revision) {
+            // NEXT_MAJOR: Remove next line and uncomment the following one, also remove "null" as possible return type.
+            return null;
+            // throw new NoRevisionFoundException($className, $id, null);
+        }
+
+        return $revision;
     }
 
     /**

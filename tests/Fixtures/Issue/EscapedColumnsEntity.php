@@ -48,22 +48,22 @@ class EscapedColumnsEntity
         return $this->id;
     }
 
-    public function getLeft(): int
+    public function getLeft(): ?int
     {
         return $this->left;
     }
 
-    public function setLeft(int $left): void
+    public function setLeft(?int $left = null): void
     {
         $this->left = $left;
     }
 
-    public function getLft(): int
+    public function getLft(): ?int
     {
         return $this->lft;
     }
 
-    public function setLft(int $lft): void
+    public function setLft(?int $lft = null): void
     {
         $this->lft = $lft;
     }
