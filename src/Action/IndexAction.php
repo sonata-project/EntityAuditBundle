@@ -20,7 +20,7 @@ use Twig\Environment;
 final class IndexAction
 {
     /**
-     * @var AuditReader
+     * @var AuditReader<object>
      */
     private $auditReader;
 
@@ -29,6 +29,9 @@ final class IndexAction
      */
     private $twig;
 
+    /**
+     * @param AuditReader<object> $auditReader
+     */
     public function __construct(Environment $twig, AuditReader $auditReader)
     {
         $this->twig = $twig;

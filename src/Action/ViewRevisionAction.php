@@ -22,7 +22,7 @@ use Twig\Environment;
 final class ViewRevisionAction
 {
     /**
-     * @var AuditReader
+     * @var AuditReader<object>
      */
     private $auditReader;
 
@@ -31,6 +31,9 @@ final class ViewRevisionAction
      */
     private $twig;
 
+    /**
+     * @param AuditReader<object> $auditReader
+     */
     public function __construct(Environment $twig, AuditReader $auditReader)
     {
         $this->twig = $twig;

@@ -60,7 +60,7 @@ class AuditManager
     /**
      * NEXT_MAJOR: Use `\Doctrine\ORM\EntityManagerInterface` for argument 1.
      *
-     * @return AuditReader
+     * @return AuditReader<object>
      */
     public function createAuditReader(EntityManager $em)
     {

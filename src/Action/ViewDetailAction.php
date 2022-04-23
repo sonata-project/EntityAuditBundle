@@ -17,10 +17,13 @@ use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
+/**
+ * @template T of object
+ */
 final class ViewDetailAction
 {
     /**
-     * @var AuditReader
+     * @var AuditReader<T>
      */
     private $auditReader;
 
@@ -29,12 +32,18 @@ final class ViewDetailAction
      */
     private $twig;
 
+    /**
+     * @param AuditReader<T> $auditReader
+     */
     public function __construct(Environment $twig, AuditReader $auditReader)
     {
         $this->twig = $twig;
         $this->auditReader = $auditReader;
     }
 
+    /**
+     * @phpstan-param class-string<T> $className
+     */
     public function __invoke(string $className, string $id, int $rev): Response
     {
         $entity = $this->auditReader->find($className, $id, $rev);

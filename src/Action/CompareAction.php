@@ -18,10 +18,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
+/**
+ * @template T of object
+ */
 final class CompareAction
 {
     /**
-     * @var AuditReader
+     * @var AuditReader<T>
      */
     private $auditReader;
 
@@ -30,12 +33,18 @@ final class CompareAction
      */
     private $twig;
 
+    /**
+     * @param AuditReader<T> $auditReader
+     */
     public function __construct(Environment $twig, AuditReader $auditReader)
     {
         $this->twig = $twig;
         $this->auditReader = $auditReader;
     }
 
+    /**
+     * @phpstan-param class-string<T> $className
+     */
     public function __invoke(Request $request, string $className, string $id, ?int $oldRev = null, ?int $newRev = null): Response
     {
         if (null === $oldRev) {
