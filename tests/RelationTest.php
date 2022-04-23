@@ -790,8 +790,10 @@ final class RelationTest extends BaseTest
 
         $auditedBase = $reader->find(\get_class($base), $base->getId(), 1);
 
-        static::assertSame('foobar', $auditedBase->getReferencedEntity()->getFoobarField());
-        static::assertSame('referenced', $auditedBase->getReferencedEntity()->getReferencedField());
+        $referencedEntity = $auditedBase->getReferencedEntity();
+        static::assertInstanceOf(RelationFoobarEntity::class, $referencedEntity);
+        static::assertSame('foobar', $referencedEntity->getFoobarField());
+        static::assertSame('referenced', $referencedEntity->getReferencedField());
     }
 
     /**

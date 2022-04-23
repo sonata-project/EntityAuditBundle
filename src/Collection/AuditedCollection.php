@@ -30,7 +30,7 @@ class AuditedCollection implements Collection
     /**
      * Related audit reader instance.
      *
-     * @var AuditReader<T>
+     * @var AuditReader
      */
     protected $auditReader;
 
@@ -105,7 +105,7 @@ class AuditedCollection implements Collection
      * @param array<string, mixed> $foreignKeys
      * @param string|int           $revision
      *
-     * @phpstan-param AuditReader<T> $auditReader
+     * @phpstan-param AuditReader $auditReader
      * @phpstan-param class-string<T> $class
      * @phpstan-param ClassMetadataInfo<T> $classMeta
      */

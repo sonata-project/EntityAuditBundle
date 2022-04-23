@@ -32,9 +32,6 @@ use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
-/**
- * @phpstan-template T of object
- */
 class AuditReader
 {
     use SQLResultCasing;
@@ -69,7 +66,7 @@ class AuditReader
      *
      * @var array<string, array<string, array<int|string, object>>>
      *
-     * @phpstan-var array<class-string, array<string, array<int|string, T>>>
+     * @phpstan-var array<class-string, array<string, array<int|string, object>>>
      */
     private $entityCache;
 
@@ -205,6 +202,8 @@ class AuditReader
      * of this entity and always returns the latest revision below or equal the given revision. Commonly, it
      * returns last revision INCLUDING "DEL" revision. If you want to throw exception instead, set
      * $threatDeletionAsException to true.
+     *
+     * @template T of object
      *
      * @param string                                    $className
      * @param int|string|array<string, int|string>      $id
@@ -517,7 +516,7 @@ class AuditReader
      *
      * @return Revision[]
      *
-     * @phpstan-param class-string<T> $className
+     * @phpstan-param class-string $className
      */
     public function findRevisions($className, $id)
     {
@@ -575,7 +574,7 @@ class AuditReader
      *
      * @return int|string|null
      *
-     * @phpstan-param class-string<T> $className
+     * @phpstan-param class-string $className
      */
     public function getCurrentRevision($className, $id)
     {
@@ -637,7 +636,7 @@ class AuditReader
      *
      * @return array<string, array<string, mixed>>
      *
-     * @phpstan-param class-string<T> $className
+     * @phpstan-param class-string $className
      * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
      */
     public function diff($className, $id, $oldRevision, $newRevision)
@@ -661,8 +660,7 @@ class AuditReader
      *
      * @return array<string, mixed>
      *
-     * @phpstan-param class-string<T> $className
-     * @phpstan-param T $entity
+     * @phpstan-param class-string $className
      */
     public function getEntityValues($className, $entity)
     {
@@ -678,6 +676,8 @@ class AuditReader
     }
 
     /**
+     * @template T of object
+     *
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
@@ -775,6 +775,8 @@ class AuditReader
     /**
      * Simplified and stolen code from UnitOfWork::createEntity.
      *
+     * @template T of object
+     *
      * @param string                $className
      * @param array<string, string> $columnMap
      * @param array<string, mixed>  $data
@@ -805,9 +807,11 @@ class AuditReader
 
         $key = implode(':', $keyParts);
 
-        if (isset($this->entityCache[$className], $this->entityCache[$className][$key], $this->entityCache[$className][$key][$revision])
-        ) {
-            return $this->entityCache[$className][$key][$revision];
+        if (isset($this->entityCache[$className][$key][$revision])) {
+            /** @phpstan-var T $cachedEntity */
+            $cachedEntity = $this->entityCache[$className][$key][$revision];
+
+            return $cachedEntity;
         }
 
         if (!$classMetadata->isInheritanceTypeNone()) {
@@ -830,7 +834,10 @@ class AuditReader
                     $pk[$classMetadata->getColumnName($field)] = $data[$field];
                 }
 
-                return $this->find($classMetadata->discriminatorMap[$discriminator], $pk, $revision);
+                /** @phpstan-var class-string<T> $classNameDiscriminator */
+                $classNameDiscriminator = $classMetadata->discriminatorMap[$discriminator];
+
+                return $this->find($classNameDiscriminator, $pk, $revision);
             }
         } else {
             /** @phpstan-var T $entity */
