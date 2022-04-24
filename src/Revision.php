@@ -33,6 +33,9 @@ class Revision
      */
     private $username;
 
+    /**
+     * @param int|string $rev
+     */
     public function __construct($rev, \DateTime $timestamp, ?string $username)
     {
         $this->rev = $rev;
@@ -40,6 +43,9 @@ class Revision
         $this->username = $username;
     }
 
+    /**
+     * @return int|string
+     */
     public function getRev()
     {
         return $this->rev;
@@ -54,7 +60,7 @@ class Revision
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getUsername()
     {

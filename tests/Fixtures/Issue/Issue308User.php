@@ -80,7 +80,7 @@ class Issue308User
         return $activeChildren;
     }
 
-    public function getParent(): self
+    public function getParent(): ?self
     {
         return $this->parent;
     }

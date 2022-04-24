@@ -58,6 +58,8 @@ class TokenStorageUsernameCallable
     /**
      * TODO: Simplify this when dropping support for Symfony < 5.3.
      *
+     * @psalm-suppress UndefinedInterfaceMethod Use only "getUserIdentifier" when dropping support of Symfony < 5.3
+     *
      * @return string|null
      */
     public function __invoke()
