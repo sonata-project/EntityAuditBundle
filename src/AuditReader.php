@@ -18,7 +18,6 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Internal\SQLResultCasing;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\QuoteStrategy;
 use Doctrine\ORM\ORMException;
@@ -31,6 +30,7 @@ use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
+use SimpleThings\EntityAudit\Utils\SQLResultCasing;
 
 /**
  * @phpstan-template T of object
