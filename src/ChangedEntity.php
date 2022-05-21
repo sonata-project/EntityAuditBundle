@@ -26,7 +26,7 @@ class ChangedEntity
     private $className;
 
     /**
-     * @var array
+     * @var array<string, int|string>
      */
     private $id;
 
@@ -43,6 +43,8 @@ class ChangedEntity
     private $entity;
 
     /**
+     * @param array<string, int|string> $id
+     *
      * @phpstan-param class-string<T> $className
      * @phpstan-param T $entity
      */
@@ -65,7 +67,7 @@ class ChangedEntity
     }
 
     /**
-     * @return array
+     * @return array<string, int|string>
      */
     public function getId()
     {

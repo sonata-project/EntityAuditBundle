@@ -1,5 +1,5 @@
 parameters:
-    level: 5
+    level: 6
     paths:
         - src
         - tests
@@ -12,3 +12,5 @@ parameters:
     checkMissingIterableValueType: true
     checkMissingVarTagTypehint: true
     checkMissingTypehints: true
+    ignoreErrors:
+        - '#^Method SimpleThings\\EntityAudit\\Tests\\[a-zA-Z0-9_\\]+Test::(data|provide)[a-zA-Z0-9_]+\(\) return type has no value type specified in iterable type [a-zA-Z0-9_]+\.$#'
