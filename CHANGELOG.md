@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.8.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.7.0...1.8.0) - 2022-05-21
+### Added
+- [[#488](https://github.com/sonata-project/EntityAuditBundle/pull/488)] Specify iterable types ([@franmomu](https://github.com/franmomu))
+- [[#490](https://github.com/sonata-project/EntityAuditBundle/pull/490)] Added support for `doctrine/persistence` 3 ([@franmomu](https://github.com/franmomu))
+
+### Changed
+- [[#488](https://github.com/sonata-project/EntityAuditBundle/pull/488)] Make `AuditReader` not generic ([@franmomu](https://github.com/franmomu))
+- [[#484](https://github.com/sonata-project/EntityAuditBundle/pull/484)] Change composer license to MIT ([@mpoiriert](https://github.com/mpoiriert))
+
+### Fixed
+- [[#491](https://github.com/sonata-project/EntityAuditBundle/pull/491)] Deprecation warning about using `SQLResultCasing` internal trait ([@franmomu](https://github.com/franmomu))
+- [[#486](https://github.com/sonata-project/EntityAuditBundle/pull/486)] Fixed some phpdoc types ([@franmomu](https://github.com/franmomu))
+
 ## [1.7.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.6.1...1.7.0) - 2022-02-03
 ### Deprecated
 - [[#472](https://github.com/sonata-project/EntityAuditBundle/pull/472)] Constructing `TokenStorageUsernameCallable` with an instance of `Container`, use an instance of `TokenStorageInterface` instead ([@franmomu](https://github.com/franmomu))
