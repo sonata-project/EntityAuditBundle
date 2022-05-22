@@ -36,6 +36,9 @@ final class CompareAction
         $this->auditReader = $auditReader;
     }
 
+    /**
+     * @phpstan-param class-string $className
+     */
     public function __invoke(Request $request, string $className, string $id, ?int $oldRev = null, ?int $newRev = null): Response
     {
         if (null === $oldRev) {

@@ -30,7 +30,7 @@ class AuditedCollection implements Collection
     /**
      * Related audit reader instance.
      *
-     * @var AuditReader<T>
+     * @var AuditReader
      */
     protected $auditReader;
 
@@ -53,7 +53,7 @@ class AuditedCollection implements Collection
     /**
      * Maximum revision to fetch.
      *
-     * @var string
+     * @var string|int
      */
     protected $revision;
 
@@ -74,7 +74,7 @@ class AuditedCollection implements Collection
      * initialized yet or contain identifiers to load the entities.
      *
      * @var Collection<int|string, array>
-     * @phpstan-var Collection<TKey, array{keys: array, rev: string|int}>
+     * @phpstan-var Collection<TKey, array{keys: array<string, int|string>, rev: string|int}>
      */
     protected $entities;
 
@@ -103,8 +103,9 @@ class AuditedCollection implements Collection
      * @param string               $class
      * @param array<string, mixed> $associationDefinition
      * @param array<string, mixed> $foreignKeys
+     * @param string|int           $revision
      *
-     * @phpstan-param AuditReader<T> $auditReader
+     * @phpstan-param AuditReader $auditReader
      * @phpstan-param class-string<T> $class
      * @phpstan-param ClassMetadataInfo<T> $classMeta
      */

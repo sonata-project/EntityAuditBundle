@@ -35,6 +35,9 @@ final class ViewDetailAction
         $this->auditReader = $auditReader;
     }
 
+    /**
+     * @phpstan-param class-string $className
+     */
     public function __invoke(string $className, string $id, int $rev): Response
     {
         $entity = $this->auditReader->find($className, $id, $rev);
