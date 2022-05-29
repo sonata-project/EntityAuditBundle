@@ -98,6 +98,7 @@ abstract class BaseTest extends TestCase
         $config->setAutoGenerateProxyClasses(AbstractProxyFactory::AUTOGENERATE_EVAL);
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
+        // @phpstan-ignore-next-line @see https://github.com/phpstan/phpstan/issues/7290
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver([
             realpath(__DIR__.'/Fixtures/Core'),
             realpath(__DIR__.'/Fixtures/Issue'),

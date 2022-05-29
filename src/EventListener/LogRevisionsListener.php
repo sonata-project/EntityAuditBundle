@@ -160,7 +160,9 @@ class LogRevisionsListener implements EventSubscriber
                         if (isset($mapping['joinColumns'])) {
                             foreach ($mapping['joinColumns'] as $definition) {
                                 if ($definition['name'] === $column) {
-                                    $targetTable = $em->getClassMetadata($mapping['targetEntity']);
+                                    /** @var class-string $targetEntity */
+                                    $targetEntity = $mapping['targetEntity'];
+                                    $targetTable = $em->getClassMetadata($targetEntity);
                                     $type = $targetTable->getTypeOfField($targetTable->getFieldForColumn($definition['referencedColumnName']));
                                 }
                             }
@@ -427,7 +429,9 @@ class LogRevisionsListener implements EventSubscriber
                 $relatedId = $this->uow->getEntityIdentifier($data);
             }
 
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+            /** @var class-string $targetEntity */
+            $targetEntity = $assoc['targetEntity'];
+            $targetClass = $this->em->getClassMetadata($targetEntity);
 
             foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
                 $fields[$sourceColumn] = true;
@@ -558,7 +562,9 @@ class LogRevisionsListener implements EventSubscriber
                 $newValId = $uow->getEntityIdentifier($newVal);
             }
 
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+            /** @var class-string $targetEntity */
+            $targetEntity = $assoc['targetEntity'];
+            $targetClass = $this->em->getClassMetadata($targetEntity);
             $owningTable = $persister->getOwningTable($field);
 
             foreach ($assoc['joinColumns'] as $joinColumn) {
