@@ -856,11 +856,12 @@ class AuditReader
         }
 
         foreach ($classMetadata->associationMappings as $field => $assoc) {
-            /** @var ClassMetadata<T> $targetClass */
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+            /** @phpstan-var class-string<T> $targetEntity */
+            $targetEntity = $assoc['targetEntity'];
+            $targetClass = $this->em->getClassMetadata($targetEntity);
 
             if ($assoc['type'] & ClassMetadata::TO_ONE) {
-                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                if ($this->metadataFactory->isAudited($targetEntity)) {
                     if ($this->loadAuditedEntities) {
                         // Primary Key. Used for audit tables queries.
                         $pk = [];
@@ -872,7 +873,7 @@ class AuditReader
                                 $pk[$foreign] = $pf[$foreign] = $data[$columnMap[$local]];
                             }
                         } else {
-                            $otherEntityAssoc = $this->em->getClassMetadata($assoc['targetEntity'])->associationMappings[$assoc['mappedBy']];
+                            $otherEntityAssoc = $this->em->getClassMetadata($targetEntity)->associationMappings[$assoc['mappedBy']];
 
                             foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
                                 $pk[$foreign] = $pf[$otherEntityAssoc['fieldName']] = $data[$classMetadata->getFieldName($local)];
@@ -922,7 +923,7 @@ class AuditReader
                             }
                         } else {
                             // Inverse side of x-to-one can never be lazy
-                            $classMetadata->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
+                            $classMetadata->reflFields[$field]->setValue($entity, $this->getEntityPersister($targetEntity)
                                 ->loadOneToOneEntity($assoc, $entity));
                         }
                     } else {
@@ -930,7 +931,7 @@ class AuditReader
                     }
                 }
             } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
-                if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                if ($this->metadataFactory->isAudited($targetEntity)) {
                     if ($this->loadAuditedCollections) {
                         $foreignKeys = [];
                         foreach ($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'] as $local => $foreign) {
@@ -948,7 +949,7 @@ class AuditReader
                     if ($this->loadNativeCollections) {
                         $collection = new PersistentCollection($this->em, $targetClass, new ArrayCollection());
 
-                        $this->getEntityPersister($assoc['targetEntity'])
+                        $this->getEntityPersister($targetEntity)
                             ->loadOneToManyCollection($assoc, $entity, $collection);
 
                         $classMetadata->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
