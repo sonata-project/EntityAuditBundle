@@ -36,7 +36,7 @@ class Issue198Owner
      *
      * @ORM\OneToMany(targetEntity="Issue198Car", mappedBy="owner")
      */
-    private $cars;
+    private Collection $cars;
 
     public function __construct()
     {

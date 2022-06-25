@@ -35,11 +35,9 @@ abstract class AbstractDataEntity
     protected $id;
 
     /**
-     * @var DataContainerEntity|null
-     *
      * @ORM\OneToOne(targetEntity="DataContainerEntity", mappedBy="data")
      */
-    private $dataContainer;
+    private ?DataContainerEntity $dataContainer = null;
 
     public function getId(): ?int
     {

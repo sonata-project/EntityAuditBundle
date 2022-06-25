@@ -30,18 +30,14 @@ class Issue31Reve
     protected $id;
 
     /**
-     * @var Issue31User|null
-     *
      * @ORM\OneToOne(targetEntity="Issue31User")
      */
-    private $user;
+    private ?Issue31User $user = null;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string")
      */
-    private $titre;
+    private ?string $titre = null;
 
     public function getId(): ?int
     {

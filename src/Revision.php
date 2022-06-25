@@ -23,15 +23,9 @@ class Revision
      */
     private $rev;
 
-    /**
-     * @var \DateTime
-     */
-    private $timestamp;
+    private \DateTime $timestamp;
 
-    /**
-     * @var string|null
-     */
-    private $username;
+    private ?string $username;
 
     /**
      * @param int|string $rev

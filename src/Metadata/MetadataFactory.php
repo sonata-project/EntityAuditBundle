@@ -20,7 +20,7 @@ class MetadataFactory
      *
      * @phpstan-var array<class-string, int|string>
      */
-    private $auditedEntities = [];
+    private array $auditedEntities = [];
 
     /**
      * @phpstan-param class-string[] $auditedEntities

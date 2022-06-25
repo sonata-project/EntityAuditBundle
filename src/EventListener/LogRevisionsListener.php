@@ -35,47 +35,26 @@ use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class LogRevisionsListener implements EventSubscriber
 {
-    /**
-     * @var AuditConfiguration
-     */
-    private $config;
+    private AuditConfiguration $config;
 
-    /**
-     * @var MetadataFactory
-     */
-    private $metadataFactory;
+    private MetadataFactory $metadataFactory;
 
-    /**
-     * @var Connection
-     */
-    private $conn;
+    private Connection $conn;
 
-    /**
-     * @var AbstractPlatform
-     */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /**
-     * @var QuoteStrategy
-     */
-    private $quoteStrategy;
+    private QuoteStrategy $quoteStrategy;
 
     /**
      * @var string[]
      *
      * @phpstan-var array<string, string>
      */
-    private $insertRevisionSQL = [];
+    private array $insertRevisionSQL = [];
 
-    /**
-     * @var UnitOfWork
-     */
-    private $uow;
+    private UnitOfWork $uow;
 
     /**
      * @var int|string|null
@@ -87,7 +66,7 @@ class LogRevisionsListener implements EventSubscriber
      *
      * @phpstan-var array<string, object>
      */
-    private $extraUpdates = [];
+    private array $extraUpdates = [];
 
     public function __construct(AuditManager $auditManager)
     {

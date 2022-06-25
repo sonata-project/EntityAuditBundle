@@ -159,7 +159,7 @@ final class CoreTest extends BaseTest
         $this->expectException(NotAuditedException::class);
         $this->expectExceptionMessage('Class "stdClass" is not audited.');
 
-        $reader->find('stdClass', 1, 1);
+        $reader->find(\stdClass::class, 1, 1);
     }
 
     public function testFindRevisionHistory(): void
@@ -181,11 +181,11 @@ final class CoreTest extends BaseTest
         static::assertContainsOnly(Revision::class, $revisions);
 
         static::assertSame('2', (string) $revisions[0]->getRev());
-        static::assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
+        static::assertInstanceOf(\DateTime::class, $revisions[0]->getTimestamp());
         static::assertSame('beberlei', $revisions[0]->getUsername());
 
         static::assertSame('1', (string) $revisions[1]->getRev());
-        static::assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
+        static::assertInstanceOf(\DateTime::class, $revisions[1]->getTimestamp());
         static::assertSame('beberlei', $revisions[1]->getUsername());
     }
 
@@ -301,11 +301,11 @@ final class CoreTest extends BaseTest
         static::assertContainsOnly(Revision::class, $revisions);
 
         static::assertSame('2', (string) $revisions[0]->getRev());
-        static::assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
+        static::assertInstanceOf(\DateTime::class, $revisions[0]->getTimestamp());
         static::assertSame('beberlei', $revisions[0]->getUsername());
 
         static::assertSame('1', (string) $revisions[1]->getRev());
-        static::assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
+        static::assertInstanceOf(\DateTime::class, $revisions[1]->getTimestamp());
         static::assertSame('beberlei', $revisions[1]->getUsername());
 
         // SINGLE_TABLE should have separate revision history
@@ -391,9 +391,9 @@ final class CoreTest extends BaseTest
 
     public function testUsernameResolvingIsDynamic(): void
     {
-        $this->auditManager->getConfiguration()->setUsernameCallable(static function () {
-            return 'user: '.uniqid();
-        });
+        $this->auditManager->getConfiguration()->setUsernameCallable(
+            static fn () => 'user: '.uniqid()
+        );
 
         $user = new UserAudit('beberlei');
         $this->em->persist($user);
