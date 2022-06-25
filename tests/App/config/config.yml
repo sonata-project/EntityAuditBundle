@@ -1,6 +1,7 @@
 framework:
     secret: '%env(APP_SECRET)%'
     test: true
+    http_method_override: false
 
 twig:
     exception_controller: null
