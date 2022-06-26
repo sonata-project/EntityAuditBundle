@@ -30,19 +30,15 @@ class ProfileAudit
     protected $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="text")
      */
-    private $biography;
+    private string $biography;
 
     /**
-     * @var UserAudit|null
-     *
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
-    private $user;
+    private ?UserAudit $user = null;
 
     public function __construct(string $biography)
     {

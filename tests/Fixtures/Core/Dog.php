@@ -21,11 +21,9 @@ use Doctrine\ORM\Mapping as ORM;
 class Dog extends PetAudit
 {
     /**
-     * @var int
-     *
      * @ORM\Column(type="integer", name="dog_tail_length")
      */
-    private $tailLength;
+    private int $tailLength;
 
     public function __construct(string $name, int $tailLength)
     {

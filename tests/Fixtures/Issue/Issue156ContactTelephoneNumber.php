@@ -21,27 +21,21 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue156ContactTelephoneNumber
 {
     /**
-     * @var int|null
-     *
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    private ?int $id = null;
 
     /**
-     * @var Issue156Contact|null
-     *
      * @ORM\ManyToOne(targetEntity="Issue156Contact", inversedBy="telephoneNumbers")
      */
-    private $contact;
+    private ?Issue156Contact $contact = null;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string", length=255, nullable=false)
      */
-    private $number;
+    private ?string $number = null;
 
     public function setId(int $id): self
     {

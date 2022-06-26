@@ -29,15 +29,9 @@ use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class CreateSchemaListener implements EventSubscriber
 {
-    /**
-     * @var AuditConfiguration
-     */
-    private $config;
+    private AuditConfiguration $config;
 
-    /**
-     * @var MetadataFactory
-     */
-    private $metadataFactory;
+    private MetadataFactory $metadataFactory;
 
     public function __construct(AuditManager $auditManager)
     {

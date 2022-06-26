@@ -51,11 +51,9 @@ class ArticleAudit
     protected $ignoreme;
 
     /**
-     * @var UserAudit
-     *
      * @ORM\ManyToOne(targetEntity="UserAudit")
      */
-    private $author;
+    private UserAudit $author;
 
     public function __construct(string $title, string $text, UserAudit $author, string $ignoreme)
     {

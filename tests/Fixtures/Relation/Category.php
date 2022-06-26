@@ -30,7 +30,7 @@ abstract class Category extends SomeEntity
      *
      * @ORM\OneToMany(targetEntity="Product", mappedBy="category")
      */
-    private $products;
+    private Collection $products;
 
     public function __construct()
     {

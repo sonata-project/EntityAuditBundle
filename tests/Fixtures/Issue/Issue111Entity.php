@@ -32,18 +32,14 @@ class Issue111Entity
     protected $id;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column
      */
-    private $status;
+    private ?string $status = null;
 
     /**
-     * @var \DateTimeInterface|null
-     *
      * @ORM\Column(type="datetime", nullable=true, name="deleted_at")
      */
-    private $deletedAt;
+    private ?\DateTimeInterface $deletedAt = null;
 
     public function getId(): ?int
     {

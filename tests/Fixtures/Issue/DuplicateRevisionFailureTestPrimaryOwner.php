@@ -34,7 +34,7 @@ class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureT
      *     fetch="LAZY"
      * )
      */
-    private $elements;
+    private Collection $elements;
 
     /**
      * @var Collection<int, DuplicateRevisionFailureTestSecondaryOwner>
@@ -45,7 +45,7 @@ class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureT
      *     cascade={"persist", "remove"}
      * )
      */
-    private $secondaryOwners;
+    private Collection $secondaryOwners;
 
     public function __construct()
     {

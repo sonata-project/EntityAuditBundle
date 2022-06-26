@@ -25,15 +25,9 @@ use SimpleThings\EntityAudit\Metadata\MetadataFactory;
  */
 class AuditManager
 {
-    /**
-     * @var AuditConfiguration
-     */
-    private $config;
+    private AuditConfiguration $config;
 
-    /**
-     * @var MetadataFactory
-     */
-    private $metadataFactory;
+    private MetadataFactory $metadataFactory;
 
     public function __construct(AuditConfiguration $config)
     {
