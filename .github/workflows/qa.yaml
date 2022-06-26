@@ -83,8 +83,11 @@ jobs:
                   coverage: none
                   tools: composer:v2
 
-            - name: Install Composer dependencies (locked)
+            - name: Install Composer dependencies (highest)
               uses: ramsey/composer-install@v2
+              with:
+                  dependency-versions: highest
+                  composer-options: --prefer-dist --prefer-stable
 
             - name: Rector
               run: vendor/bin/rector --no-progress-bar --dry-run
