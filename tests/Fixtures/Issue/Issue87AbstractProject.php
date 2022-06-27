@@ -34,26 +34,18 @@ abstract class Issue87AbstractProject
     protected $id;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="title", type="string", length=50)
      */
-    private $title; // This property is in the _audit table for each subclass
-
+    private ?string $title = null; // This property is in the _audit table for each subclass
     /**
-     * @var string|null
-     *
      * @ORM\Column(name="description", type="string", length=1000, nullable=true)
      */
-    private $description; // This property is in the _audit table for each subclass
-
+    private ?string $description = null; // This property is in the _audit table for each subclass
     /**
-     * @var Issue87Organization|null
-     *
      * @ORM\ManyToOne(targetEntity="Issue87Organization")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $organisation; // This association is NOT in the _audit table for the subclasses
+    private ?Issue87Organization $organisation = null; // This association is NOT in the _audit table for the subclasses
 
     public function getId(): ?int
     {

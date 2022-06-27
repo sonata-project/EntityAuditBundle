@@ -30,11 +30,9 @@ class Issue196Entity
     protected $id;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="issue196type")
      */
-    private $sqlConversionField;
+    private ?string $sqlConversionField = null;
 
     public function getId(): ?int
     {

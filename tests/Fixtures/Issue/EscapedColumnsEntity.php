@@ -30,18 +30,14 @@ class EscapedColumnsEntity
     protected $id;
 
     /**
-     * @var int|null
-     *
      * @ORM\Column(type="integer", name="lft")
      */
-    private $left;
+    private ?int $left = null;
 
     /**
-     * @var int|null
-     *
      * @ORM\Column(type="integer", name="`left`")
      */
-    private $lft;
+    private ?int $lft = null;
 
     public function getId(): ?int
     {

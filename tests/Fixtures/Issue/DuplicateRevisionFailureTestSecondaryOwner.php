@@ -41,7 +41,7 @@ class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailur
      *     cascade={"persist", "remove"}
      * )
      */
-    private $elements;
+    private Collection $elements;
 
     public function __construct()
     {

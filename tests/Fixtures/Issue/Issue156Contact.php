@@ -38,7 +38,7 @@ class Issue156Contact
      *
      * @ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
-    private $telephoneNumbers;
+    private Collection $telephoneNumbers;
 
     public function __construct()
     {

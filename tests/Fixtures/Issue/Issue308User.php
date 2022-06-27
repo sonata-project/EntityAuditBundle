@@ -43,7 +43,7 @@ class Issue308User
      *
      * @ORM\OneToMany(targetEntity="Issue308User", mappedBy="parent")
      */
-    private $children;
+    private Collection $children;
 
     public function __construct()
     {
@@ -73,9 +73,9 @@ class Issue308User
      */
     public function getChildren(): Collection
     {
-        $activeChildren = $this->children->filter(static function (self $user): bool {
-            return $user->isActive();
-        });
+        $activeChildren = $this->children->filter(
+            static fn (self $user): bool => $user->isActive()
+        );
 
         return $activeChildren;
     }

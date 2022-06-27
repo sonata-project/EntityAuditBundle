@@ -21,11 +21,9 @@ use Doctrine\ORM\Mapping as ORM;
 class Issue156Client extends Issue156Contact
 {
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string", length=255)
      */
-    private $clientSpecificField;
+    private ?string $clientSpecificField = null;
 
     public function setClientSpecificField(string $clientSpecificField): self
     {

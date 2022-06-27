@@ -44,6 +44,6 @@ final class Issue111Test extends BaseTest
 
         $ae = $reader->find(Issue111Entity::class, 1, 2);
 
-        static::assertInstanceOf('DateTime', $ae->getDeletedAt());
+        static::assertInstanceOf(\DateTime::class, $ae->getDeletedAt());
     }
 }

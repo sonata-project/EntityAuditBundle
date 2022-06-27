@@ -30,18 +30,14 @@ class UserAudit
     protected $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string")
      */
-    private $name;
+    private string $name;
 
     /**
-     * @var ProfileAudit|null
-     *
      * @ORM\OneToOne(targetEntity="ProfileAudit", mappedBy="user")
      */
-    private $profile;
+    private ?ProfileAudit $profile = null;
 
     public function __construct(string $name)
     {

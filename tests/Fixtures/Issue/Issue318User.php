@@ -30,11 +30,9 @@ class Issue318User
     protected $id;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string", nullable=false, length=255)
      */
-    private $alias;
+    private ?string $alias = null;
 
     public function getId(): ?int
     {

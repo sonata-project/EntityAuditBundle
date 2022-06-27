@@ -21,7 +21,7 @@ use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
-use Gedmo;
+use Gedmo\DoctrineExtensions;
 use PHPUnit\Framework\TestCase;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
@@ -67,10 +67,7 @@ abstract class BaseTest extends TestCase
      */
     protected $customTypes = [];
 
-    /**
-     * @var SchemaTool
-     */
-    private $schemaTool;
+    private ?SchemaTool $schemaTool = null;
 
     protected function setUp(): void
     {
@@ -98,14 +95,13 @@ abstract class BaseTest extends TestCase
         $config->setAutoGenerateProxyClasses(AbstractProxyFactory::AUTOGENERATE_EVAL);
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
-        // @phpstan-ignore-next-line @see https://github.com/phpstan/phpstan/issues/7290
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver([
             realpath(__DIR__.'/Fixtures/Core'),
             realpath(__DIR__.'/Fixtures/Issue'),
             realpath(__DIR__.'/Fixtures/Relation'),
         ], false));
 
-        Gedmo\DoctrineExtensions::registerAnnotations();
+        DoctrineExtensions::registerAnnotations();
 
         $connection = $this->_getConnection();
 
@@ -135,7 +131,9 @@ abstract class BaseTest extends TestCase
             return $this->schemaTool;
         }
 
-        return $this->schemaTool = new SchemaTool($this->getEntityManager());
+        $this->schemaTool = new SchemaTool($this->getEntityManager());
+
+        return $this->schemaTool;
     }
 
     protected function _getConnection(): Connection
@@ -164,9 +162,7 @@ abstract class BaseTest extends TestCase
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
-        $auditConfig->setUsernameCallable(static function (): string {
-            return 'beberlei';
-        });
+        $auditConfig->setUsernameCallable(static fn (): string => 'beberlei');
 
         $auditManager = new AuditManager($auditConfig);
         $auditManager->registerEvents($this->_getConnection()->getEventManager());
@@ -177,9 +173,10 @@ abstract class BaseTest extends TestCase
     protected function setUpEntitySchema(): void
     {
         $em = $this->getEntityManager();
-        $classes = array_map(static function (string $value) use ($em): ClassMetadata {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities);
+        $classes = array_map(
+            static fn (string $value): ClassMetadata => $em->getClassMetadata($value),
+            $this->schemaEntities
+        );
 
         $this->getSchemaTool()->createSchema($classes);
     }
@@ -187,9 +184,10 @@ abstract class BaseTest extends TestCase
     protected function tearDownEntitySchema(): void
     {
         $em = $this->getEntityManager();
-        $classes = array_map(static function (string $value) use ($em): ClassMetadata {
-            return $em->getClassMetadata($value);
-        }, $this->schemaEntities);
+        $classes = array_map(
+            static fn (string $value): ClassMetadata => $em->getClassMetadata($value),
+            $this->schemaEntities
+        );
 
         $this->getSchemaTool()->dropSchema($classes);
     }

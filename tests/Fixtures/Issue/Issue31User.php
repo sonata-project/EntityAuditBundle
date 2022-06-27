@@ -30,18 +30,14 @@ class Issue31User
     protected $id;
 
     /**
-     * @var Issue31Reve|null
-     *
      * @ORM\OneToOne(targetEntity="Issue31Reve", cascade={"persist", "remove"})
      */
-    private $reve;
+    private ?Issue31Reve $reve = null;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string")
      */
-    private $titre;
+    private ?string $titre = null;
 
     public function getId(): ?int
     {

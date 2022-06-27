@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\Type;
@@ -36,30 +37,15 @@ class AuditReader
 {
     use SQLResultCasing;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /**
-     * @var AuditConfiguration
-     */
-    private $config;
+    private AuditConfiguration $config;
 
-    /**
-     * @var MetadataFactory
-     */
-    private $metadataFactory;
+    private MetadataFactory $metadataFactory;
 
-    /**
-     * @var AbstractPlatform
-     */
-    private $platform;
+    private AbstractPlatform $platform;
 
-    /**
-     * @var QuoteStrategy
-     */
-    private $quoteStrategy;
+    private QuoteStrategy $quoteStrategy;
 
     /**
      * Entity cache to prevent circular references.
@@ -72,31 +58,23 @@ class AuditReader
 
     /**
      * Decides if audited ToMany collections are loaded.
-     *
-     * @var bool
      */
-    private $loadAuditedCollections = true;
+    private bool $loadAuditedCollections = true;
 
     /**
      * Decides if audited ToOne collections are loaded.
-     *
-     * @var bool
      */
-    private $loadAuditedEntities = true;
+    private bool $loadAuditedEntities = true;
 
     /**
      * Decides if native (not audited) ToMany collections are loaded.
-     *
-     * @var bool
      */
-    private $loadNativeCollections = true;
+    private bool $loadNativeCollections = true;
 
     /**
      * Decides if native (not audited) ToOne collections are loaded.
-     *
-     * @var bool
      */
-    private $loadNativeEntities = true;
+    private bool $loadNativeEntities = true;
 
     public function __construct(EntityManagerInterface $em, AuditConfiguration $config, MetadataFactory $factory)
     {
@@ -172,7 +150,7 @@ class AuditReader
     }
 
     /**
-     * @return \Doctrine\DBAL\Connection
+     * @return Connection
      */
     public function getConnection()
     {
@@ -302,7 +280,7 @@ class AuditReader
             }
         }
 
-        $values = array_merge([$revision], array_values($id));
+        $values = [...[$revision], ...array_values($id)];
 
         if (!$classMetadata->isInheritanceTypeNone()) {
             $columnList[] = $classMetadata->discriminatorColumn['name'];
@@ -880,9 +858,7 @@ class AuditReader
                             }
                         }
 
-                        $pk = array_filter($pk, static function ($value) {
-                            return null !== $value;
-                        });
+                        $pk = array_filter($pk, static fn ($value) => null !== $value);
 
                         if (!$pk) {
                             $classMetadata->reflFields[$field]->setValue($entity, null);

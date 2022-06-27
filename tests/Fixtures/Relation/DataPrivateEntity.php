@@ -23,11 +23,9 @@ use Doctrine\ORM\Mapping as ORM;
 class DataPrivateEntity extends AbstractDataEntity
 {
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="string")
      */
-    private $name;
+    private ?string $name = null;
 
     public function getName(): ?string
     {

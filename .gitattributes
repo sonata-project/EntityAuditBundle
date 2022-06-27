@@ -7,6 +7,7 @@
 tests export-ignore
 Makefile export-ignore
 phpunit.xml.dist export-ignore
+rector.php export-ignore
 phpstan.neon.dist export-ignore
 phpstan-baseline.neon export-ignore
 phpstan-console-application.php export-ignore

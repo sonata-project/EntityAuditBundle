@@ -15,7 +15,13 @@ namespace SimpleThings\EntityAudit\Tests\DependencyInjection;
 
 use Doctrine\DBAL\Types\Types;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
+use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
+use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\DependencyInjection\SimpleThingsEntityAuditExtension;
+use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
+use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
+use SimpleThings\EntityAudit\User\TokenStorageUsernameCallable;
 
 final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCase
 {
@@ -23,24 +29,24 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
     {
         $this->load([]);
 
-        $this->assertContainerBuilderHasService('simplethings_entityaudit.manager', 'SimpleThings\EntityAudit\AuditManager');
+        $this->assertContainerBuilderHasService('simplethings_entityaudit.manager', AuditManager::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.manager', 0, 'simplethings_entityaudit.config');
 
-        $this->assertContainerBuilderHasService('simplethings_entityaudit.reader', 'SimpleThings\EntityAudit\AuditReader');
+        $this->assertContainerBuilderHasService('simplethings_entityaudit.reader', AuditReader::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.reader', 0);
 
-        $this->assertContainerBuilderHasService('simplethings_entityaudit.log_revisions_listener', 'SimpleThings\EntityAudit\EventListener\LogRevisionsListener');
+        $this->assertContainerBuilderHasService('simplethings_entityaudit.log_revisions_listener', LogRevisionsListener::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.log_revisions_listener', 0, 'simplethings_entityaudit.manager');
         $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
 
-        $this->assertContainerBuilderHasService('simplethings_entityaudit.create_schema_listener', 'SimpleThings\EntityAudit\EventListener\CreateSchemaListener');
+        $this->assertContainerBuilderHasService('simplethings_entityaudit.create_schema_listener', CreateSchemaListener::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.create_schema_listener', 0, 'simplethings_entityaudit.manager');
         $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.create_schema_listener', 'doctrine.event_subscriber', ['connection' => 'default']);
 
-        $this->assertContainerBuilderHasService('simplethings_entityaudit.username_callable.token_storage', 'SimpleThings\EntityAudit\User\TokenStorageUsernameCallable');
+        $this->assertContainerBuilderHasService('simplethings_entityaudit.username_callable.token_storage', TokenStorageUsernameCallable::class);
         $this->assertContainerBuilderHasServiceDefinitionWithArgument('simplethings_entityaudit.username_callable.token_storage', 0, 'security.token_storage');
 
-        $this->assertContainerBuilderHasService('simplethings_entityaudit.config', 'SimpleThings\EntityAudit\AuditConfiguration');
+        $this->assertContainerBuilderHasService('simplethings_entityaudit.config', AuditConfiguration::class);
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setAuditedEntityClasses', ['%simplethings.entityaudit.audited_entities%']);
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setGlobalIgnoreColumns', ['%simplethings.entityaudit.global_ignore_columns%']);
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setTablePrefix', ['%simplethings.entityaudit.table_prefix%']);

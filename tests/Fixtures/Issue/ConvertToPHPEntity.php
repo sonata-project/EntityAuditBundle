@@ -30,11 +30,9 @@ class ConvertToPHPEntity
     protected $id;
 
     /**
-     * @var string|null
-     *
      * @ORM\Column(type="upper")
      */
-    private $sqlConversionField;
+    private ?string $sqlConversionField = null;
 
     public function getId(): ?int
     {

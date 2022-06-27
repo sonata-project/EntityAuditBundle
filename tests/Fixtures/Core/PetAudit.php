@@ -33,11 +33,9 @@ abstract class PetAudit
     protected $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(type="string")
      */
-    private $name;
+    private string $name;
 
     public function __construct(string $name)
     {

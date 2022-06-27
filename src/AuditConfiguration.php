@@ -24,42 +24,24 @@ class AuditConfiguration
      *
      * @phpstan-var class-string[]
      */
-    private $auditedEntityClasses = [];
+    private array $auditedEntityClasses = [];
 
     /**
      * @var string[]
      */
-    private $globalIgnoreColumns = [];
+    private array $globalIgnoreColumns = [];
 
-    /**
-     * @var string
-     */
-    private $tablePrefix = '';
+    private string $tablePrefix = '';
 
-    /**
-     * @var string
-     */
-    private $tableSuffix = '_audit';
+    private string $tableSuffix = '_audit';
 
-    /**
-     * @var string
-     */
-    private $revisionTableName = 'revisions';
+    private string $revisionTableName = 'revisions';
 
-    /**
-     * @var string
-     */
-    private $revisionFieldName = 'rev';
+    private string $revisionFieldName = 'rev';
 
-    /**
-     * @var string
-     */
-    private $revisionTypeFieldName = 'revtype';
+    private string $revisionTypeFieldName = 'revtype';
 
-    /**
-     * @var string
-     */
-    private $revisionIdFieldType = Types::INTEGER;
+    private string $revisionIdFieldType = Types::INTEGER;
 
     /**
      * @var callable|null
@@ -216,9 +198,7 @@ class AuditConfiguration
      */
     public function setCurrentUsername($username): void
     {
-        $this->setUsernameCallable(static function () use ($username) {
-            return $username;
-        });
+        $this->setUsernameCallable(static fn () => $username);
     }
 
     /**

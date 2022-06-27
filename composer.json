@@ -34,8 +34,9 @@
         "phpstan/phpstan-phpunit": "^1.0",
         "phpstan/phpstan-symfony": "^1.0",
         "phpunit/phpunit": "^9.5.13",
-        "psalm/plugin-phpunit": "^0.16.1",
+        "psalm/plugin-phpunit": "^0.17",
         "psalm/plugin-symfony": "^3.0",
+        "rector/rector": "^0.13",
         "symfony/browser-kit": "^4.4 || ^5.4 || ^6.0",
         "symfony/cache": "^4.4 || ^5.4 || ^6.0",
         "symfony/framework-bundle": "^4.4 || ^5.4 || ^6.0",
@@ -64,6 +65,10 @@
         }
     },
     "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "phpstan/extension-installer": true
+        },
         "sort-packages": true
     }
 }

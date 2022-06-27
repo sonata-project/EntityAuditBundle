@@ -35,14 +35,12 @@ class Issue9Customer
      *
      * @ORM\OneToMany(targetEntity="Issue9Address", mappedBy="customer")
      */
-    private $addresses;
+    private Collection $addresses;
 
     /**
-     * @var Issue9Address|null
-     *
      * @ORM\OneToOne(targetEntity="Issue9Address")
      */
-    private $primaryAddress;
+    private ?Issue9Address $primaryAddress = null;
 
     public function getId(): ?int
     {
