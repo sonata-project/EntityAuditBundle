@@ -35,7 +35,6 @@ class Configuration implements ConfigurationInterface
     {
         $builder = new TreeBuilder('simple_things_entity_audit');
         $rootNode = $builder->getRootNode();
-        \assert($rootNode instanceof ArrayNodeDefinition);
 
         $rootNode
             ->children()

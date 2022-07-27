@@ -31,6 +31,8 @@ class SimpleDiff
         $maxlen = 0;
         $omax = 0;
         $nmax = 0;
+        $matrix = [];
+
         foreach ($old as $oindex => $ovalue) {
             $nkeys = array_keys($new, $ovalue, true);
             foreach ($nkeys as $nindex) {
@@ -66,8 +68,8 @@ class SimpleDiff
         $diff = $this->diff(explode(' ', $old), explode(' ', $new));
         foreach ($diff as $k) {
             if (\is_array($k)) {
-                $ret .= (!empty($k['d']) ? '<del>'.implode(' ', $k['d']).'</del> ' : '').
-                        (!empty($k['i']) ? '<ins>'.implode(' ', $k['i']).'</ins> ' : '');
+                $ret .= ([] !== $k['d'] ? '<del>'.implode(' ', $k['d']).'</del> ' : '')
+                    .([] !== $k['i'] ? '<ins>'.implode(' ', $k['i']).'</ins> ' : '');
             } else {
                 $ret .= $k.' ';
             }

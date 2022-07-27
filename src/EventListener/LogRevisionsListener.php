@@ -102,7 +102,7 @@ class LogRevisionsListener implements EventSubscriber
             $persister = $uow->getEntityPersister($className);
             $updateData = $this->prepareUpdateData($persister, $entity);
 
-            if (!isset($updateData[$meta->table['name']]) || !$updateData[$meta->table['name']]) {
+            if (!isset($updateData[$meta->table['name']]) || [] === $updateData[$meta->table['name']]) {
                 continue;
             }
 
@@ -312,11 +312,12 @@ class LogRevisionsListener implements EventSubscriber
                 ? $this->platform->getIdentitySequenceName($this->config->getRevisionTableName(), 'id')
                 : null;
 
-            $this->revisionId = $this->conn->lastInsertId($sequenceName);
-
-            if (false === $this->revisionId) {
+            $revisionId = $this->conn->lastInsertId($sequenceName);
+            if (false === $revisionId) {
                 throw new \RuntimeException('Unable to retrieve the last revision id.');
             }
+
+            $this->revisionId = $revisionId;
         }
 
         return $this->revisionId;
@@ -341,7 +342,7 @@ class LogRevisionsListener implements EventSubscriber
                     continue;
                 }
 
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide'] === true) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;

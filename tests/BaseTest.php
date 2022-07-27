@@ -63,7 +63,7 @@ abstract class BaseTest extends TestCase
     /**
      * @var string[]
      *
-     * @phpstan-var array<string, class-string>
+     * @phpstan-var array<string, class-string<Type>>
      */
     protected $customTypes = [];
 

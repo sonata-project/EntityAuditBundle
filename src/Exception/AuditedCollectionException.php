@@ -17,6 +17,6 @@ class AuditedCollectionException extends AuditException
 {
     public function __construct(string $message)
     {
-        throw new \Exception($message);
+        parent::__construct(null, null, null, $message);
     }
 }
