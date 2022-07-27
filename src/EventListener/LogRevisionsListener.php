@@ -342,7 +342,7 @@ class LogRevisionsListener implements EventSubscriber
                     continue;
                 }
 
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide'] === true) {
+                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;
@@ -497,7 +497,7 @@ class LogRevisionsListener implements EventSubscriber
         $versionField = null;
         $result = [];
 
-        if (false !== ($versioned = $classMetadata->isVersioned)) {
+        if (false !== $classMetadata->isVersioned) {
             $versionField = $classMetadata->versionField;
         }
 
@@ -522,7 +522,7 @@ class LogRevisionsListener implements EventSubscriber
             $assoc = $classMetadata->associationMappings[$field];
 
             // Only owning side of x-1 associations can have a FK column.
-            if (!$assoc['isOwningSide'] || !($assoc['type'] & ClassMetadata::TO_ONE)) {
+            if (!$assoc['isOwningSide'] || 0 === ($assoc['type'] & ClassMetadata::TO_ONE)) {
                 continue;
             }
 
@@ -551,7 +551,7 @@ class LogRevisionsListener implements EventSubscriber
                 $sourceColumn = $joinColumn['name'];
                 $targetColumn = $joinColumn['referencedColumnName'];
 
-                $result[$owningTable][$sourceColumn] = $newValId
+                $result[$owningTable][$sourceColumn] = null !== $newValId
                     ? $newValId[$targetClass->getFieldForColumn($targetColumn)]
                     : null;
             }

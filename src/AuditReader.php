@@ -254,7 +254,7 @@ class AuditReader
         }
 
         foreach ($classMetadata->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || $assoc['isOwningSide']) {
+            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || !$assoc['isOwningSide']) {
                 continue;
             }
 
@@ -512,12 +512,12 @@ class AuditReader
         $whereSQL = '';
         foreach ($classMetadata->identifier as $idField) {
             if (isset($classMetadata->fieldMappings[$idField])) {
-                if ($whereSQL) {
+                if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
             } elseif (isset($classMetadata->associationMappings[$idField])) {
-                if ($whereSQL) {
+                if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0].' = ?';
@@ -570,12 +570,12 @@ class AuditReader
         $whereSQL = '';
         foreach ($classMetadata->identifier as $idField) {
             if (isset($classMetadata->fieldMappings[$idField])) {
-                if ($whereSQL) {
+                if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
             } elseif (isset($classMetadata->associationMappings[$idField])) {
-                if ($whereSQL) {
+                if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0].' = ?';
@@ -838,7 +838,7 @@ class AuditReader
             $targetEntity = $assoc['targetEntity'];
             $targetClass = $this->em->getClassMetadata($targetEntity);
 
-            if ($assoc['type'] & ClassMetadata::TO_ONE) {
+            if (0 !== ($assoc['type'] & ClassMetadata::TO_ONE)) {
                 if ($this->metadataFactory->isAudited($targetEntity)) {
                     if ($this->loadAuditedEntities) {
                         // Primary Key. Used for audit tables queries.
@@ -860,7 +860,7 @@ class AuditReader
 
                         $pk = array_filter($pk, static fn ($value) => null !== $value);
 
-                        if (!$pk) {
+                        if ([] === $pk) {
                             $classMetadata->reflFields[$field]->setValue($entity, null);
                         } else {
                             try {
@@ -890,7 +890,7 @@ class AuditReader
                                     $associatedId[$targetField] = $joinColumnValue;
                                 }
                             }
-                            if (!$associatedId) {
+                            if ([] === $associatedId) {
                                 // Foreign key is NULL
                                 $classMetadata->reflFields[$field]->setValue($entity, null);
                             } else {
@@ -906,7 +906,7 @@ class AuditReader
                         $classMetadata->reflFields[$field]->setValue($entity, null);
                     }
                 }
-            } elseif ($assoc['type'] & ClassMetadata::ONE_TO_MANY) {
+            } elseif (0 !== ($assoc['type'] & ClassMetadata::ONE_TO_MANY)) {
                 if ($this->metadataFactory->isAudited($targetEntity)) {
                     if ($this->loadAuditedCollections) {
                         $foreignKeys = [];
