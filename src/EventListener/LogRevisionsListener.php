@@ -342,7 +342,7 @@ class LogRevisionsListener implements EventSubscriber
                     continue;
                 }
 
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && true === $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;
@@ -364,7 +364,7 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 $type = Type::getType($class->fieldMappings[$field]['type']);
-                $placeholders[] = (!empty($class->fieldMappings[$field]['requireSQLConversion']))
+                $placeholders[] = true === $class->fieldMappings[$field]['requireSQLConversion']
                     ? $type->convertToDatabaseValueSQL('?', $this->platform)
                     : '?';
                 $sql .= ', '.$this->quoteStrategy->getColumnName($field, $class, $this->platform);
@@ -398,7 +398,7 @@ class LogRevisionsListener implements EventSubscriber
             if ($class->isInheritanceTypeJoined() && $class->isInheritedAssociation($field)) {
                 continue;
             }
-            if (!(($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide'])) {
+            if (!(($assoc['type'] & ClassMetadata::TO_ONE) > 0 && true === $assoc['isOwningSide'])) {
                 continue;
             }
 
@@ -522,7 +522,7 @@ class LogRevisionsListener implements EventSubscriber
             $assoc = $classMetadata->associationMappings[$field];
 
             // Only owning side of x-1 associations can have a FK column.
-            if (!$assoc['isOwningSide'] || 0 === ($assoc['type'] & ClassMetadata::TO_ONE)) {
+            if (false === $assoc['isOwningSide'] || 0 === ($assoc['type'] & ClassMetadata::TO_ONE)) {
                 continue;
             }
 

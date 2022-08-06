@@ -254,7 +254,7 @@ class AuditReader
         }
 
         foreach ($classMetadata->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || !$assoc['isOwningSide']) {
+            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || false === $assoc['isOwningSide']) {
                 continue;
             }
 
@@ -409,7 +409,7 @@ class AuditReader
             }
 
             foreach ($classMetadata->associationMappings as $assoc) {
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && true === $assoc['isOwningSide']) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $columnList .= ', '.$sourceCol;
                         $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
@@ -711,7 +711,7 @@ class AuditReader
         }
 
         foreach ($classMetadata->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || !$assoc['isOwningSide']) {
+            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || false === $assoc['isOwningSide']) {
                 continue;
             }
 
@@ -801,7 +801,7 @@ class AuditReader
                 throw new \RuntimeException("No mapping found for [{$discriminator}].");
             }
 
-            if ($classMetadata->discriminatorValue) {
+            if (isset($classMetadata->discriminatorValue)) {
                 /** @phpstan-var T $entity */
                 $entity = $this->em->getClassMetadata($classMetadata->discriminatorMap[$discriminator])->newInstance();
             } else {
@@ -846,7 +846,7 @@ class AuditReader
                         // Primary Field. Used when fallback to Doctrine finder.
                         $pf = [];
 
-                        if ($assoc['isOwningSide']) {
+                        if (true === $assoc['isOwningSide']) {
                             foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
                                 $pk[$foreign] = $pf[$foreign] = $data[$columnMap[$local]];
                             }
@@ -879,7 +879,7 @@ class AuditReader
                     }
                 } else {
                     if ($this->loadNativeEntities) {
-                        if ($assoc['isOwningSide']) {
+                        if (true === $assoc['isOwningSide']) {
                             $associatedId = [];
                             foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
                                 $joinColumnValue = $data[$columnMap[$srcColumn]] ?? null;
