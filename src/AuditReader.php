@@ -220,7 +220,7 @@ class AuditReader
                 $columnName = $idKeys[0];
             } elseif (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
-            } elseif (isset($classMetadata->associationMappings[$idField])) {
+            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0];
             } else {
                 throw new \RuntimeException('column name not found  for'.$idField);
@@ -254,7 +254,11 @@ class AuditReader
         }
 
         foreach ($classMetadata->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || false === $assoc['isOwningSide']) {
+            if (
+                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+                || false === $assoc['isOwningSide']
+                || !isset($assoc['joinColumnFieldNames'])
+            ) {
                 continue;
             }
 
@@ -301,7 +305,7 @@ class AuditReader
 
         $row = $this->em->getConnection()->fetchAssociative($query, $values);
 
-        if (!$row) {
+        if (false === $row) {
             throw new NoRevisionFoundException($classMetadata->name, $id, $revision);
         }
 
@@ -337,11 +341,10 @@ class AuditReader
 
         $revisions = [];
         foreach ($revisionsData as $row) {
-            $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
-            );
+            $timestamp = \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']);
+            \assert(false !== $timestamp);
+
+            $revisions[] = new Revision($row['id'], $timestamp, $row['username']);
         }
 
         return $revisions;
@@ -409,7 +412,10 @@ class AuditReader
             }
 
             foreach ($classMetadata->associationMappings as $assoc) {
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && true === $assoc['isOwningSide']) {
+                if (
+                    ($assoc['type'] & ClassMetadata::TO_ONE) > 0
+                    && true === $assoc['isOwningSide']
+                ) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $columnList .= ', '.$sourceCol;
                         $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
@@ -474,11 +480,10 @@ class AuditReader
         $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, [$revision]);
 
         if (1 === \count($revisionsData)) {
-            return new Revision(
-                $revisionsData[0]['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
-                $revisionsData[0]['username']
-            );
+            $timestamp = \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']);
+            \assert(false !== $timestamp);
+
+            return new Revision($revisionsData[0]['id'], $timestamp, $revisionsData[0]['username']);
         }
         throw new InvalidRevisionException($revision);
     }
@@ -516,7 +521,7 @@ class AuditReader
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
-            } elseif (isset($classMetadata->associationMappings[$idField])) {
+            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
@@ -530,11 +535,10 @@ class AuditReader
 
         $revisions = [];
         foreach ($revisionsData as $row) {
-            $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
-            );
+            $timestamp = \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']);
+            \assert(false !== $timestamp);
+
+            $revisions[] = new Revision($row['id'], $timestamp, $row['username']);
         }
 
         return $revisions;
@@ -574,7 +578,7 @@ class AuditReader
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
-            } elseif (isset($classMetadata->associationMappings[$idField])) {
+            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
@@ -688,7 +692,7 @@ class AuditReader
         foreach ($classMetadata->identifier as $idField) {
             if (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
-            } elseif (isset($classMetadata->associationMappings[$idField])) {
+            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0];
             } else {
                 continue;
@@ -711,7 +715,10 @@ class AuditReader
         }
 
         foreach ($classMetadata->associationMappings as $assoc) {
-            if (($assoc['type'] & ClassMetadata::TO_ONE) === 0 || false === $assoc['isOwningSide']) {
+            if (
+                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+                || false === $assoc['isOwningSide']
+            ) {
                 continue;
             }
 
@@ -755,10 +762,10 @@ class AuditReader
      *
      * @template T of object
      *
-     * @param string                $className
-     * @param array<string, string> $columnMap
-     * @param array<string, mixed>  $data
-     * @param int|string            $revision
+     * @param string                         $className
+     * @param array<string, string>          $columnMap
+     * @param array<string, int|string|null> $data
+     * @param int|string                     $revision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -809,7 +816,9 @@ class AuditReader
                 $pk = [];
 
                 foreach ($classMetadata->identifier as $field) {
-                    $pk[$classMetadata->getColumnName($field)] = $data[$field];
+                    if (isset($data[$field])) {
+                        $pk[$classMetadata->getColumnName($field)] = $data[$field];
+                    }
                 }
 
                 /** @phpstan-var class-string<T> $classNameDiscriminator */
@@ -848,17 +857,21 @@ class AuditReader
 
                         if (true === $assoc['isOwningSide']) {
                             foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                                $pk[$foreign] = $pf[$foreign] = $data[$columnMap[$local]];
+                                if (isset($data[$columnMap[$local]])) {
+                                    $pk[$foreign] = $data[$columnMap[$local]];
+                                    $pf[$foreign] = $data[$columnMap[$local]];
+                                }
                             }
                         } else {
                             $otherEntityAssoc = $this->em->getClassMetadata($targetEntity)->associationMappings[$assoc['mappedBy']];
 
                             foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
-                                $pk[$foreign] = $pf[$otherEntityAssoc['fieldName']] = $data[$classMetadata->getFieldName($local)];
+                                if (isset($data[$classMetadata->getFieldName($local)])) {
+                                    $pk[$foreign] = $data[$classMetadata->getFieldName($local)];
+                                    $pf[$otherEntityAssoc['fieldName']] = $data[$classMetadata->getFieldName($local)];
+                                }
                             }
                         }
-
-                        $pk = array_filter($pk, static fn ($value) => null !== $value);
 
                         if ([] === $pk) {
                             $classMetadata->reflFields[$field]->setValue($entity, null);
@@ -906,7 +919,10 @@ class AuditReader
                         $classMetadata->reflFields[$field]->setValue($entity, null);
                     }
                 }
-            } elseif (0 !== ($assoc['type'] & ClassMetadata::ONE_TO_MANY)) {
+            } elseif (
+                0 !== ($assoc['type'] & ClassMetadata::ONE_TO_MANY)
+                && isset($targetClass->associationMappings[$assoc['mappedBy']]['sourceToTargetKeyColumns'])
+            ) {
                 if ($this->metadataFactory->isAudited($targetEntity)) {
                     if ($this->loadAuditedCollections) {
                         $foreignKeys = [];

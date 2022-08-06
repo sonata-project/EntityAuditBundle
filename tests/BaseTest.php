@@ -96,9 +96,9 @@ abstract class BaseTest extends TestCase
         $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
 
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver([
-            realpath(__DIR__.'/Fixtures/Core'),
-            realpath(__DIR__.'/Fixtures/Issue'),
-            realpath(__DIR__.'/Fixtures/Relation'),
+            __DIR__.'/Fixtures/Core',
+            __DIR__.'/Fixtures/Issue',
+            __DIR__.'/Fixtures/Relation',
         ], false));
 
         DoctrineExtensions::registerAnnotations();

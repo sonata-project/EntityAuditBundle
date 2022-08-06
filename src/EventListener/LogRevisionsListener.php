@@ -161,7 +161,7 @@ class LogRevisionsListener implements EventSubscriber
                     if (isset($meta->fieldMappings[$idField])) {
                         $columnName = $meta->fieldMappings[$idField]['columnName'];
                         $types[] = $meta->fieldMappings[$idField]['type'];
-                    } elseif (isset($meta->associationMappings[$idField])) {
+                    } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
                         $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
                         if (\is_array($columnName)) {
                             if (!isset($columnName['name'])) {
@@ -342,7 +342,10 @@ class LogRevisionsListener implements EventSubscriber
                     continue;
                 }
 
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && true === $assoc['isOwningSide']) {
+                if (
+                    ($assoc['type'] & ClassMetadata::TO_ONE) > 0
+                    && true === $assoc['isOwningSide']
+                ) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;
@@ -364,7 +367,7 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 $type = Type::getType($class->fieldMappings[$field]['type']);
-                $placeholders[] = true === $class->fieldMappings[$field]['requireSQLConversion']
+                $placeholders[] = true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)
                     ? $type->convertToDatabaseValueSQL('?', $this->platform)
                     : '?';
                 $sql .= ', '.$this->quoteStrategy->getColumnName($field, $class, $this->platform);
@@ -385,7 +388,7 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param array<string, object> $entityData
+     * @param array<string, mixed> $entityData
      */
     private function saveRevisionEntityData(ClassMetadata $class, array $entityData, string $revType): void
     {
@@ -398,12 +401,16 @@ class LogRevisionsListener implements EventSubscriber
             if ($class->isInheritanceTypeJoined() && $class->isInheritedAssociation($field)) {
                 continue;
             }
-            if (!(($assoc['type'] & ClassMetadata::TO_ONE) > 0 && true === $assoc['isOwningSide'])) {
+            if (
+                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+                || false === $assoc['isOwningSide']
+                || !isset($assoc['sourceToTargetKeyColumns'])
+            ) {
                 continue;
             }
 
             $data = $entityData[$field] ?? null;
-            $relatedId = false;
+            $relatedId = [];
 
             if (null !== $data && $this->uow->isInIdentityMap($data)) {
                 $relatedId = $this->uow->getEntityIdentifier($data);
@@ -419,7 +426,7 @@ class LogRevisionsListener implements EventSubscriber
                     $params[] = null;
                     $types[] = \PDO::PARAM_STR;
                 } else {
-                    $params[] = $relatedId ? $relatedId[$targetClass->fieldNames[$targetColumn]] : null;
+                    $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
                     $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
                 }
             }
@@ -522,7 +529,10 @@ class LogRevisionsListener implements EventSubscriber
             $assoc = $classMetadata->associationMappings[$field];
 
             // Only owning side of x-1 associations can have a FK column.
-            if (false === $assoc['isOwningSide'] || 0 === ($assoc['type'] & ClassMetadata::TO_ONE)) {
+            if (
+                0 === ($assoc['type'] & ClassMetadata::TO_ONE)
+                || false === $assoc['isOwningSide']
+                || !isset($assoc['joinColumns'])) {
                 continue;
             }
 
