@@ -221,7 +221,7 @@ class AuditReader
             } elseif (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
-                $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0];
+                $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 throw new \RuntimeException('column name not found  for'.$idField);
             }
@@ -526,7 +526,7 @@ class AuditReader
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0].' = ?';
+                $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0]['name'].' = ?';
             }
         }
 
@@ -583,7 +583,7 @@ class AuditReader
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0].' = ?';
+                $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0]['name'].' = ?';
             }
         }
 
@@ -694,7 +694,7 @@ class AuditReader
             if (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
-                $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0];
+                $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 continue;
             }
