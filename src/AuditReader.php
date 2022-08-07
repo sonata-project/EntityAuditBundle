@@ -415,6 +415,7 @@ class AuditReader
                 if (
                     ($assoc['type'] & ClassMetadata::TO_ONE) > 0
                     && true === $assoc['isOwningSide']
+                    && isset($assoc['targetToSourceKeyColumns'])
                 ) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $columnList .= ', '.$sourceCol;
@@ -718,6 +719,7 @@ class AuditReader
             if (
                 ($assoc['type'] & ClassMetadata::TO_ONE) === 0
                 || false === $assoc['isOwningSide']
+                || !isset($assoc['targetToSourceKeyColumns'])
             ) {
                 continue;
             }
@@ -855,20 +857,28 @@ class AuditReader
                         // Primary Field. Used when fallback to Doctrine finder.
                         $pf = [];
 
-                        if (true === $assoc['isOwningSide']) {
+                        if (true === $assoc['isOwningSide'] && isset($assoc['targetToSourceKeyColumns'])) {
                             foreach ($assoc['targetToSourceKeyColumns'] as $foreign => $local) {
-                                if (isset($data[$columnMap[$local]])) {
-                                    $pk[$foreign] = $data[$columnMap[$local]];
-                                    $pf[$foreign] = $data[$columnMap[$local]];
+                                $key = $data[$columnMap[$local]];
+                                if (null === $key) {
+                                    continue;
                                 }
+
+                                $pk[$foreign] = $key;
+                                $pf[$foreign] = $key;
                             }
                         } else {
                             $otherEntityAssoc = $this->em->getClassMetadata($targetEntity)->associationMappings[$assoc['mappedBy']];
 
-                            foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
-                                if (isset($data[$classMetadata->getFieldName($local)])) {
-                                    $pk[$foreign] = $data[$classMetadata->getFieldName($local)];
-                                    $pf[$otherEntityAssoc['fieldName']] = $data[$classMetadata->getFieldName($local)];
+                            if (isset($otherEntityAssoc['targetToSourceKeyColumns'])) {
+                                foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
+                                    $key = $data[$classMetadata->getFieldName($local)];
+                                    if (null === $key) {
+                                        continue;
+                                    }
+
+                                    $pk[$foreign] = $key;
+                                    $pf[$otherEntityAssoc['fieldName']] = $key;
                                 }
                             }
                         }

@@ -13,7 +13,7 @@ jobs:
 
         runs-on: ubuntu-latest
 
-        continue-on-error: true
+        continue-on-error: false
 
         env:
             DATABASE_URL: mysql://root@127.0.0.1:3306/sonata_tests

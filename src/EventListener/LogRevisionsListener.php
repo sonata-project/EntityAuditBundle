@@ -345,6 +345,7 @@ class LogRevisionsListener implements EventSubscriber
                 if (
                     ($assoc['type'] & ClassMetadata::TO_ONE) > 0
                     && true === $assoc['isOwningSide']
+                    && isset($assoc['targetToSourceKeyColumns'])
                 ) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;

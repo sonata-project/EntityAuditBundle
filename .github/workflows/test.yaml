@@ -22,7 +22,7 @@ jobs:
 
         runs-on: ubuntu-latest
 
-        continue-on-error: true
+        continue-on-error: ${{ matrix.allowed-to-fail }}
 
         env:
             SYMFONY_REQUIRE: ${{matrix.symfony-require}}
