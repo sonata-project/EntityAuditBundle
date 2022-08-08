@@ -902,7 +902,7 @@ class AuditReader
                     }
                 } else {
                     if ($this->loadNativeEntities) {
-                        if (true === $assoc['isOwningSide']) {
+                        if (true === $assoc['isOwningSide'] && isset($assoc['targetToSourceKeyColumns'])) {
                             $associatedId = [];
                             foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
                                 $joinColumnValue = $data[$columnMap[$srcColumn]] ?? null;

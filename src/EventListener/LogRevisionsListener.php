@@ -162,15 +162,7 @@ class LogRevisionsListener implements EventSubscriber
                         $columnName = $meta->fieldMappings[$idField]['columnName'];
                         $types[] = $meta->fieldMappings[$idField]['type'];
                     } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
-                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
-                        if (\is_array($columnName)) {
-                            if (!isset($columnName['name'])) {
-                                // Not much we can do to recover this - we need a column name...
-                                throw new MappingException('Column name not set within meta');
-                            }
-
-                            $columnName = $columnName['name'];
-                        }
+                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
                         $types[] = $meta->associationMappings[$idField]['type'];
                     }
 
