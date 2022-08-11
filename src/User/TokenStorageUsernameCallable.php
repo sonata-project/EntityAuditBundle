@@ -18,10 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class TokenStorageUsernameCallable
 {
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
+    private ?TokenStorageInterface $tokenStorage = null;
 
     /**
      * NEXT_MAJOR: remove Container type.
@@ -43,7 +40,9 @@ class TokenStorageUsernameCallable
                 TokenStorageInterface::class
             ), \E_USER_DEPRECATED);
 
-            $this->tokenStorage = $tokenStorageOrContainer->get('security.token_storage');
+            $tokenStorage = $tokenStorageOrContainer->get('security.token_storage');
+            \assert($tokenStorage instanceof TokenStorageInterface);
+            $this->tokenStorage = $tokenStorage;
         } else {
             throw new \TypeError(sprintf(
                 'Argument 1 passed to "%s()" must be an instance of "%s" or %s, instance of "%s" given.',

@@ -102,7 +102,7 @@ class LogRevisionsListener implements EventSubscriber
             $persister = $uow->getEntityPersister($className);
             $updateData = $this->prepareUpdateData($persister, $entity);
 
-            if (!isset($updateData[$meta->table['name']]) || !$updateData[$meta->table['name']]) {
+            if (!isset($updateData[$meta->table['name']]) || [] === $updateData[$meta->table['name']]) {
                 continue;
             }
 
@@ -161,16 +161,8 @@ class LogRevisionsListener implements EventSubscriber
                     if (isset($meta->fieldMappings[$idField])) {
                         $columnName = $meta->fieldMappings[$idField]['columnName'];
                         $types[] = $meta->fieldMappings[$idField]['type'];
-                    } elseif (isset($meta->associationMappings[$idField])) {
-                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0];
-                        if (\is_array($columnName)) {
-                            if (!isset($columnName['name'])) {
-                                // Not much we can do to recover this - we need a column name...
-                                throw new MappingException('Column name not set within meta');
-                            }
-
-                            $columnName = $columnName['name'];
-                        }
+                    } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
+                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
                         $types[] = $meta->associationMappings[$idField]['type'];
                     }
 
@@ -312,11 +304,12 @@ class LogRevisionsListener implements EventSubscriber
                 ? $this->platform->getIdentitySequenceName($this->config->getRevisionTableName(), 'id')
                 : null;
 
-            $this->revisionId = $this->conn->lastInsertId($sequenceName);
-
-            if (false === $this->revisionId) {
+            $revisionId = $this->conn->lastInsertId($sequenceName);
+            if (false === $revisionId) {
                 throw new \RuntimeException('Unable to retrieve the last revision id.');
             }
+
+            $this->revisionId = $revisionId;
         }
 
         return $this->revisionId;
@@ -341,7 +334,11 @@ class LogRevisionsListener implements EventSubscriber
                     continue;
                 }
 
-                if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
+                if (
+                    ($assoc['type'] & ClassMetadata::TO_ONE) > 0
+                    && true === $assoc['isOwningSide']
+                    && isset($assoc['targetToSourceKeyColumns'])
+                ) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;
@@ -363,7 +360,7 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 $type = Type::getType($class->fieldMappings[$field]['type']);
-                $placeholders[] = (!empty($class->fieldMappings[$field]['requireSQLConversion']))
+                $placeholders[] = true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)
                     ? $type->convertToDatabaseValueSQL('?', $this->platform)
                     : '?';
                 $sql .= ', '.$this->quoteStrategy->getColumnName($field, $class, $this->platform);
@@ -384,7 +381,7 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param array<string, object> $entityData
+     * @param array<string, mixed> $entityData
      */
     private function saveRevisionEntityData(ClassMetadata $class, array $entityData, string $revType): void
     {
@@ -397,12 +394,16 @@ class LogRevisionsListener implements EventSubscriber
             if ($class->isInheritanceTypeJoined() && $class->isInheritedAssociation($field)) {
                 continue;
             }
-            if (!(($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide'])) {
+            if (
+                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+                || false === $assoc['isOwningSide']
+                || !isset($assoc['sourceToTargetKeyColumns'])
+            ) {
                 continue;
             }
 
             $data = $entityData[$field] ?? null;
-            $relatedId = false;
+            $relatedId = [];
 
             if (null !== $data && $this->uow->isInIdentityMap($data)) {
                 $relatedId = $this->uow->getEntityIdentifier($data);
@@ -418,7 +419,7 @@ class LogRevisionsListener implements EventSubscriber
                     $params[] = null;
                     $types[] = \PDO::PARAM_STR;
                 } else {
-                    $params[] = $relatedId ? $relatedId[$targetClass->fieldNames[$targetColumn]] : null;
+                    $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
                     $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
                 }
             }
@@ -451,7 +452,7 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         if ($class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName) {
-            $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
+            $entityData[(string) $class->discriminatorColumn['name']] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
                 $this->em->getClassMetadata($class->rootEntityName),
                 $entityData,
@@ -496,7 +497,7 @@ class LogRevisionsListener implements EventSubscriber
         $versionField = null;
         $result = [];
 
-        if (false !== ($versioned = $classMetadata->isVersioned)) {
+        if (false !== $classMetadata->isVersioned) {
             $versionField = $classMetadata->versionField;
         }
 
@@ -521,7 +522,10 @@ class LogRevisionsListener implements EventSubscriber
             $assoc = $classMetadata->associationMappings[$field];
 
             // Only owning side of x-1 associations can have a FK column.
-            if (!$assoc['isOwningSide'] || !($assoc['type'] & ClassMetadata::TO_ONE)) {
+            if (
+                0 === ($assoc['type'] & ClassMetadata::TO_ONE)
+                || false === $assoc['isOwningSide']
+                || !isset($assoc['joinColumns'])) {
                 continue;
             }
 
@@ -550,7 +554,7 @@ class LogRevisionsListener implements EventSubscriber
                 $sourceColumn = $joinColumn['name'];
                 $targetColumn = $joinColumn['referencedColumnName'];
 
-                $result[$owningTable][$sourceColumn] = $newValId
+                $result[$owningTable][$sourceColumn] = null !== $newValId
                     ? $newValId[$targetClass->getFieldForColumn($targetColumn)]
                     : null;
             }

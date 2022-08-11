@@ -34,8 +34,10 @@ abstract class AuditException extends \Exception
      * @param array<int|string>|null $id
      * @param int|string|null        $revision
      */
-    public function __construct(?string $className, ?array $id, $revision)
+    public function __construct(?string $className, ?array $id, $revision, string $message = '')
     {
+        parent::__construct($message);
+
         $this->className = $className;
         $this->id = $id;
         $this->revision = $revision;

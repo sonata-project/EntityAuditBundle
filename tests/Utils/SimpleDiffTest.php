@@ -29,6 +29,9 @@ final class SimpleDiffTest extends TestCase
         static::assertSame($output, $d);
     }
 
+    /**
+     * @return iterable<array{string, string, string}>
+     */
     public static function dataDiff(): iterable
     {
         return [

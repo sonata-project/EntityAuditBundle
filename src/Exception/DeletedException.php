@@ -21,13 +21,11 @@ class DeletedException extends AuditException
      */
     public function __construct(string $className, array $id, $revision)
     {
-        parent::__construct($className, $id, $revision);
-
-        $this->message = sprintf(
+        parent::__construct($className, $id, $revision, sprintf(
             'Class "%s" entity id "%s" has been removed at revision %s',
             $className,
             implode(', ', $id),
             $revision
-        );
+        ));
     }
 }

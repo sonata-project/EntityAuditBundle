@@ -128,8 +128,8 @@ final class RelationTest extends BaseTest
 
         static::assertContainsOnly(ChangedEntity::class, $changedEntities);
         static::assertSame(OwnerEntity::class, $changedEntities[0]->getClassName());
-        static::assertSame(OwnerEntity::class, \get_class($changedOwner));
-        static::assertSame(OwnedEntity1::class, \get_class($changedOwned));
+        static::assertInstanceOf(OwnerEntity::class, $changedOwner);
+        static::assertInstanceOf(OwnedEntity1::class, $changedOwned);
         static::assertSame('DEL', $changedEntities[0]->getRevisionType());
         static::assertSame('DEL', $changedEntities[1]->getRevisionType());
         static::assertArrayHasKey('id', $changedEntities[0]->getId());

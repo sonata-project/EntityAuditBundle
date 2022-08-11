@@ -32,6 +32,9 @@ final class SmokeTest extends WebTestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }
 
+    /**
+     * @return iterable<array{string}>
+     */
     public function provideUrls(): iterable
     {
         yield 'index' => ['/audit'];

@@ -44,6 +44,7 @@ final class Issue308Test extends BaseTest
         $revisions = $auditReader->findRevisions($userClass, $user->getId());
         static::assertCount(1, $revisions);
         $revision = reset($revisions);
+        static::assertNotFalse($revision);
         $userId = $user->getId();
         static::assertNotNull($userId);
         $auditedUser = $auditReader->find($userClass, ['id' => $userId], $revision->getRev());
