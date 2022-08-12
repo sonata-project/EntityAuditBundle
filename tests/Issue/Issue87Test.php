@@ -53,19 +53,34 @@ final class Issue87Test extends BaseTest
 
         $auditReader = $this->auditManager->createAuditReader($this->em);
 
-        $auditedProject = $auditReader->find(\get_class($project), $project->getId(), 1);
+        $projectId = $project->getId();
+        static::assertNotNull($projectId);
 
-        static::assertSame($org->getId(), $auditedProject->getOrganisation()->getId());
+        $auditedProject = $auditReader->find(Issue87Project::class, $projectId, 1);
+        static::assertNotNull($auditedProject);
+
+        $projectOrganisation = $auditedProject->getOrganisation();
+        static::assertNotNull($projectOrganisation);
+        static::assertSame($org->getId(), $projectOrganisation->getId());
         static::assertSame('test project', $auditedProject->getTitle());
         static::assertSame('some property', $auditedProject->getSomeProperty());
 
-        $auditedComment = $auditReader->find(\get_class($comment), $comment->getId(), 1);
-        static::assertSame('test project', $auditedComment->getProject()->getTitle());
+        $commentId = $comment->getId();
+        static::assertNotNull($commentId);
+
+        $auditedComment = $auditReader->find(Issue87ProjectComment::class, $commentId, 1);
+        static::assertNotNull($auditedComment);
+        $commentProject = $auditedComment->getProject();
+        static::assertNotNull($commentProject);
+        static::assertSame('test project', $commentProject->getTitle());
 
         $project->setTitle('changed project title');
         $this->em->flush();
 
-        $auditedComment = $auditReader->find(\get_class($comment), $comment->getId(), 2);
-        static::assertSame('changed project title', $auditedComment->getProject()->getTitle());
+        $auditedComment = $auditReader->find(Issue87ProjectComment::class, $commentId, 2);
+        static::assertNotNull($auditedComment);
+        $commentProject = $auditedComment->getProject();
+        static::assertNotNull($commentProject);
+        static::assertSame('changed project title', $commentProject->getTitle());
     }
 }

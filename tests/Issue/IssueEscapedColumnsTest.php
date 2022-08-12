@@ -26,9 +26,6 @@ final class IssueEscapedColumnsTest extends BaseTest
         EscapedColumnsEntity::class,
     ];
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testEscapedColumns(): void
     {
         $e = new EscapedColumnsEntity();
@@ -39,6 +36,9 @@ final class IssueEscapedColumnsTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $reader->find(\get_class($e), $e->getId(), 1);
+        $eId = $e->getId();
+        static::assertNotNull($eId);
+
+        $reader->find(EscapedColumnsEntity::class, $eId, 1);
     }
 }

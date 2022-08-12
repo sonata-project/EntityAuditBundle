@@ -110,10 +110,13 @@ final class RelationTest extends BaseTest
         $this->em->clear();
 
         $owner = $this->em->getReference(OwnerEntity::class, 1);
+        static::assertNotNull($owner);
         $this->em->remove($owner);
         $owned1 = $this->em->getReference(OwnedEntity1::class, 1);
+        static::assertNotNull($owned1);
         $this->em->remove($owned1);
         $owned2 = $this->em->getReference(OwnedEntity2::class, 1);
+        static::assertNotNull($owned2);
         $this->em->remove($owned2);
 
         $this->em->flush();
@@ -178,8 +181,11 @@ final class RelationTest extends BaseTest
 
         $this->em->flush(); // 3
 
-        $audited = $auditReader->find(\get_class($owner1), $owner1->getId(), 3);
+        $owner1Id = $owner1->getId();
+        static::assertNotNull($owner1Id);
 
+        $audited = $auditReader->find(OwnerEntity::class, $owner1Id, 3);
+        static::assertNotNull($audited);
         static::assertCount(1, $audited->getOwned1());
     }
 
@@ -222,50 +228,81 @@ final class RelationTest extends BaseTest
 
         $this->em->flush(); // #6
 
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 1);
+        $masterId = $master->getId();
+        static::assertNotNull($masterId);
+
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 1);
+        static::assertNotNull($audited);
         static::assertSame('master#1', $audited->getTitle());
         static::assertNull($audited->getAudited());
         static::assertNull($audited->getNotAudited());
 
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 2);
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 2);
+        static::assertNotNull($audited);
         static::assertSame('master#1', $audited->getTitle());
         static::assertNull($audited->getAudited());
-        static::assertSame('notaudited', $audited->getNotAudited()->getTitle());
+        $notAuditedRelation = $audited->getNotAudited();
+        static::assertNotNull($notAuditedRelation);
+        static::assertSame('notaudited', $notAuditedRelation->getTitle());
 
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 3);
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 3);
+        static::assertNotNull($audited);
         static::assertSame('master#1', $audited->getTitle());
-        static::assertSame('audited', $audited->getAudited()->getTitle());
-        static::assertSame('notaudited', $audited->getNotAudited()->getTitle());
+        $auditedRelation = $audited->getAudited();
+        static::assertNotNull($auditedRelation);
+        static::assertSame('audited', $auditedRelation->getTitle());
+        $notAuditedRelation = $audited->getNotAudited();
+        static::assertNotNull($notAuditedRelation);
+        static::assertSame('notaudited', $notAuditedRelation->getTitle());
 
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 4);
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 4);
+        static::assertNotNull($audited);
         static::assertSame('master#1', $audited->getTitle());
-        static::assertSame('changed#4', $audited->getAudited()->getTitle());
-        static::assertSame('notaudited', $audited->getNotAudited()->getTitle());
+        $auditedRelation = $audited->getAudited();
+        static::assertNotNull($auditedRelation);
+        static::assertSame('changed#4', $auditedRelation->getTitle());
+        $notAuditedRelation = $audited->getNotAudited();
+        static::assertNotNull($notAuditedRelation);
+        static::assertSame('notaudited', $notAuditedRelation->getTitle());
 
         $auditReader->setLoadAuditedEntities(false);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 4);
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 4);
+        static::assertNotNull($audited);
         static::assertNull($audited->getAudited());
-        static::assertSame('notaudited', $audited->getNotAudited()->getTitle());
+        $notAuditedRelation = $audited->getNotAudited();
+        static::assertNotNull($notAuditedRelation);
+        static::assertSame('notaudited', $notAuditedRelation->getTitle());
 
         $auditReader->setLoadAuditedEntities(true);
         $auditReader->setLoadNativeEntities(false);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 4);
-        static::assertSame('changed#4', $audited->getAudited()->getTitle());
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 4);
+        static::assertNotNull($audited);
+        $auditedRelation = $audited->getAudited();
+        static::assertNotNull($auditedRelation);
+        static::assertSame('changed#4', $auditedRelation->getTitle());
         static::assertNull($audited->getNotAudited());
 
         $auditReader->setLoadNativeEntities(true);
 
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 5);
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 5);
+        static::assertNotNull($audited);
         static::assertSame('changed#5', $audited->getTitle());
-        static::assertSame('changed#4', $audited->getAudited()->getTitle());
-        static::assertSame('notaudited', $audited->getNotAudited()->getTitle());
+        $auditedRelation = $audited->getAudited();
+        static::assertNotNull($auditedRelation);
+        static::assertSame('changed#4', $auditedRelation->getTitle());
+        $notAuditedRelation = $audited->getNotAudited();
+        static::assertNotNull($notAuditedRelation);
+        static::assertSame('notaudited', $notAuditedRelation->getTitle());
 
-        $audited = $auditReader->find(\get_class($master), $master->getId(), 6);
+        $audited = $auditReader->find(OneToOneMasterEntity::class, $masterId, 6);
+        static::assertNotNull($audited);
         static::assertSame('changed#5', $audited->getTitle());
         static::assertNull($audited->getAudited());
-        static::assertSame('notaudited', $audited->getNotAudited()->getTitle());
+        $notAuditedRelation = $audited->getNotAudited();
+        static::assertNotNull($notAuditedRelation);
+        static::assertSame('notaudited', $notAuditedRelation->getTitle());
     }
 
     /**
@@ -293,8 +330,12 @@ final class RelationTest extends BaseTest
 
         $this->em->flush(); // #1
 
+        $ownerId = $owner->getId();
+        static::assertNotNull($ownerId);
+
         // checking that getOwned3() returns an empty collection
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 1);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 1);
+        static::assertNotNull($audited);
         static::assertInstanceOf(Collection::class, $audited->getOwned3());
         static::assertCount(0, $audited->getOwned3());
     }
@@ -313,7 +354,10 @@ final class RelationTest extends BaseTest
         $this->em->persist($owner);
         $this->em->flush();
 
-        static::assertCount(1, $auditReader->findRevisions(\get_class($owner), $owner->getId()));
+        $ownerId = $owner->getId();
+        static::assertNotNull($ownerId);
+
+        static::assertCount(1, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
 
         // create un-managed entity
         $owned21 = new OwnedEntity2();
@@ -324,14 +368,14 @@ final class RelationTest extends BaseTest
         $this->em->flush();
 
         // should not add a revision
-        static::assertCount(1, $auditReader->findRevisions(\get_class($owner), $owner->getId()));
+        static::assertCount(1, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
 
         $owner->setTitle('changed#2');
 
         $this->em->flush();
 
         // should add a revision
-        static::assertCount(2, $auditReader->findRevisions(\get_class($owner), $owner->getId()));
+        static::assertCount(2, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
 
         $owned11 = new OwnedEntity1();
         $owned11->setTitle('created#3');
@@ -342,13 +386,15 @@ final class RelationTest extends BaseTest
         $this->em->flush();
 
         // should not add a revision for owner
-        static::assertCount(2, $auditReader->findRevisions(\get_class($owner), $owner->getId()));
+        static::assertCount(2, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
         // should add a revision for owned
-        static::assertCount(1, $auditReader->findRevisions(\get_class($owned11), $owned11->getId()));
+        $owned11Id = $owned11->getId();
+        static::assertNotNull($owned11Id);
+        static::assertCount(1, $auditReader->findRevisions(OwnedEntity1::class, $owned11Id));
 
         // should not mess foreign keys
         $rows = $this->em->getConnection()->fetchAllAssociative('SELECT strange_owned_id_name FROM OwnedEntity1');
-        static::assertSame($owner->getId(), (int) $rows[0]['strange_owned_id_name']);
+        static::assertSame($ownerId, (int) $rows[0]['strange_owned_id_name']);
         $this->em->refresh($owner);
         static::assertCount(1, $owner->getOwned1());
         static::assertCount(1, $owner->getOwned2());
@@ -378,77 +424,123 @@ final class RelationTest extends BaseTest
         $this->em->flush();
         // we have a seventh revision where Owner with title changed#7 has one owned2 and one owned1 entity (changed#7)
 
+        $ownerId = $owner->getId();
+        static::assertNotNull($ownerId);
+
         // checking third revision
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 3);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 3);
+        static::assertNotNull($audited);
         static::assertInstanceOf(Collection::class, $audited->getOwned2());
         static::assertSame('changed#2', $audited->getTitle());
+
         static::assertCount(1, $audited->getOwned1());
-        static::assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        static::assertSame('created#3', $o1[0]->getTitle());
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame('created#3', $firstO1->getTitle());
+        static::assertCount(1, $audited->getOwned2());
+
         $o2 = $audited->getOwned2();
-        static::assertSame('owned21', $o2[0]->getTitle());
+        $firstO2 = $o2->first();
+        static::assertNotFalse($firstO2);
+        static::assertSame('owned21', $firstO2->getTitle());
 
         // checking forth revision
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 4);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 4);
+        static::assertNotNull($audited);
         static::assertSame('changed#2', $audited->getTitle());
+
         static::assertCount(2, $audited->getOwned1());
-        static::assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        static::assertSame('created#3', $o1[0]->getTitle());
-        static::assertSame('created#4', $o1[1]->getTitle());
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame('created#3', $firstO1->getTitle());
+        $lastO1 = $o1->last();
+        static::assertNotFalse($lastO1);
+        static::assertSame('created#4', $lastO1->getTitle());
+
+        static::assertCount(1, $audited->getOwned2());
         $o2 = $audited->getOwned2();
-        static::assertSame('owned21', $o2[0]->getTitle());
+        $firstO2 = $o2->first();
+        static::assertNotFalse($firstO2);
+        static::assertSame('owned21', $firstO2->getTitle());
 
         // check skipping collections
         $auditReader->setLoadAuditedCollections(false);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 4);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 4);
+        static::assertNotNull($audited);
         static::assertCount(0, $audited->getOwned1());
         static::assertCount(1, $audited->getOwned2());
 
         $auditReader->setLoadNativeCollections(false);
         $auditReader->setLoadAuditedCollections(true);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 4);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 4);
+        static::assertNotNull($audited);
         static::assertCount(2, $audited->getOwned1());
         static::assertCount(0, $audited->getOwned2());
 
         // checking fifth revision
         $auditReader->setLoadNativeCollections(true);
         $auditReader->clearEntityCache();
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 5);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 5);
+        static::assertNotNull($audited);
         static::assertSame('changed#5', $audited->getTitle());
+
         static::assertCount(2, $audited->getOwned1());
-        static::assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        static::assertSame('created#3', $o1[0]->getTitle());
-        static::assertSame('created#4', $o1[1]->getTitle());
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame('created#3', $firstO1->getTitle());
+        $lastO1 = $o1->last();
+        static::assertNotFalse($lastO1);
+        static::assertSame('created#4', $lastO1->getTitle());
+
+        static::assertCount(1, $audited->getOwned2());
         $o2 = $audited->getOwned2();
-        static::assertSame('owned21', $o2[0]->getTitle());
+        $firstO2 = $o2->first();
+        static::assertNotFalse($firstO2);
+        static::assertSame('owned21', $firstO2->getTitle());
 
         // checking sixth revision
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 6);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 6);
+        static::assertNotNull($audited);
         static::assertSame('changed#6', $audited->getTitle());
+
         static::assertCount(2, $audited->getOwned1());
-        static::assertCount(1, $audited->getOwned2());
         $o1 = $audited->getOwned1();
-        static::assertSame('created#3', $o1[0]->getTitle());
-        static::assertSame('changed#6', $o1[1]->getTitle());
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame('created#3', $firstO1->getTitle());
+        $lastO1 = $o1->last();
+        static::assertNotFalse($lastO1);
+        static::assertSame('changed#6', $lastO1->getTitle());
+
+        static::assertCount(1, $audited->getOwned2());
         $o2 = $audited->getOwned2();
-        static::assertSame('owned21', $o2[0]->getTitle());
+        $firstO2 = $o2->first();
+        static::assertNotFalse($firstO2);
+        static::assertSame('owned21', $firstO2->getTitle());
 
         // checking seventh revision
-        $audited = $auditReader->find(\get_class($owner), $owner->getId(), 7);
+        $audited = $auditReader->find(OwnerEntity::class, $ownerId, 7);
+        static::assertNotNull($audited);
         static::assertSame('changed#7', $audited->getTitle());
-        static::assertCount(1, $audited->getOwned1());
-        static::assertCount(1, $audited->getOwned2());
-        $o1 = $audited->getOwned1();
-        static::assertSame('changed#7', $o1[0]->getTitle());
-        $o2 = $audited->getOwned2();
-        static::assertSame('owned21', $o2[0]->getTitle());
 
-        $history = $auditReader->getEntityHistory(\get_class($owner), $owner->getId());
+        static::assertCount(1, $audited->getOwned1());
+        $o1 = $audited->getOwned1();
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame('changed#7', $firstO1->getTitle());
+
+        static::assertCount(1, $audited->getOwned2());
+        $o2 = $audited->getOwned2();
+        $firstO2 = $o2->first();
+        static::assertNotFalse($firstO2);
+        static::assertSame('owned21', $firstO2->getTitle());
+
+        $history = $auditReader->getEntityHistory(OwnerEntity::class, $ownerId);
 
         static::assertCount(5, $history);
     }
@@ -501,22 +593,31 @@ final class RelationTest extends BaseTest
         $this->em->remove($owned3);
         $this->em->flush(); // #6
 
-        $owner = $auditReader->find(\get_class($owner1), $owner1->getId(), 1);
+        $owner1Id = $owner1->getId();
+        static::assertNotNull($owner1Id);
+
+        $owner = $auditReader->find(OwnerEntity::class, $owner1Id, 1);
+        static::assertNotNull($owner);
         static::assertCount(3, $owner->getOwned1());
 
-        $owner = $auditReader->find(\get_class($owner1), $owner1->getId(), 2);
+        $owner = $auditReader->find(OwnerEntity::class, $owner1Id, 2);
+        static::assertNotNull($owner);
         static::assertCount(2, $owner->getOwned1());
 
-        $owner = $auditReader->find(\get_class($owner1), $owner1->getId(), 3);
+        $owner = $auditReader->find(OwnerEntity::class, $owner1Id, 3);
+        static::assertNotNull($owner);
         static::assertCount(2, $owner->getOwned1());
 
-        $owner = $auditReader->find(\get_class($owner1), $owner1->getId(), 4);
+        $owner = $auditReader->find(OwnerEntity::class, $owner1Id, 4);
+        static::assertNotNull($owner);
         static::assertCount(2, $owner->getOwned1());
 
-        $owner = $auditReader->find(\get_class($owner1), $owner1->getId(), 5);
+        $owner = $auditReader->find(OwnerEntity::class, $owner1Id, 5);
+        static::assertNotNull($owner);
         static::assertCount(1, $owner->getOwned1());
 
-        $owner = $auditReader->find(\get_class($owner1), $owner1->getId(), 6);
+        $owner = $auditReader->find(OwnerEntity::class, $owner1Id, 6);
+        static::assertNotNull($owner);
         static::assertCount(0, $owner->getOwned1());
     }
 
@@ -539,7 +640,9 @@ final class RelationTest extends BaseTest
         $this->em->flush(); // #1
 
         $ownerId1 = $owner->getId();
+        static::assertNotNull($ownerId1);
         $ownedId1 = $owned->getId();
+        static::assertNotNull($ownedId1);
 
         $owned->setTitle('associated#2');
         $owned->setOwner($owner);
@@ -568,34 +671,48 @@ final class RelationTest extends BaseTest
         $this->em->flush(); // #6
 
         $ownedId2 = $owned->getId();
+        static::assertNotNull($ownedId2);
 
         $this->em->remove($owner);
         $this->em->flush(); // #7
 
-        $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 1);
+        $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 1);
+        static::assertNotNull($auditedEntity);
         static::assertSame('created#1', $auditedEntity->getTitle());
         static::assertCount(0, $auditedEntity->getOwned1());
 
-        $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 2);
+        $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 2);
+        static::assertNotNull($auditedEntity);
+
         $o1 = $auditedEntity->getOwned1();
         static::assertCount(1, $o1);
-        static::assertSame($ownedId1, $o1[0]->getId());
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame($ownedId1, $firstO1->getId());
 
-        $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 3);
+        $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 3);
+        static::assertNotNull($auditedEntity);
         static::assertCount(0, $auditedEntity->getOwned1());
 
-        $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 4);
+        $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 4);
+        static::assertNotNull($auditedEntity);
         static::assertCount(1, $auditedEntity->getOwned1());
 
-        $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 5);
+        $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 5);
+        static::assertNotNull($auditedEntity);
         static::assertCount(0, $auditedEntity->getOwned1());
 
-        $auditedEntity = $auditReader->find(\get_class($owner), $ownerId1, 6);
+        $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 6);
+        static::assertNotNull($auditedEntity);
+
         $o1 = $auditedEntity->getOwned1();
         static::assertCount(1, $o1);
-        static::assertSame($ownedId2, $o1[0]->getId());
+        $firstO1 = $o1->first();
+        static::assertNotFalse($firstO1);
+        static::assertSame($ownedId2, $firstO1->getId());
 
-        $auditedEntity = $auditReader->find(\get_class($owned), $ownedId2, 7);
+        $auditedEntity = $auditReader->find(OwnedEntity1::class, $ownedId2, 7);
+        static::assertNotNull($auditedEntity);
         static::assertNull($auditedEntity->getOwner());
     }
 
@@ -620,16 +737,26 @@ final class RelationTest extends BaseTest
         $owned->setTitle('changed#2');
         $this->em->flush();
 
+        $ownerId = $owner->getId();
+        static::assertNotNull($ownerId);
+
         // checking first revision
-        $audited = $auditReader->find(\get_class($owned), $owner->getId(), 1);
+        $audited = $auditReader->find(OwnedEntity1::class, $ownerId, 1);
+        static::assertNotNull($audited);
         static::assertSame('owned', $audited->getTitle());
-        static::assertSame('owner', $audited->getOwner()->getTitle());
+
+        $auditedOwner = $audited->getOwner();
+        static::assertNotNull($auditedOwner);
+        static::assertSame('owner', $auditedOwner->getTitle());
 
         // checking second revision
-        $audited = $auditReader->find(\get_class($owned), $owner->getId(), 2);
-
+        $audited = $auditReader->find(OwnedEntity1::class, $ownerId, 2);
+        static::assertNotNull($audited);
         static::assertSame('changed#2', $audited->getTitle());
-        static::assertSame('changed#2', $audited->getOwner()->getTitle());
+
+        $auditedOwner = $audited->getOwner();
+        static::assertNotNull($auditedOwner);
+        static::assertSame('changed#2', $auditedOwner->getTitle());
     }
 
     public function testOneToManyJoinedInheritance(): void
@@ -654,13 +781,15 @@ final class RelationTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $auditedFood = $reader->find(
-            \get_class($food),
-            $food->getId(),
-            $reader->getCurrentRevision(\get_class($food), $food->getId())
-        );
+        $foodId = $food->getId();
+        static::assertNotNull($foodId);
 
-        static::assertInstanceOf(\get_class($food), $auditedFood);
+        $currentRevision = $reader->getCurrentRevision(FoodCategory::class, $foodId);
+        static::assertNotNull($currentRevision);
+
+        $auditedFood = $reader->find(FoodCategory::class, $foodId, $currentRevision);
+
+        static::assertInstanceOf(FoodCategory::class, $auditedFood);
         static::assertCount(3, $auditedFood->getProducts());
 
         [$productOne, $productTwo, $productThree] = $auditedFood->getProducts()->toArray();
@@ -691,11 +820,14 @@ final class RelationTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $auditedPage = $reader->find(
-            \get_class($page),
-            $page->getId(),
-            $reader->getCurrentRevision(\get_class($page), $page->getId())
-        );
+        $pageId = $page->getId();
+        static::assertNotNull($pageId);
+
+        $currentRevision = $reader->getCurrentRevision(Page::class, $pageId);
+        static::assertNotNull($currentRevision);
+
+        $auditedPage = $reader->find(Page::class, $pageId, $currentRevision);
+        static::assertNotNull($auditedPage);
 
         static::assertNotEmpty($auditedPage->getLocalizations());
 
@@ -752,11 +884,14 @@ final class RelationTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $auditedOwner = $reader->find(
-            \get_class($owner),
-            $owner->getId(),
-            $reader->getCurrentRevision(\get_class($owner), $owner->getId())
-        );
+        $ownerId = $owner->getId();
+        static::assertNotNull($ownerId);
+
+        $currentRevision = $reader->getCurrentRevision(OwnerEntity::class, $ownerId);
+        static::assertNotNull($currentRevision);
+
+        $auditedOwner = $reader->find(OwnerEntity::class, $ownerId, $currentRevision);
+        static::assertNotNull($auditedOwner);
 
         static::assertCount(3, $auditedOwner->getOwned1());
 
@@ -788,7 +923,11 @@ final class RelationTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $auditedBase = $reader->find(\get_class($base), $base->getId(), 1);
+        $baseId = $base->getId();
+        static::assertNotNull($baseId);
+
+        $auditedBase = $reader->find(RelationOneToOneEntity::class, $baseId, 1);
+        static::assertNotNull($auditedBase);
 
         $referencedEntity = $auditedBase->getReferencedEntity();
         static::assertInstanceOf(RelationFoobarEntity::class, $referencedEntity);
@@ -843,8 +982,13 @@ final class RelationTest extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $legal2Base = $reader->find(\get_class($legal2), $legal2->getId(), 1);
+        $legal2Id = $legal2->getId();
+        static::assertNotNull($legal2Id);
 
-        static::assertSame('container3', $legal2Base->getDataContainer()->getName());
+        $legal2Base = $reader->find(DataLegalEntity::class, $legal2Id, 1);
+        static::assertNotNull($legal2Base);
+        $dataContainer = $legal2Base->getDataContainer();
+        static::assertNotNull($dataContainer);
+        static::assertSame('container3', $dataContainer->getName());
     }
 }
