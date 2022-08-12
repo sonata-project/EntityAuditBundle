@@ -208,7 +208,7 @@ class AuditConfiguration
     {
         $callable = $this->usernameCallable;
 
-        return (string) ($callable ? $callable() : '');
+        return null !== $callable ? (string) $callable() : '';
     }
 
     /**

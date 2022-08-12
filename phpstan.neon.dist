@@ -1,8 +1,13 @@
+includes:
+    - phpstan-baseline.neon
+
 parameters:
-    level: 6
+    level: 7
     paths:
         - src
         - tests
+    symfony:
+        console_application_loader: ./phpstan-console-application.php
     excludePaths:
         # The class "AuditController" is deprecated and extends a class that is only supported in "symfony/http-foundation" < 5.
         # NEXT_MAJOR: Remove these files
@@ -12,5 +17,3 @@ parameters:
     checkMissingIterableValueType: true
     checkMissingVarTagTypehint: true
     checkMissingTypehints: true
-    ignoreErrors:
-        - '#^Method SimpleThings\\EntityAudit\\Tests\\[a-zA-Z0-9_\\]+Test::(data|provide)[a-zA-Z0-9_]+\(\) return type has no value type specified in iterable type [a-zA-Z0-9_]+\.$#'

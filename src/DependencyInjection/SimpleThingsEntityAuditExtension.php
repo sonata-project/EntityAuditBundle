@@ -69,7 +69,10 @@ class SimpleThingsEntityAuditExtension extends Extension
 
             foreach ($tags as $attributes) {
                 if (isset($attributes['connection'])) {
-                    $attributes['connection'] = (string) $container->getParameter('simplethings.entityaudit.connection');
+                    $connection = $container->getParameter('simplethings.entityaudit.connection');
+                    \assert(\is_scalar($connection));
+
+                    $attributes['connection'] = (string) $connection;
                 }
                 $definition->addTag('doctrine.event_subscriber', $attributes);
             }

@@ -11,12 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Exception;
+use SimpleThings\EntityAudit\Tests\App\AppKernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 
-class NotAuditedException extends AuditException
-{
-    public function __construct(string $className)
-    {
-        parent::__construct($className, null, null, sprintf('Class "%s" is not audited.', $className));
-    }
-}
+require __DIR__.'/vendor/autoload.php';
+
+$kernel = new AppKernel();
+
+return new Application($kernel);
