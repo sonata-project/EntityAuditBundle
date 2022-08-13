@@ -63,7 +63,8 @@ final class Issue9Test extends BaseTest
         $aCustomer = $reader->find(Issue9Customer::class, $customerId, 1);
         static::assertNotNull($aCustomer);
 
-        static::assertNotNull($aCustomer->getPrimaryAddress());
-        static::assertSame('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
+        $aPrimaryAddress = $aCustomer->getPrimaryAddress();
+        static::assertNotNull($aPrimaryAddress);
+        static::assertSame('NY, Red Street 6', $aPrimaryAddress->getAddressText());
     }
 }

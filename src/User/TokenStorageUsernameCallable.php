@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class TokenStorageUsernameCallable
 {
-    private ?TokenStorageInterface $tokenStorage = null;
+    private TokenStorageInterface $tokenStorage;
 
     /**
      * NEXT_MAJOR: remove Container type.

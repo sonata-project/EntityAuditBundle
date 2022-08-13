@@ -72,6 +72,6 @@ class Page
     public function addLocalization(PageLocalization $localization): void
     {
         $localization->setPage($this);
-        $this->localizations->set($localization->getLocale(), $localization);
+        $this->localizations->set($localization->getLocale() ?? '', $localization);
     }
 }

@@ -16,7 +16,7 @@ namespace SimpleThings\EntityAudit\Exception;
 class InvalidRevisionException extends AuditException
 {
     /**
-     * @param int|string|null $revision
+     * @param int|string $revision
      */
     public function __construct($revision)
     {
