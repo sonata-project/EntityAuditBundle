@@ -17,7 +17,7 @@ class DeletedException extends AuditException
 {
     /**
      * @param array<int|string> $id
-     * @param int|string|null   $revision
+     * @param int|string        $revision
      */
     public function __construct(string $className, array $id, $revision)
     {
