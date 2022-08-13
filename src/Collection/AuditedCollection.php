@@ -187,7 +187,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return object|null
+     * @return object
      *
      * @phpstan-return T
      */
