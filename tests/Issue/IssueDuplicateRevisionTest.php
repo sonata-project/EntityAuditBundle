@@ -32,9 +32,6 @@ final class IssueDuplicateRevisionTest extends BaseTest
         DuplicateRevisionFailureTestOwnedElement::class,
     ];
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDuplicateRevisionKeyConstraintFailure(): void
     {
         $primaryOwner = new DuplicateRevisionFailureTestPrimaryOwner();
@@ -56,6 +53,7 @@ final class IssueDuplicateRevisionTest extends BaseTest
         $this->em->getUnitOfWork()->clear();
 
         $primaryOwner = $this->em->find(DuplicateRevisionFailureTestPrimaryOwner::class, 1);
+        static::assertNotNull($primaryOwner);
 
         $this->em->remove($primaryOwner);
         $this->em->flush();
