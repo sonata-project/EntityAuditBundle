@@ -164,11 +164,13 @@ class LogRevisionsListener implements EventSubscriber
                     } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
                         $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
                         $types[] = $meta->associationMappings[$idField]['type'];
+                    } else {
+                        throw new \RuntimeException('column name not found  for'.$idField);
                     }
 
-                    $params[] = $meta->reflFields[$idField]->getValue($entity);
-
-                    \assert(isset($columnName));
+                    $reflField = $meta->reflFields[$idField];
+                    \assert(null !== $reflField);
+                    $params[] = $reflField->getValue($entity);
 
                     $sql .= ' AND '.$columnName.' = ?';
                 }
@@ -276,7 +278,10 @@ class LogRevisionsListener implements EventSubscriber
         $data = $this->uow->getOriginalEntityData($entity);
         if ($class->isVersioned) {
             $versionField = $class->versionField;
-            $data[$versionField] = $class->reflFields[$versionField]->getValue($entity);
+            \assert(null !== $versionField);
+            $reflField = $class->reflFields[$versionField];
+            \assert(null !== $reflField);
+            $data[$versionField] = $reflField->getValue($entity);
         }
 
         return $data;
@@ -366,8 +371,12 @@ class LogRevisionsListener implements EventSubscriber
                 $sql .= ', '.$this->quoteStrategy->getColumnName($field, $class, $this->platform);
             }
 
-            if (($class->isInheritanceTypeJoined() && $class->rootEntityName === $class->name)
-                || $class->isInheritanceTypeSingleTable()
+            if (
+                (
+                    $class->isInheritanceTypeJoined() && $class->rootEntityName === $class->name
+                    || $class->isInheritanceTypeSingleTable()
+                )
+                && null !== $class->discriminatorColumn
             ) {
                 $sql .= ', '.$class->discriminatorColumn['name'];
                 $placeholders[] = '?';
@@ -441,17 +450,25 @@ class LogRevisionsListener implements EventSubscriber
             $types[] = $class->fieldMappings[$field]['type'];
         }
 
-        if ($class->isInheritanceTypeSingleTable()) {
+        if (
+            $class->isInheritanceTypeSingleTable()
+            && null !== $class->discriminatorColumn
+        ) {
             $params[] = $class->discriminatorValue;
             $types[] = $class->discriminatorColumn['type'];
-        } elseif ($class->isInheritanceTypeJoined()
+        } elseif (
+            $class->isInheritanceTypeJoined()
             && $class->name === $class->rootEntityName
+            && null !== $class->discriminatorColumn
         ) {
             $params[] = $entityData[$class->discriminatorColumn['name']];
             $types[] = $class->discriminatorColumn['type'];
         }
 
-        if ($class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName) {
+        if (
+            $class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName
+            && null !== $class->discriminatorColumn
+        ) {
             $entityData[(string) $class->discriminatorColumn['name']] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
                 $this->em->getClassMetadata($class->rootEntityName),

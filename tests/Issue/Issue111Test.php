@@ -43,6 +43,7 @@ final class Issue111Test extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $ae = $reader->find(Issue111Entity::class, 1, 2);
+        static::assertNotNull($ae);
 
         static::assertInstanceOf(\DateTime::class, $ae->getDeletedAt());
     }

@@ -32,9 +32,6 @@ final class Issue156Test extends BaseTest
         Issue156Client::class,
     ];
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testIssue156(): void
     {
         $client = new Issue156Client();
@@ -47,7 +44,10 @@ final class Issue156Test extends BaseTest
         $this->em->persist($number);
         $this->em->flush();
 
+        $numberId = $number->getId();
+        static::assertNotNull($numberId);
+
         $auditReader = $this->auditManager->createAuditReader($this->em);
-        $auditReader->find(\get_class($number), $number->getId(), 1);
+        $auditReader->find(Issue156ContactTelephoneNumber::class, $numberId, 1);
     }
 }

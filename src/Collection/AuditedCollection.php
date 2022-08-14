@@ -412,7 +412,10 @@ class AuditedCollection implements Collection
     public function offsetGet($offset)
     {
         if ($this->loadedEntities->offsetExists($offset)) {
-            return $this->loadedEntities->offsetGet($offset);
+            $entity = $this->loadedEntities->offsetGet($offset);
+            \assert(null !== $entity);
+
+            return $entity;
         }
 
         $this->initialize();
@@ -422,6 +425,7 @@ class AuditedCollection implements Collection
         }
 
         $entity = $this->entities->offsetGet($offset);
+        \assert(null !== $entity);
         $resolvedEntity = $this->resolve($entity);
         $this->loadedEntities->offsetSet($offset, $resolvedEntity);
 
@@ -458,11 +462,17 @@ class AuditedCollection implements Collection
      */
     protected function resolve($entity)
     {
-        return $this->auditReader->find(
+        $object = $this->auditReader->find(
             $this->class,
             $entity['keys'],
             $this->revision
         );
+
+        if (null === $object) {
+            throw new AuditedCollectionException('Cannot resolve the entity.');
+        }
+
+        return $object;
     }
 
     protected function forceLoad(): void
@@ -553,6 +563,7 @@ class AuditedCollection implements Collection
         $sql .= ' GROUP BY '.implode(', ', $groupBy);
         $sql .= ' ORDER BY '.implode(' ASC, ', $this->metadata->getIdentifierColumnNames()).' ASC';
 
+        /** @var array<array<string, int|string>> $rows */
         $rows = $this->auditReader->getConnection()->fetchAllAssociative($sql, $params);
 
         foreach ($rows as $row) {
@@ -565,6 +576,7 @@ class AuditedCollection implements Collection
             $entity['keys'] = $row;
 
             if (isset($this->associationDefinition['indexBy'])) {
+                /** @var TKey $key */
                 $key = $row[$this->associationDefinition['indexBy']];
                 unset($entity['keys'][$this->associationDefinition['indexBy']]);
                 $this->entities->offsetSet($key, $entity);

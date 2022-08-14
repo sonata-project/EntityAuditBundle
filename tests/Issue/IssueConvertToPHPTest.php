@@ -39,11 +39,17 @@ final class IssueConvertToPHPTest extends BaseTest
         $this->em->flush();
         $this->em->clear();
 
-        $persistedEntity = $this->em->find(\get_class($entity), $entity->getId());
+        $entityId = $entity->getId();
+        static::assertNotNull($entityId);
+
+        $persistedEntity = $this->em->find(ConvertToPHPEntity::class, $entityId);
+        static::assertNotNull($persistedEntity);
 
         $auditReader = $this->auditManager->createAuditReader($this->em);
-        $currentRevision = $auditReader->getCurrentRevision(\get_class($entity), $entity->getId());
-        $currentRevisionEntity = $auditReader->find(\get_class($entity), $entity->getId(), $currentRevision);
+        $currentRevision = $auditReader->getCurrentRevision(ConvertToPHPEntity::class, $entityId);
+        static::assertNotNull($currentRevision);
+        $currentRevisionEntity = $auditReader->find(ConvertToPHPEntity::class, $entityId, $currentRevision);
+        static::assertNotNull($currentRevisionEntity);
 
         static::assertSame(
             $persistedEntity->getSqlConversionField(),

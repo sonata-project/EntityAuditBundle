@@ -48,13 +48,23 @@ final class Issue9Test extends BaseTest
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $aAddress = $reader->find(\get_class($address), $address->getId(), 1);
-        static::assertSame($customer->getId(), $aAddress->getCustomer()->getId());
+        $addressId = $address->getId();
+        static::assertNotNull($addressId);
 
-        /** @var Issue9Customer $aCustomer */
-        $aCustomer = $reader->find(\get_class($customer), $customer->getId(), 1);
+        $aAddress = $reader->find(Issue9Address::class, $addressId, 1);
+        static::assertNotNull($aAddress);
+        $aAddressCustomer = $aAddress->getCustomer();
+        static::assertNotNull($aAddressCustomer);
+        static::assertSame($customer->getId(), $aAddressCustomer->getId());
 
-        static::assertNotNull($aCustomer->getPrimaryAddress());
-        static::assertSame('NY, Red Street 6', $aCustomer->getPrimaryAddress()->getAddressText());
+        $customerId = $customer->getId();
+        static::assertNotNull($customerId);
+
+        $aCustomer = $reader->find(Issue9Customer::class, $customerId, 1);
+        static::assertNotNull($aCustomer);
+
+        $aPrimaryAddress = $aCustomer->getPrimaryAddress();
+        static::assertNotNull($aPrimaryAddress);
+        static::assertSame('NY, Red Street 6', $aPrimaryAddress->getAddressText());
     }
 }

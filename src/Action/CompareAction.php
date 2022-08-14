@@ -37,10 +37,12 @@ final class CompareAction
     {
         if (null === $oldRev) {
             $oldRev = $request->query->get('oldRev');
+            \assert(null !== $oldRev);
         }
 
         if (null === $newRev) {
             $newRev = $request->query->get('newRev');
+            \assert(null !== $newRev);
         }
 
         $diff = $this->auditReader->diff($className, $id, $oldRev, $newRev);

@@ -88,7 +88,9 @@ class CreateSchemaListener implements EventSubscriber
             throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
 
-        $pkColumns = $entityTable->getPrimaryKey()->getColumns();
+        $primaryKey = $entityTable->getPrimaryKey();
+        \assert(null !== $primaryKey);
+        $pkColumns = $primaryKey->getColumns();
         $pkColumns[] = $this->config->getRevisionFieldName();
         $revisionTable->setPrimaryKey($pkColumns);
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
@@ -128,6 +130,8 @@ class CreateSchemaListener implements EventSubscriber
 
     /**
      * Copies $column to another table. All its options are copied but notnull and autoincrement which are set to false.
+     *
+     * @psalm-suppress PossiblyNullArgument
      */
     private function addColumnToTable(Column $column, Table $targetTable): void
     {
@@ -141,6 +145,7 @@ class CreateSchemaListener implements EventSubscriber
         $targetColumn->setUnsigned($column->getUnsigned());
         $targetColumn->setFixed($column->getFixed());
         $targetColumn->setDefault($column->getDefault());
+        // @phpstan-ignore-next-line https://github.com/doctrine/dbal/pull/5589
         $targetColumn->setColumnDefinition($column->getColumnDefinition());
         $targetColumn->setComment($column->getComment());
         $targetColumn->setPlatformOptions($column->getPlatformOptions());
