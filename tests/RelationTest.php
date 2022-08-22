@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests;
 
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 use SimpleThings\EntityAudit\ChangedEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\AbstractDataEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Category;
@@ -29,6 +28,7 @@ use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneNotAuditedEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity1;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity2;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity3;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity4;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnerEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Page;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\PageAlias;
@@ -46,6 +46,7 @@ final class RelationTest extends BaseTest
         OwnedEntity1::class,
         OwnedEntity2::class,
         OwnedEntity3::class,
+        OwnedEntity4::class,
         OneToOneMasterEntity::class,
         OneToOneAuditedEntity::class,
         OneToOneNotAuditedEntity::class,
@@ -306,8 +307,7 @@ final class RelationTest extends BaseTest
     }
 
     /**
-     * This test verifies the temporary behaviour of audited entities with M-M relationships
-     * until https://github.com/simplethings/EntityAudit/issues/85 is implemented.
+     * This test verifies the temporary behaviour of audited entities with M-M relationships.
      */
     public function testManyToMany(): void
     {
@@ -324,20 +324,32 @@ final class RelationTest extends BaseTest
         $owned32->setTitle('owned3#2');
         $owner->addOwned3($owned32);
 
+        $owned4 = new OwnedEntity4();
+        $owned4->setTitle('owned4');
+        $owned4->addOwner($owner);
+
         $this->em->persist($owner);
         $this->em->persist($owned31);
         $this->em->persist($owned32);
+        $this->em->persist($owned4);
 
         $this->em->flush(); // #1
 
         $ownerId = $owner->getId();
         static::assertNotNull($ownerId);
 
-        // checking that getOwned3() returns an empty collection
+        // owned3 is a m:n relationship with OwnerEntity as the owning side
+        // checking that getOwned3() returns a collection of owned entities
         $audited = $auditReader->find(OwnerEntity::class, $ownerId, 1);
+
         static::assertNotNull($audited);
         static::assertInstanceOf(Collection::class, $audited->getOwned3());
-        static::assertCount(0, $audited->getOwned3());
+        static::assertCount(2, $audited->getOwned3());
+
+        // ownedInverse is a m:n relationship with OwnerEntity as the inverse side
+        // checking the getOwnedInverse returns a collection of current owned4 entities
+        static::assertInstanceOf(Collection::class, $audited->getOwnedInverse());
+        static::assertCount(1, $audited->getOwnedInverse());
     }
 
     /**
