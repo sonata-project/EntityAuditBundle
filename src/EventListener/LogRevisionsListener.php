@@ -483,34 +483,51 @@ class LogRevisionsListener implements EventSubscriber
             if ($class->isInheritanceTypeJoined() && $class->isInheritedAssociation($field)) {
                 continue;
             }
-            if (
-                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+            if (!(($assoc['type'] & ClassMetadata::TO_ONE) === 0
                 || false === $assoc['isOwningSide']
-                || !isset($assoc['sourceToTargetKeyColumns'])
+                || !isset($assoc['sourceToTargetKeyColumns']))
             ) {
-                continue;
-            }
+                $data = $entityData[$field] ?? null;
+                $relatedId = [];
 
-            $data = $entityData[$field] ?? null;
-            $relatedId = [];
-
-            if (null !== $data && $this->uow->isInIdentityMap($data)) {
-                $relatedId = $this->uow->getEntityIdentifier($data);
-            }
-
-            /** @var class-string $targetEntity */
-            $targetEntity = $assoc['targetEntity'];
-            $targetClass = $this->em->getClassMetadata($targetEntity);
-
-            foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                $fields[$sourceColumn] = true;
-                if (null === $data) {
-                    $params[] = null;
-                    $types[] = \PDO::PARAM_STR;
-                } else {
-                    $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
-                    $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
+                if (null !== $data && $this->uow->isInIdentityMap($data)) {
+                    $relatedId = $this->uow->getEntityIdentifier($data);
                 }
+
+                /** @var class-string $targetEntity */
+                $targetEntity = $assoc['targetEntity'];
+                $targetClass = $this->em->getClassMetadata($targetEntity);
+
+                foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                    $fields[$sourceColumn] = true;
+                    if (null === $data) {
+                        $params[] = null;
+                        $types[] = \PDO::PARAM_STR;
+                    } else {
+                        $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
+                        $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
+                    }
+                }
+            } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0 && $assoc['isOwningSide']) {
+                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+
+                $collection = $entityData[$assoc['fieldName']];
+                if (null !== $collection) {
+                    foreach ($collection as $relatedEntity) {
+                        $joinTableParams = [$this->getRevisionId(), $revType];
+                        $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+                        foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
+                            $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
+                            $joinTableTypes[] = $class->getTypeOfColumn($targetColumn);
+                        }
+                        foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                            $joinTableParams[] = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]]->getValue($relatedEntity);
+                            $joinTableTypes[] = $targetClass->getTypeOfColumn($targetColumn);
+                        }
+                        $this->conn->executeStatement($this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc), $joinTableParams, $joinTableTypes);
+                    }
+                }
+
             }
         }
 
