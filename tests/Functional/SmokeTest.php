@@ -11,10 +11,9 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests\Functional;
+namespace Sonata\EntityAuditBundle\Tests\Functional;
 
-use SimpleThings\EntityAudit\Tests\App\AppKernel;
-use SimpleThings\EntityAudit\Tests\App\Entity\User;
+use Sonata\EntityAuditBundle\Tests\App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,10 +44,5 @@ final class SmokeTest extends WebTestCase
         yield 'view detail' => [sprintf('/audit/viewent/%s/1', $encodeUserClass)];
         yield 'view entity' => [sprintf('/audit/viewent/%s/1/1', $encodeUserClass)];
         yield 'compare' => [sprintf('/audit/compare/%s/1?newRev=2&oldRev=1', $encodeUserClass)];
-    }
-
-    protected static function getKernelClass(): string
-    {
-        return AppKernel::class;
     }
 }

@@ -11,12 +11,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests\Issue;
+namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use SimpleThings\EntityAudit\Tests\BaseTest;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Client;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156Contact;
-use SimpleThings\EntityAudit\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
+use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue156Client;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue156Contact;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
 
 final class Issue156Test extends BaseTest
 {

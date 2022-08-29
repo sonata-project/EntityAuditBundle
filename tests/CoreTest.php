@@ -11,22 +11,22 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests;
+namespace Sonata\EntityAuditBundle\Tests;
 
 use Doctrine\DBAL\Exception\DriverException;
 use SimpleThings\EntityAudit\ChangedEntity;
 use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Revision;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\AnimalAudit;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\ArticleAudit;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\Cat;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\Dog;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\Fox;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\PetAudit;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\ProfileAudit;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\Rabbit;
-use SimpleThings\EntityAudit\Tests\Fixtures\Core\UserAudit;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\AnimalAudit;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\ArticleAudit;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\Cat;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\Dog;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\Fox;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\PetAudit;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\ProfileAudit;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\Rabbit;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Core\UserAudit;
 
 final class CoreTest extends BaseTest
 {

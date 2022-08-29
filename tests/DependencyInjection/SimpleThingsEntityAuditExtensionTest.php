@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests\DependencyInjection;
+namespace Sonata\EntityAuditBundle\Tests\DependencyInjection;
 
 use Doctrine\DBAL\Types\Types;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
