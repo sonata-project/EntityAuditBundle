@@ -11,11 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests\App\DataFixtures;
+namespace Sonata\EntityAuditBundle\Tests\App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use SimpleThings\EntityAudit\Tests\App\Entity\User;
+use Sonata\EntityAuditBundle\Tests\App\Entity\User;
 
 final class UserFixture extends Fixture
 {

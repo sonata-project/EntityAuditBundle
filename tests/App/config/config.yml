@@ -8,7 +8,7 @@ twig:
     strict_variables: false
 
 parameters:
-    env(DATABASE_URL): 'sqlite:////%kernel.cache_dir%/test_database.db'
+    env(DATABASE_URL): 'sqlite:////%app.base_dir%database.db'
 
 doctrine:
     dbal:
@@ -21,9 +21,9 @@ doctrine:
                 type: annotation
                 dir: "%kernel.project_dir%/Entity"
                 is_bundle: false
-                prefix: SimpleThings\EntityAudit\Tests\App\Entity
+                prefix: Sonata\EntityAuditBundle\Tests\App\Entity
 
 simple_things_entity_audit:
     revision_table_name: bundle_revisions
     audited_entities:
-        - SimpleThings\EntityAudit\Tests\App\Entity\User
+        - Sonata\EntityAuditBundle\Tests\App\Entity\User

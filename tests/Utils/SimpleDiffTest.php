@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests\Utils;
+namespace Sonata\EntityAuditBundle\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
 use SimpleThings\EntityAudit\Utils\SimpleDiff;
