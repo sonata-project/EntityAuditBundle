@@ -34,9 +34,9 @@ class MetadataFactory
     /**
      * @param string $entity
      *
-     * @phpstan-param class-string $entity
-     *
      * @return bool
+     *
+     * @phpstan-param class-string $entity
      */
     public function isAudited($entity)
     {

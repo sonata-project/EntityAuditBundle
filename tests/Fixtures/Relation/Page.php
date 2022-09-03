@@ -35,6 +35,7 @@ class Page
      * A page can have many aliases.
      *
      * @var Collection<int, PageAlias>
+     *
      * @ORM\OneToMany(targetEntity="PageAlias", mappedBy="page", cascade={"persist"})
      */
     protected $pageAliases;

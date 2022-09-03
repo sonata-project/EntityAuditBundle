@@ -496,6 +496,7 @@ class LogRevisionsListener implements EventSubscriber
      * git revision d9fc5388f1aa1751a0e148e76b4569bd207338e9 (v2.5.3).
      *
      * @license MIT
+     *
      * @author  Roman Borschel <roman@code-factory.org>
      * @author  Giorgio Sironi <piccoloprincipeazzurro@gmail.com>
      * @author  Benjamin Eberlei <kontakt@beberlei.de>
