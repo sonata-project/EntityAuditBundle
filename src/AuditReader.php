@@ -188,14 +188,14 @@ class AuditReader
      * @param int|string                                $revision
      * @param array{threatDeletionsAsExceptions?: bool} $options
      *
-     * @return object|null
-     *
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
      * @throws \RuntimeException
+     *
+     * @return object|null
      *
      * @phpstan-param class-string<T> $className
      * @phpstan-return T|null
@@ -329,9 +329,9 @@ class AuditReader
      * @param int|null $limit
      * @param int      $offset
      *
-     * @return Revision[]
-     *
      * @throws Exception
+     *
+     * @return Revision[]
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
@@ -373,14 +373,14 @@ class AuditReader
      *
      * @param string|int $revision
      *
-     * @return ChangedEntity<object>[]
-     *
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
      * @throws \RuntimeException
+     *
+     * @return ChangedEntity<object>[]
      */
     public function findEntitiesChangedAtRevision($revision)
     {
@@ -480,10 +480,10 @@ class AuditReader
      *
      * @param string|int $revision
      *
-     * @return Revision
-     *
      * @throws InvalidRevisionException
      * @throws Exception
+     *
+     * @return Revision
      */
     public function findRevision($revision)
     {
@@ -505,10 +505,10 @@ class AuditReader
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
-     * @return Revision[]
-     *
      * @throws NotAuditedException
      * @throws Exception
+     *
+     * @return Revision[]
      *
      * @phpstan-param class-string $className
      */
@@ -562,10 +562,10 @@ class AuditReader
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
-     * @return int|string|null
-     *
      * @throws NotAuditedException
      * @throws Exception
+     *
+     * @return int|string|null
      *
      * @phpstan-param class-string $className
      */
@@ -620,14 +620,14 @@ class AuditReader
      * @param int|string $oldRevision
      * @param int|string $newRevision
      *
-     * @return array<string, array<string, mixed>>
-     *
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
      * @throws \RuntimeException
+     *
+     * @return array<string, array<string, mixed>>
      *
      * @phpstan-param class-string $className
      * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
@@ -674,13 +674,13 @@ class AuditReader
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
-     * @return array<object|null>
-     *
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
+     *
+     * @return array<object|null>
      *
      * @phpstan-param class-string<T> $className
      * @phpstan-return array<T|null>
@@ -779,14 +779,14 @@ class AuditReader
      * @param array<string, int|string|null> $data
      * @param int|string                     $revision
      *
-     * @return object
-     *
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
      * @throws \RuntimeException
+     *
+     * @return object
      *
      * @phpstan-param class-string<T> $className
      * @phpstan-return T

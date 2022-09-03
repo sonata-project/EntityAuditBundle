@@ -55,9 +55,9 @@ class AuditController extends Controller
      *
      * @param int $rev
      *
-     * @return Response
-     *
      * @throws NotFoundHttpException
+     *
+     * @return Response
      */
     public function viewRevisionAction($rev)
     {
