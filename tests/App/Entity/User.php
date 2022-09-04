@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests\App\Entity;
+namespace Sonata\EntityAuditBundle\Tests\App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 

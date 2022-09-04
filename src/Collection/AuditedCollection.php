@@ -74,6 +74,7 @@ class AuditedCollection implements Collection
      * initialized yet or contain identifiers to load the entities.
      *
      * @var Collection<int|string, array>
+     *
      * @phpstan-var Collection<TKey, array{keys: array<string, int|string>, rev: string|int}>
      */
     protected $entities;
@@ -83,6 +84,7 @@ class AuditedCollection implements Collection
      * been loaded yet or contain audited entities.
      *
      * @var Collection<int|string, object>
+     *
      * @phpstan-var Collection<TKey, T>
      */
     protected $loadedEntities;
@@ -151,6 +153,7 @@ class AuditedCollection implements Collection
      * @return bool
      *
      * @psalm-mutation-free See https://github.com/psalm/psalm-plugin-doctrine/issues/97
+     *
      * @psalm-suppress ImpureMethodCall
      */
     public function isEmpty()

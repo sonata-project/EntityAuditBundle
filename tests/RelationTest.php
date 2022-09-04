@@ -11,33 +11,33 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\Tests;
+namespace Sonata\EntityAuditBundle\Tests;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use SimpleThings\EntityAudit\ChangedEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\AbstractDataEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Category;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\CheeseProduct;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataContainerEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataLegalEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\DataPrivateEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\FoodCategory;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneAuditedEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneMasterEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OneToOneNotAuditedEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity1;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity2;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnedEntity3;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\OwnerEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Page;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageAlias;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\PageLocalization;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\Product;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationFoobarEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationOneToOneEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\RelationReferencedEntity;
-use SimpleThings\EntityAudit\Tests\Fixtures\Relation\WineProduct;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\AbstractDataEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Category;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\CheeseProduct;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DataContainerEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DataLegalEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DataPrivateEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\FoodCategory;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneAuditedEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneMasterEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneNotAuditedEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity1;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity2;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnedEntity3;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OwnerEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Page;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\PageAlias;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\PageLocalization;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Product;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationFoobarEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationOneToOneEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationReferencedEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\WineProduct;
 
 final class RelationTest extends BaseTest
 {
