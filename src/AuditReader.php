@@ -661,6 +661,15 @@ class AuditReader
         $fields = $metadata->getFieldNames();
 
         $return = [];
+
+        $assocFields = $metadata->getAssociationNames();
+        foreach ($assocFields as $assocField) {
+            $assocMapping = $metadata->getAssociationMapping($assocField);
+            if ($assocMapping['type'] & ClassMetadata::MANY_TO_ONE) {
+                $fields[] = $assocField;
+            }
+        }
+
         foreach ($fields as $fieldName) {
             $return[$fieldName] = $metadata->getFieldValue($entity, $fieldName);
         }
