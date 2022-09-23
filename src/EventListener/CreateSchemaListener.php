@@ -114,7 +114,8 @@ class CreateSchemaListener implements EventSubscriber
                     $revisionJoinTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
                     $revisionJoinTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', ['length' => 4]);
 
-                    $pkColumns = $joinTable->getPrimaryKey()->getColumns();
+                    $pk = $joinTable->getPrimaryKey();
+                    $pkColumns = null !== $pk ? $pk->getColumns() : [];
                     $pkColumns[] = $this->config->getRevisionFieldName();
                     $revisionJoinTable->setPrimaryKey($pkColumns);
                     $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getName()).'_idx';

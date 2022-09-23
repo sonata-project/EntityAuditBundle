@@ -985,13 +985,21 @@ class AuditReader
                 \assert(null !== $reflField);
                 $reflField->setValue($entity, $collection);
             } elseif (0 !== ($assoc['type'] & ClassMetadata::MANY_TO_MANY)
-            ) {
+                && isset($targetClass->associationMappings[$mappedBy],
+                    $assoc['relationToSourceKeyColumns'],
+                    $assoc['relationToTargetKeyColumns'],
+                    $assoc['joinTable']['name'])) {
+
                 if ($assoc['isOwningSide']) {
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
                     $values = [$revision];
                     foreach ($assoc['relationToSourceKeyColumns'] as $sourceKeyJoinColumn => $sourceKeyColumn) {
                         $whereId[] = "{$sourceKeyJoinColumn} = ?";
-                        $values[] = $classMetadata->reflFields['id']->getValue($entity);
+
+                        $reflField = $classMetadata->reflFields['id'];
+                        \assert(null !== $reflField);
+
+                        $values[] = $reflField->getValue($entity);
                     }
 
                     $whereSQL = implode(' AND ', $whereId);
@@ -1017,6 +1025,7 @@ class AuditReader
 
                     $rows = $this->em->getConnection()->fetchAllAssociative($query, $values);
 
+                    /** @var ArrayCollection<int, object> */
                     $collection = new ArrayCollection();
                     if ($rows) {
                         if ($this->metadataFactory->isAudited($targetEntity)) {
@@ -1025,9 +1034,15 @@ class AuditReader
                                 foreach ($assoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
                                     $id[$targetKeyColumn] = $row[$targetKeyJoinColumn];
                                 }
-                                $collection->add($this->find($targetClass->getName(), $id, $revision));
+                                $object = $this->find($targetClass->getName(), $id, $revision);
+                                if ($object){
+                                    $collection->add($object);
+                                }
                             }
                         } else {
+                            $reflField = $classMetadata->reflFields[$assoc['fieldName']];
+                            \assert(null !== $reflField);
+
                             if ($this->loadNativeCollections) {
                                 $collection = new PersistentCollection(
                                     $this->em,
@@ -1038,29 +1053,38 @@ class AuditReader
                                 $this->getEntityPersister($targetEntity)
                                     ->loadManyToManyCollection($assoc, $entity, $collection);
 
-                                $classMetadata->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
+                                $reflField->setValue($entity, $collection);
                             } else {
-                                $classMetadata->reflFields[$assoc['fieldName']]->setValue(
-                                    $entity,
-                                    new ArrayCollection()
-                                );
+                                $reflField->setValue($entity,  new ArrayCollection());
                             }
                         }
                     }
-                    $classMetadata->reflFields[$field]->setValue($entity, $collection);
+                    $reflField = $classMetadata->reflFields[$field];
+                    \assert(null !== $reflField);
+
+                    $reflField->setValue($entity, $collection);
                 } else {
                     $targetAssoc = $targetClass->associationMappings[$mappedBy];
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
                     $values = [$revision];
 
+                    /** @var ArrayCollection<int, object> */
+                    $collection = new ArrayCollection();
 
-                    // if the the owning side of the relation is audited, fetch the audited values, otherwise fetch
+                    // if the  owning side of the relation is audited, fetch the audited values, otherwise fetch
                     // data from the main table
-                    if ($this->metadataFactory->isAudited($assoc['targetEntity'])) {
+                    if ($this->metadataFactory->isAudited($assoc['targetEntity'])
+                        && isset(
+                            $targetAssoc['relationToSourceKeyColumns'],
+                            $targetAssoc['relationToSourceKeyColumns'],
+                            $targetAssoc['joinTable']['name'],
+                            $targetAssoc['relationToTargetKeyColumns'])) {
 
                         foreach ($targetAssoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
                             $whereId[] = "{$targetKeyJoinColumn} = ?";
-                            $values[] = $classMetadata->reflFields['id']->getValue($entity);
+                            $reflField = $classMetadata->reflFields['id'];
+                            \assert(null !== $reflField);
+                            $values[] = $reflField->getValue($entity);
                         }
 
                         $whereSQL = implode(' AND ', $whereId);
@@ -1086,17 +1110,23 @@ class AuditReader
 
                         $rows = $this->em->getConnection()->fetchAllAssociative($query, $values);
 
-                        $collection = new ArrayCollection();
                         if ($rows) {
                             foreach ($rows as $row) {
                                 $id = [];
                                 foreach ($targetAssoc['relationToSourceKeyColumns'] as $sourceKeyJoinColumn => $sourceKeyColumn) {
                                     $id[$sourceKeyColumn] = $row[$sourceKeyJoinColumn];
                                 }
-                                $collection->add($this->find($targetClass->getName(), $id, $revision));
+                                $object = $this->find($targetClass->getName(), $id, $revision);
+                                if ($object) {
+                                    $collection->add($object);
+                                }
                             }
                         }
                     } else {
+
+                        $reflField = $classMetadata->reflFields[$assoc['fieldName']];
+                        \assert(null !== $reflField);
+
                         if ($this->loadNativeCollections) {
                             $collection = new PersistentCollection(
                                 $this->em,
@@ -1107,12 +1137,9 @@ class AuditReader
                             $this->getEntityPersister($assoc['targetEntity'])
                                 ->loadManyToManyCollection($assoc, $entity, $collection);
 
-                            $classMetadata->reflFields[$assoc['fieldName']]->setValue($entity, $collection);
+                            $reflField->setValue($entity, $collection);
                         } else {
-                            $classMetadata->reflFields[$assoc['fieldName']]->setValue(
-                                $entity,
-                                new ArrayCollection()
-                            );
+                            $reflField->setValue($entity, new ArrayCollection());
                         }
                     }
                     $reflField = $classMetadata->reflFields[$field];

@@ -429,7 +429,6 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @param ClassMetadata $class
      * @param $targetClass
-     * @param $assoc
      * @param (((bool|string)[]|mixed|string)[]|bool|int|mixed|null|string)[] $assoc
      *
      * @return string
@@ -440,7 +439,8 @@ class LogRevisionsListener implements EventSubscriber
     private function getInsertJoinTableRevisionSQL($class, ClassMetadata $targetClass, array $assoc): string
     {
         $cacheKey = $class->name.'.'.$targetClass->name;
-        if (!isset($this->insertJoinTableRevisionSQL[$cacheKey])) {
+        if (!isset($this->insertJoinTableRevisionSQL[$cacheKey])
+            && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'], $assoc['joinTable']['name'])) {
             $placeholders = ['?', '?'];
 
             // $tableName = $this->config->getTableName($class);
@@ -484,51 +484,59 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            if (0 !== ($assoc['type'] & ClassMetadata::TO_ONE)
-                && $assoc['isOwningSide']
-                && isset($assoc['sourceToTargetKeyColumns'])) {
+            if ($assoc['isOwningSide']) {
+                if (0 !== ($assoc['type'] & ClassMetadata::TO_ONE)
+                    && isset($assoc['sourceToTargetKeyColumns'])) {
 
-                $data = $entityData[$field] ?? null;
-                $relatedId = [];
+                    $data = $entityData[$field] ?? null;
+                    $relatedId = [];
 
-                if (null !== $data && $this->uow->isInIdentityMap($data)) {
-                    $relatedId = $this->uow->getEntityIdentifier($data);
-                }
+                    if (null !== $data && $this->uow->isInIdentityMap($data)) {
+                        $relatedId = $this->uow->getEntityIdentifier($data);
+                    }
 
-                /** @var class-string $targetEntity */
-                $targetEntity = $assoc['targetEntity'];
-                $targetClass = $this->em->getClassMetadata($targetEntity);
+                    /** @var class-string $targetEntity */
+                    $targetEntity = $assoc['targetEntity'];
+                    $targetClass = $this->em->getClassMetadata($targetEntity);
 
-                foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                    $fields[$sourceColumn] = true;
-                    if (null === $data) {
-                        $params[] = null;
-                        $types[] = \PDO::PARAM_STR;
-                    } else {
-                        $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
-                        $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
+                    foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                        $fields[$sourceColumn] = true;
+                        if (null === $data) {
+                            $params[] = null;
+                            $types[] = \PDO::PARAM_STR;
+                        } else {
+                            $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
+                            $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
+                        }
+                    }
+                } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0
+                    && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'])) {
+
+                    $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
+
+                    $collection = $entityData[$assoc['fieldName']];
+                    if (null !== $collection) {
+                        foreach ($collection as $relatedEntity) {
+                            $joinTableParams = [$this->getRevisionId(), $revType];
+                            $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+                            foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
+                                $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
+                                $joinTableTypes[] = $class->getTypeOfColumn($targetColumn);
+                            }
+                            foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+                                $reflField = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]];
+                                \assert(null !== $reflField);
+                                $joinTableParams[] = $reflField->getValue($relatedEntity);
+                                $joinTableTypes[] = $targetClass->getTypeOfColumn($targetColumn);
+                            }
+                            $this->conn->executeStatement(
+                                $this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc),
+                                $joinTableParams,
+                                $joinTableTypes
+                            );
+                        }
                     }
                 }
-            } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0 && $assoc['isOwningSide']) {
-                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-                $collection = $entityData[$assoc['fieldName']];
-                if (null !== $collection) {
-                    foreach ($collection as $relatedEntity) {
-                        $joinTableParams = [$this->getRevisionId(), $revType];
-                        $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
-                        foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
-                            $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
-                            $joinTableTypes[] = $class->getTypeOfColumn($targetColumn);
-                        }
-                        foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                            $joinTableParams[] = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]]->getValue($relatedEntity);
-                            $joinTableTypes[] = $targetClass->getTypeOfColumn($targetColumn);
-                        }
-                        $this->conn->executeStatement($this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc), $joinTableParams, $joinTableTypes);
-                    }
-                }
-
             }
         }
 
