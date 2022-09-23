@@ -428,13 +428,12 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * @param ClassMetadata $class
-     * @param $targetClass
-     * @param (((bool|string)[]|mixed|string)[]|bool|int|mixed|null|string)[] $assoc
+     * @param ClassMetadata $targetClass
+     * @param array<string, mixed> $assoc
      *
      * @return string
      *
      * @psalm-param ClassMetadata<object> $targetClass
-     * @psalm-param array{cache?: array, cascade: array<string>, declared?: class-string, fetch: mixed, fieldName: string, id?: bool, inherited?: class-string, indexBy?: string, inversedBy: null|string, isCascadeRemove: bool, isCascadePersist: bool, isCascadeRefresh: bool, isCascadeMerge: bool, isCascadeDetach: bool, isOnDeleteCascade?: bool, isOwningSide: true, joinColumns?: array<array{name: string, referencedColumnName: string, unique?: bool, quoted?: bool, fieldName?: string, onDelete?: string, columnDefinition?: string, nullable?: bool}>, joinColumnFieldNames?: array<string, string>, joinTable?: array, joinTableColumns?: list<mixed>, mappedBy: null|string, orderBy?: array, originalClass?: class-string, originalField?: string, orphanRemoval?: bool, relationToSourceKeyColumns?: array, relationToTargetKeyColumns?: array, sourceEntity: class-string, sourceToTargetKeyColumns?: array<string, string>, targetEntity: class-string, targetToSourceKeyColumns?: array<string, string>, type: int, unique?: bool} $assoc
      */
     private function getInsertJoinTableRevisionSQL($class, ClassMetadata $targetClass, array $assoc): string
     {

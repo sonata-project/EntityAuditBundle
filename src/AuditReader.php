@@ -188,6 +188,10 @@ class AuditReader
      * @param int|string                                $revision
      * @param array{threatDeletionsAsExceptions?: bool} $options
      *
+     * @return object|null
+     *
+     * @phpstan-param class-string<T>                   $className
+     * @phpstan-return T|null
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
@@ -195,10 +199,6 @@ class AuditReader
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return object|null
-     *
-     * @phpstan-param class-string<T> $className
-     * @phpstan-return T|null
      */
     public function find($className, $id, $revision, array $options = [])
     {
@@ -237,7 +237,9 @@ class AuditReader
         $columnMap = [];
 
         foreach ($classMetadata->fieldNames as $columnName => $field) {
-            $tableAlias = $classMetadata->isInheritanceTypeJoined() && $classMetadata->isInheritedField($field) && !$classMetadata->isIdentifier($field)
+            $tableAlias = $classMetadata->isInheritanceTypeJoined() && $classMetadata->isInheritedField(
+                $field
+            ) && !$classMetadata->isIdentifier($field)
                 ? 're' // root entity
                 : 'e';
 
@@ -300,11 +302,18 @@ class AuditReader
                     $queriedDiscrValues[] = $this->em->getConnection()->quote($allDiscrValues[$subclassName]);
                 }
 
-                $whereSQL .= ' AND '.$classMetadata->discriminatorColumn['name'].' IN '.'('.implode(', ', $queriedDiscrValues).')';
+                $whereSQL .= ' AND '.$classMetadata->discriminatorColumn['name'].' IN '.'('.implode(
+                        ', ',
+                        $queriedDiscrValues
+                    ).')';
             }
         }
 
-        $query = 'SELECT '.implode(', ', $columnList).' FROM '.$tableName.' e '.$joinSql.' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
+        $query = 'SELECT '.implode(
+                ', ',
+                $columnList
+            ).' FROM '.$tableName.' e '.$joinSql.' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName(
+            ).' DESC';
 
         $row = $this->em->getConnection()->fetchAssociative($query, $values);
 
@@ -329,9 +338,9 @@ class AuditReader
      * @param int|null $limit
      * @param int      $offset
      *
+     * @return Revision[]
      * @throws Exception
      *
-     * @return Revision[]
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
@@ -356,12 +365,12 @@ class AuditReader
     /**
      * NEXT_MAJOR: Remove this method.
      *
-     * @deprecated this function name is misspelled.
-     * Suggest using findEntitiesChangedAtRevision instead.
-     *
      * @param string|int $revision
      *
      * @return ChangedEntity<object>[]
+     * @deprecated this function name is misspelled.
+     *             Suggest using findEntitiesChangedAtRevision instead.
+     *
      */
     public function findEntitesChangedAtRevision($revision)
     {
@@ -373,14 +382,14 @@ class AuditReader
      *
      * @param string|int $revision
      *
-     * @throws DeletedException
+     * @return ChangedEntity<object>[]
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return ChangedEntity<object>[]
+     * @throws DeletedException
      */
     public function findEntitiesChangedAtRevision($revision)
     {
@@ -404,13 +413,15 @@ class AuditReader
 
             foreach ($classMetadata->fieldNames as $columnName => $field) {
                 $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
-                $tableAlias = $classMetadata->isInheritanceTypeJoined() && $classMetadata->isInheritedField($field) && !$classMetadata->isIdentifier($field)
+                $tableAlias = $classMetadata->isInheritanceTypeJoined() && $classMetadata->isInheritedField(
+                    $field
+                ) && !$classMetadata->isIdentifier($field)
                     ? 're' // root entity
                     : 'e';
                 $columnList .= ', '.$type->convertToPHPValueSQL(
-                    $tableAlias.'.'.$this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
-                    $this->platform
-                ).' AS '.$this->platform->quoteSingleIdentifier($field);
+                        $tableAlias.'.'.$this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
+                        $this->platform
+                    ).' AS '.$this->platform->quoteSingleIdentifier($field);
                 $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
             }
 
@@ -480,10 +491,10 @@ class AuditReader
      *
      * @param string|int $revision
      *
-     * @throws InvalidRevisionException
+     * @return Revision
      * @throws Exception
      *
-     * @return Revision
+     * @throws InvalidRevisionException
      */
     public function findRevision($revision)
     {
@@ -491,7 +502,10 @@ class AuditReader
         $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, [$revision]);
 
         if (1 === \count($revisionsData)) {
-            $timestamp = \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']);
+            $timestamp = \DateTime::createFromFormat(
+                $this->platform->getDateTimeFormatString(),
+                $revisionsData[0]['timestamp']
+            );
             \assert(false !== $timestamp);
 
             return new Revision($revisionsData[0]['id'], $timestamp, $revisionsData[0]['username']);
@@ -505,12 +519,12 @@ class AuditReader
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
-     * @throws NotAuditedException
-     * @throws Exception
-     *
      * @return Revision[]
      *
-     * @phpstan-param class-string $className
+     * @phpstan-param class-string                 $className
+     * @throws Exception
+     *
+     * @throws NotAuditedException
      */
     public function findRevisions($className, $id)
     {
@@ -541,7 +555,8 @@ class AuditReader
         }
 
         $query = 'SELECT r.* FROM '.$this->config->getRevisionTableName().' r '.
-                 'INNER JOIN '.$tableName.' e ON r.id = e.'.$this->config->getRevisionFieldName().' WHERE '.$whereSQL.' ORDER BY r.id DESC';
+            'INNER JOIN '.$tableName.' e ON r.id = e.'.$this->config->getRevisionFieldName(
+            ).' WHERE '.$whereSQL.' ORDER BY r.id DESC';
         $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, array_values($id));
 
         $revisions = [];
@@ -562,12 +577,12 @@ class AuditReader
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
-     * @throws NotAuditedException
-     * @throws Exception
-     *
      * @return int|string|null
      *
-     * @phpstan-param class-string $className
+     * @phpstan-param class-string                 $className
+     * @throws Exception
+     *
+     * @throws NotAuditedException
      */
     public function getCurrentRevision($className, $id)
     {
@@ -598,7 +613,7 @@ class AuditReader
         }
 
         $query = 'SELECT e.'.$this->config->getRevisionFieldName().' FROM '.$tableName.' e '.
-                        ' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
+            ' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
 
         $revision = $this->em->getConnection()->fetchOne($query, array_values($id));
 
@@ -615,11 +630,15 @@ class AuditReader
      * Get an array with the differences of between two specific revisions of
      * an object with a given id.
      *
-     * @param string     $className
-     * @param int|string $id
-     * @param int|string $oldRevision
-     * @param int|string $newRevision
+     * @param string               $className
+     * @param int|string           $id
+     * @param int|string           $oldRevision
+     * @param int|string           $newRevision
      *
+     * @return array<string, array<string, mixed>>
+     *
+     * @phpstan-param class-string $className
+     * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
@@ -627,10 +646,6 @@ class AuditReader
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return array<string, array<string, mixed>>
-     *
-     * @phpstan-param class-string $className
-     * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
      */
     public function diff($className, $id, $oldRevision, $newRevision)
     {
@@ -648,8 +663,8 @@ class AuditReader
     /**
      * Get the values for a specific entity as an associative array.
      *
-     * @param string $className
-     * @param object $entity
+     * @param string               $className
+     * @param object               $entity
      *
      * @return array<string, mixed>
      *
@@ -674,16 +689,16 @@ class AuditReader
      * @param string                               $className
      * @param int|string|array<string, int|string> $id
      *
-     * @throws DeletedException
+     * @return array<object|null>
+     *
+     * @phpstan-param class-string<T>              $className
+     * @phpstan-return array<T|null>
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
      *
-     * @return array<object|null>
-     *
-     * @phpstan-param class-string<T> $className
-     * @phpstan-return array<T|null>
+     * @throws DeletedException
      */
     public function getEntityHistory($className, $id)
     {
@@ -719,9 +734,9 @@ class AuditReader
         foreach ($classMetadata->fieldNames as $columnName => $field) {
             $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
             $columnList[] = $type->convertToPHPValueSQL(
-                $this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
-                $this->platform
-            ).' AS '.$this->platform->quoteSingleIdentifier($field);
+                    $this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
+                    $this->platform
+                ).' AS '.$this->platform->quoteSingleIdentifier($field);
             $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
         }
 
@@ -742,7 +757,10 @@ class AuditReader
 
         $values = array_values($id);
 
-        $query = 'SELECT '.implode(', ', $columnList).' FROM '.$tableName.' e WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
+        $query = 'SELECT '.implode(
+                ', ',
+                $columnList
+            ).' FROM '.$tableName.' e WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
         $result = [];
@@ -756,7 +774,7 @@ class AuditReader
     }
 
     /**
-     * @param string $className
+     * @param string               $className
      *
      * @return EntityPersister
      *
@@ -779,6 +797,10 @@ class AuditReader
      * @param array<string, int|string|null> $data
      * @param int|string                     $revision
      *
+     * @return object
+     *
+     * @phpstan-param class-string<T>        $className
+     * @phpstan-return T
      * @throws DeletedException
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
@@ -786,10 +808,6 @@ class AuditReader
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return object
-     *
-     * @phpstan-param class-string<T> $className
-     * @phpstan-return T
      */
     private function createEntity($className, array $columnMap, array $data, $revision)
     {
@@ -889,7 +907,9 @@ class AuditReader
                                 $pf[$foreign] = $key;
                             }
                         } elseif (null !== $mappedBy) {
-                            $otherEntityAssoc = $this->em->getClassMetadata($targetEntity)->associationMappings[$mappedBy];
+                            $otherEntityAssoc = $this->em->getClassMetadata(
+                                $targetEntity
+                            )->associationMappings[$mappedBy];
 
                             if (isset($otherEntityAssoc['targetToSourceKeyColumns'])) {
                                 foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
@@ -908,7 +928,12 @@ class AuditReader
                             $value = null;
                         } else {
                             try {
-                                $value = $this->find($targetClass->name, $pk, $revision, ['threatDeletionsAsExceptions' => true]);
+                                $value = $this->find(
+                                    $targetClass->name,
+                                    $pk,
+                                    $revision,
+                                    ['threatDeletionsAsExceptions' => true]
+                                );
                             } catch (DeletedException $e) {
                                 $value = null;
                             } catch (NoRevisionFoundException $e) {
@@ -928,7 +953,10 @@ class AuditReader
                                 if (null !== $joinColumnValue) {
                                     $targetField = $targetClass->fieldNames[$targetColumn];
                                     $joinColumnType = Type::getType($targetClass->fieldMappings[$targetField]['type']);
-                                    $joinColumnValue = $joinColumnType->convertToPHPValue($joinColumnValue, $this->platform);
+                                    $joinColumnValue = $joinColumnType->convertToPHPValue(
+                                        $joinColumnValue,
+                                        $this->platform
+                                    );
                                     $associatedId[$targetField] = $joinColumnValue;
                                 }
                             }
@@ -966,7 +994,14 @@ class AuditReader
                             $foreignKeys[$local] = $reflField->getValue($entity);
                         }
 
-                        $collection = new AuditedCollection($this, $targetClass->name, $targetClass, $assoc, $foreignKeys, $revision);
+                        $collection = new AuditedCollection(
+                            $this,
+                            $targetClass->name,
+                            $targetClass,
+                            $assoc,
+                            $foreignKeys,
+                            $revision
+                        );
                     } else {
                         $collection = new ArrayCollection();
                     }
@@ -985,10 +1020,12 @@ class AuditReader
                 \assert(null !== $reflField);
                 $reflField->setValue($entity, $collection);
             } elseif (0 !== ($assoc['type'] & ClassMetadata::MANY_TO_MANY)
-                && isset($targetClass->associationMappings[$mappedBy],
+                && isset(
+                    $targetClass->associationMappings[$mappedBy],
                     $assoc['relationToSourceKeyColumns'],
                     $assoc['relationToTargetKeyColumns'],
-                    $assoc['joinTable']['name'])) {
+                    $assoc['joinTable']['name']
+                )) {
 
                 if ($assoc['isOwningSide']) {
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
@@ -1027,15 +1064,18 @@ class AuditReader
 
                     /** @var ArrayCollection<int, object> */
                     $collection = new ArrayCollection();
-                    if ($rows) {
+                    if (0 < count($rows)) {
                         if ($this->metadataFactory->isAudited($targetEntity)) {
                             foreach ($rows as $row) {
                                 $id = [];
+
+                                /** @phpstan-var string $targetKeyColumn */
                                 foreach ($assoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
-                                    $id[$targetKeyColumn] = $row[$targetKeyJoinColumn];
+                                    $joinKey = $row[$targetKeyJoinColumn];
+                                    $id[$targetKeyColumn] = $joinKey;
                                 }
                                 $object = $this->find($targetClass->getName(), $id, $revision);
-                                if ($object){
+                                if (null !== $object) {
                                     $collection->add($object);
                                 }
                             }
@@ -1055,7 +1095,7 @@ class AuditReader
 
                                 $reflField->setValue($entity, $collection);
                             } else {
-                                $reflField->setValue($entity,  new ArrayCollection());
+                                $reflField->setValue($entity, new ArrayCollection());
                             }
                         }
                     }
@@ -1078,7 +1118,8 @@ class AuditReader
                             $targetAssoc['relationToSourceKeyColumns'],
                             $targetAssoc['relationToSourceKeyColumns'],
                             $targetAssoc['joinTable']['name'],
-                            $targetAssoc['relationToTargetKeyColumns'])) {
+                            $targetAssoc['relationToTargetKeyColumns']
+                        )) {
 
                         foreach ($targetAssoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
                             $whereId[] = "{$targetKeyJoinColumn} = ?";
@@ -1110,14 +1151,17 @@ class AuditReader
 
                         $rows = $this->em->getConnection()->fetchAllAssociative($query, $values);
 
-                        if ($rows) {
+                        if (0 < count($rows)) {
                             foreach ($rows as $row) {
                                 $id = [];
+                                /** @phpstan-var string $sourceKeyColumn */
                                 foreach ($targetAssoc['relationToSourceKeyColumns'] as $sourceKeyJoinColumn => $sourceKeyColumn) {
-                                    $id[$sourceKeyColumn] = $row[$sourceKeyJoinColumn];
+                                    $joinKey = $row[$sourceKeyJoinColumn];
+                                    $id[$sourceKeyColumn] = $joinKey;
                                 }
+
                                 $object = $this->find($targetClass->getName(), $id, $revision);
-                                if ($object) {
+                                if (null !== $object) {
                                     $collection->add($object);
                                 }
                             }
