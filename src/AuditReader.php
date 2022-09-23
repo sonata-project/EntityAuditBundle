@@ -1019,15 +1019,13 @@ class AuditReader
                 $reflField = $classMetadata->reflFields[$assoc['fieldName']];
                 \assert(null !== $reflField);
                 $reflField->setValue($entity, $collection);
-            } elseif (0 !== ($assoc['type'] & ClassMetadata::MANY_TO_MANY)
-                && isset(
-                    $targetClass->associationMappings[$mappedBy],
+            } elseif (0 !== ($assoc['type'] & ClassMetadata::MANY_TO_MANY)) {
+
+                if ($assoc['isOwningSide'] && isset(
                     $assoc['relationToSourceKeyColumns'],
                     $assoc['relationToTargetKeyColumns'],
                     $assoc['joinTable']['name']
                 )) {
-
-                if ($assoc['isOwningSide']) {
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
                     $values = [$revision];
                     foreach ($assoc['relationToSourceKeyColumns'] as $sourceKeyJoinColumn => $sourceKeyColumn) {
@@ -1103,7 +1101,7 @@ class AuditReader
                     \assert(null !== $reflField);
 
                     $reflField->setValue($entity, $collection);
-                } else {
+                } elseif (isset($targetClass->associationMappings[$mappedBy])) {
                     $targetAssoc = $targetClass->associationMappings[$mappedBy];
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
                     $values = [$revision];
