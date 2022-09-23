@@ -483,10 +483,11 @@ class LogRevisionsListener implements EventSubscriber
             if ($class->isInheritanceTypeJoined() && $class->isInheritedAssociation($field)) {
                 continue;
             }
-            if (!(($assoc['type'] & ClassMetadata::TO_ONE) === 0
-                || false === $assoc['isOwningSide']
-                || !isset($assoc['sourceToTargetKeyColumns']))
-            ) {
+
+            if (0 !== ($assoc['type'] & ClassMetadata::TO_ONE)
+                && $assoc['isOwningSide']
+                && isset($assoc['sourceToTargetKeyColumns'])) {
+
                 $data = $entityData[$field] ?? null;
                 $relatedId = [];
 

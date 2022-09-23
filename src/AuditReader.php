@@ -264,8 +264,8 @@ class AuditReader
 
             foreach ($assoc['joinColumnFieldNames'] as $sourceCol) {
                 $tableAlias = $classMetadata->isInheritanceTypeJoined() &&
-                    $classMetadata->isInheritedAssociation($assoc['fieldName']) &&
-                    !$classMetadata->isIdentifier($assoc['fieldName'])
+                $classMetadata->isInheritedAssociation($assoc['fieldName']) &&
+                !$classMetadata->isIdentifier($assoc['fieldName'])
                     ? 're' // root entity
                     : 'e';
                 $columnList[] = $tableAlias.'.'.$sourceCol;
@@ -999,17 +999,21 @@ class AuditReader
                         $this->config->getRevisionFieldName(),
                         $this->config->getRevisionTypeFieldName(),
                     ];
-                    $tableName = $this->config->getTablePrefix(
-                        ).$assoc['joinTable']['name'].$this->config->getTableSuffix();
+                    $tableName = $this->config->getTablePrefix()
+                        .$assoc['joinTable']['name']
+                        .$this->config->getTableSuffix();
 
                     foreach ($assoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
                         $columnList[] = $targetKeyJoinColumn;
                     }
-                    $query = 'SELECT '.implode(
-                            ', ',
-                            $columnList
-                        ).' FROM '.$tableName.' e WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName(
-                        ).' DESC';
+
+                    $query = sprintf(
+                        'SELECT %s FROM %s e WHERE %s ORDER BY e.%s DESC',
+                        implode(', ', $columnList),
+                        $tableName,
+                        $whereSQL,
+                        $this->config->getRevisionFieldName()
+                    );
 
                     $rows = $this->em->getConnection()->fetchAllAssociative($query, $values);
 
@@ -1065,17 +1069,20 @@ class AuditReader
                             $this->config->getRevisionTypeFieldName(),
                         ];
 
-                        $tableName = $this->config->getTablePrefix(
-                            ).$targetAssoc['joinTable']['name'].$this->config->getTableSuffix();
+                        $tableName = $this->config->getTablePrefix()
+                            .$targetAssoc['joinTable']['name']
+                            .$this->config->getTableSuffix();
 
                         foreach ($targetAssoc['relationToSourceKeyColumns'] as $sourceKeyJoinColumn => $sourceKeyColumn) {
                             $columnList[] = $sourceKeyJoinColumn;
                         }
-                        $query = 'SELECT '.implode(
-                                ', ',
-                                $columnList
-                            ).' FROM '.$tableName.' e WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName(
-                            ).' DESC';
+                        $query = sprintf(
+                            'SELECT %s FROM %s e WHERE %s ORDER BY e.%s DESC',
+                            implode(', ', $columnList),
+                            $tableName,
+                            $whereSQL,
+                            $this->config->getRevisionFieldName()
+                        );
 
                         $rows = $this->em->getConnection()->fetchAllAssociative($query, $values);
 
