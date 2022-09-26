@@ -302,18 +302,22 @@ class AuditReader
                     $queriedDiscrValues[] = $this->em->getConnection()->quote($allDiscrValues[$subclassName]);
                 }
 
-                $whereSQL .= ' AND '.$classMetadata->discriminatorColumn['name'].' IN '.'('.implode(
-                        ', ',
-                        $queriedDiscrValues
-                    ).')';
+                $whereSQL .= sprintf(
+                    ' AND %s IN (%s)',
+                    $classMetadata->discriminatorColumn['name'],
+                    implode(', ', $queriedDiscrValues)
+                );
             }
         }
 
-        $query = 'SELECT '.implode(
-                ', ',
-                $columnList
-            ).' FROM '.$tableName.' e '.$joinSql.' WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName(
-            ).' DESC';
+        $query = sprintf(
+            'SELECT %s FROM %s e %s WHERE %s ORDER BY e.%s DESC',
+            implode(', ', $columnList),
+            $tableName,
+            $joinSql,
+            $whereSQL,
+            $this->config->getRevisionFieldName()
+        );
 
         $row = $this->em->getConnection()->fetchAssociative($query, $values);
 
@@ -757,10 +761,14 @@ class AuditReader
 
         $values = array_values($id);
 
-        $query = 'SELECT '.implode(
-                ', ',
-                $columnList
-            ).' FROM '.$tableName.' e WHERE '.$whereSQL.' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
+        $query = sprintf(
+            'SELECT %s FROM %s e WHERE %s ORDER BY e.%s DESC',
+            implode(', ', $columnList),
+            $tableName,
+            $whereSQL,
+            $this->config->getRevisionFieldName()
+        );
+
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
         $result = [];
