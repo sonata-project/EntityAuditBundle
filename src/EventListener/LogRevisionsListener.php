@@ -427,11 +427,8 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param ClassMetadata $class
-     * @param ClassMetadata $targetClass
+     * @param ClassMetadata        $class
      * @param array<string, mixed> $assoc
-     *
-     * @return string
      *
      * @psalm-param ClassMetadata<object> $targetClass
      */
@@ -486,7 +483,6 @@ class LogRevisionsListener implements EventSubscriber
             if ($assoc['isOwningSide']) {
                 if (0 !== ($assoc['type'] & ClassMetadata::TO_ONE)
                     && isset($assoc['sourceToTargetKeyColumns'])) {
-
                     $data = $entityData[$field] ?? null;
                     $relatedId = [];
 
@@ -510,7 +506,6 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0
                     && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'])) {
-
                     $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
                     $collection = $entityData[$assoc['fieldName']];
@@ -574,7 +569,7 @@ class LogRevisionsListener implements EventSubscriber
             $class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName
             && null !== $class->discriminatorColumn
         ) {
-            $entityData[(string) $class->discriminatorColumn['name']] = $class->discriminatorValue;
+            $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
                 $this->em->getClassMetadata($class->rootEntityName),
                 $entityData,
