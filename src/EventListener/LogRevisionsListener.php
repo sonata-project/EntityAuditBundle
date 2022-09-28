@@ -430,7 +430,7 @@ class LogRevisionsListener implements EventSubscriber
      * @param ClassMetadata        $class
      * @param array<string, mixed> $assoc
      *
-     * @psalm-param ClassMetadata<object> $targetClass
+     * @phpstan-param ClassMetadata<object> $targetClass
      */
     private function getInsertJoinTableRevisionSQL($class, ClassMetadata $targetClass, array $assoc): string
     {
@@ -439,11 +439,14 @@ class LogRevisionsListener implements EventSubscriber
             && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'], $assoc['joinTable']['name'])) {
             $placeholders = ['?', '?'];
 
-            // $tableName = $this->config->getTableName($class);
             $tableName = $this->config->getTablePrefix().$assoc['joinTable']['name'].$this->config->getTableSuffix();
 
-            $sql = 'INSERT INTO '.$tableName.' ('.
-                $this->config->getRevisionFieldName().', '.$this->config->getRevisionTypeFieldName();
+            $sql = sprintf(
+                'INSERT INTO %s (%s, %s',
+                $tableName,
+                $this->config->getRevisionFieldName(),
+                $this->config->getRevisionTypeFieldName()
+            );
 
             $fields = [];
 

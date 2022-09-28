@@ -306,9 +306,6 @@ final class RelationTest extends BaseTest
         static::assertSame('notaudited', $notAuditedRelation->getTitle());
     }
 
-    /**
-     * This test verifies the temporary behaviour of audited entities with M-M relationships.
-     */
     public function testManyToMany(): void
     {
         $auditReader = $this->auditManager->createAuditReader($this->em);

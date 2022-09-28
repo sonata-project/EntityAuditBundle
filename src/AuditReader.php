@@ -237,11 +237,11 @@ class AuditReader
         $columnMap = [];
 
         foreach ($classMetadata->fieldNames as $columnName => $field) {
-            $tableAlias = $classMetadata->isInheritanceTypeJoined() && $classMetadata->isInheritedField(
-                $field
-            ) && !$classMetadata->isIdentifier($field)
-                ? 're' // root entity
-                : 'e';
+            $tableAlias = $classMetadata->isInheritanceTypeJoined()
+                && $classMetadata->isInheritedField($field)
+                && !$classMetadata->isIdentifier($field)
+                    ? 're' // root entity
+                    : 'e';
 
             $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
             $columnList[] = sprintf(
@@ -265,11 +265,11 @@ class AuditReader
             }
 
             foreach ($assoc['joinColumnFieldNames'] as $sourceCol) {
-                $tableAlias = $classMetadata->isInheritanceTypeJoined() &&
-                $classMetadata->isInheritedAssociation($assoc['fieldName']) &&
-                !$classMetadata->isIdentifier($assoc['fieldName'])
-                    ? 're' // root entity
-                    : 'e';
+                $tableAlias = $classMetadata->isInheritanceTypeJoined()
+                    && $classMetadata->isInheritedAssociation($assoc['fieldName'])
+                    && !$classMetadata->isIdentifier($assoc['fieldName'])
+                        ? 're' // root entity
+                        : 'e';
                 $columnList[] = $tableAlias.'.'.$sourceCol;
                 $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
             }
@@ -417,11 +417,11 @@ class AuditReader
 
             foreach ($classMetadata->fieldNames as $columnName => $field) {
                 $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
-                $tableAlias = $classMetadata->isInheritanceTypeJoined() && $classMetadata->isInheritedField(
-                    $field
-                ) && !$classMetadata->isIdentifier($field)
-                    ? 're' // root entity
-                    : 'e';
+                $tableAlias = $classMetadata->isInheritanceTypeJoined()
+                    && $classMetadata->isInheritedField($field)
+                    && !$classMetadata->isIdentifier($field)
+                        ? 're' // root entity
+                        : 'e';
                 $columnList .= ', '.$type->convertToPHPValueSQL(
                     $tableAlias.'.'.$this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
                     $this->platform
@@ -558,9 +558,13 @@ class AuditReader
             }
         }
 
-        $query = 'SELECT r.* FROM '.$this->config->getRevisionTableName().' r '.
-            'INNER JOIN '.$tableName.' e ON r.id = e.'.$this->config->getRevisionFieldName(
-            ).' WHERE '.$whereSQL.' ORDER BY r.id DESC';
+        $query = sprintf(
+            'SELECT r.* FROM %s r INNER JOIN %s e ON r.id = e.%s  WHERE %s ORDER BY r.id DESC',
+            $this->config->getRevisionTableName(),
+            $tableName,
+            $this->config->getRevisionFieldName(),
+            $whereSQL
+        );
         $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, array_values($id));
 
         $revisions = [];
@@ -915,9 +919,8 @@ class AuditReader
                                 $pf[$foreign] = $key;
                             }
                         } elseif (null !== $mappedBy) {
-                            $otherEntityAssoc = $this->em->getClassMetadata(
-                                $targetEntity
-                            )->associationMappings[$mappedBy];
+                            $otherEntityAssoc = $this->em->getClassMetadata($targetEntity)
+                                ->associationMappings[$mappedBy];
 
                             if (isset($otherEntityAssoc['targetToSourceKeyColumns'])) {
                                 foreach ($otherEntityAssoc['targetToSourceKeyColumns'] as $local => $foreign) {
