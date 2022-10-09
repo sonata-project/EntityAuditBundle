@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -54,13 +55,26 @@ class OwnerEntity
     /**
      * @var Collection<int, OwnedEntity3>
      *
-     * @ORM\ManyToMany(targetEntity="OwnedEntity3", mappedBy="owner")
+     * @ORM\ManyToMany(targetEntity="OwnedEntity3", inversedBy="owner")
      * @ORM\JoinTable(name="owner_owned3",
-     *   joinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")}
+     *   joinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")},
+     *   inverseJoinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")}
      * )
      */
     protected $owned3;
+
+    /**
+     * @var Collection<int, OwnedEntity4>
+     *
+     * @ORM\ManyToMany(targetEntity="OwnedEntity4", mappedBy="owners")
+     */
+    protected $ownedInverse;
+
+    public function __construct()
+    {
+        $this->owned3 = new ArrayCollection();
+        $this->ownedInverse = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -114,5 +128,18 @@ class OwnerEntity
     public function addOwned3(OwnedEntity3 $owned3): void
     {
         $this->owned3[] = $owned3;
+    }
+
+    /**
+     * @return Collection<int, OwnedEntity4>
+     */
+    public function getOwnedInverse(): Collection
+    {
+        return $this->ownedInverse;
+    }
+
+    public function addOwnedInverse(OwnedEntity4 $ownedInverse): void
+    {
+        $this->ownedInverse[] = $ownedInverse;
     }
 }
