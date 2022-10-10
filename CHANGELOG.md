@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.9.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.8.0...1.9.0) - 2022-10-10
+### Added
+- [[#509](https://github.com/sonata-project/EntityAuditBundle/pull/509)] Support for ManyToMany ([@pietaj](https://github.com/pietaj))
+
+### Removed
+- [[#497](https://github.com/sonata-project/EntityAuditBundle/pull/497)] Support of Symfony 5.3 ([@franmomu](https://github.com/franmomu))
+
 ## [1.8.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.7.0...1.8.0) - 2022-05-21
 ### Added
 - [[#488](https://github.com/sonata-project/EntityAuditBundle/pull/488)] Specify iterable types ([@franmomu](https://github.com/franmomu))
