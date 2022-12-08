@@ -446,7 +446,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return int
+     * @return int<0, max>
      */
     #[\ReturnTypeWillChange]
     public function count()
