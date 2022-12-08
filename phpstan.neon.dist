@@ -10,6 +10,8 @@ parameters:
     level: 8
     symfony:
         console_application_loader: ./phpstan-console-application.php
+    doctrine:
+        allowNullablePropertyForRequiredField: true
     paths:
         - src
         - tests
