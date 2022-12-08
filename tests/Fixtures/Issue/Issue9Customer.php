@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,6 +42,11 @@ class Issue9Customer
      * @ORM\OneToOne(targetEntity="Issue9Address")
      */
     private ?Issue9Address $primaryAddress = null;
+
+    public function __construct()
+    {
+        $this->addresses = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
