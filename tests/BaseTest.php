@@ -49,14 +49,14 @@ abstract class BaseTest extends TestCase
     /**
      * @var string[]
      *
-     * @phpstan-var class-string[]
+     * @phpstan-var list<class-string>
      */
     protected $schemaEntities = [];
 
     /**
      * @var string[]
      *
-     * @phpstan-var class-string[]
+     * @phpstan-var list<class-string>
      */
     protected $auditedEntities = [];
 

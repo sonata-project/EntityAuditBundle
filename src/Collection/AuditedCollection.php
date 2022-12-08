@@ -446,7 +446,9 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return int
+     * @return int<0, max>
+     *
+     * @psalm-suppress LessSpecificReturnStatement, MoreSpecificReturnType, UnusedPsalmSuppress
      */
     #[\ReturnTypeWillChange]
     public function count()

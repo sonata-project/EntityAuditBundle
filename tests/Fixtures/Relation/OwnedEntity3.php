@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -37,11 +39,16 @@ class OwnedEntity3
     protected $title;
 
     /**
-     * @var OwnerEntity|null
+     * @var Collection<int, OwnerEntity>
      *
      * @ORM\ManyToMany(targetEntity="OwnerEntity", mappedBy="owned3")
      */
-    protected $owner;
+    protected $owners;
+
+    public function __construct()
+    {
+        $this->owners = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -58,13 +65,16 @@ class OwnedEntity3
         $this->title = $title;
     }
 
-    public function getOwner(): ?OwnerEntity
+    /**
+     * @return Collection<int, OwnerEntity>
+     */
+    public function getOwners(): Collection
     {
-        return $this->owner;
+        return $this->owners;
     }
 
-    public function setOwner(?OwnerEntity $owner): void
+    public function addOwner(OwnerEntity $owner): void
     {
-        $this->owner = $owner;
+        $this->owners[] = $owner;
     }
 }
