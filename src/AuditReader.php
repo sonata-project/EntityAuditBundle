@@ -54,7 +54,7 @@ class AuditReader
      *
      * @phpstan-var array<class-string, array<string, array<int|string, object>>>
      */
-    private $entityCache;
+    private array $entityCache = [];
 
     /**
      * Decides if audited ToMany collections are loaded.
