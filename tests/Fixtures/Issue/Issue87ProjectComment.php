@@ -30,7 +30,7 @@ class Issue87ProjectComment
     protected $id;
 
     /**
-     * @ORM\ManytoOne(targetEntity="Issue87AbstractProject")
+     * @ORM\ManyToOne(targetEntity="Issue87AbstractProject")
      * @ORM\JoinColumn(name="a_join_column")
      */
     private ?Issue87AbstractProject $project = null;
