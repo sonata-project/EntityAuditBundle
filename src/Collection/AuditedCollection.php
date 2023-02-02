@@ -65,7 +65,7 @@ class AuditedCollection implements Collection
     /**
      * @var ClassMetadataInfo
      *
-     * @phpstan-var ClassMetadataInfo<T> $metadata
+     * @phpstan-var ClassMetadataInfo<T>
      */
     protected $metadata;
 

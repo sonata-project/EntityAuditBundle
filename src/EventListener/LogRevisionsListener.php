@@ -353,6 +353,8 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
+     * @param ClassMetadata<object> $class
+     *
      * @throws Exception
      */
     private function getInsertRevisionSQL(EntityManagerInterface $em, ClassMetadata $class): string
@@ -423,12 +425,11 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param ClassMetadata        $class
-     * @param array<string, mixed> $assoc
-     *
-     * @phpstan-param ClassMetadata<object> $targetClass
+     * @param ClassMetadata<object> $class
+     * @param ClassMetadata<object> $targetClass
+     * @param array<string, mixed>  $assoc
      */
-    private function getInsertJoinTableRevisionSQL($class, ClassMetadata $targetClass, array $assoc): string
+    private function getInsertJoinTableRevisionSQL(ClassMetadata $class, ClassMetadata $targetClass, array $assoc): string
     {
         $cacheKey = $class->name.'.'.$targetClass->name;
         if (!isset($this->insertJoinTableRevisionSQL[$cacheKey])
@@ -465,7 +466,8 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param array<string, mixed> $entityData
+     * @param ClassMetadata<object> $class
+     * @param array<string, mixed>  $entityData
      */
     private function saveRevisionEntityData(EntityManagerInterface $em, ClassMetadata $class, array $entityData, string $revType): void
     {
