@@ -139,8 +139,9 @@ abstract class BaseTest extends TestCase
     protected function _getConnection(): Connection
     {
         if (!isset(self::$conn)) {
-            if (false !== getenv('DATABASE_URL')) {
-                $params = ['url' => getenv('DATABASE_URL')];
+            $url = getenv('DATABASE_URL');
+            if (false !== $url) {
+                $params = ['url' => $url];
             } else {
                 $params = [
                     'driver' => 'pdo_sqlite',

@@ -64,6 +64,8 @@ class AuditConfiguration
     }
 
     /**
+     * @param ClassMetadataInfo<object> $metadata
+     *
      * @return string
      */
     public function getTableName(ClassMetadataInfo $metadata)
