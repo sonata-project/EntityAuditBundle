@@ -37,34 +37,38 @@ final class IssueEntityWithEnumTest extends BaseTest
         $this->em->persist($entity);
         $this->em->flush();
 
-        \assert(\is_int($entity->getId()));
+        $entityId = $entity->getId();
+
+        \assert(\is_int($entityId));
 
         $this->em->clear();
 
         /** @var IssueEntityWithEnum $entity */
-        $entity = $this->em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entity->getId()]);
+        $entity = $this->em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entityId]);
 
         $entity->setStatus(Status::Qwe);
         $this->em->flush();
 
         $reader = $this->auditManager->createAuditReader($this->em);
 
-        $auditEntity = $reader->find(IssueEntityWithEnum::class, $entity->getId(), 1);
+        $auditEntity = $reader->find(IssueEntityWithEnum::class, $entityId, 1);
         static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
         static::assertSame(Status::Foo, $auditEntity->getStatus());
 
-        $auditEntity = $reader->find(IssueEntityWithEnum::class, $entity->getId(), 2);
+        $auditEntity = $reader->find(IssueEntityWithEnum::class, $entityId, 2);
         static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
         static::assertSame(Status::Qwe, $auditEntity->getStatus());
 
         $this->em->clear();
 
         /** @var IssueEntityWithEnum $entity */
-        $entity = $this->em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entity->getId()]);
+        $entity = $this->em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entityId]);
 
         $this->em->remove($entity);
         $this->em->flush();
 
-        static::assertCount(0, $reader->findRevisions(IssueEntityWithEnum::class, $entity->getId()));
+        $auditEntity = $reader->find(IssueEntityWithEnum::class, $entityId, 3);
+        static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
+        static::assertSame(Status::Qwe, $auditEntity->getStatus());
     }
 }
