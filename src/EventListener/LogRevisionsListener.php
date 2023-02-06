@@ -583,7 +583,7 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($params as $key => $parameterValue) {
-            if (\interface_exists(\BackedEnum::class) && $parameterValue instanceof \BackedEnum) {
+            if (interface_exists(\BackedEnum::class) && $parameterValue instanceof \BackedEnum) {
                 $params[$key] = $parameterValue->value;
             }
         }

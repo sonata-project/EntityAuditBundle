@@ -50,12 +50,12 @@ final class IssueEntityWithEnumTest extends BaseTest
         $reader = $this->auditManager->createAuditReader($this->em);
 
         $auditEntity = $reader->find(IssueEntityWithEnum::class, $entity->getId(), 1);
-        self::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
-        self::assertSame(Status::Foo, $auditEntity->getStatus());
+        static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
+        static::assertSame(Status::Foo, $auditEntity->getStatus());
 
         $auditEntity = $reader->find(IssueEntityWithEnum::class, $entity->getId(), 2);
-        self::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
-        self::assertSame(Status::Qwe, $auditEntity->getStatus());
+        static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
+        static::assertSame(Status::Qwe, $auditEntity->getStatus());
 
         $this->em->clear();
 
@@ -65,6 +65,6 @@ final class IssueEntityWithEnumTest extends BaseTest
         $this->em->remove($entity);
         $this->em->flush();
 
-        self::assertCount(0, $reader->findRevisions(IssueEntityWithEnum::class, $entity->getId()));
+        static::assertCount(0, $reader->findRevisions(IssueEntityWithEnum::class, $entity->getId()));
     }
 }
