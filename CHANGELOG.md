@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.9.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.9.0...1.9.1) - 2023-02-06
+### Fixed
+- [[#534](https://github.com/sonata-project/EntityAuditBundle/pull/534)] Audit query for Doctrine ORM >= 2.14.1 for entities with enumType column mapping ([@X-Coder264](https://github.com/X-Coder264))
+
 ## [1.9.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.8.0...1.9.0) - 2022-10-10
 ### Added
 - [[#509](https://github.com/sonata-project/EntityAuditBundle/pull/509)] Support for ManyToMany ([@pietaj](https://github.com/pietaj))
