@@ -95,11 +95,17 @@ abstract class BaseTest extends TestCase
         $config->setAutoGenerateProxyClasses(AbstractProxyFactory::AUTOGENERATE_EVAL);
         $config->setProxyNamespace('Sonata\EntityAuditBundle\Tests\Proxies');
 
-        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver([
+        $mappingPaths = [
             __DIR__.'/Fixtures/Core',
             __DIR__.'/Fixtures/Issue',
             __DIR__.'/Fixtures/Relation',
-        ], false));
+        ];
+
+        if (version_compare(\PHP_VERSION, '8.1.0', '>=')) {
+            $mappingPaths[] = __DIR__.'/Fixtures/PHP81Issue';
+        }
+
+        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver($mappingPaths, false));
 
         DoctrineExtensions::registerAnnotations();
 

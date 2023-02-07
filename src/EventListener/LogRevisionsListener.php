@@ -582,6 +582,12 @@ class LogRevisionsListener implements EventSubscriber
             );
         }
 
+        foreach ($params as $key => $parameterValue) {
+            if ($parameterValue instanceof \BackedEnum) {
+                $params[$key] = $parameterValue->value;
+            }
+        }
+
         $conn->executeStatement($this->getInsertRevisionSQL($em, $class), $params, $types);
     }
 
