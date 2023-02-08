@@ -27,6 +27,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\Persistence\Mapping\MappingException;
+use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
@@ -36,6 +37,8 @@ class LogRevisionsListener implements EventSubscriber
     private AuditConfiguration $config;
 
     private MetadataFactory $metadataFactory;
+
+    private ?ClockInterface $clock;
 
     /**
      * @var string[]
@@ -63,10 +66,11 @@ class LogRevisionsListener implements EventSubscriber
      */
     private array $extraUpdates = [];
 
-    public function __construct(AuditManager $auditManager)
+    public function __construct(AuditManager $auditManager, ?ClockInterface $clock = null)
     {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
+        $this->clock = $clock;
     }
 
     /**
@@ -323,15 +327,17 @@ class LogRevisionsListener implements EventSubscriber
      */
     private function getRevisionId(Connection $conn)
     {
+        $now = $this->clock instanceof ClockInterface ? $this->clock->now() : new \DateTimeImmutable();
+
         if (null === $this->revisionId) {
             $conn->insert(
                 $this->config->getRevisionTableName(),
                 [
-                    'timestamp' => date_create('now'),
+                    'timestamp' => $now,
                     'username' => $this->config->getCurrentUsername(),
                 ],
                 [
-                    Types::DATETIME_MUTABLE,
+                    Types::DATETIME_IMMUTABLE,
                     Types::STRING,
                 ]
             );

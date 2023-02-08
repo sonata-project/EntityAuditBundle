@@ -15,6 +15,7 @@ namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
+use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
@@ -29,10 +30,13 @@ class AuditManager
 
     private MetadataFactory $metadataFactory;
 
-    public function __construct(AuditConfiguration $config)
+    private ?ClockInterface $clock;
+
+    public function __construct(AuditConfiguration $config, ?ClockInterface $clock = null)
     {
         $this->config = $config;
         $this->metadataFactory = $config->createMetadataFactory();
+        $this->clock = $clock;
     }
 
     /**
@@ -64,6 +68,6 @@ class AuditManager
     public function registerEvents(EventManager $evm): void
     {
         $evm->addEventSubscriber(new CreateSchemaListener($this));
-        $evm->addEventSubscriber(new LogRevisionsListener($this));
+        $evm->addEventSubscriber(new LogRevisionsListener($this, $this->clock));
     }
 }

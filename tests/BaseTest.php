@@ -23,6 +23,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use Gedmo\DoctrineExtensions;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -171,10 +172,15 @@ abstract class BaseTest extends TestCase
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
         $auditConfig->setUsernameCallable(static fn (): string => 'beberlei');
 
-        $auditManager = new AuditManager($auditConfig);
+        $auditManager = new AuditManager($auditConfig, $this->getClock());
         $auditManager->registerEvents($this->_getConnection()->getEventManager());
 
         return $this->auditManager = $auditManager;
+    }
+
+    protected function getClock(): ?ClockInterface
+    {
+        return null;
     }
 
     protected function setUpEntitySchema(): void
