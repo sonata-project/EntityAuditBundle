@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.10.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.9.1...1.10.0) - 2023-02-13
+### Added
+- [[#536](https://github.com/sonata-project/EntityAuditBundle/pull/536)] Support for PSR ClockInterface ([@X-Coder264](https://github.com/X-Coder264))
+
+### Fixed
+- [[#537](https://github.com/sonata-project/EntityAuditBundle/pull/537)] Schema creation for self referencing many to many association with class table inheritance ([@X-Coder264](https://github.com/X-Coder264))
+
 ## [1.9.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.9.0...1.9.1) - 2023-02-06
 ### Fixed
 - [[#534](https://github.com/sonata-project/EntityAuditBundle/pull/534)] Audit query for Doctrine ORM >= 2.14.1 for entities with enumType column mapping ([@X-Coder264](https://github.com/X-Coder264))
