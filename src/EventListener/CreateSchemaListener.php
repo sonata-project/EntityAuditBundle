@@ -32,6 +32,11 @@ class CreateSchemaListener implements EventSubscriber
 
     private MetadataFactory $metadataFactory;
 
+    /**
+     * @var string[]
+     */
+    private array $defferedJoinTablesToCreate = [];
+
     public function __construct(AuditManager $auditManager)
     {
         $this->config = $auditManager->getConfiguration();
@@ -47,6 +52,7 @@ class CreateSchemaListener implements EventSubscriber
     {
         return [
             ToolEvents::postGenerateSchemaTable,
+            ToolEvents::postGenerateSchema,
         ];
     }
 
@@ -99,27 +105,11 @@ class CreateSchemaListener implements EventSubscriber
         foreach ($cm->associationMappings as $associationMapping) {
             if ($associationMapping['isOwningSide'] && isset($associationMapping['joinTable'])) {
                 if (isset($associationMapping['joinTable']['name'])) {
-                    $joinTable = $schema->getTable($associationMapping['joinTable']['name']);
-                    $revisionJoinTable = $schema->createTable(
-                        $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix()
-                    );
-                    foreach ($joinTable->getColumns() as $column) {
-                        /* @var Column $column */
-                        $revisionJoinTable->addColumn(
-                            $column->getName(),
-                            $column->getType()->getName(),
-                            ['notnull' => false, 'autoincrement' => false]
-                        );
+                    if ($schema->hasTable($associationMapping['joinTable']['name'])) {
+                        $this->createRevisionJoinTableForJoinTable($schema, $associationMapping['joinTable']['name']);
+                    } else {
+                        $this->defferedJoinTablesToCreate[] = $associationMapping['joinTable']['name'];
                     }
-                    $revisionJoinTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-                    $revisionJoinTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', ['length' => 4]);
-
-                    $pk = $joinTable->getPrimaryKey();
-                    $pkColumns = null !== $pk ? $pk->getColumns() : [];
-                    $pkColumns[] = $this->config->getRevisionFieldName();
-                    $revisionJoinTable->setPrimaryKey($pkColumns);
-                    $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getName()).'_idx';
-                    $revisionJoinTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
                 }
             }
         }
@@ -140,21 +130,14 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $foreignColumnNames, [], $revisionForeignKeyName);
     }
 
-    /**
-     * NEXT_MAJOR: Remove this method.
-     *
-     * @deprecated since sonata-project/entity-audit-bundle 1.4, will be removed in 2.0.
-     */
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
     {
         $schema = $eventArgs->getSchema();
-        $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), [
-            'autoincrement' => true,
-        ]);
-        $revisionsTable->addColumn('timestamp', Types::DATETIME_MUTABLE);
-        $revisionsTable->addColumn('username', Types::STRING)->setNotnull(false);
-        $revisionsTable->setPrimaryKey(['id']);
+        $this->createRevisionsTable($schema);
+
+        foreach ($this->defferedJoinTablesToCreate as $defferedJoinTableToCreate) {
+            $this->createRevisionJoinTableForJoinTable($schema, $defferedJoinTableToCreate);
+        }
     }
 
     /**
@@ -198,5 +181,36 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable->setPrimaryKey(['id']);
 
         return $revisionsTable;
+    }
+
+    private function createRevisionJoinTableForJoinTable(Schema $schema, string $joinTableName): void
+    {
+        $joinTable = $schema->getTable($joinTableName);
+        $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix();
+
+        if ($schema->hasTable($revisionJoinTableName)) {
+            return;
+        }
+
+        $revisionJoinTable = $schema->createTable(
+            $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix()
+        );
+        foreach ($joinTable->getColumns() as $column) {
+            /* @var Column $column */
+            $revisionJoinTable->addColumn(
+                $column->getName(),
+                $column->getType()->getName(),
+                ['notnull' => false, 'autoincrement' => false]
+            );
+        }
+        $revisionJoinTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
+        $revisionJoinTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', ['length' => 4]);
+
+        $pk = $joinTable->getPrimaryKey();
+        $pkColumns = null !== $pk ? $pk->getColumns() : [];
+        $pkColumns[] = $this->config->getRevisionFieldName();
+        $revisionJoinTable->setPrimaryKey($pkColumns);
+        $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getName()).'_idx';
+        $revisionJoinTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
     }
 }
