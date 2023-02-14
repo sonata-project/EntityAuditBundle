@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.10.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.10.0...1.10.1) - 2023-02-14
+### Fixed
+- [[#539](https://github.com/sonata-project/EntityAuditBundle/pull/539)] Not null constraint violation during many to many association audit recording ([@X-Coder264](https://github.com/X-Coder264))
+
 ## [1.10.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.9.1...1.10.0) - 2023-02-13
 ### Added
 - [[#536](https://github.com/sonata-project/EntityAuditBundle/pull/536)] Support for PSR ClockInterface ([@X-Coder264](https://github.com/X-Coder264))
