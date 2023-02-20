@@ -54,6 +54,7 @@ class SimpleThingsEntityAuditExtension extends Extension
         $this->fixParametersFromDoctrineEventSubscriberTag($container, [
             'simplethings_entityaudit.log_revisions_listener',
             'simplethings_entityaudit.create_schema_listener',
+            'simplethings_entityaudit.cache_listener',
         ]);
     }
 
