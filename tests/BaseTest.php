@@ -114,7 +114,7 @@ abstract class BaseTest extends TestCase
 
         // get rid of more global state
         $evm = $connection->getEventManager();
-        foreach ($evm->getListeners() as $event => $listeners) {
+        foreach ($evm->getAllListeners() as $event => $listeners) {
             foreach ($listeners as $listener) {
                 $evm->removeEventListener([$event], $listener);
             }

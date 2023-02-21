@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.11.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.10.1...1.11.0) - 2023-02-20
+### Added
+- [[#541](https://github.com/sonata-project/EntityAuditBundle/pull/541)] Support for Doctrine Event manager v2 ([@X-Coder264](https://github.com/X-Coder264))
+
+### Fixed
+- [[#543](https://github.com/sonata-project/EntityAuditBundle/pull/543)] Clear extra updates array to prevent memory leak ([@X-Coder264](https://github.com/X-Coder264))
+- [[#544](https://github.com/sonata-project/EntityAuditBundle/pull/544)] Clear entity cache to prevent memory leak ([@X-Coder264](https://github.com/X-Coder264))
+
 ## [1.10.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.10.0...1.10.1) - 2023-02-14
 ### Fixed
 - [[#539](https://github.com/sonata-project/EntityAuditBundle/pull/539)] Not null constraint violation during many to many association audit recording ([@X-Coder264](https://github.com/X-Coder264))

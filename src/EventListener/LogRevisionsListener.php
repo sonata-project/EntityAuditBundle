@@ -86,7 +86,7 @@ class LogRevisionsListener implements EventSubscriber
      */
     public function getSubscribedEvents()
     {
-        return [Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush];
+        return [Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush, Events::onClear];
     }
 
     /**
@@ -252,6 +252,11 @@ class LogRevisionsListener implements EventSubscriber
         );
 
         $this->saveRevisionEntityData($em, $class, $entityData, 'UPD');
+    }
+
+    public function onClear(): void
+    {
+        $this->extraUpdates = [];
     }
 
     public function onFlush(OnFlushEventArgs $eventArgs): void

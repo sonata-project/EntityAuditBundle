@@ -18,6 +18,7 @@ use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\AuditReader;
+use SimpleThings\EntityAudit\EventListener\CacheListener;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
 use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
 use SimpleThings\EntityAudit\User\TokenStorageUsernameCallable;
@@ -68,6 +69,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->set('simplethings_entityaudit.create_schema_listener', CreateSchemaListener::class)
             ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
             ->args([new ReferenceConfigurator('simplethings_entityaudit.manager')])
+
+        ->set('simplethings_entityaudit.cache_listener', CacheListener::class)
+            ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
+            ->args([new ReferenceConfigurator('simplethings_entityaudit.reader')])
 
         ->set('simplethings_entityaudit.username_callable.token_storage', TokenStorageUsernameCallable::class)
             ->args([new ReferenceConfigurator('security.token_storage')])
