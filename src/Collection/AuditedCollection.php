@@ -481,6 +481,25 @@ class AuditedCollection implements Collection
     }
 
     /**
+     * @return T|null
+     *
+     * @phpstan-param \Closure(TKey, T):bool $p
+     */
+    public function findFirst(\Closure $p)
+    {
+        $this->forceLoad();
+
+        return $this->loadedEntities->findFirst($p);
+    }
+
+    public function reduce(\Closure $func, mixed $initial = null): mixed
+    {
+        $this->forceLoad();
+
+        return $this->loadedEntities->reduce($func, $initial);
+    }
+
+    /**
      * @param array{keys: array<string, int|string>, rev: string|int} $entity
      *
      * @return object
