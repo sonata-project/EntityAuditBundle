@@ -3,8 +3,3 @@ parameters:
         # The class "AuditController" is deprecated and extends a class that is only supported in "symfony/http-foundation" < 5.
         # NEXT_MAJOR: Remove these files
         - src/Controller/AuditController.php
-
-    ignoreErrors:
-        - # https://github.com/phpstan/phpstan-strict-rules/issues/130
-            message: '#^Call to static method PHPUnit\\Framework\\Assert::.* will always evaluate to true\.$#'
-            path: tests/
