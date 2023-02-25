@@ -15,6 +15,7 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ReadableCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -69,9 +70,9 @@ class Issue308User
     }
 
     /**
-     * @return Collection<int, self>
+     * @return ReadableCollection<int, self>
      */
-    public function getChildren(): Collection
+    public function getChildren(): ReadableCollection
     {
         $activeChildren = $this->children->filter(
             static fn (self $user): bool => $user->isActive()

@@ -15,6 +15,7 @@ namespace SimpleThings\EntityAudit\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ReadableCollection;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
@@ -327,10 +328,12 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return Collection
+     * @return Collection<TKey, T>
      *
-     * @phpstan-param \Closure(T):bool $p
-     * @phpstan-return Collection<TKey, T>
+     * @phpstan-param \Closure(T, int|string):bool $p
+     * @psalm-param \Closure(T=):bool $p
+     * @phpstan-return ReadableCollection<TKey, T>
+     * @psalm-return Collection<TKey, T>
      */
     #[\ReturnTypeWillChange]
     public function filter(\Closure $p)
@@ -354,11 +357,12 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return Collection
+     * @return Collection<TKey, U>
      *
-     * @phpstan-template R
-     * @phpstan-param \Closure(T):R $func
-     * @phpstan-return Collection<TKey, R>
+     * @phpstan-template U
+     * @phpstan-param \Closure(T):U $func
+     * @phpstan-return ReadableCollection<TKey, U>
+     * @psalm-return Collection<TKey, U>
      */
     #[\ReturnTypeWillChange]
     public function map(\Closure $func)
@@ -369,10 +373,11 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return Collection
+     * @return array<Collection<TKey, T>>
      *
      * @phpstan-param \Closure(TKey, T):bool $p
-     * @phpstan-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
+     * @phpstan-return array{0: ReadableCollection<TKey, T>, 1: ReadableCollection<TKey, T>}
+     * @psalm-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
      */
     #[\ReturnTypeWillChange]
     public function partition(\Closure $p)
@@ -478,6 +483,27 @@ class AuditedCollection implements Collection
         $this->initialize();
 
         return $this->entities->count();
+    }
+
+    /**
+     * @return T|null
+     *
+     * @phpstan-return T|null
+     * @psalm-return mixed|null
+     */
+    #[\ReturnTypeWillChange]
+    public function findFirst(\Closure $p)
+    {
+        $this->forceLoad();
+
+        return $this->loadedEntities->findFirst($p);
+    }
+
+    public function reduce(\Closure $func, mixed $initial = null): mixed
+    {
+        $this->forceLoad();
+
+        return $this->loadedEntities->reduce($func, $initial);
     }
 
     /**
