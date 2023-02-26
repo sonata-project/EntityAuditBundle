@@ -19,13 +19,13 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
+use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\Mapping\MappingException;
 use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -121,9 +121,7 @@ class LogRevisionsListener implements EventSubscriber
                     $fieldType = $meta->getTypeOfField($field);
                     if (null !== $fieldType) {
                         $type = Type::getType($fieldType);
-                        if ($type->canRequireSQLConversion()) {
-                            $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
-                        }
+                        $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
                     }
                 }
 
