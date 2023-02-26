@@ -15,11 +15,13 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class Page
 {
     /**
@@ -29,6 +31,9 @@ class Page
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -38,6 +43,7 @@ class Page
      *
      * @ORM\OneToMany(targetEntity="PageAlias", mappedBy="page", cascade={"persist"})
      */
+    #[ORM\OneToMany(targetEntity: PageAlias::class, mappedBy: 'page', cascade: ['persist'])]
     protected $pageAliases;
 
     /**
@@ -45,6 +51,7 @@ class Page
      *
      * @ORM\OneToMany(targetEntity="PageLocalization", mappedBy="page", indexBy="locale")
      */
+    #[ORM\OneToMany(targetEntity: PageLocalization::class, mappedBy: 'page', indexBy: 'locale')]
     protected $localizations;
 
     public function __construct()

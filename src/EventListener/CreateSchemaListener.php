@@ -44,10 +44,9 @@ class CreateSchemaListener implements EventSubscriber
     }
 
     /**
-     * @todo Remove the "@return array" docblock when support for "symfony/error-handler" 5.x is dropped.
-     *
      * @return string[]
      */
+    #[\ReturnTypeWillChange]
     public function getSubscribedEvents()
     {
         return [
@@ -115,23 +114,19 @@ class CreateSchemaListener implements EventSubscriber
         }
 
         $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
+        $primaryKey = $revisionsTable->getPrimaryKey();
 
-        // TODO: Use always array_keys when dropping support for DBAL 2
-        $keyColumns = $revisionsTable->getPrimaryKeyColumns();
-        $firstColumn = current($keyColumns);
-        if ($firstColumn instanceof Column) {
-            /** @var string[] $foreignColumnNames */
-            $foreignColumnNames = array_keys($keyColumns);
-        } else {
-            /**
-             * @phpstan-ignore-next-line
-             *
-             * @var string[] $foreignColumnNames
-             */
-            $foreignColumnNames = $keyColumns;
+        if (null === $primaryKey) {
+            throw new \Exception('Table '.$revisionsTable->getName().' has no primary key.');
         }
 
-        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $foreignColumnNames, [], $revisionForeignKeyName);
+        $revisionTable->addForeignKeyConstraint(
+            $revisionsTable,
+            [$this->config->getRevisionFieldName()],
+            $primaryKey->getColumns(),
+            [],
+            $revisionForeignKeyName
+        );
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
@@ -162,7 +157,6 @@ class CreateSchemaListener implements EventSubscriber
         $targetColumn->setColumnDefinition($column->getColumnDefinition());
         $targetColumn->setComment($column->getComment());
         $targetColumn->setPlatformOptions($column->getPlatformOptions());
-        $targetColumn->setCustomSchemaOptions($column->getCustomSchemaOptions());
 
         $targetColumn->setNotnull(false);
         $targetColumn->setAutoincrement(false);

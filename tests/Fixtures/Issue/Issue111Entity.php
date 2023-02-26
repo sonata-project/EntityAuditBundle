@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -21,6 +22,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  *
  * @Gedmo\SoftDeleteable(fieldName="deletedAt")
  */
+#[ORM\Entity]
 class Issue111Entity
 {
     /**
@@ -30,16 +32,21 @@ class Issue111Entity
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\Column
      */
+    #[ORM\Column]
     private ?string $status = null;
 
     /**
      * @ORM\Column(type="datetime", nullable=true, name="deleted_at")
      */
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, name: 'deleted_at')]
     private ?\DateTimeInterface $deletedAt = null;
 
     public function getId(): ?int

@@ -1,0 +1,8 @@
+doctrine:
+    orm:
+        mappings:
+            AuditEntityTest:
+                type: attribute
+                dir: "%kernel.project_dir%/Entity"
+                is_bundle: false
+                prefix: Sonata\EntityAuditBundle\Tests\App\Entity

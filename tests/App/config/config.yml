@@ -13,15 +13,6 @@ parameters:
 doctrine:
     dbal:
         url: "%env(resolve:DATABASE_URL)%"
-    orm:
-        auto_generate_proxy_classes: true
-        auto_mapping: true
-        mappings:
-            AuditEntityTest:
-                type: annotation
-                dir: "%kernel.project_dir%/Entity"
-                is_bundle: false
-                prefix: Sonata\EntityAuditBundle\Tests\App\Entity
 
 simple_things_entity_audit:
     revision_table_name: bundle_revisions

@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class PageLocalization
 {
     /**
@@ -27,6 +29,9 @@ class PageLocalization
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -34,6 +39,7 @@ class PageLocalization
      *
      * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: Types::STRING)]
     protected $locale;
 
     /**
@@ -41,6 +47,7 @@ class PageLocalization
      *
      * @ORM\ManyToOne(targetEntity="Page", inversedBy="localizations")
      */
+    #[ORM\ManyToOne(targetEntity: Page::class, inversedBy: 'localizations')]
     protected $page;
 
     public function __construct(string $locale)

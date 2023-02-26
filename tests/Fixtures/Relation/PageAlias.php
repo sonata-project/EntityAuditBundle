@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -20,6 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  */
+#[ORM\Entity]
 class PageAlias
 {
     /**
@@ -29,6 +31,9 @@ class PageAlias
      *
      * @var Page
      */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Page::class, inversedBy: 'associatedEmails', cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'page_id', referencedColumnName: 'id', nullable: false)]
     protected $page;
 
     /**
@@ -37,6 +42,7 @@ class PageAlias
      * @ORM\Column( type="string", nullable=false, length=255, unique=true)
      * )
      */
+    #[ORM\Column(type: Types::STRING, nullable: false, length: 255, unique: true)]
     protected $alias;
 
     public function __construct(Page $page, ?string $alias = null)

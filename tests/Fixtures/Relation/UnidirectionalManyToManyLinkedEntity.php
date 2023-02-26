@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class UnidirectionalManyToManyLinkedEntity
 {
     /**
@@ -25,11 +27,15 @@ class UnidirectionalManyToManyLinkedEntity
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: Types::STRING)]
     private string $name;
 
     public function __construct(string $name)

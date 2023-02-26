@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class OneToOneMasterEntity
 {
     /**
@@ -27,6 +29,9 @@ class OneToOneMasterEntity
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -34,6 +39,7 @@ class OneToOneMasterEntity
      *
      * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: Types::STRING)]
     protected $title;
 
     /**
@@ -42,6 +48,8 @@ class OneToOneMasterEntity
      * @ORM\OneToOne(targetEntity="OneToOneAuditedEntity")
      * @ORM\JoinColumn(onDelete="SET NULL")
      */
+    #[ORM\OneToOne(targetEntity: OneToOneAuditedEntity::class)]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
     protected $audited;
 
     /**
@@ -49,6 +57,7 @@ class OneToOneMasterEntity
      *
      * @ORM\OneToOne(targetEntity="OneToOneNotAuditedEntity")
      */
+    #[ORM\OneToOne(targetEntity: OneToOneNotAuditedEntity::class)]
     protected $notAudited;
 
     public function getId(): ?int

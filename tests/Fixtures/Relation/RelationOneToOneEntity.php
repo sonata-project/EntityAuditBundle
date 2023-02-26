@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class RelationOneToOneEntity extends RelationAbstractEntityBase
 {
     /**
@@ -26,6 +27,8 @@ class RelationOneToOneEntity extends RelationAbstractEntityBase
      * @ORM\OneToOne(targetEntity="RelationReferencedEntity", inversedBy="oneToOne")
      * @ORM\JoinColumn(name="one_id", referencedColumnName="id_column")
      */
+    #[ORM\OneToOne(targetEntity: RelationReferencedEntity::class, inversedBy: 'oneToOne')]
+    #[ORM\JoinColumn(name: 'one_id', referencedColumnName: 'id_column')]
     protected $referencedEntity;
 
     public function getReferencedEntity(): ?RelationReferencedEntity

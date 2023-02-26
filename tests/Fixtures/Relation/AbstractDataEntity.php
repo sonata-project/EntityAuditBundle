@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,6 +24,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @ORM\DiscriminatorMap({"private" = "DataPrivateEntity", "legal" = "DataLegalEntity"})
  */
+#[ORM\Entity]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type', type: Types::STRING)]
+#[ORM\DiscriminatorMap(['private' => DataPrivateEntity::class, 'legal' => DataLegalEntity::class])]
 abstract class AbstractDataEntity
 {
     /**
@@ -32,11 +37,15 @@ abstract class AbstractDataEntity
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\OneToOne(targetEntity="DataContainerEntity", mappedBy="data")
      */
+    #[ORM\OneToOne(targetEntity: DataContainerEntity::class, mappedBy: 'data')]
     private ?DataContainerEntity $dataContainer = null;
 
     public function getId(): ?int

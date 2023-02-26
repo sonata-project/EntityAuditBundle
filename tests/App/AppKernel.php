@@ -25,6 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AppKernel extends Kernel
 {
@@ -73,10 +74,18 @@ final class AppKernel extends Kernel
 
         $loader->load(__DIR__.'/config/config.yml');
 
-        if (class_exists(InputBag::class)) {
+        if (class_exists(IsGranted::class)) {
+            $loader->load(__DIR__.'/config/config_symfony_v6.yml');
+        } elseif (class_exists(InputBag::class)) {
             $loader->load(__DIR__.'/config/config_symfony_v5.yml');
         } else {
             $loader->load(__DIR__.'/config/config_symfony_v4.yml');
+        }
+
+        if (version_compare(\PHP_VERSION, '8.0.0', '>=')) {
+            $loader->load(__DIR__.'/config/config_php8.yml');
+        } else {
+            $loader->load(__DIR__.'/config/config_php7.yml');
         }
 
         $loader->load(__DIR__.'/config/services.php');

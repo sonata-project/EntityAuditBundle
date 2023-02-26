@@ -15,6 +15,7 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,6 +23,9 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="discriminator", type="string")
  */
+#[ORM\Entity]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'discriminator', type: Types::STRING)]
 class Issue156Contact
 {
     /**
@@ -31,6 +35,9 @@ class Issue156Contact
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -38,6 +45,7 @@ class Issue156Contact
      *
      * @ORM\OneToMany(targetEntity="Issue156ContactTelephoneNumber", mappedBy="contact")
      */
+    #[ORM\OneToMany(targetEntity: Issue156ContactTelephoneNumber::class, mappedBy: 'contact')]
     private Collection $telephoneNumbers;
 
     public function __construct()

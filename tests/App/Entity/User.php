@@ -13,12 +13,15 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="bundle_user")
  */
+#[ORM\Entity]
+#[ORM\Table(name: 'bundle_user')]
 class User
 {
     /**
@@ -28,11 +31,15 @@ class User
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: Types::STRING)]
     private string $name;
 
     public function __construct(string $name)

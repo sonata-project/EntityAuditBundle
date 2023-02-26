@@ -15,6 +15,7 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,6 +24,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"food" = "FoodCategory", "books" = "BookCategory"})
  */
+#[ORM\Entity]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'discr', type: Types::STRING)]
+#[ORM\DiscriminatorMap(['food' => FoodCategory::class, 'books' => BookCategory::class])]
 abstract class Category extends SomeEntity
 {
     /**
@@ -30,6 +35,7 @@ abstract class Category extends SomeEntity
      *
      * @ORM\OneToMany(targetEntity="Product", mappedBy="category")
      */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'category')]
     private Collection $products;
 
     public function __construct()
