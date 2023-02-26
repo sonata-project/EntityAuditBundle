@@ -116,10 +116,7 @@ class CreateSchemaListener implements EventSubscriber
 
         $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
         $primaryKey = $revisionsTable->getPrimaryKey();
-
-        if (null === $primaryKey) {
-            throw new \Exception('Table '.$revisionsTable->getName().' has no primary key.');
-        }
+        \assert(null !== $primaryKey);
 
         $revisionTable->addForeignKeyConstraint(
             $revisionsTable,
