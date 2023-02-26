@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests;
 
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use SimpleThings\EntityAudit\ChangedEntity;
 use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
@@ -459,7 +460,7 @@ final class CoreTest extends BaseTest
 
     public function testRevisionForeignKeys(): void
     {
-        $isSqlitePlatform = 'sqlite' === $this->em->getConnection()->getDatabasePlatform()->getName();
+        $isSqlitePlatform = $this->em->getConnection()->getDatabasePlatform() instanceof SqlitePlatform;
         $updateForeignKeysConfig = false;
 
         if ($isSqlitePlatform) {
