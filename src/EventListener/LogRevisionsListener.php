@@ -21,11 +21,12 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
-use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\Mapping\MappingException;
 use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -198,7 +199,7 @@ class LogRevisionsListener implements EventSubscriber
         $this->deferredChangedManyToManyEntityRevisionsToPersist = [];
     }
 
-    public function postPersist(LifecycleEventArgs $eventArgs): void
+    public function postPersist(PostPersistEventArgs $eventArgs): void
     {
         $em = $eventArgs->getObjectManager();
         // onFlush was executed before, everything already initialized
@@ -216,7 +217,7 @@ class LogRevisionsListener implements EventSubscriber
         $this->saveRevisionEntityData($em, $class, $entityData, 'INS');
     }
 
-    public function postUpdate(LifecycleEventArgs $eventArgs): void
+    public function postUpdate(PostUpdateEventArgs $eventArgs): void
     {
         $em = $eventArgs->getObjectManager();
         $uow = $em->getUnitOfWork();
