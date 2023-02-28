@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.12.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.11.0...1.12.0) - 2023-02-28
+### Added
+- [[#547](https://github.com/sonata-project/EntityAuditBundle/pull/547)] Add compatibility with `doctrine/collections` ^2.0 ([@jordisala1991](https://github.com/jordisala1991))
+
+### Removed
+- [[#549](https://github.com/sonata-project/EntityAuditBundle/pull/549)] Drop support for `doctrine/dbal` ^2.0. ([@jordisala1991](https://github.com/jordisala1991))
+- [[#549](https://github.com/sonata-project/EntityAuditBundle/pull/549)] Drop support for `doctrine/persistence` ^2.0. ([@jordisala1991](https://github.com/jordisala1991))
+
 ## [1.11.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.10.1...1.11.0) - 2023-02-20
 ### Added
 - [[#541](https://github.com/sonata-project/EntityAuditBundle/pull/541)] Support for Doctrine Event manager v2 ([@X-Coder264](https://github.com/X-Coder264))
