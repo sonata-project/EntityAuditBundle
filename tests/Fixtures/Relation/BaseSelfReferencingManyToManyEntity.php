@@ -15,6 +15,7 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,6 +26,10 @@ use Doctrine\ORM\Mapping as ORM;
  *     "type 1": "Sonata\EntityAuditBundle\Tests\Fixtures\Relation\SelfReferencingManyToManyEntity"
  * })
  */
+#[ORM\Entity]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'type', type: Types::STRING)]
+#[ORM\DiscriminatorMap(['type 1' => SelfReferencingManyToManyEntity::class])]
 abstract class BaseSelfReferencingManyToManyEntity
 {
     /**
@@ -32,11 +37,15 @@ abstract class BaseSelfReferencingManyToManyEntity
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", name="title")
      */
+    #[ORM\Column(type: Types::STRING, name: 'title')]
     private string $title;
 
     /**
@@ -49,6 +58,10 @@ abstract class BaseSelfReferencingManyToManyEntity
      *     inverseJoinColumns={@ORM\JoinColumn(name="bar_id", referencedColumnName="id")}
      * )
      */
+    #[ORM\ManyToMany(targetEntity: self::class)]
+    #[ORM\JoinTable(name: 'self_referencing_linked_table')]
+    #[ORM\JoinColumn(name: 'foo_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'bar_id', referencedColumnName: 'id')]
     private Collection $linkedEntities;
 
     public function __construct(string $title)

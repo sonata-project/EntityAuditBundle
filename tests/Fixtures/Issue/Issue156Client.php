@@ -13,16 +13,19 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
  */
+#[ORM\Entity]
 class Issue156Client extends Issue156Contact
 {
     /**
      * @ORM\Column(type="string", length=255)
      */
+    #[ORM\Column(type: Types::STRING, length: 255)]
     private ?string $clientSpecificField = null;
 
     public function setClientSpecificField(string $clientSpecificField): self

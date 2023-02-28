@@ -15,11 +15,13 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
  */
+#[ORM\Entity]
 class Issue198Owner
 {
     /**
@@ -29,6 +31,9 @@ class Issue198Owner
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -36,6 +41,7 @@ class Issue198Owner
      *
      * @ORM\OneToMany(targetEntity="Issue198Car", mappedBy="owner")
      */
+    #[ORM\OneToMany(targetEntity: Issue198Car::class, mappedBy: 'owner')]
     private Collection $cars;
 
     public function __construct()

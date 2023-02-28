@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class Issue87ProjectComment
 {
     /**
@@ -27,17 +29,23 @@ class Issue87ProjectComment
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="Issue87AbstractProject")
      * @ORM\JoinColumn(name="a_join_column")
      */
+    #[ORM\ManyToOne(targetEntity: Issue87AbstractProject::class)]
+    #[ORM\JoinColumn(name: 'a_join_column')]
     private ?Issue87AbstractProject $project = null;
 
     /**
      * @ORM\Column(type="text")
      */
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $text = null;
 
     public function getId(): ?int

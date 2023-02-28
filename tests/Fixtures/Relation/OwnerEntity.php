@@ -15,11 +15,13 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class OwnerEntity
 {
     /**
@@ -29,6 +31,9 @@ class OwnerEntity
      * @ORM\Column(type="integer", name="some_strange_key_name")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER, name: 'some_strange_key_name')]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -36,13 +41,15 @@ class OwnerEntity
      *
      * @ORM\Column(type="string", name="crazy_title_to_mess_up_audit")
      */
+    #[ORM\Column(type: Types::STRING, name: 'crazy_title_to_mess_up_audit')]
     protected $title;
 
     /**
-    @var Collection<int, OwnedEntity1>
+     * @var Collection<int, OwnedEntity1>
      *
      * @ORM\OneToMany(targetEntity="OwnedEntity1", mappedBy="owner")
      */
+    #[ORM\OneToMany(targetEntity: OwnedEntity1::class, mappedBy: 'owner')]
     protected $owned1;
 
     /**
@@ -50,6 +57,7 @@ class OwnerEntity
      *
      * @ORM\OneToMany(targetEntity="OwnedEntity2", mappedBy="owner")
      */
+    #[ORM\OneToMany(targetEntity: OwnedEntity2::class, mappedBy: 'owner')]
     protected $owned2;
 
     /**
@@ -61,6 +69,10 @@ class OwnerEntity
      *   inverseJoinColumns={@ORM\JoinColumn(name="owned3_id", referencedColumnName="strange_owned_id_name")}
      * )
      */
+    #[ORM\ManyToMany(targetEntity: OwnedEntity3::class, inversedBy: 'owner')]
+    #[ORM\JoinTable(name: 'owner_owned3')]
+    #[ORM\JoinColumn(name: 'owner_id', referencedColumnName: 'some_strange_key_name')]
+    #[ORM\InverseJoinColumn(name: 'owned3_id', referencedColumnName: 'strange_owned_id_name')]
     protected $owned3;
 
     /**
@@ -68,6 +80,7 @@ class OwnerEntity
      *
      * @ORM\ManyToMany(targetEntity="OwnedEntity4", mappedBy="owners")
      */
+    #[ORM\ManyToMany(targetEntity: OwnedEntity4::class, mappedBy: 'owners')]
     protected $ownedInverse;
 
     public function __construct()

@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class OwnedEntity2
 {
     /**
@@ -27,6 +29,9 @@ class OwnedEntity2
      * @ORM\Column(type="integer", name="strange_owned_id_name")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER, name: 'strange_owned_id_name')]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -34,6 +39,7 @@ class OwnedEntity2
      *
      * @ORM\Column(type="string", name="even_strangier_column_name")
      */
+    #[ORM\Column(type: Types::STRING, name: 'even_strangier_column_name')]
     protected $title;
 
     /**
@@ -42,6 +48,8 @@ class OwnedEntity2
      * @ORM\ManyToOne(targetEntity="OwnerEntity")
      * @ORM\JoinColumn(name="owner_id_goes_here", referencedColumnName="some_strange_key_name")
      */
+    #[ORM\ManyToOne(targetEntity: OwnerEntity::class)]
+    #[ORM\JoinColumn(name: 'owner_id_goes_here', referencedColumnName: 'some_strange_key_name')]
     protected $owner;
 
     public function getId(): ?int

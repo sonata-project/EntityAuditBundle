@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class EscapedColumnsEntity
 {
     /**
@@ -27,16 +29,21 @@ class EscapedColumnsEntity
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\Column(type="integer", name="lft")
      */
+    #[ORM\Column(type: Types::INTEGER, name: 'lft')]
     private ?int $left = null;
 
     /**
      * @ORM\Column(type="integer", name="`left`")
      */
+    #[ORM\Column(type: Types::INTEGER, name: '`left`')]
     private ?int $lft = null;
 
     public function getId(): ?int

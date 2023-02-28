@@ -15,11 +15,13 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class OwnedEntity4
 {
     /**
@@ -29,6 +31,9 @@ class OwnedEntity4
      * @ORM\Column(type="integer", name="strange_owned_id_name")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER, name: 'strange_owned_id_name')]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -36,6 +41,7 @@ class OwnedEntity4
      *
      * @ORM\Column(type="string", name="even_strangier_column_name")
      */
+    #[ORM\Column(type: Types::STRING, name: 'even_strangier_column_name')]
     protected $title;
 
     /**
@@ -47,6 +53,10 @@ class OwnedEntity4
      *   inverseJoinColumns={@ORM\JoinColumn(name="owner_id", referencedColumnName="some_strange_key_name")}
      * )
      */
+    #[ORM\ManyToMany(targetEntity: OwnerEntity::class, inversedBy: 'ownedInverse')]
+    #[ORM\JoinTable(name: 'owner_owned4')]
+    #[ORM\JoinColumn(name: 'owned4_id', referencedColumnName: 'strange_owned_id_name')]
+    #[ORM\InverseJoinColumn(name: 'owner_id', referencedColumnName: 'some_strange_key_name')]
     protected Collection $owners;
 
     public function __construct()

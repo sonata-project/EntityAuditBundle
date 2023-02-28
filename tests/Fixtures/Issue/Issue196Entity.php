@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class Issue196Entity
 {
     /**
@@ -27,11 +29,15 @@ class Issue196Entity
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\Column(type="issue196type")
      */
+    #[ORM\Column(type: 'issue196type')]
     private ?string $sqlConversionField = null;
 
     public function getId(): ?int

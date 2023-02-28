@@ -19,9 +19,10 @@ use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
+use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
@@ -80,10 +81,9 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @todo Remove the "@return string[]" docblock when support for "symfony/error-handler" 5.x is dropped.
-     *
      * @return string[]
      */
+    #[\ReturnTypeWillChange]
     public function getSubscribedEvents()
     {
         return [Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush, Events::onClear];
@@ -96,7 +96,7 @@ class LogRevisionsListener implements EventSubscriber
      */
     public function postFlush(PostFlushEventArgs $eventArgs): void
     {
-        $em = $eventArgs->getEntityManager();
+        $em = $eventArgs->getObjectManager();
         $conn = $em->getConnection();
         $platform = $conn->getDatabasePlatform();
         $quoteStrategy = $em->getConfiguration()->getQuoteStrategy();
@@ -122,9 +122,7 @@ class LogRevisionsListener implements EventSubscriber
                     $fieldType = $meta->getTypeOfField($field);
                     if (null !== $fieldType) {
                         $type = Type::getType($fieldType);
-                        if ($type->canRequireSQLConversion()) {
-                            $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
-                        }
+                        $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
                     }
                 }
 
@@ -201,11 +199,11 @@ class LogRevisionsListener implements EventSubscriber
         $this->deferredChangedManyToManyEntityRevisionsToPersist = [];
     }
 
-    public function postPersist(LifecycleEventArgs $eventArgs): void
+    public function postPersist(PostPersistEventArgs $eventArgs): void
     {
-        $em = $eventArgs->getEntityManager();
+        $em = $eventArgs->getObjectManager();
         // onFlush was executed before, everything already initialized
-        $entity = $eventArgs->getEntity();
+        $entity = $eventArgs->getObject();
 
         $class = $em->getClassMetadata(\get_class($entity));
         if (!$this->metadataFactory->isAudited($class->name)) {
@@ -219,13 +217,13 @@ class LogRevisionsListener implements EventSubscriber
         $this->saveRevisionEntityData($em, $class, $entityData, 'INS');
     }
 
-    public function postUpdate(LifecycleEventArgs $eventArgs): void
+    public function postUpdate(PostUpdateEventArgs $eventArgs): void
     {
-        $em = $eventArgs->getEntityManager();
+        $em = $eventArgs->getObjectManager();
         $uow = $em->getUnitOfWork();
 
         // onFlush was executed before, everything already initialized
-        $entity = $eventArgs->getEntity();
+        $entity = $eventArgs->getObject();
 
         $class = $em->getClassMetadata(\get_class($entity));
         if (!$this->metadataFactory->isAudited($class->name)) {
@@ -261,7 +259,7 @@ class LogRevisionsListener implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $eventArgs): void
     {
-        $em = $eventArgs->getEntityManager();
+        $em = $eventArgs->getObjectManager();
         $uow = $em->getUnitOfWork();
         $this->revisionId = null; // reset revision
 

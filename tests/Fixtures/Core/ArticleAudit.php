@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Core;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class ArticleAudit
 {
     /**
@@ -27,6 +29,9 @@ class ArticleAudit
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
@@ -34,6 +39,7 @@ class ArticleAudit
      *
      * @ORM\Column(type="string", name="my_title_column")
      */
+    #[ORM\Column(type: Types::STRING, name: 'my_title_column')]
     protected $title;
 
     /**
@@ -41,6 +47,7 @@ class ArticleAudit
      *
      * @ORM\Column(type="text")
      */
+    #[ORM\Column(type: Types::TEXT)]
     protected $text;
 
     /**
@@ -48,11 +55,13 @@ class ArticleAudit
      *
      * @ORM\Column(type="text")
      */
+    #[ORM\Column(type: Types::TEXT)]
     protected $ignoreme;
 
     /**
      * @ORM\ManyToOne(targetEntity="UserAudit")
      */
+    #[ORM\ManyToOne(targetEntity: UserAudit::class)]
     private ?UserAudit $author;
 
     public function __construct(string $title, string $text, UserAudit $author, string $ignoreme)

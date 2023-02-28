@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Core;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class ProfileAudit
 {
     /**
@@ -27,17 +29,23 @@ class ProfileAudit
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\Column(type="text")
      */
+    #[ORM\Column(type: Types::TEXT)]
     private string $biography;
 
     /**
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
+    #[ORM\OneToOne(targetEntity: UserAudit::class, inversedBy: 'profile')]
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: true)]
     private ?UserAudit $user = null;
 
     public function __construct(string $biography)

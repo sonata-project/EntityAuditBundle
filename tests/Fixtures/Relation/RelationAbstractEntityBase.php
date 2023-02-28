@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\MappedSuperclass
  */
+#[ORM\MappedSuperclass]
 abstract class RelationAbstractEntityBase
 {
     /**
@@ -27,6 +29,9 @@ abstract class RelationAbstractEntityBase
      * @ORM\Column(type="integer", name="id_column")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER, name: 'id_column')]
+    #[ORM\GeneratedValue]
     protected $id;
 
     public function getId(): ?int

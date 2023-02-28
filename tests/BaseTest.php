@@ -13,20 +13,19 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests;
 
-use Doctrine\Common\Proxy\AbstractProxyFactory;
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
-use Gedmo\DoctrineExtensions;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 abstract class BaseTest extends TestCase
 {
@@ -89,13 +88,6 @@ abstract class BaseTest extends TestCase
             return $this->em;
         }
 
-        $config = new Configuration();
-        $config->setMetadataCache(new ArrayAdapter());
-        $config->setQueryCache(new ArrayAdapter());
-        $config->setProxyDir(__DIR__.'/Proxies');
-        $config->setAutoGenerateProxyClasses(AbstractProxyFactory::AUTOGENERATE_EVAL);
-        $config->setProxyNamespace('Sonata\EntityAuditBundle\Tests\Proxies');
-
         $mappingPaths = [
             __DIR__.'/Fixtures/Core',
             __DIR__.'/Fixtures/Issue',
@@ -106,21 +98,15 @@ abstract class BaseTest extends TestCase
             $mappingPaths[] = __DIR__.'/Fixtures/PHP81Issue';
         }
 
-        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver($mappingPaths, false));
-
-        DoctrineExtensions::registerAnnotations();
-
-        $connection = $this->_getConnection();
-
-        // get rid of more global state
-        $evm = $connection->getEventManager();
-        foreach ($evm->getAllListeners() as $event => $listeners) {
-            foreach ($listeners as $listener) {
-                $evm->removeEventListener([$event], $listener);
-            }
+        if (version_compare(\PHP_VERSION, '8.0.0', '>=')) {
+            $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
+        } else {
+            $config = ORMSetup::createAnnotationMetadataConfiguration($mappingPaths, true);
         }
 
-        $this->em = EntityManager::create($connection, $config);
+        $connection = $this->_getConnection($config);
+
+        $this->em = new EntityManager($connection, $config, new EventManager());
 
         foreach ($this->customTypes as $customTypeName => $customTypeClass) {
             if (!Type::hasType($customTypeName)) {
@@ -143,7 +129,7 @@ abstract class BaseTest extends TestCase
         return $this->schemaTool;
     }
 
-    protected function _getConnection(): Connection
+    protected function _getConnection(Configuration $config): Connection
     {
         if (!isset(self::$conn)) {
             $url = getenv('DATABASE_URL');
@@ -156,7 +142,7 @@ abstract class BaseTest extends TestCase
                 ];
             }
 
-            self::$conn = DriverManager::getConnection($params);
+            self::$conn = DriverManager::getConnection($params, $config);
         }
 
         return self::$conn;
@@ -173,7 +159,7 @@ abstract class BaseTest extends TestCase
         $auditConfig->setUsernameCallable(static fn (): string => 'beberlei');
 
         $auditManager = new AuditManager($auditConfig, $this->getClock());
-        $auditManager->registerEvents($this->_getConnection()->getEventManager());
+        $auditManager->registerEvents($this->getEntityManager()->getEventManager());
 
         return $this->auditManager = $auditManager;
     }
