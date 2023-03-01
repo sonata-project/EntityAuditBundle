@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -22,6 +23,11 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\DiscriminatorColumn(name="discr", type="string")
  * @ORM\DiscriminatorMap({"project" = "Issue87Project"})
  */
+#[ORM\Entity]
+#[ORM\Table(name: 'project_project_abstract')]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'discr', type: Types::STRING)]
+#[ORM\DiscriminatorMap(['project' => Issue87Project::class])]
 abstract class Issue87AbstractProject
 {
     /**
@@ -31,20 +37,29 @@ abstract class Issue87AbstractProject
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\GeneratedValue]
     protected $id;
 
     /**
      * @ORM\Column(name="title", type="string", length=50)
      */
+    #[ORM\Column(name: 'title', type: Types::STRING, length: 50)]
     private ?string $title = null; // This property is in the _audit table for each subclass
+
     /**
      * @ORM\Column(name="description", type="string", length=1000, nullable=true)
      */
+    #[ORM\Column(name: 'description', type: Types::STRING, length: 1000, nullable: true)]
     private ?string $description = null; // This property is in the _audit table for each subclass
+
     /**
      * @ORM\ManyToOne(targetEntity="Issue87Organization")
      * @ORM\JoinColumn(nullable=true)
      */
+    #[ORM\ManyToOne(targetEntity: Issue87Organization::class)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Issue87Organization $organisation = null; // This association is NOT in the _audit table for the subclasses
 
     public function getId(): ?int

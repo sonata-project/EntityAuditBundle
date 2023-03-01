@@ -18,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
+#[ORM\Entity]
 class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureTestEntity
 {
     /**
@@ -25,6 +26,7 @@ class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureT
      *
      * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestPrimaryOwner", inversedBy="elements")
      */
+    #[ORM\ManyToOne(targetEntity: DuplicateRevisionFailureTestPrimaryOwner::class, inversedBy: 'elements')]
     protected $primaryOwner;
 
     /**
@@ -32,6 +34,7 @@ class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureT
      *
      * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", inversedBy="elements")
      */
+    #[ORM\ManyToOne(targetEntity: DuplicateRevisionFailureTestSecondaryOwner::class, inversedBy: 'elements')]
     protected $secondaryOwner;
 
     public function setPrimaryOwner(DuplicateRevisionFailureTestPrimaryOwner $owner): void

@@ -11,11 +11,11 @@
     "require": {
         "php": "^7.4 || ^8.0",
         "doctrine/collections": "^1.8 || ^2.0",
-        "doctrine/common": "^3.1",
-        "doctrine/dbal": "^2.13 || ^3.0",
+        "doctrine/common": "^3.3",
+        "doctrine/dbal": "^3.4",
         "doctrine/event-manager": "^1.2 || ^2.0",
-        "doctrine/orm": "^2.10",
-        "doctrine/persistence": "^2.2 || ^3.0",
+        "doctrine/orm": "^2.14",
+        "doctrine/persistence": "^3.0",
         "psr/clock": "^1.0",
         "symfony/config": "^4.4 || ^5.4 || ^6.0",
         "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.0",
@@ -27,7 +27,7 @@
         "doctrine/doctrine-bundle": "^2.4.4",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.4",
-        "gedmo/doctrine-extensions": "^3.0",
+        "gedmo/doctrine-extensions": "^3.7",
         "matthiasnoback/symfony-dependency-injection-test": "^4.2.1",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
@@ -54,7 +54,7 @@
     "conflict": {
         "doctrine/annotations": "<1.7",
         "doctrine/doctrine-bundle": "<2.4.4",
-        "gedmo/doctrine-extensions": "<3.0",
+        "gedmo/doctrine-extensions": "<3.7",
         "symfony/framework-bundle": "<4.4"
     },
     "autoload": {

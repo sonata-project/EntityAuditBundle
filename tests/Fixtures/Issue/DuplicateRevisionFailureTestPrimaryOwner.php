@@ -22,6 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity
  */
+#[ORM\Entity]
 class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
@@ -34,6 +35,7 @@ class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureT
      *     fetch="LAZY"
      * )
      */
+    #[ORM\OneToMany(targetEntity: DuplicateRevisionFailureTestOwnedElement::class, mappedBy: 'primaryOwner', cascade: ['persist', 'remove'], fetch: 'LAZY')]
     private Collection $elements;
 
     /**
@@ -45,6 +47,7 @@ class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureT
      *     cascade={"persist", "remove"}
      * )
      */
+    #[ORM\OneToMany(targetEntity: DuplicateRevisionFailureTestSecondaryOwner::class, mappedBy: 'primaryOwner', cascade: ['persist', 'remove'])]
     private Collection $secondaryOwners;
 
     public function __construct()

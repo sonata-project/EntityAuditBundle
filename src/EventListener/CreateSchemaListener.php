@@ -17,6 +17,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
@@ -44,10 +45,9 @@ class CreateSchemaListener implements EventSubscriber
     }
 
     /**
-     * @todo Remove the "@return array" docblock when support for "symfony/error-handler" 5.x is dropped.
-     *
      * @return string[]
      */
+    #[\ReturnTypeWillChange]
     public function getSubscribedEvents()
     {
         return [
@@ -115,23 +115,16 @@ class CreateSchemaListener implements EventSubscriber
         }
 
         $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
+        $primaryKey = $revisionsTable->getPrimaryKey();
+        \assert(null !== $primaryKey);
 
-        // TODO: Use always array_keys when dropping support for DBAL 2
-        $keyColumns = $revisionsTable->getPrimaryKeyColumns();
-        $firstColumn = current($keyColumns);
-        if ($firstColumn instanceof Column) {
-            /** @var string[] $foreignColumnNames */
-            $foreignColumnNames = array_keys($keyColumns);
-        } else {
-            /**
-             * @phpstan-ignore-next-line
-             *
-             * @var string[] $foreignColumnNames
-             */
-            $foreignColumnNames = $keyColumns;
-        }
-
-        $revisionTable->addForeignKeyConstraint($revisionsTable, [$this->config->getRevisionFieldName()], $foreignColumnNames, [], $revisionForeignKeyName);
+        $revisionTable->addForeignKeyConstraint(
+            $revisionsTable,
+            [$this->config->getRevisionFieldName()],
+            $primaryKey->getColumns(),
+            [],
+            $revisionForeignKeyName
+        );
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
@@ -150,7 +143,11 @@ class CreateSchemaListener implements EventSubscriber
     private function addColumnToTable(Column $column, Table $targetTable): void
     {
         $columnName = $column->getName();
-        $targetTable->addColumn($columnName, $column->getType()->getName());
+
+        $targetTable->addColumn(
+            $columnName,
+            Type::getTypeRegistry()->lookupName($column->getType())
+        );
 
         $targetColumn = $targetTable->getColumn($columnName);
         $targetColumn->setLength($column->getLength());
@@ -162,7 +159,6 @@ class CreateSchemaListener implements EventSubscriber
         $targetColumn->setColumnDefinition($column->getColumnDefinition());
         $targetColumn->setComment($column->getComment());
         $targetColumn->setPlatformOptions($column->getPlatformOptions());
-        $targetColumn->setCustomSchemaOptions($column->getCustomSchemaOptions());
 
         $targetColumn->setNotnull(false);
         $targetColumn->setAutoincrement(false);
@@ -196,6 +192,7 @@ class CreateSchemaListener implements EventSubscriber
             return;
         }
 
+        $typeRegistry = Type::getTypeRegistry();
         $revisionJoinTable = $schema->createTable(
             $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix()
         );
@@ -203,7 +200,7 @@ class CreateSchemaListener implements EventSubscriber
             /* @var Column $column */
             $revisionJoinTable->addColumn(
                 $column->getName(),
-                $column->getType()->getName(),
+                $typeRegistry->lookupName($column->getType()),
                 ['notnull' => false, 'autoincrement' => false]
             );
         }
