@@ -19,34 +19,17 @@ namespace SimpleThings\EntityAudit;
 class ChangedEntity
 {
     /**
-     * @phpstan-var class-string<T>
-     */
-    private string $className;
-
-    /**
-     * @var array<string, int|string>
-     */
-    private array $id;
-
-    private string $revType;
-
-    /**
-     * @phpstan-var T
-     */
-    private object $entity;
-
-    /**
      * @param array<string, int|string> $id
      *
      * @phpstan-param class-string<T> $className
      * @phpstan-param T $entity
      */
-    public function __construct(string $className, array $id, string $revType, object $entity)
-    {
-        $this->className = $className;
-        $this->id = $id;
-        $this->revType = $revType;
-        $this->entity = $entity;
+    public function __construct(
+        private string $className,
+        private array $id,
+        private string $revType,
+        private object $entity
+    ) {
     }
 
     /**

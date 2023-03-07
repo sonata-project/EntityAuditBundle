@@ -22,15 +22,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Dog extends PetAudit
 {
-    /**
+    public function __construct(string $name, /**
      * @ORM\Column(type="integer", name="dog_tail_length")
      */
     #[ORM\Column(type: Types::INTEGER, name: 'dog_tail_length')]
-    private int $tailLength;
-
-    public function __construct(string $name, int $tailLength)
+    private int $tailLength)
     {
-        $this->tailLength = $tailLength;
         parent::__construct($name);
     }
 

@@ -58,17 +58,14 @@ class ArticleAudit
     #[ORM\Column(type: Types::TEXT)]
     protected $ignoreme;
 
-    /**
+    public function __construct(string $title, string $text, /**
      * @ORM\ManyToOne(targetEntity="UserAudit")
      */
     #[ORM\ManyToOne(targetEntity: UserAudit::class)]
-    private ?UserAudit $author;
-
-    public function __construct(string $title, string $text, UserAudit $author, string $ignoreme)
+    private ?UserAudit $author, string $ignoreme)
     {
         $this->title = $title;
         $this->text = $text;
-        $this->author = $author;
         $this->ignoreme = $ignoreme;
     }
 

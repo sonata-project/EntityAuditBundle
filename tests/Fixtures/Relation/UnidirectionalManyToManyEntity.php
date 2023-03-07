@@ -35,12 +35,6 @@ class UnidirectionalManyToManyEntity
     private ?int $id = null;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $title;
-
-    /**
      * @var Collection<int, UnidirectionalManyToManyLinkedEntity>
      *
      * @ORM\ManyToMany(targetEntity="UnidirectionalManyToManyLinkedEntity")
@@ -55,9 +49,13 @@ class UnidirectionalManyToManyEntity
     #[ORM\InverseJoinColumn(name: 'bar_id', referencedColumnName: 'id')]
     private Collection $linkedEntity;
 
-    public function __construct(string $title)
+    public function __construct(/**
+     * @ORM\Column(type="string")
+     */
+    #[ORM\Column(type: Types::STRING)]
+    private string $title
+    )
     {
-        $this->title = $title;
         $this->linkedEntity = new ArrayCollection();
     }
 

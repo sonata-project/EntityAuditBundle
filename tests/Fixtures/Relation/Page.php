@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 #[ORM\Entity]
-class Page
+class Page implements \Stringable
 {
     /**
      * @var int|null

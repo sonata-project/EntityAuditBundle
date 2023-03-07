@@ -43,12 +43,6 @@ abstract class BaseSelfReferencingManyToManyEntity
     private ?int $id = null;
 
     /**
-     * @ORM\Column(type="string", name="title")
-     */
-    #[ORM\Column(type: Types::STRING, name: 'title')]
-    private string $title;
-
-    /**
      * @var Collection<int, BaseSelfReferencingManyToManyEntity>
      *
      * @ORM\ManyToMany(targetEntity="BaseSelfReferencingManyToManyEntity")
@@ -64,9 +58,13 @@ abstract class BaseSelfReferencingManyToManyEntity
     #[ORM\InverseJoinColumn(name: 'bar_id', referencedColumnName: 'id')]
     private Collection $linkedEntities;
 
-    public function __construct(string $title)
+    public function __construct(/**
+     * @ORM\Column(type="string", name="title")
+     */
+    #[ORM\Column(type: Types::STRING, name: 'title')]
+    private string $title
+    )
     {
-        $this->title = $title;
         $this->linkedEntities = new ArrayCollection();
     }
 

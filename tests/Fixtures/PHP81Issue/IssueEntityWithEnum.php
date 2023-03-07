@@ -32,15 +32,13 @@ class IssueEntityWithEnum
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(enumType="Status::class")
-     */
-    #[ORM\Column(enumType: Status::class)]
-    private Status $status;
-
-    public function __construct(Status $status)
-    {
-        $this->status = $status;
+    public function __construct(
+        /**
+         * @ORM\Column(enumType="Status::class")
+         */
+        #[ORM\Column(enumType: Status::class)]
+        private Status $status
+    ) {
     }
 
     public function getId(): ?int

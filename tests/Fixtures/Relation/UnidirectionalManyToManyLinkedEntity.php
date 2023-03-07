@@ -32,15 +32,13 @@ class UnidirectionalManyToManyLinkedEntity
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        /**
+         * @ORM\Column(type="string")
+         */
+        #[ORM\Column(type: Types::STRING)]
+        private string $name
+    ) {
     }
 
     public function getId(): ?int

@@ -35,20 +35,18 @@ class UserAudit
     protected $id;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $name;
-
-    /**
      * @ORM\OneToOne(targetEntity="ProfileAudit", mappedBy="user")
      */
     #[ORM\OneToOne(targetEntity: ProfileAudit::class, mappedBy: 'user')]
     private ?ProfileAudit $profile = null;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        /**
+         * @ORM\Column(type="string")
+         */
+        #[ORM\Column(type: Types::STRING)]
+        private string $name
+    ) {
     }
 
     public function setName(string $name): void

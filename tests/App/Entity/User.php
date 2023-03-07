@@ -36,15 +36,13 @@ class User
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        /**
+         * @ORM\Column(type="string")
+         */
+        #[ORM\Column(type: Types::STRING)]
+        private string $name
+    ) {
     }
 
     public function setName(string $name): void

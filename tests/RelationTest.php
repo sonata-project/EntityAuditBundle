@@ -803,9 +803,9 @@ final class RelationTest extends BaseTest
 
         [$productOne, $productTwo, $productThree] = $auditedFood->getProducts()->toArray();
 
-        static::assertInstanceOf(\get_class($parmesanCheese), $productOne);
-        static::assertInstanceOf(\get_class($cheddarCheese), $productTwo);
-        static::assertInstanceOf(\get_class($vine), $productThree);
+        static::assertInstanceOf($parmesanCheese::class, $productOne);
+        static::assertInstanceOf($cheddarCheese::class, $productTwo);
+        static::assertInstanceOf($vine::class, $productThree);
 
         static::assertSame($parmesanCheese->getId(), $productOne->getId());
         static::assertSame($cheddarCheese->getId(), $productTwo->getId());

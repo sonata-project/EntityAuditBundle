@@ -35,12 +35,6 @@ class ProfileAudit
     protected $id;
 
     /**
-     * @ORM\Column(type="text")
-     */
-    #[ORM\Column(type: Types::TEXT)]
-    private string $biography;
-
-    /**
      * @ORM\OneToOne(targetEntity="UserAudit", inversedBy="profile")
      * @ORM\JoinColumn(referencedColumnName="id", nullable=true)
      */
@@ -48,9 +42,13 @@ class ProfileAudit
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: true)]
     private ?UserAudit $user = null;
 
-    public function __construct(string $biography)
-    {
-        $this->biography = $biography;
+    public function __construct(
+        /**
+         * @ORM\Column(type="text")
+         */
+        #[ORM\Column(type: Types::TEXT)]
+        private string $biography
+    ) {
     }
 
     public function getId(): ?int

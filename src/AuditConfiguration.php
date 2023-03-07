@@ -220,7 +220,7 @@ class AuditConfiguration
     {
         // php 5.3 compat
         if (null !== $usernameCallable && !\is_callable($usernameCallable)) {
-            throw new \InvalidArgumentException(sprintf('Username Callable must be callable. Got: %s', \is_object($usernameCallable) ? \get_class($usernameCallable) : \gettype($usernameCallable)));
+            throw new \InvalidArgumentException(sprintf('Username Callable must be callable. Got: %s', get_debug_type($usernameCallable)));
         }
 
         $this->usernameCallable = $usernameCallable;
