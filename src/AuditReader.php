@@ -179,6 +179,7 @@ class AuditReader
      *
      * @param string                                    $className
      * @param int|string|array<string, int|string>      $id
+     * @param int|string                                $revision
      * @param array{threatDeletionsAsExceptions?: bool} $options
      *
      * @throws DeletedException
@@ -193,7 +194,7 @@ class AuditReader
      * @phpstan-param class-string<T>                   $className
      * @phpstan-return T|null
      */
-    public function find($className, int|string|array $id, int|string $revision, array $options = [])
+    public function find($className, $id, $revision, array $options = [])
     {
         $options = array_merge(['threatDeletionsAsExceptions' => false], $options);
 
@@ -362,18 +363,22 @@ class AuditReader
     /**
      * NEXT_MAJOR: Remove this method.
      *
+     * @param int|string $revision
+     *
      * @return ChangedEntity<object>[]
      *
      * @deprecated this function name is misspelled.
      *             Suggest using findEntitiesChangedAtRevision instead.
      */
-    public function findEntitesChangedAtRevision(string|int $revision)
+    public function findEntitesChangedAtRevision($revision)
     {
         return $this->findEntitiesChangedAtRevision($revision);
     }
 
     /**
      * Return a list of ChangedEntity instances created at the given revision.
+     *
+     * @param int|string $revision
      *
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
@@ -384,7 +389,7 @@ class AuditReader
      *
      * @return ChangedEntity<object>[]
      */
-    public function findEntitiesChangedAtRevision(string|int $revision)
+    public function findEntitiesChangedAtRevision($revision)
     {
         $auditedEntities = $this->metadataFactory->getAllClassNames();
 
@@ -482,12 +487,14 @@ class AuditReader
     /**
      * Return the revision object for a particular revision.
      *
+     * @param int|string $revision
+     *
      * @throws Exception
      * @throws InvalidRevisionException
      *
      * @return Revision
      */
-    public function findRevision(string|int $revision)
+    public function findRevision($revision)
     {
         $query = 'SELECT * FROM '.$this->config->getRevisionTableName().' r WHERE r.id = ?';
         $revisionsData = $this->em->getConnection()->fetchAllAssociative($query, [$revision]);
@@ -517,7 +524,7 @@ class AuditReader
      *
      * @phpstan-param class-string                 $className
      */
-    public function findRevisions($className, int|string|array $id)
+    public function findRevisions($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
@@ -575,9 +582,11 @@ class AuditReader
      * @throws Exception
      * @throws NotAuditedException
      *
+     * @return int|string|null
+     *
      * @phpstan-param class-string                 $className
      */
-    public function getCurrentRevision($className, int|string|array $id): int|string|null
+    public function getCurrentRevision($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
@@ -623,7 +632,10 @@ class AuditReader
      * Get an array with the differences of between two specific revisions of
      * an object with a given id.
      *
-     * @param string $className
+     * @param string     $className
+     * @param int|string $revision
+     * @param int|string $oldRevision
+     * @param int|string $newRevision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -637,7 +649,7 @@ class AuditReader
      * @phpstan-param class-string $className
      * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
      */
-    public function diff($className, int|string $id, int|string $oldRevision, int|string $newRevision)
+    public function diff($className, $id, $oldRevision, $newRevision)
     {
         $oldObject = $this->find($className, $id, $oldRevision);
         $newObject = $this->find($className, $id, $newRevision);
@@ -690,7 +702,7 @@ class AuditReader
      * @phpstan-param class-string<T>              $className
      * @phpstan-return array<T|null>
      */
-    public function getEntityHistory($className, int|string|array $id)
+    public function getEntityHistory($className, $id)
     {
         if (!$this->metadataFactory->isAudited($className)) {
             throw new NotAuditedException($className);
@@ -789,6 +801,7 @@ class AuditReader
      * @param string                         $className
      * @param array<string, string>          $columnMap
      * @param array<string, int|string|null> $data
+     * @param int|string                     $revision
      *
      * @throws DeletedException
      * @throws NoRevisionFoundException
@@ -802,7 +815,7 @@ class AuditReader
      * @phpstan-param class-string<T>        $className
      * @phpstan-return T
      */
-    private function createEntity($className, array $columnMap, array $data, int|string $revision)
+    private function createEntity($className, array $columnMap, array $data, $revision)
     {
         $classMetadata = $this->em->getClassMetadata($className);
 

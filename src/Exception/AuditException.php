@@ -27,11 +27,12 @@ abstract class AuditException extends \Exception
 
     /**
      * @param array<int|string>|null $id
+     * @param int|string|null        $revision
      */
     public function __construct(
         ?string $className,
         ?array $id,
-        protected int|string|null $revision,
+        protected $revision,
         string $message = ''
     ) {
         parent::__construct($message);
