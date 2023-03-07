@@ -18,37 +18,18 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * A slightly contrived entity which has an entity (Page) as an ID.
- *
- * @ORM\Entity
  */
 #[ORM\Entity]
 class PageAlias
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="Page", inversedBy="associatedEmails", cascade={"persist"})
-     * @ORM\JoinColumn(name="page_id", referencedColumnName="id", nullable=false)
-     * @ORM\Id
-     *
-     * @var Page
-     */
-    #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Page::class, inversedBy: 'associatedEmails', cascade: ['persist'])]
-    #[ORM\JoinColumn(name: 'page_id', referencedColumnName: 'id', nullable: false)]
-    protected $page;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column( type="string", nullable=false, length=255, unique=true)
-     * )
-     */
-    #[ORM\Column(type: Types::STRING, nullable: false, length: 255, unique: true)]
-    protected $alias;
-
-    public function __construct(Page $page, ?string $alias = null)
-    {
-        $this->page = $page;
-        $this->alias = $alias;
+    public function __construct(
+        #[ORM\Id]
+        #[ORM\ManyToOne(targetEntity: Page::class, inversedBy: 'associatedEmails', cascade: ['persist'])]
+        #[ORM\JoinColumn(name: 'page_id', referencedColumnName: 'id', nullable: false)]
+        protected Page $page,
+        #[ORM\Column(type: Types::STRING, nullable: false, length: 255, unique: true)]
+        protected ?string $alias = null
+    ) {
     }
 
     public function getAlias(): ?string

@@ -16,12 +16,6 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"cheese" = "CheeseProduct", "wine" = "WineProduct"})
- */
 #[ORM\Entity]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: Types::STRING)]
@@ -29,24 +23,15 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class Product extends SomeEntity
 {
     /**
-     * @var string|null
-     *
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    protected $name;
-
-    /**
      * @var Category|null
-     *
-     * @ORM\ManyToOne(targetEntity="Category", inversedBy="products")
      */
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'products')]
     protected $category;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        #[ORM\Column(type: Types::STRING)]
+        protected string $name
+    ) {
     }
 
     public function setCategory(Category $category): void

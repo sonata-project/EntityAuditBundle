@@ -16,28 +16,17 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
 #[ORM\Entity]
 class Issue198Car
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Issue198Owner", inversedBy="cars")
-     * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
-     */
     #[ORM\ManyToOne(targetEntity: Issue198Owner::class, inversedBy: 'cars')]
     #[ORM\JoinColumn(name: 'owner_id', referencedColumnName: 'id')]
     private ?Issue198Owner $owner = null;

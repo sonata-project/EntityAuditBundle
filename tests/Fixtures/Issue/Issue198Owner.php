@@ -18,18 +18,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity()
- */
 #[ORM\Entity]
 class Issue198Owner
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
@@ -38,8 +31,6 @@ class Issue198Owner
 
     /**
      * @var Collection<int, Issue198Car>
-     *
-     * @ORM\OneToMany(targetEntity="Issue198Car", mappedBy="owner")
      */
     #[ORM\OneToMany(targetEntity: Issue198Car::class, mappedBy: 'owner')]
     private Collection $cars;

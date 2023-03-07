@@ -18,11 +18,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Abstract data entity.
- *
- * @ORM\Entity
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="type", type="string")
- * @ORM\DiscriminatorMap({"private" = "DataPrivateEntity", "legal" = "DataLegalEntity"})
  */
 #[ORM\Entity]
 #[ORM\InheritanceType('SINGLE_TABLE')]
@@ -32,19 +27,12 @@ abstract class AbstractDataEntity
 {
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="DataContainerEntity", mappedBy="data")
-     */
     #[ORM\OneToOne(targetEntity: DataContainerEntity::class, mappedBy: 'data')]
     private ?DataContainerEntity $dataContainer = null;
 

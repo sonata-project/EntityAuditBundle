@@ -16,12 +16,6 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Core;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({"cat" = "Cat", "dog" = "Dog"})
- */
 #[ORM\Entity]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: Types::STRING)]
@@ -30,10 +24,6 @@ abstract class PetAudit
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
@@ -41,9 +31,6 @@ abstract class PetAudit
     protected $id;
 
     public function __construct(
-        /**
-         * @ORM\Column(type="string")
-         */
         #[ORM\Column(type: Types::STRING)]
         private string $name
     ) {

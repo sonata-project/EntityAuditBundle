@@ -16,18 +16,11 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class OneToOneAuditedEntity
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
@@ -36,16 +29,12 @@ class OneToOneAuditedEntity
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string")
      */
     #[ORM\Column(type: Types::STRING)]
     protected $title;
 
     /**
      * @var OneToOneMasterEntity|null
-     *
-     * @ORM\OneToOne(targetEntity="OneToOneMasterEntity")
      */
     #[ORM\OneToOne(targetEntity: OneToOneMasterEntity::class)]
     protected $master;

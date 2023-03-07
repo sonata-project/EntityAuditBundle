@@ -18,18 +18,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class OwnedEntity3
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer", name="strange_owned_id_name")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER, name: 'strange_owned_id_name')]
@@ -38,16 +31,12 @@ class OwnedEntity3
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", name="even_strangier_column_name")
      */
     #[ORM\Column(type: Types::STRING, name: 'even_strangier_column_name')]
     protected $title;
 
     /**
      * @var Collection<int, OwnerEntity>
-     *
-     * @ORM\ManyToMany(targetEntity="OwnerEntity", mappedBy="owned3")
      */
     #[ORM\ManyToMany(targetEntity: OwnerEntity::class, mappedBy: 'owned3')]
     protected $owners;
