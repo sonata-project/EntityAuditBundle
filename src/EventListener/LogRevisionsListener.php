@@ -341,10 +341,7 @@ class LogRevisionsListener implements EventSubscriber
         return $data;
     }
 
-    /**
-     * @return string|int
-     */
-    private function getRevisionId(Connection $conn)
+    private function getRevisionId(Connection $conn): string|int
     {
         $now = $this->clock instanceof ClockInterface ? $this->clock->now() : new \DateTimeImmutable();
 
