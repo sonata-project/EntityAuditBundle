@@ -54,10 +54,7 @@ class LogRevisionsListener implements EventSubscriber
      */
     private array $insertJoinTableRevisionSQL = [];
 
-    /**
-     * @var string|int|null
-     */
-    private $revisionId = null;
+    private null|string|int $revisionId = null;
 
     /**
      * @var object[]
