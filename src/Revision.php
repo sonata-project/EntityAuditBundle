@@ -28,10 +28,7 @@ class Revision
     ) {
     }
 
-    /**
-     * @return int|string
-     */
-    public function getRev()
+    public function getRev(): int|string
     {
         return $this->rev;
     }
