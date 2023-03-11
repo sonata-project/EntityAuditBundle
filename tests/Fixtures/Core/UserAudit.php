@@ -16,39 +16,24 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Core;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class UserAudit
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $name;
-
-    /**
-     * @ORM\OneToOne(targetEntity="ProfileAudit", mappedBy="user")
-     */
     #[ORM\OneToOne(targetEntity: ProfileAudit::class, mappedBy: 'user')]
     private ?ProfileAudit $profile = null;
 
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        #[ORM\Column(type: Types::STRING)]
+        private string $name
+    ) {
     }
 
     public function setName(string $name): void

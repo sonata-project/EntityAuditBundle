@@ -17,36 +17,21 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity
- *
- * @Gedmo\SoftDeleteable(fieldName="deletedAt")
- */
 #[ORM\Entity]
 #[Gedmo\SoftDeleteable(fieldName: 'deletedAt')]
 class Issue111Entity
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\Column
-     */
     #[ORM\Column]
     private ?string $status = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true, name="deleted_at")
-     */
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, name: 'deleted_at')]
     private ?\DateTimeInterface $deletedAt = null;
 

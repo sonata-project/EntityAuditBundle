@@ -16,17 +16,10 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="project_project")
- */
 #[ORM\Entity]
 #[ORM\Table(name: 'project_project')]
 class Issue87Project extends Issue87AbstractProject
 {
-    /**
-     * @ORM\Column(type="string")
-     */
     #[ORM\Column(type: Types::STRING)]
     private ?string $someProperty = null;
 

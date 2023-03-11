@@ -16,18 +16,11 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\MappedSuperclass()
- */
 #[ORM\MappedSuperclass]
 abstract class SomeEntity
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]

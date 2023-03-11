@@ -16,33 +16,20 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class Issue31Reve
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="Issue31User")
-     */
     #[ORM\OneToOne(targetEntity: Issue31User::class)]
     private ?Issue31User $user = null;
 
-    /**
-     * @ORM\Column(type="string")
-     */
     #[ORM\Column(type: Types::STRING)]
     private ?string $titre = null;
 

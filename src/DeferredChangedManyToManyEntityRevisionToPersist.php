@@ -20,43 +20,20 @@ use Doctrine\ORM\Mapping\ClassMetadata;
  */
 final class DeferredChangedManyToManyEntityRevisionToPersist
 {
-    private object $entity;
-    private string $revType;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $entityData;
-
-    /**
-     * @var array<string, mixed>
-     */
-    private array $assoc;
-
-    /**
-     * @var ClassMetadata<object>
-     */
-    private ClassMetadata $class;
-
-    /**
-     * @var ClassMetadata<object>
-     */
-    private ClassMetadata $targetClass;
-
     /**
      * @param array<string, mixed>  $assoc
      * @param array<string, mixed>  $entityData
      * @param ClassMetadata<object> $class
      * @param ClassMetadata<object> $targetClass
      */
-    public function __construct(object $entity, string $revType, array $entityData, array $assoc, ClassMetadata $class, ClassMetadata $targetClass)
-    {
-        $this->entity = $entity;
-        $this->revType = $revType;
-        $this->entityData = $entityData;
-        $this->assoc = $assoc;
-        $this->class = $class;
-        $this->targetClass = $targetClass;
+    public function __construct(
+        private object $entity,
+        private string $revType,
+        private array $entityData,
+        private array $assoc,
+        private ClassMetadata $class,
+        private ClassMetadata $targetClass
+    ) {
     }
 
     public function getEntity(): object

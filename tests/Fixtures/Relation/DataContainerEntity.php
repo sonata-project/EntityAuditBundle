@@ -18,33 +18,21 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Data container entity.
- *
- * @ORM\Entity
  */
 #[ORM\Entity]
 class DataContainerEntity
 {
     /**
      * @var int
-     *
-     * @ORM\Column(type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\OneToOne(targetEntity="AbstractDataEntity", inversedBy="dataContainer", cascade={"persist", "remove"})
-     */
     #[ORM\OneToOne(targetEntity: AbstractDataEntity::class, inversedBy: 'dataContainer', cascade: ['persist', 'remove'])]
     private ?AbstractDataEntity $data = null;
 
-    /**
-     * @ORM\Column(type="string")
-     */
     #[ORM\Column(type: Types::STRING)]
     private ?string $name = null;
 

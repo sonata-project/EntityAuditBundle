@@ -16,21 +16,14 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Core;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class Rabbit extends AnimalAudit
 {
-    /**
-     * @ORM\Column(type="string", name="cute_rabbit_color")
-     */
-    #[ORM\Column(type: Types::STRING, name: 'cute_rabbit_color')]
-    private string $color;
-
-    public function __construct(string $name, string $color)
-    {
-        $this->color = $color;
+    public function __construct(
+        string $name,
+        #[ORM\Column(type: Types::STRING, name: 'cute_rabbit_color')]
+        private string $color
+    ) {
         parent::__construct($name);
     }
 

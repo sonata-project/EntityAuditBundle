@@ -29,46 +29,9 @@ use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
 class AuditedCollection implements Collection
 {
     /**
-     * Related audit reader instance.
-     *
-     * @var AuditReader
-     */
-    protected $auditReader;
-
-    /**
-     * Class to fetch.
-     *
-     * @var string
-     *
-     * @phpstan-var class-string<T>
-     */
-    protected $class;
-
-    /**
-     * Foreign keys for target entity.
-     *
-     * @var array<string, mixed>
-     */
-    protected $foreignKeys;
-
-    /**
-     * Maximum revision to fetch.
-     *
-     * @var string|int
-     */
-    protected $revision;
-
-    /**
      * @var AuditConfiguration
      */
     protected $configuration;
-
-    /**
-     * @var ClassMetadataInfo
-     *
-     * @phpstan-var ClassMetadataInfo<T>
-     */
-    protected $metadata;
 
     /**
      * Entity collection. It can be empty if the collection has not been
@@ -91,13 +54,6 @@ class AuditedCollection implements Collection
     protected $loadedEntities;
 
     /**
-     * Definition of current association.
-     *
-     * @var array<string, mixed>
-     */
-    protected $associationDefinition = [];
-
-    /**
      * @var bool
      */
     protected $initialized = false;
@@ -108,19 +64,18 @@ class AuditedCollection implements Collection
      * @param array<string, mixed> $foreignKeys
      * @param string|int           $revision
      *
-     * @phpstan-param AuditReader $auditReader
      * @phpstan-param class-string<T> $class
-     * @phpstan-param ClassMetadataInfo<T> $classMeta
+     * @phpstan-param ClassMetadataInfo<T> $metadata
      */
-    public function __construct(AuditReader $auditReader, $class, ClassMetadataInfo $classMeta, array $associationDefinition, array $foreignKeys, $revision)
-    {
-        $this->auditReader = $auditReader;
-        $this->class = $class;
-        $this->foreignKeys = $foreignKeys;
-        $this->revision = $revision;
+    public function __construct(
+        protected AuditReader $auditReader,
+        protected $class,
+        protected ClassMetadataInfo $metadata,
+        protected array $associationDefinition,
+        protected array $foreignKeys,
+        protected $revision
+    ) {
         $this->configuration = $auditReader->getConfiguration();
-        $this->metadata = $classMeta;
-        $this->associationDefinition = $associationDefinition;
         $this->entities = new ArrayCollection();
         $this->loadedEntities = new ArrayCollection();
     }

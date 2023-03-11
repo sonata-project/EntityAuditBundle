@@ -40,8 +40,6 @@ class LogRevisionsListener implements EventSubscriber
 
     private MetadataFactory $metadataFactory;
 
-    private ?ClockInterface $clock;
-
     /**
      * @var string[]
      *
@@ -56,10 +54,7 @@ class LogRevisionsListener implements EventSubscriber
      */
     private array $insertJoinTableRevisionSQL = [];
 
-    /**
-     * @var int|string|null
-     */
-    private $revisionId;
+    private null|string|int $revisionId = null;
 
     /**
      * @var object[]
@@ -73,11 +68,12 @@ class LogRevisionsListener implements EventSubscriber
      */
     private array $deferredChangedManyToManyEntityRevisionsToPersist = [];
 
-    public function __construct(AuditManager $auditManager, ?ClockInterface $clock = null)
-    {
+    public function __construct(
+        AuditManager $auditManager,
+        private ?ClockInterface $clock = null
+    ) {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
-        $this->clock = $clock;
     }
 
     /**
@@ -103,7 +99,7 @@ class LogRevisionsListener implements EventSubscriber
         $uow = $em->getUnitOfWork();
 
         foreach ($this->extraUpdates as $entity) {
-            $className = \get_class($entity);
+            $className = $entity::class;
             $meta = $em->getClassMetadata($className);
 
             $persister = $uow->getEntityPersister($className);
@@ -205,7 +201,7 @@ class LogRevisionsListener implements EventSubscriber
         // onFlush was executed before, everything already initialized
         $entity = $eventArgs->getObject();
 
-        $class = $em->getClassMetadata(\get_class($entity));
+        $class = $em->getClassMetadata($entity::class);
         if (!$this->metadataFactory->isAudited($class->name)) {
             return;
         }
@@ -225,7 +221,7 @@ class LogRevisionsListener implements EventSubscriber
         // onFlush was executed before, everything already initialized
         $entity = $eventArgs->getObject();
 
-        $class = $em->getClassMetadata(\get_class($entity));
+        $class = $em->getClassMetadata($entity::class);
         if (!$this->metadataFactory->isAudited($class->name)) {
             return;
         }
@@ -275,7 +271,7 @@ class LogRevisionsListener implements EventSubscriber
 
             $processedEntities[] = $hash;
 
-            $class = $em->getClassMetadata(\get_class($entity));
+            $class = $em->getClassMetadata($entity::class);
             if (!$this->metadataFactory->isAudited($class->name)) {
                 continue;
             }
@@ -289,7 +285,7 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
-            if (!$this->metadataFactory->isAudited(\get_class($entity))) {
+            if (!$this->metadataFactory->isAudited($entity::class)) {
                 continue;
             }
 
@@ -297,7 +293,7 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
-            if (!$this->metadataFactory->isAudited(\get_class($entity))) {
+            if (!$this->metadataFactory->isAudited($entity::class)) {
                 continue;
             }
 
@@ -312,7 +308,7 @@ class LogRevisionsListener implements EventSubscriber
      */
     private function getOriginalEntityData(EntityManagerInterface $em, object $entity): array
     {
-        $class = $em->getClassMetadata(\get_class($entity));
+        $class = $em->getClassMetadata($entity::class);
         $data = $em->getUnitOfWork()->getOriginalEntityData($entity);
         if ($class->isVersioned) {
             $versionField = $class->versionField;
@@ -333,7 +329,7 @@ class LogRevisionsListener implements EventSubscriber
     private function getManyToManyRelations(EntityManagerInterface $em, object $entity): array
     {
         $data = [];
-        $class = $em->getClassMetadata(\get_class($entity));
+        $class = $em->getClassMetadata($entity::class);
         foreach ($class->associationMappings as $field => $assoc) {
             if (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0 && $assoc['isOwningSide']) {
                 $reflField = $class->reflFields[$field];
@@ -642,7 +638,7 @@ class LogRevisionsListener implements EventSubscriber
         return implode(
             ' ',
             array_merge(
-                [\get_class($entity)],
+                [$entity::class],
                 $uow->getEntityIdentifier($entity)
             )
         );

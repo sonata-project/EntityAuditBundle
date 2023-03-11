@@ -15,17 +15,11 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class RelationOneToOneEntity extends RelationAbstractEntityBase
 {
     /**
      * @var RelationReferencedEntity|null
-     *
-     * @ORM\OneToOne(targetEntity="RelationReferencedEntity", inversedBy="oneToOne")
-     * @ORM\JoinColumn(name="one_id", referencedColumnName="id_column")
      */
     #[ORM\OneToOne(targetEntity: RelationReferencedEntity::class, inversedBy: 'oneToOne')]
     #[ORM\JoinColumn(name: 'one_id', referencedColumnName: 'id_column')]

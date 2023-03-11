@@ -19,18 +19,11 @@ use Doctrine\Common\Collections\ReadableCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class Issue308User
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
@@ -39,16 +32,12 @@ class Issue308User
 
     /**
      * @var Issue308User|null
-     *
-     * @ORM\ManyToOne(targetEntity="Issue308User", inversedBy="children")
      */
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     protected $parent;
 
     /**
      * @var Collection<int, self>
-     *
-     * @ORM\OneToMany(targetEntity="Issue308User", mappedBy="parent")
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parent')]
     private Collection $children;
