@@ -48,11 +48,8 @@ final class ClockTest extends BaseTest
     protected function getClock(): ?ClockInterface
     {
         return new class($this->getFixedTime()) implements ClockInterface {
-            private \DateTimeImmutable $now;
-
-            public function __construct(\DateTimeImmutable $now)
+            public function __construct(private \DateTimeImmutable $now)
             {
-                $this->now = $now;
             }
 
             public function now(): \DateTimeImmutable

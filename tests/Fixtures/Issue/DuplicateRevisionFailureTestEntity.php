@@ -16,18 +16,11 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\MappedSuperclass
- */
 #[ORM\MappedSuperclass]
 abstract class DuplicateRevisionFailureTestEntity
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]

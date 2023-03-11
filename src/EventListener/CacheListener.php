@@ -19,11 +19,8 @@ use SimpleThings\EntityAudit\AuditReader;
 
 final class CacheListener implements EventSubscriber
 {
-    private AuditReader $auditReader;
-
-    public function __construct(AuditReader $auditReader)
+    public function __construct(private AuditReader $auditReader)
     {
-        $this->auditReader = $auditReader;
     }
 
     public function getSubscribedEvents(): array

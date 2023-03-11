@@ -18,15 +18,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Legal data entity.
- *
- * @ORM\Entity
  */
 #[ORM\Entity]
 class DataLegalEntity extends AbstractDataEntity
 {
-    /**
-     * @ORM\Column(type="string")
-     */
     #[ORM\Column(type: Types::STRING)]
     private ?string $company = null;
 

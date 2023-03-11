@@ -15,24 +15,17 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Issue;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class DuplicateRevisionFailureTestOwnedElement extends DuplicateRevisionFailureTestEntity
 {
     /**
      * @var DuplicateRevisionFailureTestPrimaryOwner|null
-     *
-     * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestPrimaryOwner", inversedBy="elements")
      */
     #[ORM\ManyToOne(targetEntity: DuplicateRevisionFailureTestPrimaryOwner::class, inversedBy: 'elements')]
     protected $primaryOwner;
 
     /**
      * @var DuplicateRevisionFailureTestSecondaryOwner|null
-     *
-     * @ORM\ManyToOne(targetEntity="DuplicateRevisionFailureTestSecondaryOwner", inversedBy="elements")
      */
     #[ORM\ManyToOne(targetEntity: DuplicateRevisionFailureTestSecondaryOwner::class, inversedBy: 'elements')]
     protected $secondaryOwner;

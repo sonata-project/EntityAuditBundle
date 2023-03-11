@@ -18,36 +18,16 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class UnidirectionalManyToManyEntity
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     private ?int $id = null;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $title;
-
-    /**
      * @var Collection<int, UnidirectionalManyToManyLinkedEntity>
-     *
-     * @ORM\ManyToMany(targetEntity="UnidirectionalManyToManyLinkedEntity")
-     * @ORM\JoinTable(name="unidirectional_many_to_many_linked_entity",
-     *   joinColumns={@ORM\JoinColumn(name="foo_id", referencedColumnName="id")},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="bar_id", referencedColumnName="id")}
-     * )
      */
     #[ORM\ManyToMany(targetEntity: UnidirectionalManyToManyLinkedEntity::class)]
     #[ORM\JoinTable(name: 'unidirectional_many_to_many_linked_entity')]
@@ -55,9 +35,10 @@ class UnidirectionalManyToManyEntity
     #[ORM\InverseJoinColumn(name: 'bar_id', referencedColumnName: 'id')]
     private Collection $linkedEntity;
 
-    public function __construct(string $title)
-    {
-        $this->title = $title;
+    public function __construct(
+        #[ORM\Column(type: Types::STRING)]
+        private string $title
+    ) {
         $this->linkedEntity = new ArrayCollection();
     }
 

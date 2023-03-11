@@ -19,22 +19,13 @@ namespace SimpleThings\EntityAudit;
 class Revision
 {
     /**
-     * @var int|string
-     */
-    private $rev;
-
-    private \DateTime $timestamp;
-
-    private ?string $username;
-
-    /**
      * @param int|string $rev
      */
-    public function __construct($rev, \DateTime $timestamp, ?string $username)
-    {
-        $this->rev = $rev;
-        $this->timestamp = $timestamp;
-        $this->username = $username;
+    public function __construct(
+        private $rev,
+        private \DateTime $timestamp,
+        private ?string $username
+    ) {
     }
 
     /**

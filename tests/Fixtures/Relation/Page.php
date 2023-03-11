@@ -18,18 +18,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
-class Page
+class Page implements \Stringable
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
@@ -40,16 +33,12 @@ class Page
      * A page can have many aliases.
      *
      * @var Collection<int, PageAlias>
-     *
-     * @ORM\OneToMany(targetEntity="PageAlias", mappedBy="page", cascade={"persist"})
      */
     #[ORM\OneToMany(targetEntity: PageAlias::class, mappedBy: 'page', cascade: ['persist'])]
     protected $pageAliases;
 
     /**
      * @var Collection<string, PageLocalization>
-     *
-     * @ORM\OneToMany(targetEntity="PageLocalization", mappedBy="page", indexBy="locale")
      */
     #[ORM\OneToMany(targetEntity: PageLocalization::class, mappedBy: 'page', indexBy: 'locale')]
     protected $localizations;

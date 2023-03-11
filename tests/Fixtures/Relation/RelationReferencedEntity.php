@@ -16,12 +16,6 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\InheritanceType("JOINED")
- * @ORM\DiscriminatorColumn(name="discr", type="string")
- * @ORM\DiscriminatorMap({ "foobar" = "RelationFoobarEntity" })
- */
 #[ORM\Entity]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: Types::STRING)]
@@ -30,16 +24,12 @@ abstract class RelationReferencedEntity extends RelationAbstractEntityBase
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string")
      */
     #[ORM\Column(type: Types::STRING)]
     protected $referencedField;
 
     /**
      * @var RelationOneToOneEntity|null
-     *
-     * @ORM\OneToOne(targetEntity="RelationOneToOneEntity", mappedBy="referencedEntity")
      */
     #[ORM\OneToOne(targetEntity: RelationOneToOneEntity::class, mappedBy: 'referencedEntity')]
     protected $oneToOne;

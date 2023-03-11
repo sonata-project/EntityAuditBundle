@@ -32,7 +32,7 @@ final class Issue318Test extends BaseTest
         $user->setAlias('alias');
         $this->em->persist($user);
         $this->em->flush();
-        $userMetadata = $this->em->getClassMetadata(\get_class($user));
+        $userMetadata = $this->em->getClassMetadata($user::class);
         $classes = [$userMetadata];
         $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
         $schemaName = $schema->getName();

@@ -20,6 +20,7 @@ declare(strict_types=1);
 use Rector\Config\RectorConfig;
 use Rector\Php70\Rector\FunctionLike\ExceptionHandlerTypehintRector;
 use Rector\Php71\Rector\FuncCall\CountOnNullRector;
+use Rector\Php80\Rector\FunctionLike\UnionTypesRector;
 use Rector\Set\ValueObject\LevelSetList;
 
 return static function (RectorConfig $rectorConfig): void {
@@ -29,7 +30,7 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     $rectorConfig->sets([
-        LevelSetList::UP_TO_PHP_74,
+        LevelSetList::UP_TO_PHP_80,
     ]);
 
     $rectorConfig->importNames();
@@ -37,5 +38,10 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->skip([
         CountOnNullRector::class,
         ExceptionHandlerTypehintRector::class,
+        UnionTypesRector::class => [
+            __DIR__.'/src/AuditReader.php',
+            __DIR__.'/src/EventListener/LogRevisionsListener.php',
+            __DIR__.'/src/Revision.php',
+        ],
     ]);
 };

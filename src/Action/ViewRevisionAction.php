@@ -21,14 +21,10 @@ use Twig\Environment;
 
 final class ViewRevisionAction
 {
-    private AuditReader $auditReader;
-
-    private Environment $twig;
-
-    public function __construct(Environment $twig, AuditReader $auditReader)
-    {
-        $this->twig = $twig;
-        $this->auditReader = $auditReader;
+    public function __construct(
+        private Environment $twig,
+        private AuditReader $auditReader
+    ) {
     }
 
     /**

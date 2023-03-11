@@ -19,33 +19,18 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * NB! Object property order matters!
- *
- * @ORM\Entity
  */
 #[ORM\Entity]
 class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
      * @var Collection<int, DuplicateRevisionFailureTestOwnedElement>
-     *
-     * @ORM\OneToMany(
-     *     targetEntity="DuplicateRevisionFailureTestOwnedElement",
-     *     mappedBy="primaryOwner",
-     *     cascade={"persist", "remove"},
-     *     fetch="LAZY"
-     * )
      */
     #[ORM\OneToMany(targetEntity: DuplicateRevisionFailureTestOwnedElement::class, mappedBy: 'primaryOwner', cascade: ['persist', 'remove'], fetch: 'LAZY')]
     private Collection $elements;
 
     /**
      * @var Collection<int, DuplicateRevisionFailureTestSecondaryOwner>
-     *
-     * @ORM\OneToMany(
-     *     targetEntity="DuplicateRevisionFailureTestSecondaryOwner",
-     *     mappedBy="primaryOwner",
-     *     cascade={"persist", "remove"}
-     * )
      */
     #[ORM\OneToMany(targetEntity: DuplicateRevisionFailureTestSecondaryOwner::class, mappedBy: 'primaryOwner', cascade: ['persist', 'remove'])]
     private Collection $secondaryOwners;

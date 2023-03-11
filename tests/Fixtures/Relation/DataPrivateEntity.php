@@ -18,15 +18,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Private data entity.
- *
- * @ORM\Entity
  */
 #[ORM\Entity]
 class DataPrivateEntity extends AbstractDataEntity
 {
-    /**
-     * @ORM\Column(type="string")
-     */
     #[ORM\Column(type: Types::STRING)]
     private ?string $name = null;
 

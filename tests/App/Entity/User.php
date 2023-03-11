@@ -16,35 +16,22 @@ namespace Sonata\EntityAuditBundle\Tests\App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="bundle_user")
- */
 #[ORM\Entity]
 #[ORM\Table(name: 'bundle_user')]
 class User
 {
     /**
      * @var int|null
-     *
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
      */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
     protected $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    #[ORM\Column(type: Types::STRING)]
-    private string $name;
-
-    public function __construct(string $name)
-    {
-        $this->name = $name;
+    public function __construct(
+        #[ORM\Column(type: Types::STRING)]
+        private string $name
+    ) {
     }
 
     public function setName(string $name): void

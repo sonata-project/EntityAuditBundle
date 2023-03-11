@@ -37,12 +37,6 @@ class AuditReader
 {
     use SQLResultCasing;
 
-    private EntityManagerInterface $em;
-
-    private AuditConfiguration $config;
-
-    private MetadataFactory $metadataFactory;
-
     private AbstractPlatform $platform;
 
     private QuoteStrategy $quoteStrategy;
@@ -76,11 +70,11 @@ class AuditReader
      */
     private bool $loadNativeEntities = true;
 
-    public function __construct(EntityManagerInterface $em, AuditConfiguration $config, MetadataFactory $factory)
-    {
-        $this->em = $em;
-        $this->config = $config;
-        $this->metadataFactory = $factory;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private AuditConfiguration $config,
+        private MetadataFactory $metadataFactory
+    ) {
         $this->platform = $this->em->getConnection()->getDatabasePlatform();
         $this->quoteStrategy = $this->em->getConfiguration()->getQuoteStrategy();
     }
@@ -369,7 +363,7 @@ class AuditReader
     /**
      * NEXT_MAJOR: Remove this method.
      *
-     * @param string|int $revision
+     * @param int|string $revision
      *
      * @return ChangedEntity<object>[]
      *
@@ -384,7 +378,7 @@ class AuditReader
     /**
      * Return a list of ChangedEntity instances created at the given revision.
      *
-     * @param string|int $revision
+     * @param int|string $revision
      *
      * @throws NoRevisionFoundException
      * @throws NotAuditedException
@@ -493,7 +487,7 @@ class AuditReader
     /**
      * Return the revision object for a particular revision.
      *
-     * @param string|int $revision
+     * @param int|string $revision
      *
      * @throws Exception
      * @throws InvalidRevisionException
@@ -945,9 +939,9 @@ class AuditReader
                                     $revision,
                                     ['threatDeletionsAsExceptions' => true]
                                 );
-                            } catch (DeletedException $e) {
+                            } catch (DeletedException) {
                                 $value = null;
-                            } catch (NoRevisionFoundException $e) {
+                            } catch (NoRevisionFoundException) {
                                 // The entity does not have any revision yet. So let's get the actual state of it.
                                 $value = $this->em->getRepository($targetClass->name)->findOneBy($pf);
                             }

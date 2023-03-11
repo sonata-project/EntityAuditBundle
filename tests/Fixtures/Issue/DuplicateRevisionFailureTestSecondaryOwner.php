@@ -17,31 +17,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- */
 #[ORM\Entity]
 class DuplicateRevisionFailureTestSecondaryOwner extends DuplicateRevisionFailureTestEntity
 {
     /**
      * @var DuplicateRevisionFailureTestPrimaryOwner|null
-     *
-     * @ORM\ManyToOne(
-     *     targetEntity="DuplicateRevisionFailureTestPrimaryOwner",
-     *     inversedBy="secondaryOwners"
-     * )
      */
     #[ORM\ManyToOne(targetEntity: DuplicateRevisionFailureTestPrimaryOwner::class, inversedBy: 'secondaryOwners')]
     protected $primaryOwner;
 
     /**
      * @var Collection<int, DuplicateRevisionFailureTestOwnedElement>
-     *
-     * @ORM\OneToMany(
-     *     targetEntity="DuplicateRevisionFailureTestOwnedElement",
-     *     mappedBy="secondaryOwner",
-     *     cascade={"persist", "remove"}
-     * )
      */
     #[ORM\OneToMany(targetEntity: DuplicateRevisionFailureTestOwnedElement::class, mappedBy: 'secondaryOwner', cascade: ['persist', 'remove'])]
     private Collection $elements;

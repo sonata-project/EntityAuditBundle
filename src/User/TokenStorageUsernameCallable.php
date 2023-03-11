@@ -49,7 +49,7 @@ class TokenStorageUsernameCallable
                 __METHOD__,
                 TokenStorageInterface::class,
                 Container::class,
-                \get_class($tokenStorageOrContainer)
+                $tokenStorageOrContainer::class
             ));
         }
     }
