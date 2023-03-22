@@ -19,7 +19,6 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -35,7 +34,10 @@ abstract class BaseTest extends TestCase
      */
     protected static $conn;
 
-    protected EntityManagerInterface $em;
+    /**
+     * NEXT_MAJOR: Change typehint to EntityManagerInterface.
+     */
+    protected EntityManager $em;
 
     protected AuditManager $auditManager;
 
@@ -62,9 +64,9 @@ abstract class BaseTest extends TestCase
 
     private ?SchemaTool $schemaTool = null;
 
-    private $entityManagerInitialized = false;
+    private bool $entityManagerInitialized = false;
 
-    private $auditManagerInitialized = false;
+    private bool $auditManagerInitialized = false;
 
     protected function setUp(): void
     {
