@@ -123,6 +123,8 @@ class AuditedCollection implements Collection
     }
 
     /**
+     * @param string|int $key
+     *
      * @return T|null
      */
     #[\ReturnTypeWillChange]
@@ -152,6 +154,8 @@ class AuditedCollection implements Collection
     }
 
     /**
+     * @param string|int $key
+     *
      * @return object
      *
      * @phpstan-return T
