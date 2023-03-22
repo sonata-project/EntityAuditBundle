@@ -84,7 +84,7 @@ class AuditedCollection implements Collection
      * @return true
      */
     #[\ReturnTypeWillChange]
-    public function add($element)
+    public function add(mixed $element)
     {
         throw new AuditedCollectionException('The AuditedCollection is read-only');
     }
@@ -100,7 +100,7 @@ class AuditedCollection implements Collection
      * @return bool
      */
     #[\ReturnTypeWillChange]
-    public function contains($element)
+    public function contains(mixed $element)
     {
         $this->forceLoad();
 
@@ -135,7 +135,7 @@ class AuditedCollection implements Collection
      * @return bool
      */
     #[\ReturnTypeWillChange]
-    public function removeElement($element)
+    public function removeElement(mixed $element)
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
@@ -346,7 +346,7 @@ class AuditedCollection implements Collection
      * @return TKey|false
      */
     #[\ReturnTypeWillChange]
-    public function indexOf($element)
+    public function indexOf(mixed $element)
     {
         $this->forceLoad();
 
