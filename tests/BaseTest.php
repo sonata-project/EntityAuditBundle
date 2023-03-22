@@ -98,12 +98,7 @@ abstract class BaseTest extends TestCase
             $mappingPaths[] = __DIR__.'/Fixtures/PHP81Issue';
         }
 
-        if (version_compare(\PHP_VERSION, '8.0.0', '>=')) {
-            $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
-        } else {
-            $config = ORMSetup::createAnnotationMetadataConfiguration($mappingPaths, true);
-        }
-
+        $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
         $connection = $this->_getConnection($config);
 
         $this->em = new EntityManager($connection, $config, new EventManager());
