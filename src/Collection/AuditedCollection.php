@@ -394,7 +394,7 @@ class AuditedCollection implements Collection
      * @phpstan-return T
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
     {
         if ($this->loadedEntities->offsetExists($offset)) {
             $entity = $this->loadedEntities->offsetGet($offset);
