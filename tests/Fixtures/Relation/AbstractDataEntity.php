@@ -16,22 +16,16 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Abstract data entity.
- */
 #[ORM\Entity]
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'type', type: Types::STRING)]
 #[ORM\DiscriminatorMap(['private' => DataPrivateEntity::class, 'legal' => DataLegalEntity::class])]
 abstract class AbstractDataEntity
 {
-    /**
-     * @var int
-     */
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    protected $id;
+    protected ?int $id = null;
 
     #[ORM\OneToOne(targetEntity: DataContainerEntity::class, mappedBy: 'data')]
     private ?DataContainerEntity $dataContainer = null;
