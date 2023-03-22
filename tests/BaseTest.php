@@ -81,7 +81,7 @@ abstract class BaseTest extends TestCase
         $this->tearDownEntitySchema();
     }
 
-    protected function getEntityManager(): EntityManagerInterface
+    protected function getEntityManager(): EntityManager
     {
         if ($this->entityManagerInitialized) {
             return $this->em;
