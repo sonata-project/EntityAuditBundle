@@ -417,12 +417,12 @@ class AuditedCollection implements Collection
         return $resolvedEntity;
     }
 
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         throw new AuditedCollectionException('AuditedCollection is read-only');
     }
 
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         throw new AuditedCollectionException('Audited collections does not support removal');
     }
