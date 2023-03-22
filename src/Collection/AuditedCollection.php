@@ -354,6 +354,8 @@ class AuditedCollection implements Collection
     }
 
     /**
+     * @param int $offset
+     *
      * @return object[]
      *
      * @phpstan-return array<TKey,T>
