@@ -35,9 +35,9 @@ abstract class BaseTest extends TestCase
      */
     protected static $conn;
 
-    protected ?EntityManagerInterface $em = null;
+    protected EntityManagerInterface $em;
 
-    protected ?AuditManager $auditManager = null;
+    protected AuditManager $auditManager;
 
     /**
      * @var string[]
@@ -61,6 +61,10 @@ abstract class BaseTest extends TestCase
     protected $customTypes = [];
 
     private ?SchemaTool $schemaTool = null;
+    
+    private $entityManagerInitialized = false;
+    
+    private $auditManagerInitialized = false;
 
     protected function setUp(): void
     {
@@ -75,9 +79,9 @@ abstract class BaseTest extends TestCase
         $this->tearDownEntitySchema();
     }
 
-    protected function getEntityManager(): EntityManagerInterface
+    protected function getEntityManager(): void
     {
-        if (null !== $this->em) {
+        if ($this->entityManagerInitialized) {
             return $this->em;
         }
 
@@ -102,6 +106,8 @@ abstract class BaseTest extends TestCase
             }
             $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_'.$customTypeName, $customTypeName);
         }
+
+        $this->entityManagerInitialized = true;
 
         return $this->em;
     }
@@ -138,7 +144,7 @@ abstract class BaseTest extends TestCase
 
     protected function getAuditManager(): AuditManager
     {
-        if (null !== $this->auditManager) {
+        if ($this->auditManagerInitialized) {
             return $this->auditManager;
         }
 
@@ -146,10 +152,12 @@ abstract class BaseTest extends TestCase
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
         $auditConfig->setUsernameCallable(static fn (): string => 'beberlei');
 
-        $auditManager = new AuditManager($auditConfig, $this->getClock());
-        $auditManager->registerEvents($this->getEntityManager()->getEventManager());
+        $this->auditManager = new AuditManager($auditConfig, $this->getClock());
+        $this->auditManager->registerEvents($this->getEntityManager()->getEventManager());
 
-        return $this->auditManager = $auditManager;
+        $this->auditManagerInitialized = true;
+
+        return $this->auditManager;
     }
 
     protected function getClock(): ?ClockInterface
