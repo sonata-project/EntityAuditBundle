@@ -61,9 +61,9 @@ abstract class BaseTest extends TestCase
     protected $customTypes = [];
 
     private ?SchemaTool $schemaTool = null;
-    
+
     private $entityManagerInitialized = false;
-    
+
     private $auditManagerInitialized = false;
 
     protected function setUp(): void
@@ -79,7 +79,7 @@ abstract class BaseTest extends TestCase
         $this->tearDownEntitySchema();
     }
 
-    protected function getEntityManager(): void
+    protected function getEntityManager(): EntityManagerInterface
     {
         if ($this->entityManagerInitialized) {
             return $this->em;
