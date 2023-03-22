@@ -19,6 +19,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -34,17 +35,9 @@ abstract class BaseTest extends TestCase
      */
     protected static $conn;
 
-    /**
-     * NEXT_MAJOR: Use `\Doctrine\ORM\EntityManagerInterface` instead.
-     *
-     * @var EntityManager
-     */
-    protected $em;
+    protected ?EntityManagerInterface $em = null;
 
-    /**
-     * @var AuditManager
-     */
-    protected $auditManager;
+    protected ?AuditManager $auditManager = null;
 
     /**
      * @var string[]
@@ -82,7 +75,7 @@ abstract class BaseTest extends TestCase
         $this->tearDownEntitySchema();
     }
 
-    protected function getEntityManager(): EntityManager
+    protected function getEntityManager(): EntityManagerInterface
     {
         if (null !== $this->em) {
             return $this->em;
