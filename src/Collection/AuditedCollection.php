@@ -381,7 +381,7 @@ class AuditedCollection implements Collection
      * @return bool
      */
     #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset)
     {
         $this->forceLoad();
 
