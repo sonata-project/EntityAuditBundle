@@ -16,19 +16,13 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * Data container entity.
- */
 #[ORM\Entity]
 class DataContainerEntity
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
-    protected $id;
+    protected ?int $id = null;
 
     #[ORM\OneToOne(targetEntity: AbstractDataEntity::class, inversedBy: 'dataContainer', cascade: ['persist', 'remove'])]
     private ?AbstractDataEntity $data = null;
