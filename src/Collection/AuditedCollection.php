@@ -354,7 +354,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @param int $offset
+     * @param int      $offset
      * @param int|null $length
      *
      * @return object[]
