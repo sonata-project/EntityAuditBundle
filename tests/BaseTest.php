@@ -64,10 +64,6 @@ abstract class BaseTest extends TestCase
 
     private ?SchemaTool $schemaTool = null;
 
-    private bool $entityManagerInitialized = false;
-
-    private bool $auditManagerInitialized = false;
-
     protected function setUp(): void
     {
         $this->getEntityManager();
@@ -83,7 +79,7 @@ abstract class BaseTest extends TestCase
 
     protected function getEntityManager(): EntityManager
     {
-        if ($this->entityManagerInitialized) {
+        if (isset($this->em)) {
             return $this->em;
         }
 
@@ -108,8 +104,6 @@ abstract class BaseTest extends TestCase
             }
             $this->em->getConnection()->getDatabasePlatform()->registerDoctrineTypeMapping('db_'.$customTypeName, $customTypeName);
         }
-
-        $this->entityManagerInitialized = true;
 
         return $this->em;
     }
@@ -146,7 +140,7 @@ abstract class BaseTest extends TestCase
 
     protected function getAuditManager(): AuditManager
     {
-        if ($this->auditManagerInitialized) {
+        if (isset($this->auditManager)) {
             return $this->auditManager;
         }
 
@@ -156,8 +150,6 @@ abstract class BaseTest extends TestCase
 
         $this->auditManager = new AuditManager($auditConfig, $this->getClock());
         $this->auditManager->registerEvents($this->getEntityManager()->getEventManager());
-
-        $this->auditManagerInitialized = true;
 
         return $this->auditManager;
     }
