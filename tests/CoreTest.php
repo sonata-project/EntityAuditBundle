@@ -483,10 +483,10 @@ final class CoreTest extends BaseTest
 
     public function testRevisionForeignKeys(): void
     {
+        $em = $this->getEntityManager();
+
         $isSqlitePlatform = $em->getConnection()->getDatabasePlatform() instanceof SqlitePlatform;
         $updateForeignKeysConfig = false;
-
-        $em = $this->getEntityManager();
 
         if ($isSqlitePlatform) {
             $foreignKeysConfig = $em->getConnection()->executeQuery('PRAGMA foreign_keys;')->fetchOne();
