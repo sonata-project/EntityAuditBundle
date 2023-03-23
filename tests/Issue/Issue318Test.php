@@ -32,7 +32,7 @@ final class Issue318Test extends BaseTest
         $user->setAlias('alias');
 
         $em = $this->getEntityManager();
-        
+
         $em->persist($user);
         $em->flush();
         $userMetadata = $em->getClassMetadata($user::class);
