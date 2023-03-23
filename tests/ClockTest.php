@@ -39,7 +39,7 @@ final class ClockTest extends BaseTest
 
         \assert(\is_int($userId));
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $revisions = $reader->findRevisions(Issue318User::class, $userId);
 
