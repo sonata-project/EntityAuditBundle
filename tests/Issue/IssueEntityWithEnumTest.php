@@ -50,7 +50,7 @@ final class IssueEntityWithEnumTest extends BaseTest
         $entity->setStatus(Status::Qwe);
         $em->flush();
 
-        $reader = $this->getAuditManager()->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $auditEntity = $reader->find(IssueEntityWithEnum::class, $entityId, 1);
         static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
