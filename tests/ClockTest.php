@@ -29,7 +29,7 @@ final class ClockTest extends BaseTest
     public function testFixedClockIsUsed(): void
     {
         $em = $this->getEntityManager();
-        
+
         $user = new Issue318User();
         $user->setAlias('alias');
         $em->persist($user);
