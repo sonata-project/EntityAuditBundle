@@ -143,6 +143,8 @@ class AuditedCollection implements Collection
     }
 
     /**
+     * @param int|string $key
+     *
      * @return bool
      */
     #[\ReturnTypeWillChange]
