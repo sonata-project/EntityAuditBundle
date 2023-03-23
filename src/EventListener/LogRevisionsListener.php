@@ -620,7 +620,7 @@ class LogRevisionsListener implements EventSubscriber
         $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
         foreach ($assoc['relationToSourceKeyColumns'] as $targetColumn) {
             $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
-            $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $targetClass, $em);
+            $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $class, $em);
         }
         foreach ($assoc['relationToTargetKeyColumns'] as $targetColumn) {
             $reflField = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]];
