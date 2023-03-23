@@ -34,28 +34,30 @@ final class IssueDuplicateRevisionTest extends BaseTest
 
     public function testDuplicateRevisionKeyConstraintFailure(): void
     {
+        $em = $this->getEntityManager();
+
         $primaryOwner = new DuplicateRevisionFailureTestPrimaryOwner();
-        $this->em->persist($primaryOwner);
+        $em->persist($primaryOwner);
 
         $secondaryOwner = new DuplicateRevisionFailureTestSecondaryOwner();
-        $this->em->persist($secondaryOwner);
+        $em->persist($secondaryOwner);
 
         $primaryOwner->addSecondaryOwner($secondaryOwner);
 
         $element = new DuplicateRevisionFailureTestOwnedElement();
-        $this->em->persist($element);
+        $em->persist($element);
 
         $primaryOwner->addElement($element);
         $secondaryOwner->addElement($element);
 
-        $this->em->flush();
+        $em->flush();
 
-        $this->em->getUnitOfWork()->clear();
+        $em->getUnitOfWork()->clear();
 
-        $primaryOwner = $this->em->find(DuplicateRevisionFailureTestPrimaryOwner::class, 1);
+        $primaryOwner = $em->find(DuplicateRevisionFailureTestPrimaryOwner::class, 1);
         static::assertNotNull($primaryOwner);
 
-        $this->em->remove($primaryOwner);
-        $this->em->flush();
+        $em->remove($primaryOwner);
+        $em->flush();
     }
 }
