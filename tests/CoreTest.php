@@ -214,7 +214,7 @@ final class CoreTest extends BaseTest
         $rabbit = new Rabbit('rabbit', 'white');
         $cat = new Cat('pusheen', '#b5a89f');
         $dog = new Dog('doggy', 80);
-        
+
         $em = $this->getEntityManager();
 
         $em->persist($dog);
