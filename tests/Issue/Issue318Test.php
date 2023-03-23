@@ -30,9 +30,12 @@ final class Issue318Test extends BaseTest
     {
         $user = new Issue318User();
         $user->setAlias('alias');
-        $this->em->persist($user);
-        $this->em->flush();
-        $userMetadata = $this->em->getClassMetadata($user::class);
+
+        $em = $this->getEntityManager();
+        
+        $em->persist($user);
+        $em->flush();
+        $userMetadata = $em->getClassMetadata($user::class);
         $classes = [$userMetadata];
         $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
         $schemaName = $schema->getName();
