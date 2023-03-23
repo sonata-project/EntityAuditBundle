@@ -32,13 +32,16 @@ final class Issue308Test extends BaseTest
         $user = new Issue308User();
         $child1 = new Issue308User();
         $user->addChild($child1);
-        $this->em->persist($child1);
-        $this->em->persist($user);
-        $this->em->flush();
+
+        $em = $this->getEntityManager();
+        
+        $em->persist($child1);
+        $em->persist($user);
+        $em->flush();
 
         static::assertInstanceOf(Collection::class, $user->getChildren());
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
         $auditReader->setLoadAuditedCollections(true);
 
         $userId = $user->getId();
