@@ -37,9 +37,9 @@ abstract class BaseTest extends TestCase
     /**
      * NEXT_MAJOR: Change typehint to EntityManagerInterface.
      */
-    protected EntityManager $em;
+    protected ?EntityManager $em = null;
 
-    protected AuditManager $auditManager;
+    protected ?AuditManager $auditManager = null;
 
     /**
      * @var string[]
@@ -79,7 +79,7 @@ abstract class BaseTest extends TestCase
 
     protected function getEntityManager(): EntityManager
     {
-        if (isset($this->em)) {
+        if (null !== $this->em) {
             return $this->em;
         }
 
@@ -140,7 +140,7 @@ abstract class BaseTest extends TestCase
 
     protected function getAuditManager(): AuditManager
     {
-        if (isset($this->auditManager)) {
+        if (null !== $this->auditManager) {
             return $this->auditManager;
         }
 
