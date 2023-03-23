@@ -362,12 +362,7 @@ class LogRevisionsListener implements EventSubscriber
                 ]
             );
 
-            $platform = $conn->getDatabasePlatform();
-            $sequenceName = $platform->supportsSequences()
-                ? $platform->getIdentitySequenceName($this->config->getRevisionTableName(), 'id')
-                : null;
-
-            $revisionId = $conn->lastInsertId($sequenceName);
+            $revisionId = $conn->lastInsertId();
             if (false === $revisionId) {
                 throw new \RuntimeException('Unable to retrieve the last revision id.');
             }
