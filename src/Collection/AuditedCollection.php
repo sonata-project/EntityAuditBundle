@@ -146,6 +146,8 @@ class AuditedCollection implements Collection
      * @param int|string $key
      *
      * @return bool
+     *
+     * @phpstan-param TKey $key
      */
     #[\ReturnTypeWillChange]
     public function containsKey($key)
