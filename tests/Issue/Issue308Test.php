@@ -34,7 +34,7 @@ final class Issue308Test extends BaseTest
         $user->addChild($child1);
 
         $em = $this->getEntityManager();
-        
+
         $em->persist($child1);
         $em->persist($user);
         $em->flush();
