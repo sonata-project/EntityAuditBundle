@@ -21,13 +21,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Page implements \Stringable
 {
-    /**
-     * @var int|null
-     */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
-    protected $id;
+    protected ?int $id = null;
 
     /**
      * A page can have many aliases.
@@ -35,16 +32,17 @@ class Page implements \Stringable
      * @var Collection<int, PageAlias>
      */
     #[ORM\OneToMany(targetEntity: PageAlias::class, mappedBy: 'page', cascade: ['persist'])]
-    protected $pageAliases;
+    protected Collection $pageAliases;
 
     /**
      * @var Collection<string, PageLocalization>
      */
     #[ORM\OneToMany(targetEntity: PageLocalization::class, mappedBy: 'page', indexBy: 'locale')]
-    protected $localizations;
+    protected Collection $localizations;
 
     public function __construct()
     {
+        $this->pageAliases = new ArrayCollection();
         $this->localizations = new ArrayCollection();
     }
 

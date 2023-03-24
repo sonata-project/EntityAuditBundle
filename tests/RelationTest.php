@@ -100,29 +100,31 @@ final class RelationTest extends BaseTest
         $owned2->setTitle('owned2');
         $owned2->setOwner($owner);
 
-        $this->em->persist($owner);
-        $this->em->persist($owned1);
-        $this->em->persist($owned2);
+        $em = $this->getEntityManager();
 
-        $this->em->flush();
+        $em->persist($owner);
+        $em->persist($owned1);
+        $em->persist($owned2);
+
+        $em->flush();
 
         unset($owner, $owned1, $owned2);
 
-        $this->em->clear();
+        $em->clear();
 
-        $owner = $this->em->getReference(OwnerEntity::class, 1);
+        $owner = $em->getReference(OwnerEntity::class, 1);
         static::assertNotNull($owner);
-        $this->em->remove($owner);
-        $owned1 = $this->em->getReference(OwnedEntity1::class, 1);
+        $em->remove($owner);
+        $owned1 = $em->getReference(OwnedEntity1::class, 1);
         static::assertNotNull($owned1);
-        $this->em->remove($owned1);
-        $owned2 = $this->em->getReference(OwnedEntity2::class, 1);
+        $em->remove($owned1);
+        $owned2 = $em->getReference(OwnedEntity2::class, 1);
         static::assertNotNull($owned2);
-        $this->em->remove($owned2);
+        $em->remove($owned2);
 
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
         static::assertIsArray($changedEntities);
@@ -148,17 +150,18 @@ final class RelationTest extends BaseTest
 
     public function testIssue92(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $owner1 = new OwnerEntity();
         $owner1->setTitle('test');
         $owner2 = new OwnerEntity();
         $owner2->setTitle('test');
 
-        $this->em->persist($owner1);
-        $this->em->persist($owner2);
+        $em->persist($owner1);
+        $em->persist($owner2);
 
-        $this->em->flush();
+        $em->flush();
 
         $owned1 = new OwnedEntity1();
         $owned1->setOwner($owner1);
@@ -172,15 +175,15 @@ final class RelationTest extends BaseTest
         $owned3->setOwner($owner2);
         $owned3->setTitle('test');
 
-        $this->em->persist($owned1);
-        $this->em->persist($owned2);
-        $this->em->persist($owned3);
+        $em->persist($owned1);
+        $em->persist($owned2);
+        $em->persist($owned3);
 
-        $this->em->flush();
+        $em->flush();
 
         $owned2->setOwner($owner2);
 
-        $this->em->flush(); // 3
+        $em->flush(); // 3
 
         $owner1Id = $owner1->getId();
         static::assertNotNull($owner1Id);
@@ -192,42 +195,43 @@ final class RelationTest extends BaseTest
 
     public function testOneToOne(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $master = new OneToOneMasterEntity();
         $master->setTitle('master#1');
 
-        $this->em->persist($master);
-        $this->em->flush(); // #1
+        $em->persist($master);
+        $em->flush(); // #1
 
         $notAudited = new OneToOneNotAuditedEntity();
         $notAudited->setTitle('notaudited');
 
-        $this->em->persist($notAudited);
+        $em->persist($notAudited);
 
         $master->setNotAudited($notAudited);
 
-        $this->em->flush(); // #2
+        $em->flush(); // #2
 
         $audited = new OneToOneAuditedEntity();
         $audited->setTitle('audited');
         $master->setAudited($audited);
 
-        $this->em->persist($audited);
+        $em->persist($audited);
 
-        $this->em->flush(); // #3
+        $em->flush(); // #3
 
         $audited->setTitle('changed#4');
 
-        $this->em->flush(); // #4
+        $em->flush(); // #4
 
         $master->setTitle('changed#5');
 
-        $this->em->flush(); // #5
+        $em->flush(); // #5
 
-        $this->em->remove($audited);
+        $em->remove($audited);
 
-        $this->em->flush(); // #6
+        $em->flush(); // #6
 
         $masterId = $master->getId();
         static::assertNotNull($masterId);
@@ -308,7 +312,8 @@ final class RelationTest extends BaseTest
 
     public function testManyToMany(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $owner = new OwnerEntity();
         $owner->setTitle('owner#1');
@@ -325,12 +330,12 @@ final class RelationTest extends BaseTest
         $owned4->setTitle('owned4');
         $owned4->addOwner($owner);
 
-        $this->em->persist($owner);
-        $this->em->persist($owned31);
-        $this->em->persist($owned32);
-        $this->em->persist($owned4);
+        $em->persist($owner);
+        $em->persist($owned31);
+        $em->persist($owned32);
+        $em->persist($owned4);
 
-        $this->em->flush(); // #1
+        $em->flush(); // #1
 
         $ownerId = $owner->getId();
         static::assertNotNull($ownerId);
@@ -354,14 +359,15 @@ final class RelationTest extends BaseTest
      */
     public function testRelations(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         // create owner
         $owner = new OwnerEntity();
         $owner->setTitle('rev#1');
 
-        $this->em->persist($owner);
-        $this->em->flush();
+        $em->persist($owner);
+        $em->flush();
 
         $ownerId = $owner->getId();
         static::assertNotNull($ownerId);
@@ -373,15 +379,15 @@ final class RelationTest extends BaseTest
         $owned21->setTitle('owned21');
         $owned21->setOwner($owner);
 
-        $this->em->persist($owned21);
-        $this->em->flush();
+        $em->persist($owned21);
+        $em->flush();
 
         // should not add a revision
         static::assertCount(1, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
 
         $owner->setTitle('changed#2');
 
-        $this->em->flush();
+        $em->flush();
 
         // should add a revision
         static::assertCount(2, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
@@ -390,9 +396,9 @@ final class RelationTest extends BaseTest
         $owned11->setTitle('created#3');
         $owned11->setOwner($owner);
 
-        $this->em->persist($owned11);
+        $em->persist($owned11);
 
-        $this->em->flush();
+        $em->flush();
 
         // should not add a revision for owner
         static::assertCount(2, $auditReader->findRevisions(OwnerEntity::class, $ownerId));
@@ -402,9 +408,9 @@ final class RelationTest extends BaseTest
         static::assertCount(1, $auditReader->findRevisions(OwnedEntity1::class, $owned11Id));
 
         // should not mess foreign keys
-        $rows = $this->em->getConnection()->fetchAllAssociative('SELECT strange_owned_id_name FROM OwnedEntity1');
+        $rows = $em->getConnection()->fetchAllAssociative('SELECT strange_owned_id_name FROM OwnedEntity1');
         static::assertSame($ownerId, (int) $rows[0]['strange_owned_id_name']);
-        $this->em->refresh($owner);
+        $em->refresh($owner);
         static::assertCount(1, $owner->getOwned1());
         static::assertCount(1, $owner->getOwned2());
 
@@ -413,24 +419,24 @@ final class RelationTest extends BaseTest
         $owned12->setTitle('created#4');
         $owned12->setOwner($owner);
 
-        $this->em->persist($owned12);
-        $this->em->flush();
+        $em->persist($owned12);
+        $em->flush();
 
         // we have a forth revision where Owner with title changed#2 has one owned2 and two owned1 entities (created#3, created#4)
         $owner->setTitle('changed#5');
 
-        $this->em->flush();
+        $em->flush();
         // we have a fifth revision where Owner with title changed#5 has one owned2 and two owned1 entities (created#3, created#4)
 
         $owner->setTitle('changed#6');
         $owned12->setTitle('changed#6');
 
-        $this->em->flush();
+        $em->flush();
 
-        $this->em->remove($owned11);
+        $em->remove($owned11);
         $owned12->setTitle('changed#7');
         $owner->setTitle('changed#7');
-        $this->em->flush();
+        $em->flush();
         // we have a seventh revision where Owner with title changed#7 has one owned2 and one owned1 entity (changed#7)
 
         $ownerId = $owner->getId();
@@ -559,7 +565,8 @@ final class RelationTest extends BaseTest
      */
     public function testRemoval(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $owner1 = new OwnerEntity();
         $owner1->setTitle('owner1');
@@ -579,28 +586,28 @@ final class RelationTest extends BaseTest
         $owned3->setTitle('owned3');
         $owned3->setOwner($owner1);
 
-        $this->em->persist($owner1);
-        $this->em->persist($owner2);
-        $this->em->persist($owned1);
-        $this->em->persist($owned2);
-        $this->em->persist($owned3);
+        $em->persist($owner1);
+        $em->persist($owner2);
+        $em->persist($owned1);
+        $em->persist($owned2);
+        $em->persist($owned3);
 
-        $this->em->flush(); // #1
+        $em->flush(); // #1
 
         $owned1->setOwner($owner2);
-        $this->em->flush(); // #2
+        $em->flush(); // #2
 
-        $this->em->remove($owned1);
-        $this->em->flush(); // #3
+        $em->remove($owned1);
+        $em->flush(); // #3
 
         $owned2->setTitle('updated owned2');
-        $this->em->flush(); // #4
+        $em->flush(); // #4
 
-        $this->em->remove($owned2);
-        $this->em->flush(); // #5
+        $em->remove($owned2);
+        $em->flush(); // #5
 
-        $this->em->remove($owned3);
-        $this->em->flush(); // #6
+        $em->remove($owned3);
+        $em->flush(); // #6
 
         $owner1Id = $owner1->getId();
         static::assertNotNull($owner1Id);
@@ -635,7 +642,8 @@ final class RelationTest extends BaseTest
      */
     public function testDetaching(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $owner = new OwnerEntity();
         $owner->setTitle('created#1');
@@ -643,10 +651,10 @@ final class RelationTest extends BaseTest
         $owned = new OwnedEntity1();
         $owned->setTitle('created#1');
 
-        $this->em->persist($owner);
-        $this->em->persist($owned);
+        $em->persist($owner);
+        $em->persist($owned);
 
-        $this->em->flush(); // #1
+        $em->flush(); // #1
 
         $ownerId1 = $owner->getId();
         static::assertNotNull($ownerId1);
@@ -656,34 +664,34 @@ final class RelationTest extends BaseTest
         $owned->setTitle('associated#2');
         $owned->setOwner($owner);
 
-        $this->em->flush(); // #2
+        $em->flush(); // #2
 
         $owned->setTitle('deassociated#3');
         $owned->setOwner(null);
 
-        $this->em->flush(); // #3
+        $em->flush(); // #3
 
         $owned->setTitle('associated#4');
         $owned->setOwner($owner);
 
-        $this->em->flush(); // #4
+        $em->flush(); // #4
 
-        $this->em->remove($owned);
+        $em->remove($owned);
 
-        $this->em->flush(); // #5
+        $em->flush(); // #5
 
         $owned = new OwnedEntity1();
         $owned->setTitle('recreated#6');
         $owned->setOwner($owner);
 
-        $this->em->persist($owned);
-        $this->em->flush(); // #6
+        $em->persist($owned);
+        $em->flush(); // #6
 
         $ownedId2 = $owned->getId();
         static::assertNotNull($ownedId2);
 
-        $this->em->remove($owner);
-        $this->em->flush(); // #7
+        $em->remove($owner);
+        $em->flush(); // #7
 
         $auditedEntity = $auditReader->find(OwnerEntity::class, $ownerId1, 1);
         static::assertNotNull($auditedEntity);
@@ -727,7 +735,8 @@ final class RelationTest extends BaseTest
 
     public function testOneXRelations(): void
     {
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $owner = new OwnerEntity();
         $owner->setTitle('owner');
@@ -736,15 +745,15 @@ final class RelationTest extends BaseTest
         $owned->setTitle('owned');
         $owned->setOwner($owner);
 
-        $this->em->persist($owner);
-        $this->em->persist($owned);
+        $em->persist($owner);
+        $em->persist($owned);
 
-        $this->em->flush();
+        $em->flush();
         // first revision done
 
         $owner->setTitle('changed#2');
         $owned->setTitle('changed#2');
-        $this->em->flush();
+        $em->flush();
 
         $ownerId = $owner->getId();
         static::assertNotNull($ownerId);
@@ -770,25 +779,27 @@ final class RelationTest extends BaseTest
 
     public function testOneToManyJoinedInheritance(): void
     {
+        $em = $this->getEntityManager();
+
         $food = new FoodCategory();
-        $this->em->persist($food);
+        $em->persist($food);
 
         $parmesanCheese = new CheeseProduct('Parmesan');
-        $this->em->persist($parmesanCheese);
+        $em->persist($parmesanCheese);
 
         $cheddarCheese = new CheeseProduct('Cheddar');
-        $this->em->persist($cheddarCheese);
+        $em->persist($cheddarCheese);
 
         $vine = new WineProduct('Champagne');
-        $this->em->persist($vine);
+        $em->persist($vine);
 
         $food->addProduct($parmesanCheese);
         $food->addProduct($cheddarCheese);
         $food->addProduct($vine);
 
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $foodId = $food->getId();
         static::assertNotNull($foodId);
@@ -813,21 +824,23 @@ final class RelationTest extends BaseTest
 
     public function testOneToManyWithIndexBy(): void
     {
+        $em = $this->getEntityManager();
+
         $page = new Page();
-        $this->em->persist($page);
+        $em->persist($page);
 
         $gbLocalization = new PageLocalization('en-GB');
-        $this->em->persist($gbLocalization);
+        $em->persist($gbLocalization);
 
         $usLocalization = new PageLocalization('en-US');
-        $this->em->persist($usLocalization);
+        $em->persist($usLocalization);
 
         $page->addLocalization($gbLocalization);
         $page->addLocalization($usLocalization);
 
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $pageId = $page->getId();
         static::assertNotNull($pageId);
@@ -851,28 +864,30 @@ final class RelationTest extends BaseTest
      */
     public function testOneToManyCollectionDeletedElements(): void
     {
+        $em = $this->getEntityManager();
+
         $owner = new OwnerEntity();
-        $this->em->persist($owner);
+        $em->persist($owner);
 
         $ownedOne = new OwnedEntity1();
         $ownedOne->setTitle('Owned#1');
         $ownedOne->setOwner($owner);
-        $this->em->persist($ownedOne);
+        $em->persist($ownedOne);
 
         $ownedTwo = new OwnedEntity1();
         $ownedTwo->setTitle('Owned#2');
         $ownedTwo->setOwner($owner);
-        $this->em->persist($ownedTwo);
+        $em->persist($ownedTwo);
 
         $ownedThree = new OwnedEntity1();
         $ownedThree->setTitle('Owned#3');
         $ownedThree->setOwner($owner);
-        $this->em->persist($ownedThree);
+        $em->persist($ownedThree);
 
         $ownedFour = new OwnedEntity1();
         $ownedFour->setTitle('Owned#4');
         $ownedFour->setOwner($owner);
-        $this->em->persist($ownedFour);
+        $em->persist($ownedFour);
 
         $owner->addOwned1($ownedOne);
         $owner->addOwned1($ownedTwo);
@@ -880,18 +895,18 @@ final class RelationTest extends BaseTest
         $owner->addOwned1($ownedFour);
 
         $owner->setTitle('Owner with four owned elements.');
-        $this->em->flush(); // #1
+        $em->flush(); // #1
 
         $owner->setTitle('Owner with three owned elements.');
-        $this->em->remove($ownedTwo);
+        $em->remove($ownedTwo);
 
-        $this->em->flush(); // #2
+        $em->flush(); // #2
 
         $owner->setTitle('Just another revision.');
 
-        $this->em->flush(); // #3
+        $em->flush(); // #3
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $ownerId = $owner->getId();
         static::assertNotNull($ownerId);
@@ -916,6 +931,8 @@ final class RelationTest extends BaseTest
 
     public function testOneToOneEdgeCase(): void
     {
+        $em = $this->getEntityManager();
+
         $base = new RelationOneToOneEntity();
 
         $referenced = new RelationFoobarEntity();
@@ -925,12 +942,12 @@ final class RelationTest extends BaseTest
         $base->setReferencedEntity($referenced);
         $referenced->setOneToOne($base);
 
-        $this->em->persist($base);
-        $this->em->persist($referenced);
+        $em->persist($base);
+        $em->persist($referenced);
 
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $baseId = $base->getId();
         static::assertNotNull($baseId);
@@ -952,17 +969,21 @@ final class RelationTest extends BaseTest
      */
     public function testJoinOnObject(): void
     {
+        $em = $this->getEntityManager();
+
         $page = new Page();
-        $this->em->persist($page);
-        $this->em->flush();
+        $em->persist($page);
+        $em->flush();
 
         $pageAlias = new PageAlias($page, 'This is the alias');
-        $this->em->persist($pageAlias);
-        $this->em->flush();
+        $em->persist($pageAlias);
+        $em->flush();
     }
 
     public function testOneToOneBidirectional(): void
     {
+        $em = $this->getEntityManager();
+
         $private1 = new DataPrivateEntity();
         $private1->setName('private1');
 
@@ -984,12 +1005,12 @@ final class RelationTest extends BaseTest
         $container3->setData($legal2);
         $container3->setName('container3');
 
-        $this->em->persist($container1);
-        $this->em->persist($container2);
-        $this->em->persist($container3);
-        $this->em->flush();
+        $em->persist($container1);
+        $em->persist($container2);
+        $em->persist($container3);
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $legal2Id = $legal2->getId();
         static::assertNotNull($legal2Id);

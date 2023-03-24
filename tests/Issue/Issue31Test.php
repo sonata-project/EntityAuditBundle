@@ -34,20 +34,22 @@ final class Issue31Test extends BaseTest
      */
     public function testIssue31(): void
     {
+        $em = $this->getEntityManager();
+
         $reve = new Issue31Reve();
         $reve->setTitre('reve');
 
-        $this->em->persist($reve);
-        $this->em->flush();
+        $em->persist($reve);
+        $em->flush();
 
         $user = new Issue31User();
         $user->setTitre('user');
         $user->setReve($reve);
 
-        $this->em->persist($user);
-        $this->em->flush();
+        $em->persist($user);
+        $em->flush();
 
-        $this->em->remove($user);
-        $this->em->flush();
+        $em->remove($user);
+        $em->flush();
     }
 }

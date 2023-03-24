@@ -39,7 +39,9 @@ return static function (RectorConfig $rectorConfig): void {
         CountOnNullRector::class,
         ExceptionHandlerTypehintRector::class,
         UnionTypesRector::class => [
+            __DIR__.'/src/AuditConfiguration.php',
             __DIR__.'/src/AuditReader.php',
+            __DIR__.'/src/Controller/AuditController.php',
             __DIR__.'/src/EventListener/LogRevisionsListener.php',
             __DIR__.'/src/Revision.php',
         ],

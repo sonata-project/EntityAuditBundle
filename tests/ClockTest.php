@@ -28,16 +28,18 @@ final class ClockTest extends BaseTest
 
     public function testFixedClockIsUsed(): void
     {
+        $em = $this->getEntityManager();
+
         $user = new Issue318User();
         $user->setAlias('alias');
-        $this->em->persist($user);
-        $this->em->flush();
+        $em->persist($user);
+        $em->flush();
 
         $userId = $user->getId();
 
         \assert(\is_int($userId));
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $revisions = $reader->findRevisions(Issue318User::class, $userId);
 

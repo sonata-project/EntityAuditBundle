@@ -35,16 +35,11 @@ abstract class BaseTest extends TestCase
     protected static $conn;
 
     /**
-     * NEXT_MAJOR: Use `\Doctrine\ORM\EntityManagerInterface` instead.
-     *
-     * @var EntityManager
+     * NEXT_MAJOR: Change typehint to EntityManagerInterface.
      */
-    protected $em;
+    protected ?EntityManager $em = null;
 
-    /**
-     * @var AuditManager
-     */
-    protected $auditManager;
+    protected ?AuditManager $auditManager = null;
 
     /**
      * @var string[]
@@ -98,12 +93,7 @@ abstract class BaseTest extends TestCase
             $mappingPaths[] = __DIR__.'/Fixtures/PHP81Issue';
         }
 
-        if (version_compare(\PHP_VERSION, '8.0.0', '>=')) {
-            $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
-        } else {
-            $config = ORMSetup::createAnnotationMetadataConfiguration($mappingPaths, true);
-        }
-
+        $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
         $connection = $this->_getConnection($config);
 
         $this->em = new EntityManager($connection, $config, new EventManager());
@@ -158,10 +148,10 @@ abstract class BaseTest extends TestCase
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
         $auditConfig->setUsernameCallable(static fn (): string => 'beberlei');
 
-        $auditManager = new AuditManager($auditConfig, $this->getClock());
-        $auditManager->registerEvents($this->getEntityManager()->getEventManager());
+        $this->auditManager = new AuditManager($auditConfig, $this->getClock());
+        $this->auditManager->registerEvents($this->getEntityManager()->getEventManager());
 
-        return $this->auditManager = $auditManager;
+        return $this->auditManager;
     }
 
     protected function getClock(): ?ClockInterface

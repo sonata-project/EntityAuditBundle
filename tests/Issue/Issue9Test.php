@@ -41,12 +41,14 @@ final class Issue9Test extends BaseTest
 
         $address->setCustomer($customer);
 
-        $this->em->persist($customer);
-        $this->em->persist($address);
+        $em = $this->getEntityManager();
 
-        $this->em->flush(); // #1
+        $em->persist($customer);
+        $em->persist($address);
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $em->flush(); // #1
+
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $addressId = $address->getId();
         static::assertNotNull($addressId);

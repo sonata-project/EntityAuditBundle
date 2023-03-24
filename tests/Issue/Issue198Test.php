@@ -34,17 +34,19 @@ final class Issue198Test extends BaseTest
         $owner = new Issue198Owner();
         $car = new Issue198Car();
 
-        $this->em->persist($owner);
-        $this->em->persist($car);
-        $this->em->flush();
+        $em = $this->getEntityManager();
+
+        $em->persist($owner);
+        $em->persist($car);
+        $em->flush();
 
         $owner->addCar($car);
 
-        $this->em->persist($owner);
-        $this->em->persist($car);
-        $this->em->flush();
+        $em->persist($owner);
+        $em->persist($car);
+        $em->flush();
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $carId = $car->getId();
         static::assertNotNull($carId);

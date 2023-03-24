@@ -22,19 +22,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Issue308User
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
-    protected $id;
+    protected ?int $id = null;
 
-    /**
-     * @var Issue308User|null
-     */
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
-    protected $parent;
+    protected ?Issue308User $parent = null;
 
     /**
      * @var Collection<int, self>
