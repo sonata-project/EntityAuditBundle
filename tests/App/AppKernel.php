@@ -82,12 +82,6 @@ final class AppKernel extends Kernel
             $loader->load(__DIR__.'/config/config_symfony_v4.yml');
         }
 
-        if (version_compare(\PHP_VERSION, '8.0.0', '>=')) {
-            $loader->load(__DIR__.'/config/config_php8.yml');
-        } else {
-            $loader->load(__DIR__.'/config/config_php7.yml');
-        }
-
         $loader->load(__DIR__.'/config/services.php');
     }
 
