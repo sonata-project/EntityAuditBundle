@@ -384,8 +384,8 @@ class LogRevisionsListener implements EventSubscriber
             $placeholders = ['?', '?'];
             $tableName = $this->config->getTableName($class);
 
-            $sql = 'INSERT INTO '.$tableName.' ('.
-                $this->config->getRevisionFieldName().', '.$this->config->getRevisionTypeFieldName();
+            $sql = 'INSERT INTO '.$tableName.' (`'.
+                $this->config->getRevisionFieldName().'`, `'.$this->config->getRevisionTypeFieldName() . '`';
 
             $fields = [];
 
@@ -401,7 +401,7 @@ class LogRevisionsListener implements EventSubscriber
                 ) {
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
-                        $sql .= ', '.$sourceCol;
+                        $sql .= ', `'.$sourceCol . '`';
                         $placeholders[] = '?';
                     }
                 }
@@ -424,7 +424,7 @@ class LogRevisionsListener implements EventSubscriber
                 $placeholders[] = true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)
                     ? $type->convertToDatabaseValueSQL('?', $platform)
                     : '?';
-                $sql .= ', '.$em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform);
+                $sql .= ', `'.$em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform) . '`';
             }
 
             if (
@@ -434,7 +434,7 @@ class LogRevisionsListener implements EventSubscriber
                 )
                 && null !== $class->discriminatorColumn
             ) {
-                $sql .= ', '.$class->discriminatorColumn['name'];
+                $sql .= ', `'.$class->discriminatorColumn['name'] . '`';
                 $placeholders[] = '?';
             }
 
