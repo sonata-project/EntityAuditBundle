@@ -424,7 +424,7 @@ class LogRevisionsListener implements EventSubscriber
                 $placeholders[] = true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)
                     ? $type->convertToDatabaseValueSQL('?', $platform)
                     : '?';
-                $sql .= ', `'.$em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform).'`';
+                $sql .= ', '.$em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform);
             }
 
             if (
