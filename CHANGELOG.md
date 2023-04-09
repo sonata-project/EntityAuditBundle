@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [[#555](https://github.com/sonata-project/EntityAuditBundle/pull/555)] Deprecations from Doctrine DBAL and ORM. ([@jordisala1991](https://github.com/jordisala1991))
 
 ### Removed
-- [[#557](https://github.com/sonata-project/EntityAuditBundle/pull/557)] Support for `doctrine/doctrine-bundle` < 2.7. ([@jordisala1991](https://github.com/jordisala1991))
+- [[#557](https://github.com/sonata-project/EntityAuditBundle/pull/557)] Support for `doctrine/doctrine-bundle` < 2.7 ([@jordisala1991](https://github.com/jordisala1991))
 - [[#554](https://github.com/sonata-project/EntityAuditBundle/pull/554)] Drop doctrine common dependency. ([@jordisala1991](https://github.com/jordisala1991))
 
 ## [1.12.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.11.0...1.12.0) - 2023-02-28
