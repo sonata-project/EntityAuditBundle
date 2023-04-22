@@ -26,67 +26,81 @@ use Symfony\Component\DependencyInjection\Definition;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->parameters()
+
         ->set('simplethings.entityaudit.connection', null)
+
         ->set('simplethings.entityaudit.entity_manager', null)
+
         ->set('simplethings.entityaudit.audited_entities', [])
+
         ->set('simplethings.entityaudit.global_ignore_columns', [])
+
         ->set('simplethings.entityaudit.table_prefix', null)
+
         ->set('simplethings.entityaudit.table_suffix', null)
+
         ->set('simplethings.entityaudit.revision_field_name', null)
+
         ->set('simplethings.entityaudit.revision_type_field_name', null)
+
         ->set('simplethings.entityaudit.revision_table_name', null)
+
         ->set('simplethings.entityaudit.revision_id_field_type', null);
 
-    // Use "service" function for creating references to services when dropping support for Symfony 4.4
-    // Use "param" function for creating references to parameters when dropping support for Symfony 5.1
     $containerConfigurator->services()
         ->set('simplethings_entityaudit.manager', AuditManager::class)
             ->public()
             ->args([
-                new ReferenceConfigurator('simplethings_entityaudit.config'),
-                (new ReferenceConfigurator(ClockInterface::class))->nullOnInvalid(),
+                service('simplethings_entityaudit.config'),
+                service(ClockInterface::class)->nullOnInvalid(),
             ])
             ->alias(AuditManager::class, 'simplethings_entityaudit.manager')
                 ->public()
 
         ->set('simplethings_entityaudit.reader', AuditReader::class)
             ->public()
-            ->factory([new ReferenceConfigurator('simplethings_entityaudit.manager'), 'createAuditReader'])
+            ->factory([service('simplethings_entityaudit.manager'), 'createAuditReader'])
             ->args([
                 (new InlineServiceConfigurator(new Definition(EntityManager::class)))
-                    ->factory([new ReferenceConfigurator('doctrine'), 'getManager'])
-                    ->args(['%simplethings.entityaudit.entity_manager%']),
+                    ->factory([service('doctrine'), 'getManager'])
+                    ->args([param('simplethings.entityaudit.entity_manager')]),
             ])
             ->alias(AuditReader::class, 'simplethings_entityaudit.reader')
 
         ->set('simplethings_entityaudit.log_revisions_listener', LogRevisionsListener::class)
-            ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
+            ->tag('doctrine.event_subscriber', [
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
             ->args([
-                new ReferenceConfigurator('simplethings_entityaudit.manager'),
-                (new ReferenceConfigurator(ClockInterface::class))->nullOnInvalid(),
+                service('simplethings_entityaudit.manager'),
+                service(ClockInterface::class)->nullOnInvalid(),
             ])
 
         ->set('simplethings_entityaudit.create_schema_listener', CreateSchemaListener::class)
-            ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
-            ->args([new ReferenceConfigurator('simplethings_entityaudit.manager')])
+            ->tag('doctrine.event_subscriber', [
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->args([service('simplethings_entityaudit.manager')])
 
         ->set('simplethings_entityaudit.cache_listener', CacheListener::class)
-            ->tag('doctrine.event_subscriber', ['connection' => '%simplethings.entityaudit.connection%'])
-            ->args([new ReferenceConfigurator('simplethings_entityaudit.reader')])
+            ->tag('doctrine.event_subscriber', [
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->args([service('simplethings_entityaudit.reader')])
 
         ->set('simplethings_entityaudit.username_callable.token_storage', TokenStorageUsernameCallable::class)
-            ->args([new ReferenceConfigurator('security.token_storage')])
+            ->args([service('security.token_storage')])
 
         ->set('simplethings_entityaudit.config', AuditConfiguration::class)
             ->public()
-            ->call('setAuditedEntityClasses', ['%simplethings.entityaudit.audited_entities%'])
-            ->call('setGlobalIgnoreColumns', ['%simplethings.entityaudit.global_ignore_columns%'])
-            ->call('setTablePrefix', ['%simplethings.entityaudit.table_prefix%'])
-            ->call('setTableSuffix', ['%simplethings.entityaudit.table_suffix%'])
-            ->call('setRevisionTableName', ['%simplethings.entityaudit.revision_table_name%'])
-            ->call('setRevisionIdFieldType', ['%simplethings.entityaudit.revision_id_field_type%'])
-            ->call('setRevisionFieldName', ['%simplethings.entityaudit.revision_field_name%'])
-            ->call('setRevisionTypeFieldName', ['%simplethings.entityaudit.revision_type_field_name%'])
-            ->call('setUsernameCallable', [new ReferenceConfigurator('simplethings_entityaudit.username_callable')])
+            ->call('setAuditedEntityClasses', [param('simplethings.entityaudit.audited_entities')])
+            ->call('setGlobalIgnoreColumns', [param('simplethings.entityaudit.global_ignore_columns')])
+            ->call('setTablePrefix', [param('simplethings.entityaudit.table_prefix')])
+            ->call('setTableSuffix', [param('simplethings.entityaudit.table_suffix')])
+            ->call('setRevisionTableName', [param('simplethings.entityaudit.revision_table_name')])
+            ->call('setRevisionIdFieldType', [param('simplethings.entityaudit.revision_id_field_type')])
+            ->call('setRevisionFieldName', [param('simplethings.entityaudit.revision_field_name')])
+            ->call('setRevisionTypeFieldName', [param('simplethings.entityaudit.revision_type_field_name')])
+            ->call('setUsernameCallable', [service('simplethings_entityaudit.username_callable')])
             ->alias(AuditConfiguration::class, 'simplethings_entityaudit.config');
 };

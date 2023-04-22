@@ -55,10 +55,6 @@ class TokenStorageUsernameCallable
     }
 
     /**
-     * TODO: Simplify this when dropping support for Symfony < 5.3.
-     *
-     * @psalm-suppress UndefinedInterfaceMethod Use only "getUserIdentifier" when dropping support of Symfony < 5.3
-     *
      * @return string|null
      */
     public function __invoke()
@@ -66,8 +62,7 @@ class TokenStorageUsernameCallable
         $token = $this->tokenStorage->getToken();
 
         if (null !== $token && null !== $token->getUser()) {
-            // @phpstan-ignore-next-line Use only "getUserIdentifier" when dropping support of Symfony < 5.3
-            return method_exists($token, 'getUserIdentifier') ? $token->getUserIdentifier() : $token->getUsername();
+            return $token->getUserIdentifier();
         }
 
         return null;
