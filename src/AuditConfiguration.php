@@ -195,10 +195,8 @@ class AuditConfiguration
 
     /**
      * @deprecated
-     *
-     * @param string|null $username
      */
-    public function setCurrentUsername($username): void
+    public function setCurrentUsername(?string $username): void
     {
         $this->setUsernameCallable(static fn () => $username);
     }
@@ -213,23 +211,12 @@ class AuditConfiguration
         return null !== $callable ? (string) $callable() : '';
     }
 
-    /**
-     * @param callable|null $usernameCallable
-     */
-    public function setUsernameCallable($usernameCallable): void
+    public function setUsernameCallable(?callable $usernameCallable): void
     {
-        // php 5.3 compat
-        if (null !== $usernameCallable && !\is_callable($usernameCallable)) {
-            throw new \InvalidArgumentException(sprintf('Username Callable must be callable. Got: %s', get_debug_type($usernameCallable)));
-        }
-
         $this->usernameCallable = $usernameCallable;
     }
 
-    /**
-     * @return callable|null
-     */
-    public function getUsernameCallable()
+    public function getUsernameCallable(): ?callable
     {
         return $this->usernameCallable;
     }

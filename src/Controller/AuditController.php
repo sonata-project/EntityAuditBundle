@@ -100,14 +100,12 @@ class AuditController extends Controller
     /**
      * Compares an entity at 2 different revisions.
      *
-     * @param string   $className
-     * @param string   $id        Comma separated list of identifiers
-     * @param int|null $oldRev    if null, pulled from the query string
-     * @param int|null $newRev    if null, pulled from the query string
+     * @param string $className
+     * @param string $id        Comma separated list of identifiers
      *
      * @return Response
      */
-    public function compareAction(Request $request, $className, $id, $oldRev = null, $newRev = null)
+    public function compareAction(Request $request, $className, $id, ?int $oldRev = null, ?int $newRev = null)
     {
         $compareAction = new CompareAction($this->get('twig'), $this->getAuditReader());
 

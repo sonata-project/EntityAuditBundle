@@ -188,12 +188,10 @@ class AuditReader
      * @throws ORMException
      * @throws \RuntimeException
      *
-     * @return object|null
-     *
      * @phpstan-param class-string<T>                   $className
      * @phpstan-return T|null
      */
-    public function find($className, int|string|array $id, int|string $revision, array $options = [])
+    public function find($className, int|string|array $id, int|string $revision, array $options = []): ?object
     {
         $options = array_merge(['threatDeletionsAsExceptions' => false], $options);
 
@@ -332,14 +330,13 @@ class AuditReader
      *
      * Return a list of all revisions.
      *
-     * @param int|null $limit
-     * @param int      $offset
+     * @param int $offset
      *
      * @throws Exception
      *
      * @return Revision[]
      */
-    public function findRevisionHistory($limit = 20, $offset = 0)
+    public function findRevisionHistory(?int $limit = 20, $offset = 0)
     {
         $query = $this->platform->modifyLimitQuery(
             'SELECT * FROM '.$this->config->getRevisionTableName().' ORDER BY id DESC',
