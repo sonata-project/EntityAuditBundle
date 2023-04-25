@@ -34,23 +34,25 @@ final class IssueSelfReferencingManyToManyEntityTest extends BaseTest
         $entityTwo = new SelfReferencingManyToManyEntity('xyz');
         $entity->addLinkedEntity($entityTwo);
 
-        $this->em->persist($entity);
-        $this->em->persist($entityTwo);
-        $this->em->flush();
+        $em = $this->getEntityManager();
+
+        $em->persist($entity);
+        $em->persist($entityTwo);
+        $em->flush();
 
         $entityId = $entity->getId();
 
         \assert(\is_int($entityId));
 
-        $this->em->clear();
+        $em->clear();
 
         /** @var SelfReferencingManyToManyEntity $entity */
-        $entity = $this->em->getRepository(SelfReferencingManyToManyEntity::class)->find($entityId);
+        $entity = $em->getRepository(SelfReferencingManyToManyEntity::class)->find($entityId);
 
         $entity->setTitle('bar');
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $auditEntity = $reader->find(SelfReferencingManyToManyEntity::class, $entityId, 1);
         static::assertInstanceOf(SelfReferencingManyToManyEntity::class, $auditEntity);
@@ -60,13 +62,13 @@ final class IssueSelfReferencingManyToManyEntityTest extends BaseTest
         static::assertInstanceOf(SelfReferencingManyToManyEntity::class, $auditEntity);
         static::assertSame('bar', $auditEntity->getTitle());
 
-        $this->em->clear();
+        $em->clear();
 
         /** @var SelfReferencingManyToManyEntity $entity */
-        $entity = $this->em->getRepository(SelfReferencingManyToManyEntity::class)->find($entityId);
+        $entity = $em->getRepository(SelfReferencingManyToManyEntity::class)->find($entityId);
 
-        $this->em->remove($entity);
-        $this->em->flush();
+        $em->remove($entity);
+        $em->flush();
 
         $auditEntity = $reader->find(SelfReferencingManyToManyEntity::class, $entityId, 3);
         static::assertInstanceOf(SelfReferencingManyToManyEntity::class, $auditEntity);

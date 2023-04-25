@@ -21,31 +21,25 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class OwnerEntity
 {
-    /**
-     * @var int|null
-     */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER, name: 'some_strange_key_name')]
     #[ORM\GeneratedValue]
-    protected $id;
+    protected ?int $id = null;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(type: Types::STRING, name: 'crazy_title_to_mess_up_audit')]
-    protected $title;
+    protected ?string $title = null;
 
     /**
      * @var Collection<int, OwnedEntity1>
      */
     #[ORM\OneToMany(targetEntity: OwnedEntity1::class, mappedBy: 'owner')]
-    protected $owned1;
+    protected Collection $owned1;
 
     /**
      * @var Collection<int, OwnedEntity2>
      */
     #[ORM\OneToMany(targetEntity: OwnedEntity2::class, mappedBy: 'owner')]
-    protected $owned2;
+    protected Collection $owned2;
 
     /**
      * @var Collection<int, OwnedEntity3>
@@ -54,16 +48,18 @@ class OwnerEntity
     #[ORM\JoinTable(name: 'owner_owned3')]
     #[ORM\JoinColumn(name: 'owner_id', referencedColumnName: 'some_strange_key_name')]
     #[ORM\InverseJoinColumn(name: 'owned3_id', referencedColumnName: 'strange_owned_id_name')]
-    protected $owned3;
+    protected Collection $owned3;
 
     /**
      * @var Collection<int, OwnedEntity4>
      */
     #[ORM\ManyToMany(targetEntity: OwnedEntity4::class, mappedBy: 'owners')]
-    protected $ownedInverse;
+    protected Collection $ownedInverse;
 
     public function __construct()
     {
+        $this->owned1 = new ArrayCollection();
+        $this->owned2 = new ArrayCollection();
         $this->owned3 = new ArrayCollection();
         $this->ownedInverse = new ArrayCollection();
     }

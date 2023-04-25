@@ -2,6 +2,19 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.14.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.13.0...1.14.0) - 2023-04-24
+### Removed
+- [[#564](https://github.com/sonata-project/EntityAuditBundle/pull/564)] Support for Symfony 4 ([@jordisala1991](https://github.com/jordisala1991))
+- [[#564](https://github.com/sonata-project/EntityAuditBundle/pull/564)] Support for Twig 2 ([@jordisala1991](https://github.com/jordisala1991))
+
+## [1.13.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.12.0...1.13.0) - 2023-04-09
+### Fixed
+- [[#555](https://github.com/sonata-project/EntityAuditBundle/pull/555)] Deprecations from Doctrine DBAL and ORM ([@jordisala1991](https://github.com/jordisala1991))
+
+### Removed
+- [[#557](https://github.com/sonata-project/EntityAuditBundle/pull/557)] Support for `doctrine/doctrine-bundle` < 2.7 ([@jordisala1991](https://github.com/jordisala1991))
+- [[#554](https://github.com/sonata-project/EntityAuditBundle/pull/554)] Requirement for `doctrine/common` ([@jordisala1991](https://github.com/jordisala1991))
+
 ## [1.12.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.11.0...1.12.0) - 2023-02-28
 ### Added
 - [[#547](https://github.com/sonata-project/EntityAuditBundle/pull/547)] Add compatibility with `doctrine/collections` ^2.0 ([@jordisala1991](https://github.com/jordisala1991))

@@ -35,9 +35,11 @@ final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
         $entityTwo = new UnidirectionalManyToManyLinkedEntity('xyz');
         $entity->addLinkedEntity($entityTwo);
 
-        $this->em->persist($entity);
-        $this->em->persist($entityTwo);
-        $this->em->flush();
+        $em = $this->getEntityManager();
+
+        $em->persist($entity);
+        $em->persist($entityTwo);
+        $em->flush();
 
         $entityOneId = $entity->getId();
         $entityTwoId = $entityTwo->getId();
@@ -54,9 +56,11 @@ final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
         $entityTwo = new UnidirectionalManyToManyLinkedEntity('xyz');
         $entity->addLinkedEntity($entityTwo);
 
-        $this->em->persist($entityTwo);
-        $this->em->persist($entity);
-        $this->em->flush();
+        $em = $this->getEntityManager();
+
+        $em->persist($entityTwo);
+        $em->persist($entity);
+        $em->flush();
 
         $entityOneId = $entity->getId();
         $entityTwoId = $entityTwo->getId();
@@ -69,18 +73,20 @@ final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
 
     private function assertAuditRecordsWereCorrectlyRecorded(int $mainEntityId, int $linkedEntityId): void
     {
-        $this->em->clear();
+        $em = $this->getEntityManager();
+
+        $em->clear();
 
         /** @var UnidirectionalManyToManyEntity $entity */
-        $entity = $this->em->getRepository(UnidirectionalManyToManyEntity::class)->find($mainEntityId);
+        $entity = $em->getRepository(UnidirectionalManyToManyEntity::class)->find($mainEntityId);
         /** @var UnidirectionalManyToManyLinkedEntity $entityTwo */
-        $entityTwo = $this->em->getRepository(UnidirectionalManyToManyLinkedEntity::class)->find($linkedEntityId);
+        $entityTwo = $em->getRepository(UnidirectionalManyToManyLinkedEntity::class)->find($linkedEntityId);
 
         $entity->setTitle('bar');
         $entityTwo->setName('zxy');
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $auditEntity = $reader->find(UnidirectionalManyToManyEntity::class, $mainEntityId, 1);
         static::assertInstanceOf(UnidirectionalManyToManyEntity::class, $auditEntity);
@@ -96,13 +102,13 @@ final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
         static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $auditEntity->getLinkedEntities()[0]);
         static::assertSame('zxy', $auditEntity->getLinkedEntities()[0]->getName());
 
-        $this->em->clear();
+        $em->clear();
 
         /** @var UnidirectionalManyToManyEntity $entity */
-        $entity = $this->em->getRepository(UnidirectionalManyToManyEntity::class)->find($mainEntityId);
+        $entity = $em->getRepository(UnidirectionalManyToManyEntity::class)->find($mainEntityId);
 
-        $this->em->remove($entity);
-        $this->em->flush();
+        $em->remove($entity);
+        $em->flush();
 
         $auditEntity = $reader->find(UnidirectionalManyToManyEntity::class, $mainEntityId, 3);
         static::assertInstanceOf(UnidirectionalManyToManyEntity::class, $auditEntity);

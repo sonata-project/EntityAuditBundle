@@ -46,12 +46,14 @@ final class Issue87Test extends BaseTest
         $comment->setProject($project);
         $comment->setText('text comment');
 
-        $this->em->persist($org);
-        $this->em->persist($project);
-        $this->em->persist($comment);
-        $this->em->flush();
+        $em = $this->getEntityManager();
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $em->persist($org);
+        $em->persist($project);
+        $em->persist($comment);
+        $em->flush();
+
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
 
         $projectId = $project->getId();
         static::assertNotNull($projectId);
@@ -75,7 +77,7 @@ final class Issue87Test extends BaseTest
         static::assertSame('test project', $commentProject->getTitle());
 
         $project->setTitle('changed project title');
-        $this->em->flush();
+        $em->flush();
 
         $auditedComment = $auditReader->find(Issue87ProjectComment::class, $commentId, 2);
         static::assertNotNull($auditedComment);

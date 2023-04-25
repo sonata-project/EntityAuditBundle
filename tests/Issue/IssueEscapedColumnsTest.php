@@ -31,10 +31,13 @@ final class IssueEscapedColumnsTest extends BaseTest
         $e = new EscapedColumnsEntity();
         $e->setLeft(1);
         $e->setLft(2);
-        $this->em->persist($e);
-        $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $em = $this->getEntityManager();
+
+        $em->persist($e);
+        $em->flush();
+
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $eId = $e->getId();
         static::assertNotNull($eId);

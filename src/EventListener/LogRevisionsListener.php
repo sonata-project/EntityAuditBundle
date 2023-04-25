@@ -27,6 +27,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
+use Doctrine\ORM\Utility\PersisterHelper;
 use Doctrine\Persistence\Mapping\MappingException;
 use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
@@ -183,7 +184,7 @@ class LogRevisionsListener implements EventSubscriber
         foreach ($this->deferredChangedManyToManyEntityRevisionsToPersist as $deferredChangedManyToManyEntityRevisionToPersist) {
             $this->recordRevisionForManyToManyEntity(
                 $deferredChangedManyToManyEntityRevisionToPersist->getEntity(),
-                $em->getConnection(),
+                $em,
                 $deferredChangedManyToManyEntityRevisionToPersist->getRevType(),
                 $deferredChangedManyToManyEntityRevisionToPersist->getEntityData(),
                 $deferredChangedManyToManyEntityRevisionToPersist->getAssoc(),
@@ -358,12 +359,7 @@ class LogRevisionsListener implements EventSubscriber
                 ]
             );
 
-            $platform = $conn->getDatabasePlatform();
-            $sequenceName = $platform->supportsSequences()
-                ? $platform->getIdentitySequenceName($this->config->getRevisionTableName(), 'id')
-                : null;
-
-            $revisionId = $conn->lastInsertId($sequenceName);
+            $revisionId = $conn->lastInsertId();
             if (false === $revisionId) {
                 throw new \RuntimeException('Unable to retrieve the last revision id.');
             }
@@ -542,7 +538,7 @@ class LogRevisionsListener implements EventSubscriber
                                 // so we have to defer writing the revision record to the DB to the postFlush event by which point we know that the entity is gonna be flushed and have the ID assigned
                                 $this->deferredChangedManyToManyEntityRevisionsToPersist[] = new DeferredChangedManyToManyEntityRevisionToPersist($relatedEntity, $revType, $entityData, $assoc, $class, $targetClass);
                             } else {
-                                $this->recordRevisionForManyToManyEntity($relatedEntity, $conn, $revType, $entityData, $assoc, $class, $targetClass);
+                                $this->recordRevisionForManyToManyEntity($relatedEntity, $em, $revType, $entityData, $assoc, $class, $targetClass);
                             }
                         }
                     }
@@ -609,19 +605,20 @@ class LogRevisionsListener implements EventSubscriber
      * @param ClassMetadata<object> $class
      * @param ClassMetadata<object> $targetClass
      */
-    private function recordRevisionForManyToManyEntity(object $relatedEntity, Connection $conn, string $revType, array $entityData, array $assoc, ClassMetadata $class, ClassMetadata $targetClass): void
+    private function recordRevisionForManyToManyEntity(object $relatedEntity, EntityManagerInterface $em, string $revType, array $entityData, array $assoc, ClassMetadata $class, ClassMetadata $targetClass): void
     {
+        $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];
         $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
         foreach ($assoc['relationToSourceKeyColumns'] as $targetColumn) {
             $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
-            $joinTableTypes[] = $class->getTypeOfColumn($targetColumn);
+            $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $class, $em);
         }
         foreach ($assoc['relationToTargetKeyColumns'] as $targetColumn) {
             $reflField = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]];
             \assert(null !== $reflField);
             $joinTableParams[] = $reflField->getValue($relatedEntity);
-            $joinTableTypes[] = $targetClass->getTypeOfColumn($targetColumn);
+            $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $targetClass, $em);
         }
         $conn->executeStatement(
             $this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc),

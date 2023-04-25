@@ -29,18 +29,20 @@ final class Issue111Test extends BaseTest
 
     public function testIssue111(): void
     {
-        $this->em->getEventManager()->addEventSubscriber(new SoftDeleteableListener());
+        $em = $this->getEntityManager();
+
+        $em->getEventManager()->addEventSubscriber(new SoftDeleteableListener());
 
         $e = new Issue111Entity();
         $e->setStatus('test status');
 
-        $this->em->persist($e);
-        $this->em->flush(); // #1
+        $em->persist($e);
+        $em->flush(); // #1
 
-        $this->em->remove($e);
-        $this->em->flush(); // #2
+        $em->remove($e);
+        $em->flush(); // #2
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $ae = $reader->find(Issue111Entity::class, 1, 2);
         static::assertNotNull($ae);

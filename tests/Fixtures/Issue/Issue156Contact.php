@@ -23,13 +23,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\DiscriminatorColumn(name: 'discriminator', type: Types::STRING)]
 class Issue156Contact
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER)]
     #[ORM\GeneratedValue]
-    protected $id;
+    protected ?int $id = null;
 
     /**
      * @var Collection<int, Issue156ContactTelephoneNumber>

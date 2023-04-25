@@ -34,22 +34,23 @@ final class IssueEntityWithEnumTest extends BaseTest
     {
         $entity = new IssueEntityWithEnum(Status::Foo);
 
-        $this->em->persist($entity);
-        $this->em->flush();
+        $em = $this->getEntityManager();
+
+        $em->persist($entity);
+        $em->flush();
 
         $entityId = $entity->getId();
-
         \assert(\is_int($entityId));
 
-        $this->em->clear();
+        $em->clear();
 
         /** @var IssueEntityWithEnum $entity */
-        $entity = $this->em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entityId]);
+        $entity = $em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entityId]);
 
         $entity->setStatus(Status::Qwe);
-        $this->em->flush();
+        $em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
+        $reader = $this->getAuditManager()->createAuditReader($em);
 
         $auditEntity = $reader->find(IssueEntityWithEnum::class, $entityId, 1);
         static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
@@ -59,13 +60,13 @@ final class IssueEntityWithEnumTest extends BaseTest
         static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);
         static::assertSame(Status::Qwe, $auditEntity->getStatus());
 
-        $this->em->clear();
+        $em->clear();
 
         /** @var IssueEntityWithEnum $entity */
-        $entity = $this->em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entityId]);
+        $entity = $em->getRepository(IssueEntityWithEnum::class)->findOneBy(['id' => $entityId]);
 
-        $this->em->remove($entity);
-        $this->em->flush();
+        $em->remove($entity);
+        $em->flush();
 
         $auditEntity = $reader->find(IssueEntityWithEnum::class, $entityId, 3);
         static::assertInstanceOf(IssueEntityWithEnum::class, $auditEntity);

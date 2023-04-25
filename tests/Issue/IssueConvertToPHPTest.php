@@ -35,17 +35,20 @@ final class IssueConvertToPHPTest extends BaseTest
     {
         $entity = new ConvertToPHPEntity();
         $entity->setSqlConversionField('TEST CONVERT TO PHP');
-        $this->em->persist($entity);
-        $this->em->flush();
-        $this->em->clear();
+
+        $em = $this->getEntityManager();
+
+        $em->persist($entity);
+        $em->flush();
+        $em->clear();
 
         $entityId = $entity->getId();
         static::assertNotNull($entityId);
 
-        $persistedEntity = $this->em->find(ConvertToPHPEntity::class, $entityId);
+        $persistedEntity = $em->find(ConvertToPHPEntity::class, $entityId);
         static::assertNotNull($persistedEntity);
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
         $currentRevision = $auditReader->getCurrentRevision(ConvertToPHPEntity::class, $entityId);
         static::assertNotNull($currentRevision);
         $currentRevisionEntity = $auditReader->find(ConvertToPHPEntity::class, $entityId, $currentRevision);

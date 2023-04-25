@@ -16,14 +16,14 @@
         "doctrine/orm": "^2.14",
         "doctrine/persistence": "^3.0",
         "psr/clock": "^1.0",
-        "symfony/config": "^4.4 || ^5.4 || ^6.2",
-        "symfony/dependency-injection": "^4.4 || ^5.4 || ^6.2",
-        "symfony/http-kernel": "^4.4 || ^5.4 || ^6.2",
-        "symfony/security-core": "^4.4 || ^5.4 || ^6.2",
-        "twig/twig": "^2.6 || ^3.0"
+        "symfony/config": "^5.4 || ^6.2",
+        "symfony/dependency-injection": "^5.4 || ^6.2",
+        "symfony/http-kernel": "^5.4 || ^6.2",
+        "symfony/security-core": "^5.4 || ^6.2",
+        "twig/twig": "^3.0"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^2.4.4",
+        "doctrine/doctrine-bundle": "^2.7",
         "doctrine/doctrine-fixtures-bundle": "^3.4",
         "friendsofphp/php-cs-fixer": "^3.4",
         "gedmo/doctrine-extensions": "^3.7",
@@ -36,25 +36,24 @@
         "phpstan/phpstan-symfony": "^1.0",
         "phpunit/phpunit": "^9.5.13",
         "psalm/plugin-phpunit": "^0.18",
-        "psalm/plugin-symfony": "^4.0 || ^5.0",
+        "psalm/plugin-symfony": "^5.0",
         "rector/rector": "^0.15",
-        "symfony/browser-kit": "^4.4 || ^5.4 || ^6.2",
-        "symfony/cache": "^4.4 || ^5.4 || ^6.2",
-        "symfony/filesystem": "^4.4 || ^5.4 || ^6.2",
-        "symfony/framework-bundle": "^4.4 || ^5.4 || ^6.2",
-        "symfony/http-foundation": "^4.4 || ^5.4 || ^6.2",
+        "symfony/browser-kit": "^5.4 || ^6.2",
+        "symfony/cache": "^5.4 || ^6.2",
+        "symfony/filesystem": "^5.4 || ^6.2",
+        "symfony/framework-bundle": "^5.4 || ^6.2",
+        "symfony/http-foundation": "^5.4 || ^6.2",
         "symfony/phpunit-bridge": "^6.2",
-        "symfony/security-bundle": "^4.4 || ^5.4 || ^6.2",
-        "symfony/twig-bundle": "^4.4 || ^5.4 || ^6.2",
-        "symfony/var-dumper": "^4.4 || ^5.4 || ^6.2",
-        "vimeo/psalm": "^4.30 || ^5.7",
+        "symfony/security-bundle": "^5.4 || ^6.2",
+        "symfony/twig-bundle": "^5.4 || ^6.2",
+        "symfony/var-dumper": "^5.4 || ^6.2",
+        "vimeo/psalm": "^5.7",
         "weirdan/doctrine-psalm-plugin": "^2.8"
     },
     "conflict": {
-        "doctrine/annotations": "<1.7",
-        "doctrine/doctrine-bundle": "<2.4.4",
+        "doctrine/doctrine-bundle": "<2.7",
         "gedmo/doctrine-extensions": "<3.7",
-        "symfony/framework-bundle": "<4.4"
+        "symfony/framework-bundle": "<5.4"
     },
     "autoload": {
         "psr-4": {

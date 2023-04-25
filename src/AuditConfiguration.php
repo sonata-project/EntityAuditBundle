@@ -214,7 +214,7 @@ class AuditConfiguration
     }
 
     /**
-     * @param callable $usernameCallable
+     * @param callable|null $usernameCallable
      */
     public function setUsernameCallable($usernameCallable): void
     {

@@ -35,17 +35,20 @@ final class Issue196Test extends BaseTest
     {
         $entity = new Issue196Entity();
         $entity->setSqlConversionField('THIS SHOULD BE LOWER CASE');
-        $this->em->persist($entity);
-        $this->em->flush();
-        $this->em->clear();
+
+        $em = $this->getEntityManager();
+
+        $em->persist($entity);
+        $em->flush();
+        $em->clear();
 
         $entityId = $entity->getId();
         static::assertNotNull($entityId);
 
-        $persistedEntity = $this->em->find(Issue196Entity::class, $entityId);
+        $persistedEntity = $em->find(Issue196Entity::class, $entityId);
         static::assertNotNull($persistedEntity);
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
         $currentRevision = $auditReader->getCurrentRevision(Issue196Entity::class, $entityId);
         static::assertNotNull($currentRevision);
         $currentRevisionEntity = $auditReader->find(Issue196Entity::class, $entityId, $currentRevision);

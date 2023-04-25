@@ -40,14 +40,16 @@ final class Issue156Test extends BaseTest
         $number->setNumber('0123567890');
         $client->addTelephoneNumber($number);
 
-        $this->em->persist($client);
-        $this->em->persist($number);
-        $this->em->flush();
+        $em = $this->getEntityManager();
+
+        $em->persist($client);
+        $em->persist($number);
+        $em->flush();
 
         $numberId = $number->getId();
         static::assertNotNull($numberId);
 
-        $auditReader = $this->auditManager->createAuditReader($this->em);
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
         $auditReader->find(Issue156ContactTelephoneNumber::class, $numberId, 1);
     }
 }
