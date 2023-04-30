@@ -14,6 +14,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - [[#557](https://github.com/sonata-project/EntityAuditBundle/pull/557)] Support for `doctrine/doctrine-bundle` < 2.7 ([@jordisala1991](https://github.com/jordisala1991))
 - [[#554](https://github.com/sonata-project/EntityAuditBundle/pull/554)] Requirement for `doctrine/common` ([@jordisala1991](https://github.com/jordisala1991))
+- [[#551](https://github.com/sonata-project/EntityAuditBundle/pull/551)] Support for PHP 7.4 ([@SonataCI](https://github.com/SonataCI))
+- [[#551](https://github.com/sonata-project/EntityAuditBundle/pull/551)] Support for Symfony 6.0 and 6.1 ([@SonataCI](https://github.com/SonataCI))
 
 ## [1.12.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.11.0...1.12.0) - 2023-02-28
 ### Added
