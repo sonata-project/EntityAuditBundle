@@ -55,6 +55,8 @@
         "gedmo/doctrine-extensions": "<3.7",
         "symfony/framework-bundle": "<5.4"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "SimpleThings\\EntityAudit\\": "src"
