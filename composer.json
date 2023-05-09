@@ -53,7 +53,8 @@
     "conflict": {
         "doctrine/doctrine-bundle": "<2.7",
         "gedmo/doctrine-extensions": "<3.7",
-        "symfony/framework-bundle": "<5.4"
+        "symfony/framework-bundle": "<5.4",
+        "symfony/string": "5.4.0-RC1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
