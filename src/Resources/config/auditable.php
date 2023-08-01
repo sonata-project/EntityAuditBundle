@@ -108,7 +108,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
         ->set('simplethings_entityaudit.cache_listener', CacheListener::class)
             ->tag('doctrine.event_listener', [
-                'event' => Events::prePersist,
+                'event' => Events::onClear,
                 'connection' => (string) param('simplethings.entityaudit.connection'),
             ])
             ->args([service('simplethings_entityaudit.reader')])
