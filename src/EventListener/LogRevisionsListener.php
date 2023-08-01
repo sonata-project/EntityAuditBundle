@@ -35,6 +35,9 @@ use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\DeferredChangedManyToManyEntityRevisionToPersist;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
+/**
+ * NEXT_MAJOR: do not implement EventSubscriber interface anymore
+ */
 class LogRevisionsListener implements EventSubscriber
 {
     private AuditConfiguration $config;
@@ -79,6 +82,7 @@ class LogRevisionsListener implements EventSubscriber
 
     /**
      * @return string[]
+     * NEXT_MAJOR: remove this method.
      */
     #[\ReturnTypeWillChange]
     public function getSubscribedEvents()

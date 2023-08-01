@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Events;
+use Doctrine\ORM\Tools\ToolEvents;
 use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
@@ -68,7 +70,24 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ->alias(AuditReader::class, 'simplethings_entityaudit.reader')
 
         ->set('simplethings_entityaudit.log_revisions_listener', LogRevisionsListener::class)
-            ->tag('doctrine.event_subscriber', [
+            ->tag('doctrine.event_listener', [
+                'event' => Events::onFlush,
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->tag('doctrine.event_listener', [
+                'event' => Events::postPersist,
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->tag('doctrine.event_listener', [
+                'event' => Events::postUpdate,
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->tag('doctrine.event_listener', [
+                'event' => Events::postFlush,
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->tag('doctrine.event_listener', [
+                'event' => Events::onClear,
                 'connection' => (string) param('simplethings.entityaudit.connection'),
             ])
             ->args([
@@ -77,13 +96,19 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ])
 
         ->set('simplethings_entityaudit.create_schema_listener', CreateSchemaListener::class)
-            ->tag('doctrine.event_subscriber', [
+            ->tag('doctrine.event_listener', [
+                'event' => ToolEvents::postGenerateSchemaTable,
+                'connection' => (string) param('simplethings.entityaudit.connection'),
+            ])
+            ->tag('doctrine.event_listener', [
+                'event' => ToolEvents::postGenerateSchema,
                 'connection' => (string) param('simplethings.entityaudit.connection'),
             ])
             ->args([service('simplethings_entityaudit.manager')])
 
         ->set('simplethings_entityaudit.cache_listener', CacheListener::class)
-            ->tag('doctrine.event_subscriber', [
+            ->tag('doctrine.event_listener', [
+                'event' => Events::prePersist,
                 'connection' => (string) param('simplethings.entityaudit.connection'),
             ])
             ->args([service('simplethings_entityaudit.reader')])
