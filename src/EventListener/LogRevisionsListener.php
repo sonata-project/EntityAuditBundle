@@ -36,7 +36,7 @@ use SimpleThings\EntityAudit\DeferredChangedManyToManyEntityRevisionToPersist;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 /**
- * NEXT_MAJOR: do not implement EventSubscriber interface anymore
+ * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
  */
 class LogRevisionsListener implements EventSubscriber
 {

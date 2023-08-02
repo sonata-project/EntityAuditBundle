@@ -51,7 +51,7 @@ class SimpleThingsEntityAuditExtension extends Extension
             }
         }
 
-        $this->fixParametersFromDoctrineEventSubscriberTag($container, [
+        $this->fixParametersFromDoctrineEventListenerTag($container, [
             'simplethings_entityaudit.log_revisions_listener',
             'simplethings_entityaudit.create_schema_listener',
             'simplethings_entityaudit.cache_listener',
@@ -61,7 +61,7 @@ class SimpleThingsEntityAuditExtension extends Extension
     /**
      * @param string[] $definitionNames
      */
-    private function fixParametersFromDoctrineEventSubscriberTag(ContainerBuilder $container, array $definitionNames): void
+    private function fixParametersFromDoctrineEventListenerTag(ContainerBuilder $container, array $definitionNames): void
     {
         foreach ($definitionNames as $definitionName) {
             $definition = $container->getDefinition($definitionName);
