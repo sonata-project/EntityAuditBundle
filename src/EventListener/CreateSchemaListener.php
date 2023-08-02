@@ -48,8 +48,9 @@ class CreateSchemaListener implements EventSubscriber
     }
 
     /**
-     * @return string[]
      * NEXT_MAJOR: remove this method.
+     *
+     * @return string[]
      */
     #[\ReturnTypeWillChange]
     public function getSubscribedEvents()
