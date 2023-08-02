@@ -65,8 +65,8 @@ class SimpleThingsEntityAuditExtension extends Extension
     {
         foreach ($definitionNames as $definitionName) {
             $definition = $container->getDefinition($definitionName);
-            $tags = $definition->getTag('doctrine.event_subscriber');
-            $definition->clearTag('doctrine.event_subscriber');
+            $tags = $definition->getTag('doctrine.event_listener');
+            $definition->clearTag('doctrine.event_listener');
 
             foreach ($tags as $attributes) {
                 if (isset($attributes['connection'])) {
@@ -75,7 +75,7 @@ class SimpleThingsEntityAuditExtension extends Extension
 
                     $attributes['connection'] = (string) $connection;
                 }
-                $definition->addTag('doctrine.event_subscriber', $attributes);
+                $definition->addTag('doctrine.event_listener', $attributes);
             }
         }
     }
