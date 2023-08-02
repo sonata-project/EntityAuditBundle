@@ -37,7 +37,7 @@ class OwnedEntity2
      * @var OwnerEntity|null
      */
     #[ORM\ManyToOne(targetEntity: OwnerEntity::class)]
-    #[ORM\JoinColumn(name: 'owner_id_goes_here', referencedColumnName: 'some_strange_key_name')]
+    #[ORM\JoinColumn(name: 'owner_id_goes_here', referencedColumnName: 'some_strange_key_name', onDelete: 'SET NULL')]
     protected $owner;
 
     public function getId(): ?int
