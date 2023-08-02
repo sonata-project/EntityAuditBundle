@@ -108,17 +108,21 @@ final class RelationTest extends BaseTest
 
         $em->flush();
 
+        $ownerId = $owner->getId();
+        $ownedId1 = $owned1->getId();
+        $ownedId2 = $owned2->getId();
+
         unset($owner, $owned1, $owned2);
 
         $em->clear();
 
-        $owner = $em->getReference(OwnerEntity::class, 1);
+        $owner = $em->getReference(OwnerEntity::class, $ownerId);
         static::assertNotNull($owner);
         $em->remove($owner);
-        $owned1 = $em->getReference(OwnedEntity1::class, 1);
+        $owned1 = $em->getReference(OwnedEntity1::class, $ownedId1);
         static::assertNotNull($owned1);
         $em->remove($owned1);
-        $owned2 = $em->getReference(OwnedEntity2::class, 1);
+        $owned2 = $em->getReference(OwnedEntity2::class, $ownedId2);
         static::assertNotNull($owned2);
         $em->remove($owned2);
 
