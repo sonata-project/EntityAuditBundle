@@ -27,6 +27,9 @@ use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
+/**
+ * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
+ */
 class CreateSchemaListener implements EventSubscriber
 {
     private AuditConfiguration $config;
@@ -45,6 +48,8 @@ class CreateSchemaListener implements EventSubscriber
     }
 
     /**
+     * NEXT_MAJOR: remove this method.
+     *
      * @return string[]
      */
     #[\ReturnTypeWillChange]
