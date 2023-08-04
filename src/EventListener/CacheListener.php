@@ -17,12 +17,18 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use SimpleThings\EntityAudit\AuditReader;
 
+/**
+ * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
+ */
 final class CacheListener implements EventSubscriber
 {
     public function __construct(private AuditReader $auditReader)
     {
     }
 
+    /**
+     * NEXT_MAJOR: remove this method.
+     */
     public function getSubscribedEvents(): array
     {
         return [Events::onClear];
