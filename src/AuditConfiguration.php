@@ -26,7 +26,7 @@ class AuditConfiguration
      */
     private array $auditedEntityClasses = [];
 
-    private bool $withForeignKeys = true;
+    private bool $disableForeignKeys = false;
 
     /**
      * @var string[]
@@ -81,14 +81,14 @@ class AuditConfiguration
         return $this->getTablePrefix().$tableName.$this->getTableSuffix();
     }
 
-    public function getWithForeignKeys(): bool
+    public function isDisabledForeignKeys(): bool
     {
-        return $this->withForeignKeys;
+        return $this->disableForeignKeys;
     }
 
-    public function setWithForeignKeys(bool $withForeignKeys): void
+    public function setDisabledForeignKeys(bool $disabled): void
     {
-        $this->withForeignKeys = $withForeignKeys;
+        $this->disableForeignKeys = $disabled;
     }
 
     /**

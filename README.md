@@ -113,7 +113,7 @@ simple_things_entity_audit:
 If there is no need to create foreign keys for any reason, you can specify the corresponding parameter:
 ```yaml
 simple_things_entity_audit:
-    with_foreign_keys: false
+    disable_foreign_keys: true
 ```
 
 ### Creating new tables

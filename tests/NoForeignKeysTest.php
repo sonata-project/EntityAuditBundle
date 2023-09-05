@@ -71,7 +71,7 @@ final class NoForeignKeysTest extends BaseTest
 
         $auditConfig = AuditConfiguration::forEntities($this->auditedEntities);
         $auditConfig->setGlobalIgnoreColumns(['ignoreme']);
-        $auditConfig->setWithForeignKeys(false);
+        $auditConfig->setDisabledForeignKeys(true);
         $auditConfig->setUsernameCallable(static fn (): string => 'beberlei');
 
         $this->auditManager = new AuditManager($auditConfig, $this->getClock());
