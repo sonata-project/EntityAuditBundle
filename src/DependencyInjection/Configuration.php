@@ -54,6 +54,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('revision_field_name')->defaultValue('rev')->end()
                 ->scalarNode('revision_type_field_name')->defaultValue('revtype')->end()
                 ->scalarNode('revision_table_name')->defaultValue('revisions')->end()
+                ->scalarNode('with_foreign_keys')->defaultValue('default')->end()
                 ->scalarNode('revision_id_field_type')
                     ->defaultValue(Types::INTEGER)
                     // NEXT_MAJOR: Use enumNode() instead.

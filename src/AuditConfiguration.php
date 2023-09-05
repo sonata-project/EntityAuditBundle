@@ -26,6 +26,8 @@ class AuditConfiguration
      */
     private array $auditedEntityClasses = [];
 
+    private bool $withForeignKeys = true;
+
     /**
      * @var string[]
      */
@@ -77,6 +79,16 @@ class AuditConfiguration
         }
 
         return $this->getTablePrefix().$tableName.$this->getTableSuffix();
+    }
+
+    public function getWithForeignKeys(): bool
+    {
+        return $this->withForeignKeys;
+    }
+
+    public function setWithForeignKeys(bool $withForeignKeys): void
+    {
+        $this->withForeignKeys = $withForeignKeys;
     }
 
     /**
