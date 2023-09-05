@@ -110,6 +110,12 @@ simple_things_entity_audit:
     entity_manager: custom
 ```
 
+If there is no need to create foreign keys for any reason, you can specify the corresponding parameter:
+```yaml
+simple_things_entity_audit:
+    with_foreign_keys: false
+```
+
 ### Creating new tables
 
 Call the command below to see the new tables in the update schema queue.
