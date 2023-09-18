@@ -119,7 +119,7 @@ class CreateSchemaListener implements EventSubscriber
             }
         }
 
-        if (!$this->config->isDisabledForeignKeys()) {
+        if (!$this->config->areForeignKeysDisabled()) {
             $this->createForeignKeys($revisionTable, $revisionsTable);
         }
     }

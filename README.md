@@ -110,7 +110,7 @@ simple_things_entity_audit:
     entity_manager: custom
 ```
 
-If there is no need to create foreign keys for any reason, you can specify the corresponding parameter:
+If you need to explicitly discard the foreign keys inferred from the audited entities, you can use the `disable_foreign_keys` parameter:
 ```yaml
 simple_things_entity_audit:
     disable_foreign_keys: true

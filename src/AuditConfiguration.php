@@ -81,7 +81,7 @@ class AuditConfiguration
         return $this->getTablePrefix().$tableName.$this->getTableSuffix();
     }
 
-    public function isDisabledForeignKeys(): bool
+    public function areForeignKeysDisabled(): bool
     {
         return $this->disableForeignKeys;
     }
