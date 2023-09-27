@@ -119,17 +119,9 @@ class CreateSchemaListener implements EventSubscriber
             }
         }
 
-        $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_fk';
-        $primaryKey = $revisionsTable->getPrimaryKey();
-        \assert(null !== $primaryKey);
-
-        $revisionTable->addForeignKeyConstraint(
-            $revisionsTable,
-            [$this->config->getRevisionFieldName()],
-            $primaryKey->getColumns(),
-            [],
-            $revisionForeignKeyName
-        );
+        if (!$this->config->areForeignKeysDisabled()) {
+            $this->createForeignKeys($revisionTable, $revisionsTable);
+        }
     }
 
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs): void
@@ -140,6 +132,21 @@ class CreateSchemaListener implements EventSubscriber
         foreach ($this->defferedJoinTablesToCreate as $defferedJoinTableToCreate) {
             $this->createRevisionJoinTableForJoinTable($schema, $defferedJoinTableToCreate);
         }
+    }
+
+    private function createForeignKeys(Table $relatedTable, Table $revisionsTable): void
+    {
+        $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($relatedTable->getName()).'_fk';
+        $primaryKey = $revisionsTable->getPrimaryKey();
+        \assert(null !== $primaryKey);
+
+        $relatedTable->addForeignKeyConstraint(
+            $revisionsTable,
+            [$this->config->getRevisionFieldName()],
+            $primaryKey->getColumns(),
+            [],
+            $revisionForeignKeyName
+        );
     }
 
     /**

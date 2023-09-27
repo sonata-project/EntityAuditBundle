@@ -110,6 +110,12 @@ simple_things_entity_audit:
     entity_manager: custom
 ```
 
+If you need to explicitly discard the foreign keys inferred from the audited entities, you can use the `disable_foreign_keys` parameter:
+```yaml
+simple_things_entity_audit:
+    disable_foreign_keys: true
+```
+
 ### Creating new tables
 
 Call the command below to see the new tables in the update schema queue.

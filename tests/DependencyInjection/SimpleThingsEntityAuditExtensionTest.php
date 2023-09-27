@@ -61,6 +61,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionIdFieldType', ['%simplethings.entityaudit.revision_id_field_type%']);
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionFieldName', ['%simplethings.entityaudit.revision_field_name%']);
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setRevisionTypeFieldName', ['%simplethings.entityaudit.revision_type_field_name%']);
+        $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setDisabledForeignKeys', ['%simplethings.entityaudit.disable_foreign_keys%']);
         $this->assertContainerBuilderHasServiceDefinitionWithMethodCall('simplethings_entityaudit.config', 'setUsernameCallable', ['simplethings_entityaudit.username_callable']);
     }
 
@@ -102,6 +103,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'rev');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'revtype');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', Types::INTEGER);
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.disable_foreign_keys', false);
     }
 
     public function testItSetsConfiguredParameters(): void
@@ -117,6 +119,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
             'revision_id_field_type' => Types::GUID,
             'revision_field_name' => 'revision',
             'revision_type_field_name' => 'action',
+            'disable_foreign_keys' => false,
         ]);
 
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.connection', 'my_custom_connection');
@@ -129,6 +132,7 @@ final class SimpleThingsEntityAuditExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_id_field_type', Types::GUID);
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_field_name', 'revision');
         $this->assertContainerBuilderHasParameter('simplethings.entityaudit.revision_type_field_name', 'action');
+        $this->assertContainerBuilderHasParameter('simplethings.entityaudit.disable_foreign_keys', false);
 
         foreach ([Events::onFlush, Events::postPersist, Events::postUpdate, Events::postFlush, Events::onClear] as $event) {
             $this->assertContainerBuilderHasServiceDefinitionWithTag('simplethings_entityaudit.log_revisions_listener', 'doctrine.event_listener', ['event' => $event, 'connection' => 'my_custom_connection']);

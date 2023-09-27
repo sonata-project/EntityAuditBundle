@@ -47,7 +47,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
         ->set('simplethings.entityaudit.revision_table_name', null)
 
-        ->set('simplethings.entityaudit.revision_id_field_type', null);
+        ->set('simplethings.entityaudit.revision_id_field_type', null)
+
+        ->set('simplethings.entityaudit.disable_foreign_keys', null);
 
     $containerConfigurator->services()
         ->set('simplethings_entityaudit.manager', AuditManager::class)
@@ -119,6 +121,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->set('simplethings_entityaudit.config', AuditConfiguration::class)
             ->public()
             ->call('setAuditedEntityClasses', [param('simplethings.entityaudit.audited_entities')])
+            ->call('setDisabledForeignKeys', [param('simplethings.entityaudit.disable_foreign_keys')])
             ->call('setGlobalIgnoreColumns', [param('simplethings.entityaudit.global_ignore_columns')])
             ->call('setTablePrefix', [param('simplethings.entityaudit.table_prefix')])
             ->call('setTableSuffix', [param('simplethings.entityaudit.table_suffix')])
