@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.15.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.14.1...1.15.0) - 2023-09-28
+### Added
+- [[#587](https://github.com/sonata-project/EntityAuditBundle/pull/587)] Added the `disable_foreign_keys` parameter, which disables the creation of foreign keys. ([@SavageDays](https://github.com/SavageDays))
+
 ## [1.14.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.14.0...1.14.1) - 2023-08-06
 ### Fixed
 - [[#583](https://github.com/sonata-project/EntityAuditBundle/pull/583)] Deprecation of Event Subscribers on Symfony 6.3. They now uses Event Listeners ([@Hanmac](https://github.com/Hanmac))
