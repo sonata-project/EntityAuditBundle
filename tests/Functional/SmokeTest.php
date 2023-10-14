@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 final class SmokeTest extends WebTestCase
 {
     /**
-     * @dataProvider provideUrls
+     * @dataProvider provideSuccessfulResponsesCases
      */
     public function testSuccessfulResponses(string $url): void
     {
@@ -34,7 +34,7 @@ final class SmokeTest extends WebTestCase
     /**
      * @return iterable<array{string}>
      */
-    public function provideUrls(): iterable
+    public function provideSuccessfulResponsesCases(): iterable
     {
         yield 'index' => ['/audit'];
         yield 'view revision' => ['/audit/viewrev/1'];
