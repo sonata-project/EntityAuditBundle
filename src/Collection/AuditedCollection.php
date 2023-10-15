@@ -15,7 +15,6 @@ namespace SimpleThings\EntityAudit\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ReadableCollection;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
@@ -295,7 +294,6 @@ class AuditedCollection implements Collection
      *
      * @phpstan-param \Closure(T, int|string):bool $p
      * @psalm-param \Closure(T=):bool $p
-     * @phpstan-return ReadableCollection<TKey, T>
      * @psalm-return Collection<TKey, T>
      */
     #[\ReturnTypeWillChange]
@@ -324,8 +322,9 @@ class AuditedCollection implements Collection
      *
      * @phpstan-template U
      * @phpstan-param \Closure(T):U $func
-     * @phpstan-return ReadableCollection<TKey, U>
      * @psalm-return Collection<TKey, U>
+     *
+     * @psalm-suppress ImplementedParamTypeMismatch,InvalidArgument
      */
     #[\ReturnTypeWillChange]
     public function map(\Closure $func)
@@ -339,7 +338,6 @@ class AuditedCollection implements Collection
      * @return array<Collection<TKey, T>>
      *
      * @phpstan-param \Closure(TKey, T):bool $p
-     * @phpstan-return array{0: ReadableCollection<TKey, T>, 1: ReadableCollection<TKey, T>}
      * @psalm-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
      */
     #[\ReturnTypeWillChange]

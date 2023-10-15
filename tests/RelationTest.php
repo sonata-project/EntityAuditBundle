@@ -928,9 +928,9 @@ final class RelationTest extends BaseTest
             $ids[] = $ownedElement->getId();
         }
 
-        static::assertTrue(\in_array($ownedOne->getId(), $ids, true));
-        static::assertTrue(\in_array($ownedThree->getId(), $ids, true));
-        static::assertTrue(\in_array($ownedFour->getId(), $ids, true));
+        static::assertContains($ownedOne->getId(), $ids);
+        static::assertContains($ownedThree->getId(), $ids);
+        static::assertContains($ownedFour->getId(), $ids);
     }
 
     public function testOneToOneEdgeCase(): void
