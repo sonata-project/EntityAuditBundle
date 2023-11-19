@@ -13,7 +13,7 @@
         "doctrine/collections": "^1.8 || ^2.0",
         "doctrine/dbal": "^3.4",
         "doctrine/event-manager": "^1.2 || ^2.0",
-        "doctrine/orm": "^2.14",
+        "doctrine/orm": "^2.14 || ^3.0",
         "doctrine/persistence": "^3.0",
         "psr/clock": "^1.0",
         "symfony/config": "^5.4 || ^6.2 || ^7.0",
