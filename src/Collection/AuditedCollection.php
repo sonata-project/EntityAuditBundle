@@ -15,7 +15,7 @@ namespace SimpleThings\EntityAudit\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
@@ -64,13 +64,13 @@ class AuditedCollection implements Collection
      * @param string|int           $revision
      *
      * @phpstan-param class-string<T> $class
-     * @phpstan-param ClassMetadataInfo<T> $metadata
+     * @phpstan-param ClassMetadata<T> $metadata
      */
     public function __construct(
         protected AuditReader $auditReader,
         protected $class,
-        protected ClassMetadataInfo $metadata,
-        protected array $associationDefinition,
+        protected ClassMetadata $metadata,
+        protected $associationDefinition,
         protected array $foreignKeys,
         protected $revision
     ) {
