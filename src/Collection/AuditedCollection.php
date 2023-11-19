@@ -15,6 +15,7 @@ namespace SimpleThings\EntityAudit\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\AssociationMapping;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
@@ -70,7 +71,7 @@ class AuditedCollection implements Collection
         protected AuditReader $auditReader,
         protected $class,
         protected ClassMetadata $metadata,
-        protected $associationDefinition,
+        protected array|AssociationMapping $associationDefinition,
         protected array $foreignKeys,
         protected $revision
     ) {

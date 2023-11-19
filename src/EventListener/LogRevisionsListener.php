@@ -24,6 +24,7 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\Mapping\AssociationMapping;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
@@ -451,12 +452,15 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param ClassMetadata<object> $class
-     * @param ClassMetadata<object> $targetClass
-     * @param array<string, mixed>  $assoc
+     * @param ClassMetadata<object>                   $class
+     * @param ClassMetadata<object>                   $targetClass
+     * @param array<string, mixed>|AssociationMapping $assoc
      */
-    private function getInsertJoinTableRevisionSQL(ClassMetadata $class, ClassMetadata $targetClass, array $assoc): string
-    {
+    private function getInsertJoinTableRevisionSQL(
+        ClassMetadata $class,
+        ClassMetadata $targetClass,
+        array|AssociationMapping $assoc
+    ): string {
         $cacheKey = $class->name.'.'.$targetClass->name;
         if (!isset($this->insertJoinTableRevisionSQL[$cacheKey])
             && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'], $assoc['joinTable']['name'])) {
@@ -608,13 +612,20 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param array<string, mixed>  $assoc
-     * @param array<string, mixed>  $entityData
-     * @param ClassMetadata<object> $class
-     * @param ClassMetadata<object> $targetClass
+     * @param array<string, mixed>|AssociationMapping $assoc
+     * @param array<string, mixed>                    $entityData
+     * @param ClassMetadata<object>                   $class
+     * @param ClassMetadata<object>                   $targetClass
      */
-    private function recordRevisionForManyToManyEntity(object $relatedEntity, EntityManagerInterface $em, string $revType, array $entityData, array $assoc, ClassMetadata $class, ClassMetadata $targetClass): void
-    {
+    private function recordRevisionForManyToManyEntity(
+        object $relatedEntity,
+        EntityManagerInterface $em,
+        string $revType,
+        array $entityData,
+        array|AssociationMapping $assoc,
+        ClassMetadata $class,
+        ClassMetadata $targetClass
+    ): void {
         $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];
         $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
