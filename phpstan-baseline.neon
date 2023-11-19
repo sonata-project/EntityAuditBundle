@@ -3,3 +3,9 @@ parameters:
         # The class "AuditController" is deprecated and extends a class that is only supported in "symfony/http-foundation" < 5.
         # NEXT_MAJOR: Remove these files
         - src/Controller/AuditController.php
+    ignoreErrors:
+        # For compatibility with doctrine/orm 2 and 3
+        - '#.+ has invalid type Doctrine\\ORM\\Mapping\\AssociationMapping\.$#'
+        - '#^Property SimpleThings\\EntityAudit\\Collection\\AuditedCollection\:\:\$associationDefinition has unknown class Doctrine\\ORM\\Mapping\\AssociationMapping as its type\.$#'
+        - '#^Cannot access offset ''relationToSourceKey…'' on array\<string, mixed\>\|Doctrine\\ORM\\Mapping\\AssociationMapping\.$#'
+        - '#^Cannot access offset ''relationToTargetKey…'' on array\<string, mixed\>\|Doctrine\\ORM\\Mapping\\AssociationMapping\.$#'
