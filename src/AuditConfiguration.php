@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class AuditConfiguration
@@ -66,11 +66,11 @@ class AuditConfiguration
     }
 
     /**
-     * @param ClassMetadataInfo<object> $metadata
+     * @param ClassMetadata<object> $metadata
      *
      * @return string
      */
-    public function getTableName(ClassMetadataInfo $metadata)
+    public function getTableName(ClassMetadata $metadata)
     {
         $tableName = $metadata->getTableName();
 
