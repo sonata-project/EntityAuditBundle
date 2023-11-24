@@ -19,7 +19,7 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
@@ -95,7 +95,7 @@ class CreateSchemaListener implements EventSubscriber
         }
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
         $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), Types::STRING, ['length' => 4]);
-        if (!\in_array($cm->inheritanceType, [ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
+        if (!\in_array($cm->inheritanceType, [ClassMetadata::INHERITANCE_TYPE_NONE, ClassMetadata::INHERITANCE_TYPE_JOINED, ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
             throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
 

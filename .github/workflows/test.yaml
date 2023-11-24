@@ -37,6 +37,7 @@ jobs:
                 allowed-to-fail: [false]
                 symfony-require: ['']
                 variant: [normal]
+                stability: [stable]
                 include:
                     - php-version: '8.0'
                       dependencies: lowest
@@ -57,6 +58,11 @@ jobs:
                       allowed-to-fail: false
                       symfony-require: 6.3.*
                       variant: symfony/symfony:"6.3.*"
+                    - php-version: '8.2'
+                      dependencies: highest
+                      allowed-to-fail: true
+                      symfony-require: normal
+                      stability: dev
 
         steps:
             - name: Checkout
@@ -67,16 +73,14 @@ jobs:
               with:
                   php-version: ${{ matrix.php-version }}
                   coverage: pcov
-                  tools: composer:v2
+                  tools: composer:v2, flex
 
             - name: Add PHPUnit matcher
               run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-            - name: Globally install symfony/flex
-              if: matrix.symfony-require != ''
-              run: |
-                  composer global config --no-plugins allow-plugins.symfony/flex true
-                  composer global require --no-progress --no-scripts --no-plugins symfony/flex
+            - name: Use dev stability
+              if: matrix.stability == 'dev'
+              run: composer config prefer-stable false
 
             - name: Install variant
               if: matrix.variant != 'normal' && !startsWith(matrix.variant, 'symfony/symfony')
