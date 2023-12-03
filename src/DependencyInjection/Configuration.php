@@ -31,10 +31,8 @@ class Configuration implements ConfigurationInterface
      * @psalm-suppress PossiblyNullReference, UndefinedInterfaceMethod
      *
      * @see https://github.com/psalm/psalm-plugin-symfony/issues/174
-     *
-     * @return TreeBuilder
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $builder = new TreeBuilder('simple_things_entity_audit');
         $rootNode = $builder->getRootNode();
