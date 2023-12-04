@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.16.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.15.0...1.16.0) - 2023-12-04
+### Added
+- [[#592](https://github.com/sonata-project/EntityAuditBundle/pull/592)] Support for Symfony 7 ([@VincentLanglet](https://github.com/VincentLanglet))
+
 ## [1.15.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.14.1...1.15.0) - 2023-09-28
 ### Added
 - [[#587](https://github.com/sonata-project/EntityAuditBundle/pull/587)] Added the `disable_foreign_keys` parameter, which disables the creation of foreign keys. ([@SavageDays](https://github.com/SavageDays))
