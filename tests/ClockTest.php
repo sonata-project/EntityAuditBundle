@@ -47,7 +47,7 @@ final class ClockTest extends BaseTest
         static::assertSame($this->getFixedTime()->format('Y-m-d H:i:s'), $revisions[0]->getTimestamp()->format('Y-m-d H:i:s'));
     }
 
-    protected function getClock(): ?ClockInterface
+    protected function getClock(): ClockInterface
     {
         return new class($this->getFixedTime()) implements ClockInterface {
             public function __construct(private \DateTimeImmutable $now)
