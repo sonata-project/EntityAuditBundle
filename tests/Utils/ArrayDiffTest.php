@@ -16,7 +16,7 @@ namespace Sonata\EntityAuditBundle\Tests\Utils;
 use PHPUnit\Framework\TestCase;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
 
-class ArrayDiffTest extends TestCase
+final class ArrayDiffTest extends TestCase
 {
     public function testDiff(): void
     {
