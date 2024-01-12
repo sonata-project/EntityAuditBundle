@@ -37,7 +37,9 @@ class ArrayDiff
             $old = \array_key_exists($field, $oldData) ? $oldData[$field] : null;
             $new = \array_key_exists($field, $newData) ? $newData[$field] : null;
 
-            if ($old === $new) {
+            // If the values are objects, we will compare them by their properties.
+            // This is necessary because the strict comparison operator (===) will return false if the objects are not the same instance.
+            if ((\is_object($old) && \is_object($new) && $this->compareObjects($old, $new)) || ($old === $new)) {
                 $row = ['old' => '', 'new' => '', 'same' => $old];
             } else {
                 $row = ['old' => $old, 'new' => $new, 'same' => ''];
@@ -47,5 +49,40 @@ class ArrayDiff
         }
 
         return $diff;
+    }
+
+    /**
+     * Compare the type and the property values of two objects.
+     * Return true if they are the same, false otherwise.
+     * If the type is the same and all properties are the same, this will return true, even if they are not the same instance.
+     */
+    public function compareObjects(object $object1, object $object2): bool
+    {
+        // Check if the objects are of the same type.
+        $obj1Class = $object1::class;
+        $obj2Class = $object2::class;
+        if ($obj1Class !== $obj2Class) {
+            return false;
+        }
+
+        // Check if all properties are the same.
+        $obj1Properties = (array) $object1;
+        $obj2Properties = (array) $object2;
+        foreach ($obj1Properties as $key => $value) {
+            if (!\array_key_exists($key, $obj2Properties)) {
+                return false;
+            }
+            if (\is_object($value) && \is_object($obj2Properties[$key])) {
+                if (!$this->compareObjects($value, $obj2Properties[$key])) {
+                    return false;
+                }
+                continue;
+            }
+            if ($value !== $obj2Properties[$key]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
