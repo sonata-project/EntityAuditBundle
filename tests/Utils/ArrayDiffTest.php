@@ -74,6 +74,22 @@ final class ArrayDiffTest extends TestCase
         static::assertSame($expected, $result);
     }
 
+    public function testDiffDateSameButTimezoneDifferent(): void
+    {
+        $diff = new ArrayDiff();
+
+        $dateInstance1 = new \DateTimeImmutable('2014-01-01 00:00:00.000000', new \DateTimeZone('Europe/Luxembourg'));
+        $dateInstance2 = new \DateTimeImmutable('2014-01-01 00:00:00.000000', new \DateTimeZone('UTC'));
+
+        $array1 = ['date' => $dateInstance1];
+        $array2 = ['date' => $dateInstance2];
+        $expected = ['date' => ['old' => $dateInstance1, 'new' => $dateInstance2, 'same' => '']];
+
+        $result = $diff->diff($array1, $array2);
+
+        static::assertSame($expected, $result);
+    }
+
     public function testDiffObjectSame(): void
     {
         $diff = new ArrayDiff();
