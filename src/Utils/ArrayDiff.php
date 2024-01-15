@@ -55,8 +55,10 @@ class ArrayDiff
      * Compare the type and the property values of two objects.
      * Return true if they are the same, false otherwise.
      * If the type is the same and all properties are the same, this will return true, even if they are not the same instance.
+     * This method is different from comparing two objects using ==,
+     * because internally the strict comparison operator (===) is used to compare the properties.
      *
-     * @see https://www.php.net/manual/en/language.oop5.object-comparison.php.
+     * @see https://www.php.net/manual/en/language.oop5.object-comparison.php
      */
     private function compareObjects(object $object1, object $object2): bool
     {
