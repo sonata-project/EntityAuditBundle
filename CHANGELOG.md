@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.16.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.16.0...1.16.1) - 2024-01-22
+### Fixed
+- [[#599](https://github.com/sonata-project/EntityAuditBundle/pull/599)] Objects now no longer show as different when their values are the same. This restores some of the old behaviour of the EntityAuditBundle ([@befresh-mweimerskirch](https://github.com/befresh-mweimerskirch))
+
 ## [1.16.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.15.0...1.16.0) - 2023-12-04
 ### Added
 - [[#592](https://github.com/sonata-project/EntityAuditBundle/pull/592)] Support for Symfony 7 ([@VincentLanglet](https://github.com/VincentLanglet))
