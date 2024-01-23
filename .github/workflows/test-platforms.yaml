@@ -37,7 +37,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - '8.2'
+                    - '8.3'
                 mysql-version:
                     - '5.7'
                     - '8.0'
@@ -46,7 +46,7 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Install PHP with extensions
               uses: shivammathur/setup-php@v2
@@ -90,7 +90,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - '8.2'
+                    - '8.3'
                 postgres-version:
                     - '13'
                     - '14'
@@ -100,7 +100,7 @@ jobs:
 
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             - name: Install PHP with extensions
               uses: shivammathur/setup-php@v2
