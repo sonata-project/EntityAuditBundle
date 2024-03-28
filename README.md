@@ -116,6 +116,12 @@ simple_things_entity_audit:
     disable_foreign_keys: true
 ```
 
+If you want to disable auditing for object relations, you can use the `disable_associations` parameter:
+```yaml
+simple_things_entity_audit:
+    disable_associations: true
+```
+
 ### Creating new tables
 
 Call the command below to see the new tables in the update schema queue.
@@ -290,5 +296,5 @@ This provides you with a few different routes:
 ## TODOS
 
 * Currently only works with auto-increment databases
-* Proper metadata mapping is necessary, allow to disable versioning for fields and associations.
+* Proper metadata mapping is necessary, allow to disable versioning for fields.
 * It does NOT work with Joined-Table-Inheritance (Single Table Inheritance should work, but not tested)

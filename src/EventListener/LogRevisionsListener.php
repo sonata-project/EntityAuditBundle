@@ -186,6 +186,10 @@ class LogRevisionsListener implements EventSubscriber
             }
         }
 
+        if ($this->config->areAssociationsDisabled()) {
+            return;
+        }
+
         foreach ($this->deferredChangedManyToManyEntityRevisionsToPersist as $deferredChangedManyToManyEntityRevisionToPersist) {
             $this->recordRevisionForManyToManyEntity(
                 $deferredChangedManyToManyEntityRevisionToPersist->getEntity(),
@@ -534,7 +538,7 @@ class LogRevisionsListener implements EventSubscriber
                             $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
                         }
                     }
-                } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0
+                } elseif (!$this->config->areAssociationsDisabled() && ($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0
                     && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'])) {
                     $targetClass = $em->getClassMetadata($assoc['targetEntity']);
 
@@ -608,13 +612,18 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param array<string, mixed>  $assoc
-     * @param array<string, mixed>  $entityData
+     * @param array<string, mixed> $assoc
+     * @param array<string, mixed> $entityData
      * @param ClassMetadata<object> $class
      * @param ClassMetadata<object> $targetClass
+     * @throws Exception
      */
     private function recordRevisionForManyToManyEntity(object $relatedEntity, EntityManagerInterface $em, string $revType, array $entityData, array $assoc, ClassMetadata $class, ClassMetadata $targetClass): void
     {
+        if ($this->config->areAssociationsDisabled()) {
+            throw new \RuntimeException('This method is unreachable because option "disable_associations" is enabled.');
+        }
+
         $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];
         $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
