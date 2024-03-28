@@ -107,6 +107,14 @@ class CreateSchemaListener implements EventSubscriber
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
 
+        if (!$this->config->areForeignKeysDisabled()) {
+            $this->createForeignKeys($revisionTable, $revisionsTable);
+        }
+
+        if ($this->config->areAssociationsDisabled()) {
+            return;
+        }
+
         foreach ($cm->associationMappings as $associationMapping) {
             if ($associationMapping['isOwningSide'] && isset($associationMapping['joinTable'])) {
                 if (isset($associationMapping['joinTable']['name'])) {
@@ -117,10 +125,6 @@ class CreateSchemaListener implements EventSubscriber
                     }
                 }
             }
-        }
-
-        if (!$this->config->areForeignKeysDisabled()) {
-            $this->createForeignKeys($revisionTable, $revisionsTable);
         }
     }
 

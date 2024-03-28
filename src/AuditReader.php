@@ -214,7 +214,7 @@ class AuditReader
                 $columnName = $idKeys[0];
             } elseif (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
-            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+            } elseif (!$this->config->areAssociationsDisabled() && isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 throw new \RuntimeException('column name not found  for'.$idField);
@@ -249,23 +249,25 @@ class AuditReader
             $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
         }
 
-        foreach ($classMetadata->associationMappings as $assoc) {
-            if (
-                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
-                || false === $assoc['isOwningSide']
-                || !isset($assoc['joinColumnFieldNames'])
-            ) {
-                continue;
-            }
+        if (!$this->getConfiguration()->areAssociationsDisabled()) {
+            foreach ($classMetadata->associationMappings as $assoc) {
+                if (
+                    ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+                    || false === $assoc['isOwningSide']
+                    || !isset($assoc['joinColumnFieldNames'])
+                ) {
+                    continue;
+                }
 
-            foreach ($assoc['joinColumnFieldNames'] as $sourceCol) {
-                $tableAlias = $classMetadata->isInheritanceTypeJoined()
+                foreach ($assoc['joinColumnFieldNames'] as $sourceCol) {
+                    $tableAlias = $classMetadata->isInheritanceTypeJoined()
                     && $classMetadata->isInheritedAssociation($assoc['fieldName'])
                     && !$classMetadata->isIdentifier($assoc['fieldName'])
                         ? 're' // root entity
                         : 'e';
-                $columnList[] = $tableAlias.'.'.$sourceCol;
-                $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
+                    $columnList[] = $tableAlias . '.' . $sourceCol;
+                    $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
+                }
             }
         }
 
@@ -423,15 +425,17 @@ class AuditReader
                 $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
             }
 
-            foreach ($classMetadata->associationMappings as $assoc) {
-                if (
-                    ($assoc['type'] & ClassMetadata::TO_ONE) > 0
-                    && true === $assoc['isOwningSide']
-                    && isset($assoc['targetToSourceKeyColumns'])
-                ) {
-                    foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                        $columnList .= ', '.$sourceCol;
-                        $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
+            if (!$this->config->areAssociationsDisabled()) {
+                foreach ($classMetadata->associationMappings as $assoc) {
+                    if (
+                        ($assoc['type'] & ClassMetadata::TO_ONE) > 0
+                        && true === $assoc['isOwningSide']
+                        && isset($assoc['targetToSourceKeyColumns'])
+                    ) {
+                        foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                            $columnList .= ', ' . $sourceCol;
+                            $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
+                        }
                     }
                 }
             }
@@ -544,7 +548,7 @@ class AuditReader
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
-            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+            } elseif (!$this->config->areAssociationsDisabled() && isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
@@ -606,7 +610,7 @@ class AuditReader
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
-            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+            } elseif (!$this->config->areAssociationsDisabled()  && isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
@@ -720,7 +724,7 @@ class AuditReader
         foreach ($classMetadata->identifier as $idField) {
             if (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
-            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+            } elseif (!$this->config->areAssociationsDisabled() && isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 continue;
@@ -742,18 +746,20 @@ class AuditReader
             $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
         }
 
-        foreach ($classMetadata->associationMappings as $assoc) {
-            if (
-                ($assoc['type'] & ClassMetadata::TO_ONE) === 0
-                || false === $assoc['isOwningSide']
-                || !isset($assoc['targetToSourceKeyColumns'])
-            ) {
-                continue;
-            }
+        if (!$this->config->areAssociationsDisabled()) {
+            foreach ($classMetadata->associationMappings as $assoc) {
+                if (
+                    ($assoc['type'] & ClassMetadata::TO_ONE) === 0
+                    || false === $assoc['isOwningSide']
+                    || !isset($assoc['targetToSourceKeyColumns'])
+                ) {
+                    continue;
+                }
 
-            foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                $columnList[] = $sourceCol;
-                $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
+                foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                    $columnList[] = $sourceCol;
+                    $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
+                }
             }
         }
 
@@ -885,6 +891,10 @@ class AuditReader
                 \assert(null !== $reflField);
                 $reflField->setValue($entity, $value);
             }
+        }
+
+        if ($this->config->areAssociationsDisabled()) {
+            return $entity;
         }
 
         foreach ($classMetadata->associationMappings as $field => $assoc) {
