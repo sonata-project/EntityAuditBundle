@@ -115,6 +115,9 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
+            $sql = 'UPDATE '.$this->config->getTableName($meta).' ';
+            $params = $types = [];
+
             foreach ($updateData[$meta->table['name']] as $column => $value) {
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
@@ -128,13 +131,15 @@ class LogRevisionsListener implements EventSubscriber
                     }
                 }
 
-                $sql = 'UPDATE '.$this->config->getTableName($meta).' '.
-                    'SET '.$field.' = '.$placeholder.' '.
-                    'WHERE '.$this->config->getRevisionFieldName().' = ? ';
+                if ($column === array_key_first($updateData[$meta->table['name']])) {
+                    $sql .= 'SET ';
+                } else {
+                    $sql = trim($sql).', ';
+                }
 
-                $params = [$value, $this->getRevisionId($conn)];
+                $sql .= $field.' = '.$placeholder.' ';
 
-                $types = [];
+                $params[] = $value;
 
                 if (\array_key_exists($column, $meta->fieldNames)) {
                     $types[] = $meta->getTypeOfField($fieldName);
@@ -161,29 +166,31 @@ class LogRevisionsListener implements EventSubscriber
 
                     $types[] = $type;
                 }
+            }
 
-                $types[] = $this->config->getRevisionIdFieldType();
+            $sql .= 'WHERE '.$this->config->getRevisionFieldName().' = ? ';
+            $params[] = $this->getRevisionId($conn);
+            $types[] = $this->config->getRevisionIdFieldType();
 
-                foreach ($meta->identifier as $idField) {
-                    if (isset($meta->fieldMappings[$idField])) {
-                        $columnName = $meta->fieldMappings[$idField]['columnName'];
-                        $types[] = $meta->fieldMappings[$idField]['type'];
-                    } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
-                        $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
-                        $types[] = $meta->associationMappings[$idField]['type'];
-                    } else {
-                        throw new \RuntimeException('column name not found  for'.$idField);
-                    }
-
-                    $reflField = $meta->reflFields[$idField];
-                    \assert(null !== $reflField);
-                    $params[] = $reflField->getValue($entity);
-
-                    $sql .= ' AND '.$columnName.' = ?';
+            foreach ($meta->identifier as $idField) {
+                if (isset($meta->fieldMappings[$idField])) {
+                    $columnName = $meta->fieldMappings[$idField]['columnName'];
+                    $types[] = $meta->fieldMappings[$idField]['type'];
+                } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
+                    $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
+                    $types[] = $meta->associationMappings[$idField]['type'];
+                } else {
+                    throw new \RuntimeException('column name not found  for'.$idField);
                 }
 
-                $em->getConnection()->executeQuery($sql, $params, $types);
+                $reflField = $meta->reflFields[$idField];
+                \assert(null !== $reflField);
+                $params[] = $reflField->getValue($entity);
+
+                $sql .= ' AND '.$columnName.' = ?';
             }
+
+            $em->getConnection()->executeQuery($sql, $params, $types);
         }
 
         foreach ($this->deferredChangedManyToManyEntityRevisionsToPersist as $deferredChangedManyToManyEntityRevisionToPersist) {
