@@ -28,6 +28,7 @@ class MetadataFactory
     public function __construct(array $auditedEntities)
     {
         // NEXT_MAJOR: Remove array_filter call.
+        // @phpstan-ignore-next-line
         $this->auditedEntities = array_flip(array_filter($auditedEntities));
     }
 

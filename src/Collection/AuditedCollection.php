@@ -161,6 +161,7 @@ class AuditedCollection implements Collection
      *
      * @return object
      *
+     * @phpstan-param TKey $key
      * @phpstan-return T
      */
     #[\ReturnTypeWillChange]
