@@ -74,6 +74,7 @@ class AuditConfiguration
      * @param ClassMetadataInfo<object> $metadata
      *
      * @return string
+     *
      * @phpstan-return literal-string
      *
      * @psalm-suppress MoreSpecificReturnType,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10910
@@ -103,6 +104,7 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
      * @phpstan-return literal-string
      */
     public function getTablePrefix()
@@ -112,6 +114,7 @@ class AuditConfiguration
 
     /**
      * @param string $prefix
+     *
      * @phpstan-param literal-string $prefix
      */
     public function setTablePrefix($prefix): void
@@ -121,6 +124,7 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
      * @phpstan-return literal-string
      */
     public function getTableSuffix()
@@ -130,6 +134,7 @@ class AuditConfiguration
 
     /**
      * @param string $suffix
+     *
      * @phpstan-param literal-string $suffix
      */
     public function setTableSuffix($suffix): void
@@ -139,6 +144,7 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
      * @phpstan-return literal-string
      */
     public function getRevisionFieldName()
@@ -148,6 +154,7 @@ class AuditConfiguration
 
     /**
      * @param string $revisionFieldName
+     *
      * @phpstan-param literal-string $revisionFieldName
      */
     public function setRevisionFieldName($revisionFieldName): void
@@ -157,6 +164,7 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
      * @phpstan-return literal-string
      */
     public function getRevisionTypeFieldName()
@@ -166,6 +174,7 @@ class AuditConfiguration
 
     /**
      * @param string $revisionTypeFieldName
+     *
      * @phpstan-param literal-string $revisionTypeFieldName
      */
     public function setRevisionTypeFieldName($revisionTypeFieldName): void
@@ -175,6 +184,7 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
      * @phpstan-return literal-string
      */
     public function getRevisionTableName()
@@ -184,6 +194,7 @@ class AuditConfiguration
 
     /**
      * @param string $revisionTableName
+     *
      * @phpstan-param literal-string $revisionTableName
      */
     public function setRevisionTableName($revisionTableName): void

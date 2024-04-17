@@ -393,9 +393,9 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @param ClassMetadata<object> $class
      *
-     * @return literal-string
-     *
      * @throws Exception
+     *
+     * @return literal-string
      *
      * @psalm-suppress MoreSpecificReturnType,PropertyTypeCoercion,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10909
      */
