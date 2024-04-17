@@ -40,7 +40,7 @@ class ManyToManyMultipleRelationshipEntity
      */
     #[ORM\ManyToMany(targetEntity: ManyToManyMultipleTargetEntity::class)]
     #[ORM\JoinTable(name: 'many_to_many_primary_target')]
-    protected $primaryTargets = [];
+    protected $primaryTargets;
 
     /**
      * @var Collection<int, ManyToManyMultipleTargetEntity>
@@ -54,7 +54,6 @@ class ManyToManyMultipleRelationshipEntity
         $this->primaryTargets = new ArrayCollection();
         $this->secondaryTargets = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -71,7 +70,10 @@ class ManyToManyMultipleRelationshipEntity
         $this->title = $title;
     }
 
-    public function getPrimaryTargets(): ArrayCollection|Collection|array
+    /**
+     * @return Collection<int, ManyToManyMultipleTargetEntity>
+     */
+    public function getPrimaryTargets(): Collection
     {
         return $this->primaryTargets;
     }
@@ -81,7 +83,10 @@ class ManyToManyMultipleRelationshipEntity
         $this->primaryTargets[] = $target;
     }
 
-    public function getSecondaryTargets(): ArrayCollection|Collection
+    /**
+     * @return Collection<int, ManyToManyMultipleTargetEntity>
+     */
+    public function getSecondaryTargets(): Collection
     {
         return $this->secondaryTargets;
     }

@@ -716,11 +716,14 @@ class AuditReader
             $id = [$classMetadata->identifier[0] => $id];
         }
 
+        /** @phpstan-var array<literal-string> $whereId */
         $whereId = [];
         foreach ($classMetadata->identifier as $idField) {
             if (isset($classMetadata->fieldMappings[$idField])) {
+                /** @phpstan-var literal-string $columnName */
                 $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+                /** @phpstan-var literal-string $columnName */
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 continue;
@@ -735,10 +738,14 @@ class AuditReader
 
         foreach ($classMetadata->fieldNames as $columnName => $field) {
             $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
-            $columnList[] = $type->convertToPHPValueSQL(
+            /** @phpstan-var literal-string $sqlExpr */
+            $sqlExpr = $type->convertToPHPValueSQL(
                 $this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
                 $this->platform
-            ).' AS '.$this->platform->quoteSingleIdentifier($field);
+            );
+            /** @phpstan-var literal-string $quotedField */
+            $quotedField = $this->platform->quoteSingleIdentifier($field);
+            $columnList[] = $sqlExpr.' AS '.$quotedField;
             $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
         }
 
@@ -751,6 +758,7 @@ class AuditReader
                 continue;
             }
 
+            /** @phpstan-var literal-string $sourceCol */
             foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                 $columnList[] = $sourceCol;
                 $columnMap[$sourceCol] = $this->getSQLResultCasing($this->platform, $sourceCol);
@@ -759,13 +767,11 @@ class AuditReader
 
         $values = array_values($id);
 
-        $query = sprintf(
-            'SELECT %s FROM %s e WHERE %s ORDER BY e.%s DESC',
-            implode(', ', $columnList),
-            $tableName,
-            $whereSQL,
-            $this->config->getRevisionFieldName()
-        );
+        $query =
+            'SELECT '.implode(', ', $columnList)
+            .' FROM '.$tableName.' e'
+            .' WHERE '.$whereSQL
+            .' ORDER BY e.'.$this->config->getRevisionFieldName().' DESC';
 
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 

@@ -47,14 +47,14 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @var string[]
      *
-     * @phpstan-var array<string, string>
+     * @phpstan-var array<string, literal-string>
      */
     private array $insertRevisionSQL = [];
 
     /**
      * @var string[]
      *
-     * @phpstan-var array<string, string>
+     * @phpstan-var array<string, literal-string>
      */
     private array $insertJoinTableRevisionSQL = [];
 
@@ -115,29 +115,32 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
-            $sql = 'UPDATE '.$this->config->getTableName($meta).' ';
+            $sql = 'UPDATE '.$this->config->getTableName($meta);
             $params = $types = [];
 
             foreach ($updateData[$meta->table['name']] as $column => $value) {
+                /** @phpstan-var literal-string $field */
                 $field = $meta->getFieldName($column);
                 $fieldName = $meta->getFieldForColumn($column);
                 $placeholder = '?';
                 if ($meta->hasField($fieldName)) {
+                    /** @phpstan-var literal-string $field */
                     $field = $quoteStrategy->getColumnName($field, $meta, $platform);
                     $fieldType = $meta->getTypeOfField($field);
                     if (null !== $fieldType) {
                         $type = Type::getType($fieldType);
+                        /** @phpstan-var literal-string $placeholder */
                         $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
                     }
                 }
 
                 if ($column === array_key_first($updateData[$meta->table['name']])) {
-                    $sql .= 'SET ';
+                    $sql .= ' SET';
                 } else {
-                    $sql = trim($sql).', ';
+                    $sql .= ',';
                 }
 
-                $sql .= $field.' = '.$placeholder.' ';
+                $sql .= ' '.$field.' = '.$placeholder;
 
                 $params[] = $value;
 
@@ -168,15 +171,17 @@ class LogRevisionsListener implements EventSubscriber
                 }
             }
 
-            $sql .= 'WHERE '.$this->config->getRevisionFieldName().' = ? ';
+            $sql .= ' WHERE '.$this->config->getRevisionFieldName().' = ?';
             $params[] = $this->getRevisionId($conn);
             $types[] = $this->config->getRevisionIdFieldType();
 
             foreach ($meta->identifier as $idField) {
                 if (isset($meta->fieldMappings[$idField])) {
+                    /** @phpstan-var literal-string $columnName */
                     $columnName = $meta->fieldMappings[$idField]['columnName'];
                     $types[] = $meta->fieldMappings[$idField]['type'];
                 } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
+                    /** @phpstan-var literal-string $columnName */
                     $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
                     $types[] = $meta->associationMappings[$idField]['type'];
                 } else {
@@ -388,7 +393,11 @@ class LogRevisionsListener implements EventSubscriber
     /**
      * @param ClassMetadata<object> $class
      *
+     * @return literal-string
+     *
      * @throws Exception
+     *
+     * @psalm-suppress MoreSpecificReturnType,PropertyTypeCoercion,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10909
      */
     private function getInsertRevisionSQL(EntityManagerInterface $em, ClassMetadata $class): string
     {
@@ -411,6 +420,7 @@ class LogRevisionsListener implements EventSubscriber
                     && true === $assoc['isOwningSide']
                     && isset($assoc['targetToSourceKeyColumns'])
                 ) {
+                    /** @phpstan-var literal-string $sourceCol */
                     foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;
@@ -433,10 +443,18 @@ class LogRevisionsListener implements EventSubscriber
 
                 $platform = $em->getConnection()->getDatabasePlatform();
                 $type = Type::getType($class->fieldMappings[$field]['type']);
-                $placeholders[] = true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)
-                    ? $type->convertToDatabaseValueSQL('?', $platform)
-                    : '?';
-                $sql .= ', '.$em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform);
+
+                if (true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)) {
+                    /** @phpstan-var literal-string $placeholder */
+                    $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
+                    $placeholders[] = $placeholder;
+                } else {
+                    $placeholders[] = '?';
+                }
+
+                /** @phpstan-var literal-string $columnName */
+                $columnName = $em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform);
+                $sql .= ', '.$columnName;
             }
 
             if (
@@ -446,11 +464,14 @@ class LogRevisionsListener implements EventSubscriber
                 )
                 && null !== $class->discriminatorColumn
             ) {
-                $sql .= ', '.$class->discriminatorColumn['name'];
+                /** @var literal-string $discriminatorColumnName */
+                $discriminatorColumnName = $class->discriminatorColumn['name'];
+                $sql .= ', '.$discriminatorColumnName;
                 $placeholders[] = '?';
             }
 
             $sql .= ') VALUES ('.implode(', ', $placeholders).')';
+
             $this->insertRevisionSQL[$class->name] = $sql;
         }
 
@@ -461,38 +482,43 @@ class LogRevisionsListener implements EventSubscriber
      * @param ClassMetadata<object> $class
      * @param ClassMetadata<object> $targetClass
      * @param array<string, mixed>  $assoc
+     *
+     * @return literal-string
+     *
+     * @psalm-suppress MoreSpecificReturnType,PropertyTypeCoercion,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10909
      */
     private function getInsertJoinTableRevisionSQL(ClassMetadata $class, ClassMetadata $targetClass, array $assoc): string
     {
         $cacheKey = $class->name.'.'.$targetClass->name.'.'.$assoc['joinTable']['name'];
 
-        if (!isset($this->insertJoinTableRevisionSQL[$cacheKey])
-            && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'], $assoc['joinTable']['name'])) {
+        if (
+            !isset($this->insertJoinTableRevisionSQL[$cacheKey])
+            && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'], $assoc['joinTable']['name'])
+        ) {
             $placeholders = ['?', '?'];
 
-            $tableName = $this->config->getTablePrefix().$assoc['joinTable']['name'].$this->config->getTableSuffix();
+            /** @phpstan-var literal-string $joinTableName */
+            $joinTableName = $assoc['joinTable']['name'];
+            $tableName = $this->config->getTablePrefix().$joinTableName.$this->config->getTableSuffix();
 
-            $sql = sprintf(
-                'INSERT INTO %s (%s, %s',
-                $tableName,
-                $this->config->getRevisionFieldName(),
-                $this->config->getRevisionTypeFieldName()
-            );
+            /** @psalm-trace $sql */
+            $sql = 'INSERT INTO '.$tableName
+                .' ('.$this->config->getRevisionFieldName().
+                ', '.$this->config->getRevisionTypeFieldName();
 
-            $fields = [];
-
+            /** @phpstan-var literal-string $sourceColumn */
             foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
-                $fields[$sourceColumn] = true;
                 $sql .= ', '.$sourceColumn;
                 $placeholders[] = '?';
             }
+            /** @phpstan-var literal-string $sourceColumn */
             foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                $fields[$sourceColumn] = true;
                 $sql .= ', '.$sourceColumn;
                 $placeholders[] = '?';
             }
 
             $sql .= ') VALUES ('.implode(', ', $placeholders).')';
+
             $this->insertJoinTableRevisionSQL[$cacheKey] = $sql;
         }
 
