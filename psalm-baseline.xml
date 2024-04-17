@@ -6,21 +6,4 @@
             <code>Controller</code>
         </UndefinedClass>
     </file>
-    <file src="tests/BaseTest.php">
-        <ArgumentTypeCoercion>
-            <code><![CDATA[$value]]></code>
-            <code><![CDATA[$value]]></code>
-        </ArgumentTypeCoercion>
-    </file>
-    <file src="tests/CoreTest.php">
-        <InvalidArgument>
-            <code><![CDATA[ProfileAudit::class]]></code>
-            <code><![CDATA[UserAudit::class]]></code>
-        </InvalidArgument>
-    </file>
-    <file src="tests/Issue/Issue318Test.php">
-        <ArgumentTypeCoercion>
-            <code><![CDATA[$user::class]]></code>
-        </ArgumentTypeCoercion>
-    </file>
 </files>

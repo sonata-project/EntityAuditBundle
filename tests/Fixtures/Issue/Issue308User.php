@@ -64,11 +64,9 @@ class Issue308User
      */
     public function getChildren(): ReadableCollection
     {
-        $activeChildren = $this->children->filter(
+        return $this->children->filter(
             static fn (self $user): bool => $user->isActive()
         );
-
-        return $activeChildren;
     }
 
     public function getParent(): ?self

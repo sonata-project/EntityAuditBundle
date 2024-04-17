@@ -10,7 +10,6 @@
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
         <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
-        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
     </plugins>
     <issueHandlers>
         <!-- Psalm equivalent of PHPStan config `treatPhpDocTypesAsCertain: false` -->

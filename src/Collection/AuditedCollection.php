@@ -80,7 +80,7 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @return true
+     * @return void
      */
     #[\ReturnTypeWillChange]
     public function add(mixed $element)
@@ -293,9 +293,8 @@ class AuditedCollection implements Collection
     /**
      * @return Collection<TKey, T>
      *
-     * @phpstan-param \Closure(T, int|string):bool $p
-     * @psalm-param \Closure(T=):bool $p
-     * @psalm-return Collection<TKey, T>
+     * @phpstan-param \Closure(T, TKey):bool $p
+     * @phpstan-return Collection<TKey, T>
      */
     #[\ReturnTypeWillChange]
     public function filter(\Closure $p)
@@ -323,9 +322,7 @@ class AuditedCollection implements Collection
      *
      * @phpstan-template U
      * @phpstan-param \Closure(T):U $func
-     * @psalm-return Collection<TKey, U>
-     *
-     * @psalm-suppress ImplementedParamTypeMismatch,InvalidArgument
+     * @phpstan-return Collection<TKey, U>
      */
     #[\ReturnTypeWillChange]
     public function map(\Closure $func)
@@ -339,7 +336,7 @@ class AuditedCollection implements Collection
      * @return array<Collection<TKey, T>>
      *
      * @phpstan-param \Closure(TKey, T):bool $p
-     * @psalm-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
+     * @phpstan-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
      */
     #[\ReturnTypeWillChange]
     public function partition(\Closure $p)
@@ -454,7 +451,6 @@ class AuditedCollection implements Collection
      * @return T|null
      *
      * @phpstan-return T|null
-     * @psalm-return mixed|null
      */
     #[\ReturnTypeWillChange]
     public function findFirst(\Closure $p)
