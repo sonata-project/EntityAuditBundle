@@ -47,8 +47,7 @@
         "symfony/security-bundle": "^5.4 || ^6.2 || ^7.0",
         "symfony/twig-bundle": "^5.4 || ^6.2 || ^7.0",
         "symfony/var-dumper": "^5.4 || ^6.2 || ^7.0",
-        "vimeo/psalm": "^5.7",
-        "weirdan/doctrine-psalm-plugin": "^2.8"
+        "vimeo/psalm": "^5.7"
     },
     "conflict": {
         "doctrine/doctrine-bundle": "<2.7",

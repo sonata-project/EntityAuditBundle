@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.17.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.17.0...1.17.1) - 2024-04-17
+### Fixed
+- [[#617](https://github.com/sonata-project/EntityAuditBundle/pull/617)] Fix getting table name when the table schema is an empty string ([@X-Coder264](https://github.com/X-Coder264))
+- [[#615](https://github.com/sonata-project/EntityAuditBundle/pull/615)] Allow multiple relationships to the same target entity. ([@mikeyudin](https://github.com/mikeyudin))
+
 ## [1.17.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.16.1...1.17.0) - 2024-04-13
 ### Changed
 - [[#612](https://github.com/sonata-project/EntityAuditBundle/pull/612)] Multiple queries to tables have been replaced with a single one ([@SavageDays](https://github.com/SavageDays))

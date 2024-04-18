@@ -33,14 +33,19 @@ class AuditConfiguration
      */
     private array $globalIgnoreColumns = [];
 
+    /** @phpstan-var literal-string  */
     private string $tablePrefix = '';
 
+    /** @phpstan-var literal-string */
     private string $tableSuffix = '_audit';
 
+    /** @phpstan-var literal-string */
     private string $revisionTableName = 'revisions';
 
+    /** @phpstan-var literal-string */
     private string $revisionFieldName = 'rev';
 
+    /** @phpstan-var literal-string */
     private string $revisionTypeFieldName = 'revtype';
 
     private string $revisionIdFieldType = Types::INTEGER;
@@ -69,13 +74,19 @@ class AuditConfiguration
      * @param ClassMetadataInfo<object> $metadata
      *
      * @return string
+     *
+     * @phpstan-return literal-string
+     *
+     * @psalm-suppress MoreSpecificReturnType,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10910
      */
     public function getTableName(ClassMetadataInfo $metadata)
     {
+        /** @var literal-string $tableName */
         $tableName = $metadata->getTableName();
-
-        if (null !== $metadata->getSchemaName()) {
-            $tableName = $metadata->getSchemaName().'.'.$tableName;
+        /** @var literal-string|null $schemaName */
+        $schemaName = $metadata->getSchemaName();
+        if (null !== $schemaName && '' !== $schemaName) {
+            $tableName = $schemaName.'.'.$tableName;
         }
 
         return $this->getTablePrefix().$tableName.$this->getTableSuffix();
@@ -93,6 +104,8 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
+     * @phpstan-return literal-string
      */
     public function getTablePrefix()
     {
@@ -101,6 +114,8 @@ class AuditConfiguration
 
     /**
      * @param string $prefix
+     *
+     * @phpstan-param literal-string $prefix
      */
     public function setTablePrefix($prefix): void
     {
@@ -109,6 +124,8 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
+     * @phpstan-return literal-string
      */
     public function getTableSuffix()
     {
@@ -117,6 +134,8 @@ class AuditConfiguration
 
     /**
      * @param string $suffix
+     *
+     * @phpstan-param literal-string $suffix
      */
     public function setTableSuffix($suffix): void
     {
@@ -125,6 +144,8 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
+     * @phpstan-return literal-string
      */
     public function getRevisionFieldName()
     {
@@ -133,6 +154,8 @@ class AuditConfiguration
 
     /**
      * @param string $revisionFieldName
+     *
+     * @phpstan-param literal-string $revisionFieldName
      */
     public function setRevisionFieldName($revisionFieldName): void
     {
@@ -141,6 +164,8 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
+     * @phpstan-return literal-string
      */
     public function getRevisionTypeFieldName()
     {
@@ -149,6 +174,8 @@ class AuditConfiguration
 
     /**
      * @param string $revisionTypeFieldName
+     *
+     * @phpstan-param literal-string $revisionTypeFieldName
      */
     public function setRevisionTypeFieldName($revisionTypeFieldName): void
     {
@@ -157,6 +184,8 @@ class AuditConfiguration
 
     /**
      * @return string
+     *
+     * @phpstan-return literal-string
      */
     public function getRevisionTableName()
     {
@@ -165,6 +194,8 @@ class AuditConfiguration
 
     /**
      * @param string $revisionTableName
+     *
+     * @phpstan-param literal-string $revisionTableName
      */
     public function setRevisionTableName($revisionTableName): void
     {

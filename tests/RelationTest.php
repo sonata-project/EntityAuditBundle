@@ -22,6 +22,8 @@ use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DataContainerEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DataLegalEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DataPrivateEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\FoodCategory;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\ManyToManyMultipleRelationshipEntity;
+use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\ManyToManyMultipleTargetEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneAuditedEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneMasterEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\OneToOneNotAuditedEntity;
@@ -65,6 +67,8 @@ final class RelationTest extends BaseTest
         DataLegalEntity::class,
         DataPrivateEntity::class,
         DataContainerEntity::class,
+        ManyToManyMultipleRelationshipEntity::class,
+        ManyToManyMultipleTargetEntity::class,
     ];
 
     protected $auditedEntities = [
@@ -87,6 +91,8 @@ final class RelationTest extends BaseTest
         DataLegalEntity::class,
         DataPrivateEntity::class,
         DataContainerEntity::class,
+        ManyToManyMultipleRelationshipEntity::class,
+        ManyToManyMultipleTargetEntity::class,
     ];
 
     public function testUndefinedIndexesInUOWForRelations(): void
@@ -356,6 +362,43 @@ final class RelationTest extends BaseTest
         // checking the getOwnedInverse returns a collection of current owned4 entities
         static::assertInstanceOf(Collection::class, $audited->getOwnedInverse());
         static::assertCount(1, $audited->getOwnedInverse());
+    }
+
+    public function testManyToManyMultipleRelationshipSameTargetEntity(): void
+    {
+        $em = $this->getEntityManager();
+        $auditReader = $this->getAuditManager()->createAuditReader($em);
+
+        // create an entity that has multiple many-to-many relationships to the same target entity.
+
+        $targetOne = new ManyToManyMultipleTargetEntity();
+        $targetTwo = new ManyToManyMultipleTargetEntity();
+
+        $manyToMany = new ManyToManyMultipleRelationshipEntity();
+        $manyToMany->setTitle('manyToMany#1');
+        $manyToMany->addPrimaryTarget($targetOne);
+        $manyToMany->addSecondaryTarget($targetTwo);
+
+        $em->persist($targetOne);
+        $em->persist($targetTwo);
+        $em->persist($manyToMany);
+
+        $em->flush(); // #1
+
+        $manyToManyId = $manyToMany->getId();
+        static::assertNotNull($manyToManyId);
+
+        $audited = $auditReader->find(ManyToManyMultipleRelationshipEntity::class, $manyToManyId, 1);
+
+        static::assertNotNull($audited);
+
+        // ensure that there is an audited entry for the primaryTargets property
+        static::assertInstanceOf(Collection::class, $audited->getPrimaryTargets());
+        static::assertCount(1, $audited->getPrimaryTargets());
+
+        // ensure that there is an audited entry for the secondaryTargets property
+        static::assertInstanceOf(Collection::class, $audited->getSecondaryTargets());
+        static::assertCount(1, $audited->getSecondaryTargets());
     }
 
     /**
