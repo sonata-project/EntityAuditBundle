@@ -550,7 +550,7 @@ class LogRevisionsListener implements EventSubscriber
                     $data = $entityData[$field] ?? null;
                     $relatedId = [];
 
-                    if (null !== $data && $uow->isInIdentityMap($data)) {
+                    if (\is_object($data) && $uow->isInIdentityMap($data)) {
                         $relatedId = $uow->getEntityIdentifier($data);
                     }
 
@@ -744,7 +744,7 @@ class LogRevisionsListener implements EventSubscriber
 
             $newValId = null;
 
-            if (null !== $newVal) {
+            if (\is_object($newVal)) {
                 if (!$uow->isInIdentityMap($newVal)) {
                     continue;
                 }
