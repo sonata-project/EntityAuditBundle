@@ -297,8 +297,6 @@ class AuditedCollection implements Collection
      *
      * @phpstan-param \Closure(T, TKey):bool $p
      * @phpstan-return Collection<TKey, T>
-     *
-     * @psalm-suppress MoreSpecificImplementedParamType https://github.com/doctrine/collections/pull/411
      */
     #[\ReturnTypeWillChange]
     public function filter(\Closure $p)
@@ -341,8 +339,6 @@ class AuditedCollection implements Collection
      *
      * @phpstan-param \Closure(TKey, T):bool $p
      * @phpstan-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
-     *
-     * @psalm-suppress MoreSpecificImplementedParamType https://github.com/doctrine/collections/pull/411
      */
     #[\ReturnTypeWillChange]
     public function partition(\Closure $p)
