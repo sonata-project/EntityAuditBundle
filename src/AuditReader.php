@@ -31,10 +31,12 @@ use SimpleThings\EntityAudit\Exception\NoRevisionFoundException;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 use SimpleThings\EntityAudit\Utils\ArrayDiff;
+use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 use SimpleThings\EntityAudit\Utils\SQLResultCasing;
 
 class AuditReader
 {
+    use ORMCompatibilityTrait;
     use SQLResultCasing;
 
     private AbstractPlatform $platform;
@@ -213,7 +215,7 @@ class AuditReader
                 $idKeys = array_keys($id);
                 $columnName = $idKeys[0];
             } elseif (isset($classMetadata->fieldMappings[$idField])) {
-                $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
+                $columnName = self::getMappingValue($classMetadata->fieldMappings[$idField], 'columnName');
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
@@ -237,7 +239,7 @@ class AuditReader
                     ? 're' // root entity
                     : 'e';
 
-            $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
+            $type = Type::getType(self::getMappingValue($classMetadata->fieldMappings[$field], 'type'));
             $columnList[] = sprintf(
                 '%s AS %s',
                 $type->convertToPHPValueSQL(
@@ -286,7 +288,7 @@ class AuditReader
             !$classMetadata->isInheritanceTypeNone()
             && null !== $classMetadata->discriminatorColumn
         ) {
-            $columnList[] = $classMetadata->discriminatorColumn['name'];
+            $columnList[] = self::getMappingValue($classMetadata->discriminatorColumn, 'name');
             if ($classMetadata->isInheritanceTypeSingleTable()
                 && null !== $classMetadata->discriminatorValue) {
                 // Support for single table inheritance sub-classes
@@ -298,7 +300,7 @@ class AuditReader
 
                 $whereSQL .= sprintf(
                     ' AND %s IN (%s)',
-                    $classMetadata->discriminatorColumn['name'],
+                    self::getMappingValue($classMetadata->discriminatorColumn, 'name'),
                     implode(', ', $queriedDiscrValues)
                 );
             }
@@ -410,7 +412,7 @@ class AuditReader
             $columnMap = [];
 
             foreach ($classMetadata->fieldNames as $columnName => $field) {
-                $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
+                $type = Type::getType(self::getMappingValue($classMetadata->fieldMappings[$field], 'type'));
                 $tableAlias = $classMetadata->isInheritanceTypeJoined()
                     && $classMetadata->isInheritedField($field)
                     && !$classMetadata->isIdentifier($field)
@@ -441,15 +443,15 @@ class AuditReader
                 $classMetadata->isInheritanceTypeSingleTable()
                 && null !== $classMetadata->discriminatorColumn
             ) {
-                $columnList .= ', e.'.$classMetadata->discriminatorColumn['name'];
-                $whereSQL .= ' AND e.'.$classMetadata->discriminatorColumn['fieldName'].' = ?';
+                $columnList .= ', e.'.self::getMappingValue($classMetadata->discriminatorColumn, 'name');
+                $whereSQL .= ' AND e.'.self::getMappingValue($classMetadata->discriminatorColumn, 'fieldName').' = ?';
                 $params[] = $classMetadata->discriminatorValue;
             } elseif (
                 $classMetadata->isInheritanceTypeJoined()
                 && $classMetadata->rootEntityName !== $classMetadata->name
                 && null !== $classMetadata->discriminatorColumn
             ) {
-                $columnList .= ', re.'.$classMetadata->discriminatorColumn['name'];
+                $columnList .= ', re.'.self::getMappingValue($classMetadata->discriminatorColumn, 'name');
 
                 $rootClass = $this->em->getClassMetadata($classMetadata->rootEntityName);
                 $rootTableName = $this->config->getTableName($rootClass);
@@ -543,7 +545,7 @@ class AuditReader
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
+                $whereSQL .= 'e.'.self::getMappingValue($classMetadata->fieldMappings[$idField], 'columnName').' = ?';
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
@@ -605,12 +607,12 @@ class AuditReader
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$classMetadata->fieldMappings[$idField]['columnName'].' = ?';
+                $whereSQL .= 'e.'.self::getMappingValue($classMetadata->fieldMappings[$idField], 'columnName').' = ?';
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }
-                $whereSQL .= 'e.'.$classMetadata->associationMappings[$idField]['joinColumns'][0]['name'].' = ?';
+                $whereSQL .= 'e.'.self::getMappingValue($classMetadata->associationMappings[$idField]['joinColumns'][0], 'name').' = ?';
             }
         }
 
@@ -721,10 +723,10 @@ class AuditReader
         foreach ($classMetadata->identifier as $idField) {
             if (isset($classMetadata->fieldMappings[$idField])) {
                 /** @phpstan-var literal-string $columnName */
-                $columnName = $classMetadata->fieldMappings[$idField]['columnName'];
+                $columnName = self::getMappingValue($classMetadata->fieldMappings[$idField], 'columnName');
             } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 /** @phpstan-var literal-string $columnName */
-                $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
+                $columnName = self::getMappingValue($classMetadata->associationMappings[$idField]['joinColumns'][0], 'name');
             } else {
                 continue;
             }
@@ -737,7 +739,7 @@ class AuditReader
         $columnMap = [];
 
         foreach ($classMetadata->fieldNames as $columnName => $field) {
-            $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
+            $type = Type::getType(self::getMappingValue($classMetadata->fieldMappings[$field], 'type'));
             /** @phpstan-var literal-string $sqlExpr */
             $sqlExpr = $type->convertToPHPValueSQL(
                 $this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
@@ -845,10 +847,7 @@ class AuditReader
             !$classMetadata->isInheritanceTypeNone()
             && null !== $classMetadata->discriminatorColumn
         ) {
-            if (!isset($data[$classMetadata->discriminatorColumn['name']])) {
-                throw new \RuntimeException('Expecting discriminator value in data set.');
-            }
-            $discriminator = $data[$classMetadata->discriminatorColumn['name']];
+            $discriminator = $data[self::getMappingValue($classMetadata->discriminatorColumn, 'name')];
             if (!isset($classMetadata->discriminatorMap[$discriminator])) {
                 throw new \RuntimeException("No mapping found for [{$discriminator}].");
             }
@@ -884,7 +883,7 @@ class AuditReader
 
         foreach ($data as $field => $value) {
             if (isset($classMetadata->fieldMappings[$field])) {
-                $type = Type::getType($classMetadata->fieldMappings[$field]['type']);
+                $type = Type::getType(self::getMappingValue($classMetadata->fieldMappings[$field], 'type'));
                 $value = $type->convertToPHPValue($value, $this->platform);
 
                 $reflField = $classMetadata->reflFields[$field];
@@ -963,7 +962,7 @@ class AuditReader
                                 $joinColumnValue = $data[$columnMap[$srcColumn]] ?? null;
                                 if (null !== $joinColumnValue) {
                                     $targetField = $targetClass->fieldNames[$targetColumn];
-                                    $joinColumnType = Type::getType($targetClass->fieldMappings[$targetField]['type']);
+                                    $joinColumnType = Type::getType(self::getMappingValue($targetClass->fieldMappings[$targetField], 'type'));
                                     $joinColumnValue = $joinColumnType->convertToPHPValue(
                                         $joinColumnValue,
                                         $this->platform
@@ -1031,14 +1030,10 @@ class AuditReader
                 \assert(null !== $reflField);
                 $reflField->setValue($entity, $collection);
             } elseif (0 !== ($assoc['type'] & ClassMetadata::MANY_TO_MANY)) {
-                if ($assoc['isOwningSide'] && isset(
-                    $assoc['relationToSourceKeyColumns'],
-                    $assoc['relationToTargetKeyColumns'],
-                    $assoc['joinTable']['name']
-                )) {
+                if (self::isManyToManyOwningSideMapping($assoc)) {
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
                     $values = [$revision];
-                    foreach ($assoc['relationToSourceKeyColumns'] as $sourceKeyJoinColumn => $sourceKeyColumn) {
+                    foreach (self::getMappingValue($assoc, 'relationToSourceKeyColumns') as $sourceKeyJoinColumn => $sourceKeyColumn) {
                         $whereId[] = "{$sourceKeyJoinColumn} = ?";
 
                         $reflField = $classMetadata->reflFields['id'];
@@ -1053,10 +1048,10 @@ class AuditReader
                         $this->config->getRevisionTypeFieldName(),
                     ];
                     $tableName = $this->config->getTablePrefix()
-                        .$assoc['joinTable']['name']
+                        .self::getJoinTableName($assoc)
                         .$this->config->getTableSuffix();
 
-                    foreach ($assoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
+                    foreach (self::getMappingValue($assoc, 'relationToTargetKeyColumns') as $targetKeyJoinColumn => $targetKeyColumn) {
                         $columnList[] = $targetKeyJoinColumn;
                     }
 
@@ -1078,7 +1073,7 @@ class AuditReader
                                 $id = [];
 
                                 /** @phpstan-var string $targetKeyColumn */
-                                foreach ($assoc['relationToTargetKeyColumns'] as $targetKeyJoinColumn => $targetKeyColumn) {
+                                foreach (self::getMappingValue($assoc, 'relationToTargetKeyColumns') as $targetKeyJoinColumn => $targetKeyColumn) {
                                     $joinKey = $row[$targetKeyJoinColumn];
                                     $id[$targetKeyColumn] = $joinKey;
                                 }

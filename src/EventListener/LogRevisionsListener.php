@@ -24,8 +24,8 @@ use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\AssociationMapping;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\Utility\PersisterHelper;
@@ -35,12 +35,15 @@ use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\DeferredChangedManyToManyEntityRevisionToPersist;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 
 /**
  * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
  */
 class LogRevisionsListener implements EventSubscriber
 {
+    use ORMCompatibilityTrait;
+
     private AuditConfiguration $config;
 
     private MetadataFactory $metadataFactory;
@@ -154,11 +157,11 @@ class LogRevisionsListener implements EventSubscriber
                     foreach ($meta->associationMappings as $mapping) {
                         if (isset($mapping['joinColumns'])) {
                             foreach ($mapping['joinColumns'] as $definition) {
-                                if ($definition['name'] === $column) {
+                                if (self::getMappingValue($definition, 'name') === $column) {
                                     /** @var class-string $targetEntity */
                                     $targetEntity = $mapping['targetEntity'];
                                     $targetTable = $em->getClassMetadata($targetEntity);
-                                    $type = $targetTable->getTypeOfField($targetTable->getFieldForColumn($definition['referencedColumnName']));
+                                    $type = $targetTable->getTypeOfField($targetTable->getFieldForColumn(self::getMappingValue($definition, 'referencedColumnName')));
                                 }
                             }
                         }
@@ -179,11 +182,11 @@ class LogRevisionsListener implements EventSubscriber
             foreach ($meta->identifier as $idField) {
                 if (isset($meta->fieldMappings[$idField])) {
                     /** @phpstan-var literal-string $columnName */
-                    $columnName = $meta->fieldMappings[$idField]['columnName'];
-                    $types[] = $meta->fieldMappings[$idField]['type'];
+                    $columnName = self::getMappingValue($meta->fieldMappings[$idField], 'columnName');
+                    $types[] = self::getMappingValue($meta->fieldMappings[$idField], 'type');
                 } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
                     /** @phpstan-var literal-string $columnName */
-                    $columnName = $meta->associationMappings[$idField]['joinColumns'][0]['name'];
+                    $columnName = self::getMappingValue($meta->associationMappings[$idField]['joinColumns'][0], 'name');
                     $types[] = $meta->associationMappings[$idField]['type'];
                 } else {
                     throw new \RuntimeException('column name not found  for'.$idField);
@@ -350,7 +353,7 @@ class LogRevisionsListener implements EventSubscriber
         $data = [];
         $class = $em->getClassMetadata($entity::class);
         foreach ($class->associationMappings as $field => $assoc) {
-            if (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0 && $assoc['isOwningSide']) {
+            if (self::isManyToManyOwningSideMapping($assoc)) {
                 $reflField = $class->reflFields[$field];
                 \assert(null !== $reflField);
                 $data[$field] = $reflField->getValue($entity);
@@ -416,13 +419,9 @@ class LogRevisionsListener implements EventSubscriber
                     continue;
                 }
 
-                if (
-                    ($assoc['type'] & ClassMetadata::TO_ONE) > 0
-                    && true === $assoc['isOwningSide']
-                    && isset($assoc['targetToSourceKeyColumns'])
-                ) {
+                if (self::isToOneOwningSide($assoc)) {
                     /** @phpstan-var literal-string $sourceCol */
-                    foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
+                    foreach (self::getMappingValue($assoc, 'targetToSourceKeyColumns') as $sourceCol) {
                         $fields[$sourceCol] = true;
                         $sql .= ', '.$sourceCol;
                         $placeholders[] = '?';
@@ -443,15 +442,11 @@ class LogRevisionsListener implements EventSubscriber
                 }
 
                 $platform = $em->getConnection()->getDatabasePlatform();
-                $type = Type::getType($class->fieldMappings[$field]['type']);
+                $type = Type::getType(self::getMappingValue($class->fieldMappings[$field], 'type'));
 
-                if (true === ($class->fieldMappings[$field]['requireSQLConversion'] ?? false)) {
-                    /** @phpstan-var literal-string $placeholder */
-                    $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
-                    $placeholders[] = $placeholder;
-                } else {
-                    $placeholders[] = '?';
-                }
+                /** @phpstan-var literal-string $placeholder */
+                $placeholder = $type->convertToDatabaseValueSQL('?', $platform);
+                $placeholders[] = $placeholder;
 
                 /** @phpstan-var literal-string $columnName */
                 $columnName = $em->getConfiguration()->getQuoteStrategy()->getColumnName($field, $class, $platform);
@@ -466,7 +461,7 @@ class LogRevisionsListener implements EventSubscriber
                 && null !== $class->discriminatorColumn
             ) {
                 /** @var literal-string $discriminatorColumnName */
-                $discriminatorColumnName = $class->discriminatorColumn['name'];
+                $discriminatorColumnName = self::getMappingValue($class->discriminatorColumn, 'name');
                 $sql .= ', '.$discriminatorColumnName;
                 $placeholders[] = '?';
             }
@@ -480,9 +475,9 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param ClassMetadata<object> $class
-     * @param ClassMetadata<object> $targetClass
-     * @param array<string, mixed>|AssociationMapping $assoc
+     * @param ClassMetadata<object>                            $class
+     * @param ClassMetadata<object>                            $targetClass
+     * @param array<string, mixed>|ManyToManyOwningSideMapping $assoc
      *
      * @return literal-string
      *
@@ -491,18 +486,17 @@ class LogRevisionsListener implements EventSubscriber
     private function getInsertJoinTableRevisionSQL(
         ClassMetadata $class,
         ClassMetadata $targetClass,
-        array|AssociationMapping $assoc
+        /* @phpstan-ignore-next-line */
+        array|ManyToManyOwningSideMapping $assoc
     ): string {
-        $cacheKey = $class->name.'.'.$targetClass->name.'.'.$assoc['joinTable']['name'];
+        $joinTableName = self::getJoinTableName($assoc);
+        $cacheKey = $class->name.'.'.$targetClass->name.'.'.$joinTableName;
 
         if (
             !isset($this->insertJoinTableRevisionSQL[$cacheKey])
-            && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'], $assoc['joinTable']['name'])
         ) {
             $placeholders = ['?', '?'];
 
-            /** @phpstan-var literal-string $joinTableName */
-            $joinTableName = $assoc['joinTable']['name'];
             $tableName = $this->config->getTablePrefix().$joinTableName.$this->config->getTableSuffix();
 
             /** @psalm-trace $sql */
@@ -510,13 +504,22 @@ class LogRevisionsListener implements EventSubscriber
                 .' ('.$this->config->getRevisionFieldName().
                 ', '.$this->config->getRevisionTypeFieldName();
 
-            /** @phpstan-var literal-string $sourceColumn */
-            foreach ($assoc['relationToSourceKeyColumns'] as $sourceColumn => $targetColumn) {
+            /**
+             * @phpstan-var literal-string $sourceColumn
+             *
+             * @phpstan-ignore argument.type
+             */
+            foreach (self::getMappingValue($assoc, 'relationToSourceKeyColumns') as $sourceColumn => $targetColumn) {
                 $sql .= ', '.$sourceColumn;
                 $placeholders[] = '?';
             }
-            /** @phpstan-var literal-string $sourceColumn */
-            foreach ($assoc['relationToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
+
+            /**
+             * @phpstan-var literal-string $sourceColumn
+             *
+             * @phpstan-ignore argument.type
+             */
+            foreach (self::getMappingValue($assoc, 'relationToTargetKeyColumns') as $sourceColumn => $targetColumn) {
                 $sql .= ', '.$sourceColumn;
                 $placeholders[] = '?';
             }
@@ -605,7 +608,7 @@ class LogRevisionsListener implements EventSubscriber
             }
 
             $params[] = $entityData[$field] ?? null;
-            $types[] = $class->fieldMappings[$field]['type'];
+            $types[] = self::getMappingValue($class->fieldMappings[$field], 'type');
         }
 
         if (
@@ -613,24 +616,25 @@ class LogRevisionsListener implements EventSubscriber
             && null !== $class->discriminatorColumn
         ) {
             $params[] = $class->discriminatorValue;
-            $types[] = $class->discriminatorColumn['type'];
+            $types[] = self::getMappingValue($class->discriminatorColumn, 'type');
         } elseif (
             $class->isInheritanceTypeJoined()
             && $class->name === $class->rootEntityName
             && null !== $class->discriminatorColumn
         ) {
-            $params[] = $entityData[$class->discriminatorColumn['name']];
-            $types[] = $class->discriminatorColumn['type'];
+            $params[] = $entityData[self::getMappingValue($class->discriminatorColumn, 'name')];
+            $types[] = self::getMappingValue($class->discriminatorColumn, 'type');
         }
 
         if (
             $class->isInheritanceTypeJoined() && $class->name !== $class->rootEntityName
             && null !== $class->discriminatorColumn
         ) {
-            $entityData[$class->discriminatorColumn['name']] = $class->discriminatorValue;
+            $entityData[self::getMappingValue($class->discriminatorColumn, 'name')] = $class->discriminatorValue;
             $this->saveRevisionEntityData(
                 $em,
                 $em->getClassMetadata($class->rootEntityName),
+                /* @phpstan-ignore argument.type */
                 $entityData,
                 $revType
             );
@@ -646,28 +650,33 @@ class LogRevisionsListener implements EventSubscriber
     }
 
     /**
-     * @param array<string, mixed>|AssociationMapping $assoc
-     * @param array<string, mixed>                    $entityData
-     * @param ClassMetadata<object>                   $class
-     * @param ClassMetadata<object>                   $targetClass
+     * @param array<string, mixed>|ManyToManyOwningSideMapping $assoc
+     * @param array<string, mixed>                             $entityData
+     * @param ClassMetadata<object>                            $class
+     * @param ClassMetadata<object>                            $targetClass
      */
     private function recordRevisionForManyToManyEntity(
         object $relatedEntity,
         EntityManagerInterface $em,
         string $revType,
         array $entityData,
-        array|AssociationMapping $assoc,
+        /* @phpstan-ignore-next-line */
+        array|ManyToManyOwningSideMapping $assoc,
         ClassMetadata $class,
         ClassMetadata $targetClass
     ): void {
         $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];
         $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
-        foreach ($assoc['relationToSourceKeyColumns'] as $targetColumn) {
+
+        /* @phpstan-ignore argument.type */
+        foreach (self::getMappingValue($assoc, 'relationToSourceKeyColumns') as $targetColumn) {
             $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
             $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $class, $em);
         }
-        foreach ($assoc['relationToTargetKeyColumns'] as $targetColumn) {
+
+        /* @phpstan-ignore argument.type */
+        foreach (self::getMappingValue($assoc, 'relationToTargetKeyColumns') as $targetColumn) {
             $reflField = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]];
             \assert(null !== $reflField);
             $joinTableParams[] = $reflField->getValue($relatedEntity);
@@ -731,7 +740,7 @@ class LogRevisionsListener implements EventSubscriber
             $newVal = $change[1];
 
             if (!isset($classMetadata->associationMappings[$field])) {
-                $columnName = $classMetadata->fieldMappings[$field]['columnName'];
+                $columnName = self::getMappingValue($classMetadata->fieldMappings[$field], 'columnName');
                 $result[$persister->getOwningTable($field)][$columnName] = $newVal;
 
                 continue;
@@ -769,8 +778,8 @@ class LogRevisionsListener implements EventSubscriber
             $owningTable = $persister->getOwningTable($field);
 
             foreach ($assoc['joinColumns'] as $joinColumn) {
-                $sourceColumn = $joinColumn['name'];
-                $targetColumn = $joinColumn['referencedColumnName'];
+                $sourceColumn = self::getMappingValue($joinColumn, 'name');
+                $targetColumn = self::getMappingValue($joinColumn, 'referencedColumnName');
 
                 $result[$owningTable][$sourceColumn] = null !== $newValId
                     ? $newValId[$targetClass->getFieldForColumn($targetColumn)]

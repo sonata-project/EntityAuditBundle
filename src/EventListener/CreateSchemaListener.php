@@ -26,12 +26,15 @@ use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 
 /**
  * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
  */
 class CreateSchemaListener implements EventSubscriber
 {
+    use ORMCompatibilityTrait;
+
     private AuditConfiguration $config;
 
     private MetadataFactory $metadataFactory;
@@ -108,13 +111,11 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
 
         foreach ($cm->associationMappings as $associationMapping) {
-            if ($associationMapping['isOwningSide'] && isset($associationMapping['joinTable'])) {
-                if (isset($associationMapping['joinTable']['name'])) {
-                    if ($schema->hasTable($associationMapping['joinTable']['name'])) {
-                        $this->createRevisionJoinTableForJoinTable($schema, $associationMapping['joinTable']['name']);
-                    } else {
-                        $this->defferedJoinTablesToCreate[] = $associationMapping['joinTable']['name'];
-                    }
+            if (self::isManyToManyOwningSideMapping($associationMapping)) {
+                if ($schema->hasTable(self::getJoinTableName($associationMapping))) {
+                    $this->createRevisionJoinTableForJoinTable($schema, self::getJoinTableName($associationMapping));
+                } else {
+                    $this->defferedJoinTablesToCreate[] = self::getJoinTableName($associationMapping);
                 }
             }
         }
