@@ -81,8 +81,6 @@ class AuditedCollection implements Collection
 
     /**
      * @return void
-     *
-     * @phpstan-ignore-next-line https://github.com/phpstan/phpstan-doctrine/pull/560
      */
     #[\ReturnTypeWillChange]
     public function add(mixed $element)
