@@ -59,10 +59,10 @@ class AuditedCollection implements Collection
     protected $initialized = false;
 
     /**
-     * @param string               $class
-     * @param array<string, mixed> $associationDefinition
-     * @param array<string, mixed> $foreignKeys
-     * @param string|int           $revision
+     * @param string                                  $class
+     * @param array<string, mixed>|AssociationMapping $associationDefinition
+     * @param array<string, mixed>                    $foreignKeys
+     * @param string|int                              $revision
      *
      * @phpstan-param class-string<T> $class
      * @phpstan-param ClassMetadata<T> $metadata

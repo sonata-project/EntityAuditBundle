@@ -64,6 +64,9 @@ class CreateSchemaListener implements EventSubscriber
         ];
     }
 
+    /**
+     * @psalm-suppress TypeDoesNotContainType, NoValue
+     */
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs): void
     {
         $cm = $eventArgs->getClassMetadata();
@@ -112,10 +115,10 @@ class CreateSchemaListener implements EventSubscriber
 
         foreach ($cm->associationMappings as $associationMapping) {
             if (self::isManyToManyOwningSideMapping($associationMapping)) {
-                if ($schema->hasTable(self::getJoinTableName($associationMapping))) {
-                    $this->createRevisionJoinTableForJoinTable($schema, self::getJoinTableName($associationMapping));
+                if ($schema->hasTable(self::getMappingJoinTableNameValue($associationMapping))) {
+                    $this->createRevisionJoinTableForJoinTable($schema, self::getMappingJoinTableNameValue($associationMapping));
                 } else {
-                    $this->defferedJoinTablesToCreate[] = self::getJoinTableName($associationMapping);
+                    $this->defferedJoinTablesToCreate[] = self::getMappingJoinTableNameValue($associationMapping);
                 }
             }
         }

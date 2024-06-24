@@ -29,12 +29,9 @@ trait ORMCompatibilityTrait
 {
     /**
      * @param array<string, mixed>|AssociationMapping|EmbeddedClassMapping|FieldMapping|JoinColumnMapping|DiscriminatorColumnMapping $mapping
-     *
-     * @phpstan-ignore-next-line
      */
-    private static function getMappingValue(array|AssociationMapping|EmbeddedClassMapping|FieldMapping|JoinColumnMapping|DiscriminatorColumnMapping $mapping, string $key): mixed
+    final protected static function getMappingValue(array|AssociationMapping|EmbeddedClassMapping|FieldMapping|JoinColumnMapping|DiscriminatorColumnMapping $mapping, string $key): mixed
     {
-        /* @phpstan-ignore-next-line */
         if ($mapping instanceof AssociationMapping || $mapping instanceof EmbeddedClassMapping || $mapping instanceof FieldMapping || $mapping instanceof JoinColumnMapping || $mapping instanceof DiscriminatorColumnMapping) {
             /* @phpstan-ignore property.dynamicName */
             return $mapping->$key;
@@ -44,52 +41,195 @@ trait ORMCompatibilityTrait
     }
 
     /**
+     * @param array<string, mixed>|AssociationMapping|FieldMapping|DiscriminatorColumnMapping $mapping
+     *
+     * @return literal-string
+     */
+    final protected static function getMappingFieldNameValue(array|AssociationMapping|EmbeddedClassMapping|FieldMapping|DiscriminatorColumnMapping $mapping): string
+    {
+        if ($mapping instanceof AssociationMapping || $mapping instanceof FieldMapping || $mapping instanceof DiscriminatorColumnMapping) {
+            /* @phpstan-ignore return.type */
+            return $mapping->fieldName;
+        }
+
+        /* @phpstan-ignore return.type */
+        return $mapping['fieldName'];
+    }
+
+    /**
+     * @param array<string, mixed>|JoinColumnMapping|DiscriminatorColumnMapping $mapping
+     *
+     * @return literal-string
+     */
+    final protected static function getMappingNameValue(array|JoinColumnMapping|DiscriminatorColumnMapping $mapping): string
+    {
+        if ($mapping instanceof JoinColumnMapping || $mapping instanceof DiscriminatorColumnMapping) {
+            /* @phpstan-ignore return.type */
+            return $mapping->name;
+        }
+
+        /* @phpstan-ignore return.type */
+        return $mapping['name'];
+    }
+
+    /**
+     * @param array<string, mixed>|FieldMapping $mapping
+     *
+     * @return literal-string
+     */
+    final protected static function getMappingColumnNameValue(array|FieldMapping $mapping): string
+    {
+        if ($mapping instanceof FieldMapping) {
+            /* @phpstan-ignore return.type */
+            return $mapping->columnName;
+        }
+
+        /* @phpstan-ignore return.type */
+        return $mapping['columnName'];
+    }
+
+    /**
      * @param array<string, mixed>|ManyToManyOwningSideMapping $mapping
      *
      * @return literal-string
-     *
-     * @phpstan-ignore-next-line
      */
-    private static function getJoinTableName(array|ManyToManyOwningSideMapping $mapping): string
+    final protected static function getMappingJoinTableNameValue(array|ManyToManyOwningSideMapping $mapping): string
     {
-        /* @phpstan-ignore-next-line */
         if ($mapping instanceof ManyToManyOwningSideMapping) {
-            /* @phpstan-ignore-next-line */
+            /* @phpstan-ignore return.type */
             return $mapping->joinTable->name;
         }
 
-        /* @phpstan-ignore-next-line */
+        /* @phpstan-ignore return.type */
         return $mapping['joinTable']['name'];
     }
 
     /**
      * @param array<string, mixed>|AssociationMapping $mapping
+     *
+     * @phpstan-assert-if-true ManyToManyOwningSideMapping $mapping
      */
-    private static function isManyToManyOwningSideMapping(array|AssociationMapping $mapping): bool
+    final protected static function isManyToManyOwningSideMapping(array|AssociationMapping $mapping): bool
     {
-        /* @phpstan-ignore-next-line */
         if ($mapping instanceof AssociationMapping) {
-            /* @phpstan-ignore-next-line */
             return $mapping instanceof ManyToManyOwningSideMapping;
         }
 
-        /* @phpstan-ignore-next-line */
-        return $mapping['isOwningSide'] && isset($mapping['joinTable']['name']);
+        return isset($mapping['joinTable']['name'], $mapping['relationToSourceKeyColumns'], $mapping['relationToTargetKeyColumns'])
+            && true === $mapping['isOwningSide']
+            && ($mapping['type'] & ClassMetadata::MANY_TO_MANY) > 0;
     }
 
     /**
      * @param array<string, mixed>|AssociationMapping $mapping
+     *
+     * @phpstan-assert-if-true ToOneOwningSideMapping $mapping
      */
-    private static function isToOneOwningSide(array|AssociationMapping $mapping): bool
+    final protected static function isToOneOwningSide(array|AssociationMapping $mapping): bool
     {
-        /* @phpstan-ignore class.notFound */
         if ($mapping instanceof AssociationMapping) {
-            /* @phpstan-ignore class.notFound */
-            return $mapping instanceof ToOneOwningSideMapping;
+            return $mapping->isToOneOwningSide();
         }
 
         return ($mapping['type'] & ClassMetadata::TO_ONE) > 0
             && true === $mapping['isOwningSide']
             && isset($mapping['targetToSourceKeyColumns']);
+    }
+
+    /**
+     * @param array<string, mixed>|AssociationMapping $mapping
+     */
+    final protected static function isToOne(array|AssociationMapping $mapping): bool
+    {
+        if ($mapping instanceof AssociationMapping) {
+            return $mapping->isToOne();
+        }
+
+        return ($mapping['type'] & ClassMetadata::TO_ONE) > 0;
+    }
+
+    /**
+     * @param array<string, mixed>|ToOneOwningSideMapping $mapping
+     *
+     * @return array<string, literal-string>
+     */
+    final protected static function getTargetToSourceKeyColumns(array|ToOneOwningSideMapping $mapping): array
+    {
+        if ($mapping instanceof ToOneOwningSideMapping) {
+            /* @phpstan-ignore return.type */
+            return $mapping->targetToSourceKeyColumns;
+        }
+
+        return $mapping['targetToSourceKeyColumns'];
+    }
+
+    /**
+     * @param array<string, mixed>|ToOneOwningSideMapping $mapping
+     *
+     * @return array<string, string>
+     */
+    final protected static function getSourceToTargetKeyColumns(array|ToOneOwningSideMapping $mapping): array
+    {
+        if ($mapping instanceof ToOneOwningSideMapping) {
+            return $mapping->sourceToTargetKeyColumns;
+        }
+
+        return $mapping['sourceToTargetKeyColumns'];
+    }
+
+    /**
+     * @param array<string, mixed>|ManyToManyOwningSideMapping $mapping
+     *
+     * @return array<literal-string, literal-string>
+     */
+    final protected static function getRelationToSourceKeyColumns(array|ManyToManyOwningSideMapping $mapping): array
+    {
+        if ($mapping instanceof ManyToManyOwningSideMapping) {
+            /* @phpstan-ignore return.type */
+            return $mapping->relationToSourceKeyColumns;
+        }
+
+        return $mapping['relationToSourceKeyColumns'];
+    }
+
+    /**
+     * @param array<string, mixed>|ManyToManyOwningSideMapping $mapping
+     *
+     * @return array<literal-string, literal-string>
+     */
+    final protected static function getRelationToTargetKeyColumns(array|ManyToManyOwningSideMapping $mapping): array
+    {
+        if ($mapping instanceof ManyToManyOwningSideMapping) {
+            /* @phpstan-ignore return.type */
+            return $mapping->relationToTargetKeyColumns;
+        }
+
+        return $mapping['relationToTargetKeyColumns'];
+    }
+
+    /**
+     * @param array<string, mixed>|AssociationMapping $mapping
+     *
+     * @phpstan-return class-string
+     */
+    final protected static function getMappingTargetEntityValue(array|AssociationMapping $mapping): string
+    {
+        if ($mapping instanceof AssociationMapping) {
+            return $mapping->targetEntity;
+        }
+
+        return $mapping['targetEntity'];
+    }
+
+    /**
+     * @param array<string, mixed>|AssociationMapping $mapping
+     */
+    final protected static function isOwningSide(array|AssociationMapping $mapping): bool
+    {
+        if ($mapping instanceof AssociationMapping) {
+            return $mapping->isOwningSide();
+        }
+
+        return true === $mapping['isOwningSide'];
     }
 }

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\ManyToManyOwningSideMapping;
 
 /**
  * @internal
@@ -21,16 +22,16 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 final class DeferredChangedManyToManyEntityRevisionToPersist
 {
     /**
-     * @param array<string, mixed>  $assoc
-     * @param array<string, mixed>  $entityData
-     * @param ClassMetadata<object> $class
-     * @param ClassMetadata<object> $targetClass
+     * @param array<string, mixed>|ManyToManyOwningSideMapping $assoc
+     * @param array<string, mixed>                             $entityData
+     * @param ClassMetadata<object>                            $class
+     * @param ClassMetadata<object>                            $targetClass
      */
     public function __construct(
         private object $entity,
         private string $revType,
         private array $entityData,
-        private array $assoc,
+        private array|ManyToManyOwningSideMapping $assoc,
         private ClassMetadata $class,
         private ClassMetadata $targetClass
     ) {
@@ -55,9 +56,9 @@ final class DeferredChangedManyToManyEntityRevisionToPersist
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, mixed>|ManyToManyOwningSideMapping
      */
-    public function getAssoc(): array
+    public function getAssoc(): array|ManyToManyOwningSideMapping
     {
         return $this->assoc;
     }

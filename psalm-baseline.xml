@@ -6,11 +6,4 @@
             <code>Controller</code>
         </UndefinedClass>
     </file>
-    <!-- For compatibility with doctrine/orm 2 and 3 -->
-    <file src="src/EventListener/LogRevisionsListener.php">
-        <UndefinedClass>
-            <code><![CDATA[array<string, mixed>|AssociationMapping]]></code>
-            <code><![CDATA[array<string, mixed>|AssociationMapping]]></code>
-        </UndefinedClass>
-    </file>
 </files>
