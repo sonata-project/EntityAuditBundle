@@ -115,8 +115,7 @@ trait ORMCompatibilityTrait
             return $mapping instanceof ManyToManyOwningSideMapping;
         }
 
-        return isset($mapping['joinTable']['name'], $mapping['relationToSourceKeyColumns'], $mapping['relationToTargetKeyColumns'])
-            && true === $mapping['isOwningSide']
+        return true === $mapping['isOwningSide']
             && ($mapping['type'] & ClassMetadata::MANY_TO_MANY) > 0;
     }
 
@@ -132,8 +131,7 @@ trait ORMCompatibilityTrait
         }
 
         return ($mapping['type'] & ClassMetadata::TO_ONE) > 0
-            && true === $mapping['isOwningSide']
-            && isset($mapping['targetToSourceKeyColumns']);
+            && true === $mapping['isOwningSide'];
     }
 
     /**
