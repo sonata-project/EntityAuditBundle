@@ -22,7 +22,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\QuoteStrategy;
-use Doctrine\ORM\ORMException as ORM2Exception;
 use Doctrine\ORM\PersistentCollection;
 use Doctrine\ORM\Persisters\Entity\EntityPersister;
 use SimpleThings\EntityAudit\Collection\AuditedCollection;
@@ -190,17 +189,12 @@ class AuditReader
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
-     * @throws ORM2Exception
      * @throws \RuntimeException
      *
      * @return object|null
      *
-     * @psalm-suppress UndefinedDocblockClass
-     *
      * @phpstan-param class-string<T>                   $className
      * @phpstan-return T|null
-     *
-     * @phpstan-ignore throws.notThrowable
      */
     public function find($className, $id, $revision, array $options = [])
     {
@@ -389,15 +383,10 @@ class AuditReader
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
-     * @throws ORM2Exception
      * @throws \RuntimeException
      * @throws DeletedException
      *
      * @return ChangedEntity<object>[]
-     *
-     * @psalm-suppress UndefinedDocblockClass
-     *
-     * @phpstan-ignore throws.notThrowable
      */
     public function findEntitiesChangedAtRevision($revision)
     {
@@ -648,17 +637,12 @@ class AuditReader
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
-     * @throws ORM2Exception
      * @throws \RuntimeException
      *
      * @return array<string, array<string, mixed>>
      *
-     * @psalm-suppress UndefinedDocblockClass
-     *
      * @phpstan-param class-string $className
      * @phpstan-return array<string, array{old: mixed, new: mixed, same: mixed}>
-     *
-     * @phpstan-ignore throws.notThrowable
      */
     public function diff($className, $id, $oldRevision, $newRevision)
     {
@@ -706,17 +690,12 @@ class AuditReader
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
-     * @throws ORM2Exception
      * @throws DeletedException
      *
      * @return array<object|null>
      *
-     * @psalm-suppress UndefinedDocblockClass
-     *
      * @phpstan-param class-string<T>              $className
      * @phpstan-return array<T|null>
-     *
-     * @phpstan-ignore throws.notThrowable
      */
     public function getEntityHistory($className, $id)
     {
@@ -823,17 +802,12 @@ class AuditReader
      * @throws NotAuditedException
      * @throws Exception
      * @throws ORMException
-     * @throws ORM2Exception
      * @throws \RuntimeException
      *
      * @return object
      *
-     * @psalm-suppress UndefinedDocblockClass
-     *
      * @phpstan-param class-string<T>        $className
      * @phpstan-return T
-     *
-     * @phpstan-ignore throws.notThrowable
      */
     private function createEntity($className, array $columnMap, array $data, $revision)
     {
@@ -1041,7 +1015,7 @@ class AuditReader
                 $reflField = $classMetadata->reflFields[$assoc['fieldName']];
                 \assert(null !== $reflField);
                 $reflField->setValue($entity, $collection);
-            } elseif (0 !== ($assoc['type'] & ClassMetadata::MANY_TO_MANY)) {
+            } elseif (self::isManyToMany($assoc)) {
                 if (self::isManyToManyOwningSideMapping($assoc)) {
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
                     $values = [$revision];

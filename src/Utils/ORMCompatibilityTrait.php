@@ -112,11 +112,10 @@ trait ORMCompatibilityTrait
     final protected static function isManyToManyOwningSideMapping(array|AssociationMapping $mapping): bool
     {
         if ($mapping instanceof AssociationMapping) {
-            return $mapping instanceof ManyToManyOwningSideMapping;
+            return $mapping->isManyToMany() && $mapping->isOwningSide();
         }
 
-        return true === $mapping['isOwningSide']
-            && ($mapping['type'] & ClassMetadata::MANY_TO_MANY) > 0;
+        return true === $mapping['isOwningSide'] && ($mapping['type'] & ClassMetadata::MANY_TO_MANY) > 0;
     }
 
     /**
@@ -130,8 +129,7 @@ trait ORMCompatibilityTrait
             return $mapping->isToOneOwningSide();
         }
 
-        return ($mapping['type'] & ClassMetadata::TO_ONE) > 0
-            && true === $mapping['isOwningSide'];
+        return ($mapping['type'] & ClassMetadata::TO_ONE) > 0 && true === $mapping['isOwningSide'];
     }
 
     /**
@@ -144,6 +142,18 @@ trait ORMCompatibilityTrait
         }
 
         return ($mapping['type'] & ClassMetadata::TO_ONE) > 0;
+    }
+
+    /**
+     * @param array<string, mixed>|AssociationMapping $mapping
+     */
+    final protected static function isManyToMany(array|AssociationMapping $mapping): bool
+    {
+        if ($mapping instanceof AssociationMapping) {
+            return $mapping->isManyToMany();
+        }
+
+        return ($mapping['type'] & ClassMetadata::MANY_TO_MANY) > 0;
     }
 
     /**
