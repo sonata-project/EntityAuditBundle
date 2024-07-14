@@ -11,7 +11,7 @@
     "require": {
         "php": "^8.0",
         "doctrine/collections": "^1.8 || ^2.0",
-        "doctrine/dbal": "^3.6",
+        "doctrine/dbal": "^3.6 || ^4.0",
         "doctrine/event-manager": "^1.2 || ^2.0",
         "doctrine/orm": "^2.14 || ^3.0",
         "doctrine/persistence": "^3.0",
