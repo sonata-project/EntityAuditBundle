@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.18.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.17.1...1.18.0) - 2024-07-14
+### Added
+- [[#590](https://github.com/sonata-project/EntityAuditBundle/pull/590)] Support for `doctrine/orm` 3 ([@franmomu](https://github.com/franmomu))
+
+### Fixed
+- [[#627](https://github.com/sonata-project/EntityAuditBundle/pull/627)] Symfony 7.1 deprecation about `Symfony\Component\HttpKernel\DependencyInjection\Extension` usage ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#624](https://github.com/sonata-project/EntityAuditBundle/pull/624)] Crashing when an invalid value is passed as OneTo* relation. ([@VincentLanglet](https://github.com/VincentLanglet))
+
 ## [1.17.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.17.0...1.17.1) - 2024-04-17
 ### Fixed
 - [[#617](https://github.com/sonata-project/EntityAuditBundle/pull/617)] Fix getting table name when the table schema is an empty string ([@X-Coder264](https://github.com/X-Coder264))
