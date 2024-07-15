@@ -19,19 +19,22 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 
 /**
  * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
  */
 class CreateSchemaListener implements EventSubscriber
 {
+    use ORMCompatibilityTrait;
+
     private AuditConfiguration $config;
 
     private MetadataFactory $metadataFactory;
@@ -61,6 +64,9 @@ class CreateSchemaListener implements EventSubscriber
         ];
     }
 
+    /**
+     * @psalm-suppress TypeDoesNotContainType, NoValue
+     */
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs): void
     {
         $cm = $eventArgs->getClassMetadata();
@@ -95,7 +101,7 @@ class CreateSchemaListener implements EventSubscriber
         }
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
         $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), Types::STRING, ['length' => 4]);
-        if (!\in_array($cm->inheritanceType, [ClassMetadataInfo::INHERITANCE_TYPE_NONE, ClassMetadataInfo::INHERITANCE_TYPE_JOINED, ClassMetadataInfo::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
+        if (!\in_array($cm->inheritanceType, [ClassMetadata::INHERITANCE_TYPE_NONE, ClassMetadata::INHERITANCE_TYPE_JOINED, ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
             throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
 
@@ -108,13 +114,11 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
 
         foreach ($cm->associationMappings as $associationMapping) {
-            if ($associationMapping['isOwningSide'] && isset($associationMapping['joinTable'])) {
-                if (isset($associationMapping['joinTable']['name'])) {
-                    if ($schema->hasTable($associationMapping['joinTable']['name'])) {
-                        $this->createRevisionJoinTableForJoinTable($schema, $associationMapping['joinTable']['name']);
-                    } else {
-                        $this->defferedJoinTablesToCreate[] = $associationMapping['joinTable']['name'];
-                    }
+            if (self::isManyToManyOwningSideMapping($associationMapping)) {
+                if ($schema->hasTable(self::getMappingJoinTableNameValue($associationMapping))) {
+                    $this->createRevisionJoinTableForJoinTable($schema, self::getMappingJoinTableNameValue($associationMapping));
+                } else {
+                    $this->defferedJoinTablesToCreate[] = self::getMappingJoinTableNameValue($associationMapping);
                 }
             }
         }
