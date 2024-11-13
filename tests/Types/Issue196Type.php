@@ -33,6 +33,6 @@ final class Issue196Type extends TextType
 
     public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform): string
     {
-        return sprintf('lower(%s)', $sqlExpr);
+        return \sprintf('lower(%s)', $sqlExpr);
     }
 }

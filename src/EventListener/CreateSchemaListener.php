@@ -102,7 +102,7 @@ class CreateSchemaListener implements EventSubscriber
         $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
         $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), Types::STRING, ['length' => 4]);
         if (!\in_array($cm->inheritanceType, [ClassMetadata::INHERITANCE_TYPE_NONE, ClassMetadata::INHERITANCE_TYPE_JOINED, ClassMetadata::INHERITANCE_TYPE_SINGLE_TABLE], true)) {
-            throw new \Exception(sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
+            throw new \Exception(\sprintf('Inheritance type "%s" is not yet supported', $cm->inheritanceType));
         }
 
         $primaryKey = $entityTable->getPrimaryKey();

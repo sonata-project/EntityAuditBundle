@@ -30,7 +30,7 @@ class AuditManager
 
     public function __construct(
         private AuditConfiguration $config,
-        private ?ClockInterface $clock = null
+        private ?ClockInterface $clock = null,
     ) {
         $this->metadataFactory = $config->createMetadataFactory();
     }

@@ -17,6 +17,6 @@ class NotAuditedException extends AuditException
 {
     public function __construct(string $className)
     {
-        parent::__construct($className, null, null, sprintf('Class "%s" is not audited.', $className));
+        parent::__construct($className, null, null, \sprintf('Class "%s" is not audited.', $className));
     }
 }

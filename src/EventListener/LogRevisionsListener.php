@@ -78,7 +78,7 @@ class LogRevisionsListener implements EventSubscriber
 
     public function __construct(
         AuditManager $auditManager,
-        private ?ClockInterface $clock = null
+        private ?ClockInterface $clock = null,
     ) {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
@@ -166,7 +166,7 @@ class LogRevisionsListener implements EventSubscriber
                     }
 
                     if (null === $type) {
-                        throw new \Exception(sprintf('Could not resolve database type for column "%s" during extra updates', $column));
+                        throw new \Exception(\sprintf('Could not resolve database type for column "%s" during extra updates', $column));
                     }
 
                     $types[] = $type;
@@ -476,7 +476,7 @@ class LogRevisionsListener implements EventSubscriber
     private function getInsertJoinTableRevisionSQL(
         ClassMetadata $class,
         ClassMetadata $targetClass,
-        array|ManyToManyOwningSideMapping $assoc
+        array|ManyToManyOwningSideMapping $assoc,
     ): string {
         $joinTableName = self::getMappingJoinTableNameValue($assoc);
         $cacheKey = $class->name.'.'.$targetClass->name.'.'.$joinTableName;
@@ -635,7 +635,7 @@ class LogRevisionsListener implements EventSubscriber
         array $entityData,
         array|ManyToManyOwningSideMapping $assoc,
         ClassMetadata $class,
-        ClassMetadata $targetClass
+        ClassMetadata $targetClass,
     ): void {
         $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];

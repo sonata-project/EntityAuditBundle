@@ -20,6 +20,6 @@ class InvalidRevisionException extends AuditException
      */
     public function __construct($revision)
     {
-        parent::__construct(null, null, $revision, sprintf('No revision "%s" exists.', $revision));
+        parent::__construct(null, null, $revision, \sprintf('No revision "%s" exists.', $revision));
     }
 }

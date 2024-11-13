@@ -33,7 +33,7 @@ class ProfileAudit
 
     public function __construct(
         #[ORM\Column(type: Types::TEXT)]
-        private string $biography
+        private string $biography,
     ) {
     }
 

@@ -22,7 +22,7 @@ class Dog extends PetAudit
     public function __construct(
         string $name,
         #[ORM\Column(type: Types::INTEGER, name: 'dog_tail_length')]
-        private int $tailLength
+        private int $tailLength,
     ) {
         parent::__construct($name);
     }

@@ -33,7 +33,7 @@ final class DeferredChangedManyToManyEntityRevisionToPersist
         private array $entityData,
         private array|ManyToManyOwningSideMapping $assoc,
         private ClassMetadata $class,
-        private ClassMetadata $targetClass
+        private ClassMetadata $targetClass,
     ) {
     }
 

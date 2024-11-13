@@ -22,7 +22,7 @@ class Rabbit extends AnimalAudit
     public function __construct(
         string $name,
         #[ORM\Column(type: Types::STRING, name: 'cute_rabbit_color')]
-        private string $color
+        private string $color,
     ) {
         parent::__construct($name);
     }

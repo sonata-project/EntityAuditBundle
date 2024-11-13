@@ -41,8 +41,8 @@ final class SmokeTest extends WebTestCase
 
         $encodeUserClass = urlencode(User::class);
 
-        yield 'view detail' => [sprintf('/audit/viewent/%s/1', $encodeUserClass)];
-        yield 'view entity' => [sprintf('/audit/viewent/%s/1/1', $encodeUserClass)];
-        yield 'compare' => [sprintf('/audit/compare/%s/1?newRev=2&oldRev=1', $encodeUserClass)];
+        yield 'view detail' => [\sprintf('/audit/viewent/%s/1', $encodeUserClass)];
+        yield 'view entity' => [\sprintf('/audit/viewent/%s/1/1', $encodeUserClass)];
+        yield 'compare' => [\sprintf('/audit/compare/%s/1?newRev=2&oldRev=1', $encodeUserClass)];
     }
 }

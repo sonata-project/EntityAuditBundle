@@ -73,7 +73,7 @@ class AuditedCollection implements Collection
         protected ClassMetadata $metadata,
         protected array|AssociationMapping $associationDefinition,
         protected array $foreignKeys,
-        protected $revision
+        protected $revision,
     ) {
         $this->configuration = $auditReader->getConfiguration();
         $this->entities = new ArrayCollection();
@@ -414,7 +414,7 @@ class AuditedCollection implements Collection
         $this->initialize();
 
         if (!$this->entities->offsetExists($offset)) {
-            throw new AuditedCollectionException(sprintf('Offset "%s" is not defined', $offset));
+            throw new AuditedCollectionException(\sprintf('Offset "%s" is not defined', $offset));
         }
 
         $entity = $this->entities->offsetGet($offset);
