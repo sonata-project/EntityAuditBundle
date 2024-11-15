@@ -22,7 +22,7 @@ class Cat extends PetAudit
     public function __construct(
         string $name,
         #[ORM\Column(type: Types::STRING, name: 'cute_cat_color')]
-        private string $color
+        private string $color,
     ) {
         parent::__construct($name);
     }

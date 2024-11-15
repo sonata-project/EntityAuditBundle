@@ -22,7 +22,7 @@ final class CompareAction
 {
     public function __construct(
         private Environment $twig,
-        private AuditReader $auditReader
+        private AuditReader $auditReader,
     ) {
     }
 

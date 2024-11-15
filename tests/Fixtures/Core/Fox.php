@@ -22,7 +22,7 @@ class Fox extends AnimalAudit
     public function __construct(
         string $name,
         #[ORM\Column(type: Types::INTEGER, name: 'fox_tail_length')]
-        private int $tailLength
+        private int $tailLength,
     ) {
         parent::__construct($name);
     }

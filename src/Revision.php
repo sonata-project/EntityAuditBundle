@@ -24,7 +24,7 @@ class Revision
     public function __construct(
         private $rev,
         private \DateTime $timestamp,
-        private ?string $username
+        private ?string $username,
     ) {
     }
 

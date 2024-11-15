@@ -59,7 +59,7 @@ class Configuration implements ConfigurationInterface
                     ->beforeNormalization()
                         ->always(static function (?string $value): ?string {
                             if (null !== $value && !\in_array($value, self::ALLOWED_REVISION_ID_FIELD_TYPES, true)) {
-                                @trigger_error(sprintf(
+                                @trigger_error(\sprintf(
                                     'The value "%s" for the "revision_id_field_type" is deprecated'
                                     .' since sonata-project/entity-audit-bundle 1.3 and will throw an error in version 2.0.'
                                     .' You must pass one of the following values: "%s".',

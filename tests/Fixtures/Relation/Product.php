@@ -30,7 +30,7 @@ abstract class Product extends SomeEntity
 
     public function __construct(
         #[ORM\Column(type: Types::STRING)]
-        protected string $name
+        protected string $name,
     ) {
     }
 

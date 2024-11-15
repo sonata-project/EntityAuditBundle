@@ -33,7 +33,7 @@ abstract class AuditException extends \Exception
         ?string $className,
         ?array $id,
         protected $revision,
-        string $message = ''
+        string $message = '',
     ) {
         parent::__construct($message);
 

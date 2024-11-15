@@ -26,7 +26,7 @@ class IssueEntityWithEnum
 
     public function __construct(
         #[ORM\Column(enumType: Status::class)]
-        private Status $status
+        private Status $status,
     ) {
     }
 

@@ -42,7 +42,7 @@ final class Issue318Test extends BaseTest
         $config = $this->getAuditManager()->getConfiguration();
         $userNotNullColumnName = 'alias';
         $userIdColumnName = 'id';
-        $revisionsTableUser = $schema->getTable(sprintf(
+        $revisionsTableUser = $schema->getTable(\sprintf(
             '%s.%sissue318user%s',
             $schemaName,
             $config->getTablePrefix(),
