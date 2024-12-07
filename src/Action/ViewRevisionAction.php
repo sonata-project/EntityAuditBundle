@@ -22,8 +22,8 @@ use Twig\Environment;
 final class ViewRevisionAction
 {
     public function __construct(
-        private Environment $twig,
-        private AuditReader $auditReader,
+        private readonly Environment $twig,
+        private readonly AuditReader $auditReader,
     ) {
     }
 

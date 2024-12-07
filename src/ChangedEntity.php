@@ -25,10 +25,10 @@ class ChangedEntity
      * @phpstan-param T $entity
      */
     public function __construct(
-        private string $className,
-        private array $id,
-        private string $revType,
-        private object $entity,
+        private readonly string $className,
+        private readonly array $id,
+        private readonly string $revType,
+        private readonly object $entity,
     ) {
     }
 

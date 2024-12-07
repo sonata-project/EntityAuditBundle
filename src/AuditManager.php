@@ -26,11 +26,11 @@ use SimpleThings\EntityAudit\Metadata\MetadataFactory;
  */
 class AuditManager
 {
-    private MetadataFactory $metadataFactory;
+    private readonly MetadataFactory $metadataFactory;
 
     public function __construct(
-        private AuditConfiguration $config,
-        private ?ClockInterface $clock = null,
+        private readonly AuditConfiguration $config,
+        private readonly ?ClockInterface $clock = null,
     ) {
         $this->metadataFactory = $config->createMetadataFactory();
     }

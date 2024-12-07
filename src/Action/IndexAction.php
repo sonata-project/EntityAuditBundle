@@ -20,8 +20,8 @@ use Twig\Environment;
 final class IndexAction
 {
     public function __construct(
-        private Environment $twig,
-        private AuditReader $auditReader,
+        private readonly Environment $twig,
+        private readonly AuditReader $auditReader,
     ) {
     }
 

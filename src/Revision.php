@@ -23,8 +23,8 @@ class Revision
      */
     public function __construct(
         private $rev,
-        private \DateTime $timestamp,
-        private ?string $username,
+        private readonly \DateTime $timestamp,
+        private readonly ?string $username,
     ) {
     }
 

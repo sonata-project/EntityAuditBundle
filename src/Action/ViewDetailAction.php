@@ -21,8 +21,8 @@ use Twig\Environment;
 final class ViewDetailAction
 {
     public function __construct(
-        private Environment $twig,
-        private AuditReader $auditReader,
+        private readonly Environment $twig,
+        private readonly AuditReader $auditReader,
     ) {
     }
 
