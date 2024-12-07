@@ -28,12 +28,12 @@ final class DeferredChangedManyToManyEntityRevisionToPersist
      * @param ClassMetadata<object>                            $targetClass
      */
     public function __construct(
-        private readonly object $entity,
-        private readonly string $revType,
-        private readonly array $entityData,
-        private readonly array|ManyToManyOwningSideMapping $assoc,
-        private readonly ClassMetadata $class,
-        private readonly ClassMetadata $targetClass,
+        private object $entity,
+        private string $revType,
+        private array $entityData,
+        private array|ManyToManyOwningSideMapping $assoc,
+        private ClassMetadata $class,
+        private ClassMetadata $targetClass,
     ) {
     }
 

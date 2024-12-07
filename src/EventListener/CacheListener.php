@@ -22,7 +22,7 @@ use SimpleThings\EntityAudit\AuditReader;
  */
 final class CacheListener implements EventSubscriber
 {
-    public function __construct(private readonly AuditReader $auditReader)
+    public function __construct(private AuditReader $auditReader)
     {
     }
 
