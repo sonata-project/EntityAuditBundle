@@ -198,6 +198,10 @@ class LogRevisionsListener implements EventSubscriber
             $em->getConnection()->executeQuery($sql, $params, $types);
         }
 
+        if ($this->config->areAssociationsDisabled()) {
+            return;
+        }
+
         foreach ($this->deferredChangedManyToManyEntityRevisionsToPersist as $deferredChangedManyToManyEntityRevisionToPersist) {
             $this->recordRevisionForManyToManyEntity(
                 $deferredChangedManyToManyEntityRevisionToPersist->getEntity(),
@@ -568,7 +572,7 @@ class LogRevisionsListener implements EventSubscriber
                             $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
                         }
                     }
-                } elseif (($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0
+                } elseif (!$this->config->areAssociationsDisabled() && ($assoc['type'] & ClassMetadata::MANY_TO_MANY) > 0
                     && isset($assoc['relationToSourceKeyColumns'], $assoc['relationToTargetKeyColumns'])) {
                     $targetClass = $em->getClassMetadata($assoc['targetEntity']);
 
