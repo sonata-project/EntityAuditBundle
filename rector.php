@@ -19,7 +19,9 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\Php70\Rector\FunctionLike\ExceptionHandlerTypehintRector;
-use Rector\PHPUnit\CodeQuality\Rector\Class_\AddSeeTestAnnotationRector;
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
+use Rector\Php81\Rector\Property\ReadOnlyPropertyRector;
+use Rector\PHPUnit\CodeQuality\Rector\Class_\NarrowUnusedSetUpDefinedPropertyRector;
 use Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector;
 use Rector\PHPUnit\Set\PHPUnitSetList;
 use Rector\Set\ValueObject\LevelSetList;
@@ -31,7 +33,7 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     $rectorConfig->sets([
-        LevelSetList::UP_TO_PHP_80,
+        LevelSetList::UP_TO_PHP_81,
         PHPUnitSetList::PHPUNIT_90,
         PHPUnitSetList::PHPUNIT_CODE_QUALITY,
     ]);
@@ -40,7 +42,9 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->importShortClasses(false);
     $rectorConfig->skip([
         ExceptionHandlerTypehintRector::class,
-        AddSeeTestAnnotationRector::class,
+        ReadOnlyPropertyRector::class,
+        NullToStrictStringFuncCallArgRector::class,
         PreferPHPUnitThisCallRector::class,
+        NarrowUnusedSetUpDefinedPropertyRector::class,
     ]);
 };

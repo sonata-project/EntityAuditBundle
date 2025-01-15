@@ -23,7 +23,7 @@ final class ViewRevisionAction
 {
     public function __construct(
         private Environment $twig,
-        private AuditReader $auditReader
+        private AuditReader $auditReader,
     ) {
     }
 
@@ -35,7 +35,7 @@ final class ViewRevisionAction
         try {
             $revision = $this->auditReader->findRevision($rev);
         } catch (InvalidRevisionException $ex) {
-            throw new NotFoundHttpException(sprintf('Revision %d not found', $rev), $ex);
+            throw new NotFoundHttpException(\sprintf('Revision %d not found', $rev), $ex);
         }
 
         $changedEntities = $this->auditReader->findEntitiesChangedAtRevision($rev);

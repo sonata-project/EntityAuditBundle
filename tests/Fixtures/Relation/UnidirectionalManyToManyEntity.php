@@ -37,7 +37,7 @@ class UnidirectionalManyToManyEntity
 
     public function __construct(
         #[ORM\Column(type: Types::STRING)]
-        private string $title
+        private string $title,
     ) {
         $this->linkedEntity = new ArrayCollection();
     }

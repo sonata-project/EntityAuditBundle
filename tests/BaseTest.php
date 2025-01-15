@@ -16,6 +16,7 @@ namespace Sonata\EntityAuditBundle\Tests;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
@@ -94,6 +95,7 @@ abstract class BaseTest extends TestCase
         }
 
         $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
+        $config->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
         $connection = $this->_getConnection($config);
 
         $this->em = new EntityManager($connection, $config, new EventManager());

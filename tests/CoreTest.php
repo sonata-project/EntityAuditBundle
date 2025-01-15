@@ -159,7 +159,7 @@ final class CoreTest extends BaseTest
         $reader = $this->getAuditManager()->createAuditReader($this->getEntityManager());
 
         $this->expectException(NoRevisionFoundException::class);
-        $this->expectExceptionMessage(sprintf(
+        $this->expectExceptionMessage(\sprintf(
             'No revision of class "%s" (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.',
             UserAudit::class
         ));

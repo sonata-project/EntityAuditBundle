@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.11.1@e33492398bd4e5e2ab60e331d445979bd83feecd">
+<files psalm-version="5.15.0@5c774aca4746caf3d239d9c8cadb9f882ca29352">
     <!-- NEXT_MAJOR: Remove this file -->
     <file src="src/Controller/AuditController.php">
         <UndefinedClass occurrences="1">

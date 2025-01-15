@@ -15,7 +15,8 @@ namespace SimpleThings\EntityAudit\Collection;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\AssociationMapping;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditReader;
 use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
@@ -58,21 +59,21 @@ class AuditedCollection implements Collection
     protected $initialized = false;
 
     /**
-     * @param string               $class
-     * @param array<string, mixed> $associationDefinition
-     * @param array<string, mixed> $foreignKeys
-     * @param string|int           $revision
+     * @param string                                  $class
+     * @param array<string, mixed>|AssociationMapping $associationDefinition
+     * @param array<string, mixed>                    $foreignKeys
+     * @param string|int                              $revision
      *
      * @phpstan-param class-string<T> $class
-     * @phpstan-param ClassMetadataInfo<T> $metadata
+     * @phpstan-param ClassMetadata<T> $metadata
      */
     public function __construct(
         protected AuditReader $auditReader,
         protected $class,
-        protected ClassMetadataInfo $metadata,
-        protected array $associationDefinition,
+        protected ClassMetadata $metadata,
+        protected array|AssociationMapping $associationDefinition,
         protected array $foreignKeys,
-        protected $revision
+        protected $revision,
     ) {
         $this->configuration = $auditReader->getConfiguration();
         $this->entities = new ArrayCollection();
@@ -81,8 +82,6 @@ class AuditedCollection implements Collection
 
     /**
      * @return void
-     *
-     * @phpstan-ignore-next-line https://github.com/phpstan/phpstan-doctrine/pull/560
      */
     #[\ReturnTypeWillChange]
     public function add(mixed $element)
@@ -297,8 +296,6 @@ class AuditedCollection implements Collection
      *
      * @phpstan-param \Closure(T, TKey):bool $p
      * @phpstan-return Collection<TKey, T>
-     *
-     * @psalm-suppress MoreSpecificImplementedParamType https://github.com/doctrine/collections/pull/411
      */
     #[\ReturnTypeWillChange]
     public function filter(\Closure $p)
@@ -341,8 +338,6 @@ class AuditedCollection implements Collection
      *
      * @phpstan-param \Closure(TKey, T):bool $p
      * @phpstan-return array{0: Collection<TKey, T>, 1: Collection<TKey, T>}
-     *
-     * @psalm-suppress MoreSpecificImplementedParamType https://github.com/doctrine/collections/pull/411
      */
     #[\ReturnTypeWillChange]
     public function partition(\Closure $p)
@@ -419,7 +414,7 @@ class AuditedCollection implements Collection
         $this->initialize();
 
         if (!$this->entities->offsetExists($offset)) {
-            throw new AuditedCollectionException(sprintf('Offset "%s" is not defined', $offset));
+            throw new AuditedCollectionException(\sprintf('Offset "%s" is not defined', $offset));
         }
 
         $entity = $this->entities->offsetGet($offset);

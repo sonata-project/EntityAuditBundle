@@ -40,7 +40,7 @@ abstract class BaseSelfReferencingManyToManyEntity
 
     public function __construct(
         #[ORM\Column(type: Types::STRING, name: 'title')]
-        private string $title
+        private string $title,
     ) {
         $this->linkedEntities = new ArrayCollection();
     }

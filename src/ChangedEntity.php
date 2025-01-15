@@ -28,7 +28,7 @@ class ChangedEntity
         private string $className,
         private array $id,
         private string $revType,
-        private object $entity
+        private object $entity,
     ) {
     }
 

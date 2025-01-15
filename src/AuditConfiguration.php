@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 
 class AuditConfiguration
@@ -73,7 +73,7 @@ class AuditConfiguration
     }
 
     /**
-     * @param ClassMetadataInfo<object> $metadata
+     * @param ClassMetadata<object> $metadata
      *
      * @return string
      *
@@ -81,7 +81,7 @@ class AuditConfiguration
      *
      * @psalm-suppress MoreSpecificReturnType,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10910
      */
-    public function getTableName(ClassMetadataInfo $metadata)
+    public function getTableName(ClassMetadata $metadata)
     {
         /** @var literal-string $tableName */
         $tableName = $metadata->getTableName();
@@ -275,7 +275,7 @@ class AuditConfiguration
     {
         // php 5.3 compat
         if (null !== $usernameCallable && !\is_callable($usernameCallable)) {
-            throw new \InvalidArgumentException(sprintf('Username Callable must be callable. Got: %s', get_debug_type($usernameCallable)));
+            throw new \InvalidArgumentException(\sprintf('Username Callable must be callable. Got: %s', get_debug_type($usernameCallable)));
         }
 
         $this->usernameCallable = $usernameCallable;

@@ -32,7 +32,7 @@ abstract class AnimalAudit
 
     public function __construct(
         #[ORM\Column(type: Types::STRING)]
-        private string $name
+        private string $name,
     ) {
     }
 

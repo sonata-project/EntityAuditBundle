@@ -35,7 +35,7 @@ class PageLocalization
 
     public function __construct(
         #[ORM\Column(type: Types::STRING)]
-        protected string $locale
+        protected string $locale,
     ) {
     }
 
