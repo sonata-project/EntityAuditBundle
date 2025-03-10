@@ -216,7 +216,9 @@ class AuditReader
                 $columnName = $idKeys[0];
             } elseif (isset($classMetadata->fieldMappings[$idField])) {
                 $columnName = self::getMappingColumnNameValue($classMetadata->fieldMappings[$idField]);
-            } elseif (!$this->config->areAssociationsDisabled() && isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+            } elseif ($this->config->areAssociationsDisabled()) {
+                continue;
+            } elseif (isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 $columnName = $classMetadata->associationMappings[$idField]['joinColumns'][0]['name'];
             } else {
                 throw new \RuntimeException('column name not found  for'.$idField);
@@ -543,7 +545,7 @@ class AuditReader
                     $whereSQL .= ' AND ';
                 }
                 $whereSQL .= 'e.'.self::getMappingColumnNameValue($classMetadata->fieldMappings[$idField]).' = ?';
-            } elseif (!$this->config->areAssociationsDisabled() &&  isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
+            } elseif (!$this->config->areAssociationsDisabled() && isset($classMetadata->associationMappings[$idField]['joinColumns'])) {
                 if ('' !== $whereSQL) {
                     $whereSQL .= ' AND ';
                 }

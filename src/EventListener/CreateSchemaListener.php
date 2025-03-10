@@ -113,10 +113,6 @@ class CreateSchemaListener implements EventSubscriber
         $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx';
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
 
-        if (!$this->config->areForeignKeysDisabled()) {
-            $this->createForeignKeys($revisionTable, $revisionsTable);
-        }
-
         if ($this->config->areAssociationsDisabled()) {
             return;
         }
@@ -129,6 +125,10 @@ class CreateSchemaListener implements EventSubscriber
                     $this->defferedJoinTablesToCreate[] = self::getMappingJoinTableNameValue($associationMapping);
                 }
             }
+        }
+
+        if (!$this->config->areForeignKeysDisabled()) {
+            $this->createForeignKeys($revisionTable, $revisionsTable);
         }
     }
 
