@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Exception;
 
+/**
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
+ */
 class NotAuditedException extends AuditException
 {
     public function __construct(string $className)

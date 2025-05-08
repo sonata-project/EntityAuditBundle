@@ -92,15 +92,17 @@ final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
         static::assertInstanceOf(UnidirectionalManyToManyEntity::class, $auditEntity);
         static::assertSame('foo', $auditEntity->getTitle());
         static::assertCount(1, $auditEntity->getLinkedEntities());
-        static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $auditEntity->getLinkedEntities()[0]);
-        static::assertSame('xyz', $auditEntity->getLinkedEntities()[0]->getName());
+        $linkEntity = $auditEntity->getLinkedEntities()[0];
+        static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $linkEntity);
+        static::assertSame('xyz', $linkEntity->getName());
 
         $auditEntity = $reader->find(UnidirectionalManyToManyEntity::class, $mainEntityId, 2);
         static::assertInstanceOf(UnidirectionalManyToManyEntity::class, $auditEntity);
         static::assertSame('bar', $auditEntity->getTitle());
         static::assertCount(1, $auditEntity->getLinkedEntities());
-        static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $auditEntity->getLinkedEntities()[0]);
-        static::assertSame('zxy', $auditEntity->getLinkedEntities()[0]->getName());
+        $linkEntity = $auditEntity->getLinkedEntities()[0];
+        static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $linkEntity);
+        static::assertSame('zxy', $linkEntity->getName());
 
         $em->clear();
 
@@ -114,7 +116,8 @@ final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
         static::assertInstanceOf(UnidirectionalManyToManyEntity::class, $auditEntity);
         static::assertSame('bar', $auditEntity->getTitle());
         static::assertCount(1, $auditEntity->getLinkedEntities());
-        static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $auditEntity->getLinkedEntities()[0]);
-        static::assertSame('zxy', $auditEntity->getLinkedEntities()[0]->getName());
+        $linkEntity = $auditEntity->getLinkedEntities()[0];
+        static::assertInstanceOf(UnidirectionalManyToManyLinkedEntity::class, $linkEntity);
+        static::assertSame('zxy', $linkEntity->getName());
     }
 }

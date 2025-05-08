@@ -32,6 +32,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  *
  * @deprecated since sonata-project/entity-audit-bundle 1.1, will be remove in 2.0.
  *
+ * @final since 1.19.0
+ *
  * NEXT_MAJOR: remove this controller
  */
 class AuditController extends Controller

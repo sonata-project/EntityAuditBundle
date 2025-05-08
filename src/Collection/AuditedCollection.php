@@ -25,6 +25,10 @@ use SimpleThings\EntityAudit\Exception\AuditedCollectionException;
  * @phpstan-template TKey of array-key
  * @phpstan-template T of object
  * @phpstan-implements Collection<TKey, T>
+ *
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
  */
 class AuditedCollection implements Collection
 {
