@@ -16,6 +16,9 @@ namespace Sonata\EntityAuditBundle\Tests\App\Entity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * @psalm-suppress ClassMustBeFinal
+ */
 #[ORM\Entity]
 #[ORM\Table(name: 'bundle_user')]
 class User

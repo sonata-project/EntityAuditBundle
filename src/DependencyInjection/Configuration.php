@@ -17,6 +17,11 @@ use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
+ */
 class Configuration implements ConfigurationInterface
 {
     private const ALLOWED_REVISION_ID_FIELD_TYPES = [

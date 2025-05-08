@@ -15,6 +15,11 @@ namespace SimpleThings\EntityAudit;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
+ */
 class SimpleThingsEntityAuditBundle extends Bundle
 {
 }

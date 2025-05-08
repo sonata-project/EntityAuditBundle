@@ -16,6 +16,11 @@ namespace SimpleThings\EntityAudit\User;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
+/**
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
+ */
 class TokenStorageUsernameCallable
 {
     private TokenStorageInterface $tokenStorage;

@@ -15,6 +15,9 @@ namespace Sonata\EntityAuditBundle\Tests\Fixtures\Relation;
 
 use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * @psalm-suppress ClassMustBeFinal
+ */
 #[ORM\Entity]
 class BookCategory extends Category
 {

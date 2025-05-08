@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\Metadata;
 
+/**
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
+ */
 class MetadataFactory
 {
     /**
