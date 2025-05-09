@@ -18,6 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Legal data entity.
+ *
+ * @psalm-suppress ClassMustBeFinal
  */
 #[ORM\Entity]
 class DataLegalEntity extends AbstractDataEntity

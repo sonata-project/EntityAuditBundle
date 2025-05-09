@@ -18,6 +18,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Private data entity.
+ *
+ * @psalm-suppress ClassMustBeFinal
  */
 #[ORM\Entity]
 class DataPrivateEntity extends AbstractDataEntity

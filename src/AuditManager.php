@@ -23,6 +23,10 @@ use SimpleThings\EntityAudit\Metadata\MetadataFactory;
 /**
  * Audit Manager grants access to metadata and configuration
  * and has a factory method for audit queries.
+ *
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
  */
 class AuditManager
 {

@@ -15,6 +15,10 @@ namespace SimpleThings\EntityAudit;
 
 /**
  * Revision is returned from {@link AuditReader::getRevisions()}.
+ *
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
  */
 class Revision
 {

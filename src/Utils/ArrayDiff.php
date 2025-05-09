@@ -17,6 +17,10 @@ namespace SimpleThings\EntityAudit\Utils;
  * Creates a diff between 2 arrays.
  *
  * @author Tim Nagel <tim@nagel.com.au>
+ *
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
  */
 class ArrayDiff
 {

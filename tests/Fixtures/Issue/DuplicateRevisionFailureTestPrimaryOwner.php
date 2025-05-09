@@ -19,6 +19,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * NB! Object property order matters!
+ *
+ * @psalm-suppress ClassMustBeFinal
  */
 #[ORM\Entity]
 class DuplicateRevisionFailureTestPrimaryOwner extends DuplicateRevisionFailureTestEntity

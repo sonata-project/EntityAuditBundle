@@ -15,6 +15,10 @@ namespace SimpleThings\EntityAudit;
 
 /**
  * @phpstan-template T of object
+ *
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
  */
 class ChangedEntity
 {

@@ -34,6 +34,11 @@ use SimpleThings\EntityAudit\Utils\ArrayDiff;
 use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 use SimpleThings\EntityAudit\Utils\SQLResultCasing;
 
+/**
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
+ */
 class AuditReader
 {
     use ORMCompatibilityTrait;
@@ -191,9 +196,9 @@ class AuditReader
      * @throws \RuntimeException
      *
      * @phpstan-param class-string<T>                   $className
-     * @phpstan-return T|null
+     * @phpstan-return T
      */
-    public function find($className, int|string|array $id, int|string $revision, array $options = []): ?object
+    public function find($className, int|string|array $id, int|string $revision, array $options = []): object
     {
         $options = array_merge(['threatDeletionsAsExceptions' => false], $options);
 
@@ -749,10 +754,13 @@ class AuditReader
         $stmt = $this->em->getConnection()->executeQuery($query, $values);
 
         $result = [];
-        while ($row = $stmt->fetchAssociative()) {
+        $row = $stmt->fetchAssociative();
+        while (false !== $row) {
             $rev = $row[$this->config->getRevisionFieldName()];
             unset($row[$this->config->getRevisionFieldName()]);
             $result[] = $this->createEntity($classMetadata->name, $columnMap, $row, $rev);
+
+            $row = $stmt->fetchAssociative();
         }
 
         return $result;

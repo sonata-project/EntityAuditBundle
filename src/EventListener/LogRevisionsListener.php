@@ -39,6 +39,9 @@ use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 
 /**
  * NEXT_MAJOR: do not implement EventSubscriber interface anymore.
+ * NEXT_MAJOR: Declare the class as final.
+ *
+ * @final since 1.19.0
  */
 class LogRevisionsListener implements EventSubscriber
 {
