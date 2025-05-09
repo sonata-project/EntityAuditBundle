@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Composer\InstalledVersions;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Schema;
@@ -147,8 +148,25 @@ class CreateSchemaListener implements EventSubscriber
         $primaryKey = $revisionsTable->getPrimaryKey();
         \assert(null !== $primaryKey);
 
+        /*
+         * doctrine/dbal 3 support -- Table::addForeignKeyConstraint() takes a Table instead of a string
+         *
+         * NEXT_MAJOR: remove this `if` block
+         */
+        if (version_compare(InstalledVersions::getVersion('doctrine/dbal') ?? '', '4.0.0', '<')) {
+            $relatedTable->addForeignKeyConstraint(
+                $revisionsTable, // @phpstan-ignore-line doctrine/dbal 3 support for old addForeignKeyConstraint() signature
+                [$this->config->getRevisionFieldName()],
+                $primaryKey->getColumns(),
+                [],
+                $revisionForeignKeyName
+            );
+
+            return;
+        }
+
         $relatedTable->addForeignKeyConstraint(
-            $revisionsTable,
+            $revisionsTable->getName(),
             [$this->config->getRevisionFieldName()],
             $primaryKey->getColumns(),
             [],

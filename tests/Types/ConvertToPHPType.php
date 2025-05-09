@@ -28,12 +28,12 @@ final class ConvertToPHPType extends TextType
         return true;
     }
 
-    public function convertToPHPValueSQL($sqlExpr, $platform): string
+    public function convertToPHPValueSQL(string $sqlExpr, AbstractPlatform $platform): string
     {
         return \sprintf('UPPER(%s)', $sqlExpr);
     }
 
-    public function convertToDatabaseValueSQL($sqlExpr, AbstractPlatform $platform): string
+    public function convertToDatabaseValueSQL(string $sqlExpr, AbstractPlatform $platform): string
     {
         return \sprintf('LOWER(%s)', $sqlExpr);
     }

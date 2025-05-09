@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace SimpleThings\EntityAudit\EventListener;
 
+use Composer\InstalledVersions;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
@@ -383,8 +385,16 @@ class LogRevisionsListener implements EventSubscriber
             );
 
             $revisionId = $conn->lastInsertId();
-            if (false === $revisionId) {
-                throw new \RuntimeException('Unable to retrieve the last revision id.');
+            /*
+             * Preceding lastInsertId throws Doctrine\DBAL\Exception\DriverException on doctrine/dbal 4+, making the
+             * next check unnecessary.
+             *
+             * NEXT_MAJOR: Remove the following block
+             */
+            if (version_compare(InstalledVersions::getVersion('doctrine/dbal') ?? '', '4.0.0', '<')) {
+                if (false === $revisionId) { // @phpstan-ignore-line doctrine/dbal 3 lastInsertId() can return false
+                    throw new \RuntimeException('Unable to retrieve the last revision id.');
+                }
             }
 
             $this->revisionId = $revisionId;
@@ -523,7 +533,7 @@ class LogRevisionsListener implements EventSubscriber
         $conn = $em->getConnection();
 
         $params = [$this->getRevisionId($conn), $revType];
-        $types = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+        $types = [ParameterType::INTEGER, ParameterType::STRING];
 
         $fields = [];
 
@@ -547,7 +557,7 @@ class LogRevisionsListener implements EventSubscriber
                         $fields[$sourceColumn] = true;
                         if (null === $data) {
                             $params[] = null;
-                            $types[] = \PDO::PARAM_STR;
+                            $types[] = ParameterType::STRING;
                         } else {
                             $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
                             $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
@@ -642,7 +652,7 @@ class LogRevisionsListener implements EventSubscriber
     ): void {
         $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];
-        $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+        $joinTableTypes = [ParameterType::INTEGER, ParameterType::STRING];
 
         foreach (self::getRelationToSourceKeyColumns($assoc) as $targetColumn) {
             $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
