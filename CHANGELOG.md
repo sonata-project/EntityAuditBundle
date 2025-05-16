@@ -2,6 +2,32 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.19.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.18.0...1.19.0) - 2025-05-16
+### Deprecated
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\AuditConfiguration ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\AuditManager ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\AuditReader ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\ChangedEntity ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\AuditedCollection ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\DependencyInjection\Configuration ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\DependencyInjection\SimpleThingsEntityAuditExtension ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\EventListener\CreateSchemaListener ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\EventListener\LogRevisionsListener ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Exception\AuditedCollectionException ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Exception\DeletedException ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Exception\InvalidRevisionException ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Exception\NoRevisionFoundException ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Exception\NotAuditedException ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Metadata\MetadataFactory ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Revision ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\User\TokenStorageUsernameCallable ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Utils\ArrayDiff ([@VincentLanglet](https://github.com/VincentLanglet))
+- [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\Utils\SimpleDiff ([@VincentLanglet](https://github.com/VincentLanglet))
+
+### Fixed
+- [[#648](https://github.com/sonata-project/EntityAuditBundle/pull/648)] Fixed an error in determining the column type ([@xelatt](https://github.com/xelatt))
+
 ## [1.18.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.17.1...1.18.0) - 2024-07-14
 ### Added
 - [[#590](https://github.com/sonata-project/EntityAuditBundle/pull/590)] Support for `doctrine/orm` 3 ([@franmomu](https://github.com/franmomu))
