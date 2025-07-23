@@ -38,13 +38,11 @@ final class Issue318Test extends BaseTest
         $userMetadata = $em->getClassMetadata($user::class);
         $classes = [$userMetadata];
         $schema = $this->getSchemaTool()->getSchemaFromMetadata($classes);
-        $schemaName = $schema->getName();
         $config = $this->getAuditManager()->getConfiguration();
         $userNotNullColumnName = 'alias';
         $userIdColumnName = 'id';
         $revisionsTableUser = $schema->getTable(\sprintf(
-            '%s.%sissue318user%s',
-            $schemaName,
+            '%sissue318user%s',
             $config->getTablePrefix(),
             $config->getTableSuffix()
         ));

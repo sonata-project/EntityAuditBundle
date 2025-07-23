@@ -16,6 +16,7 @@ namespace SimpleThings\EntityAudit\EventListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,6 +36,7 @@ use SimpleThings\EntityAudit\AuditConfiguration;
 use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\DeferredChangedManyToManyEntityRevisionToPersist;
 use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use SimpleThings\EntityAudit\Utils\DbalCompatibilityTrait;
 use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
 
 /**
@@ -45,6 +47,7 @@ use SimpleThings\EntityAudit\Utils\ORMCompatibilityTrait;
  */
 class LogRevisionsListener implements EventSubscriber
 {
+    use DbalCompatibilityTrait;
     use ORMCompatibilityTrait;
 
     private AuditConfiguration $config;
@@ -169,7 +172,7 @@ class LogRevisionsListener implements EventSubscriber
                     }
 
                     if (null === $type) {
-                        throw new \Exception(\sprintf('Could not resolve database type for column "%s" during extra updates', $column));
+                        throw new \RuntimeException(\sprintf('Could not resolve database type for column "%s" during extra updates', $column));
                     }
 
                     $types[] = $type;
@@ -186,7 +189,11 @@ class LogRevisionsListener implements EventSubscriber
                     $types[] = self::getMappingValue($meta->fieldMappings[$idField], 'type');
                 } elseif (isset($meta->associationMappings[$idField]['joinColumns'])) {
                     $columnName = self::getMappingNameValue($meta->associationMappings[$idField]['joinColumns'][0]);
-                    $types[] = $meta->associationMappings[$idField]['type'];
+                    if ($this->isDbal4()) {
+                        $types[] = ParameterType::STRING;
+                    } else {
+                        $types[] = $meta->associationMappings[$idField]['type'];
+                    }
                 } else {
                     throw new \RuntimeException('column name not found  for'.$idField);
                 }
@@ -198,6 +205,7 @@ class LogRevisionsListener implements EventSubscriber
                 $sql .= ' AND '.$columnName.' = ?';
             }
 
+            /** @psalm-suppress InvalidArgument for doctrine/dbal 3 type can be integer */
             $em->getConnection()->executeQuery($sql, $params, $types);
         }
 
@@ -383,7 +391,11 @@ class LogRevisionsListener implements EventSubscriber
             );
 
             $revisionId = $conn->lastInsertId();
-            if (false === $revisionId) {
+            /*
+             * NEXT_MAJOR: Remove this `if` block, because lastInsertId throws an exception in DBAL 4
+             */
+            /** @psalm-suppress TypeDoesNotContainType */
+            if (false === $revisionId) { // @phpstan-ignore-line doctrine/dbal 3 lastInsertId() can return false
                 throw new \RuntimeException('Unable to retrieve the last revision id.');
             }
 
@@ -451,7 +463,7 @@ class LogRevisionsListener implements EventSubscriber
 
             if (
                 (
-                    $class->isInheritanceTypeJoined() && $class->rootEntityName === $class->name
+                    ($class->isInheritanceTypeJoined() && $class->rootEntityName === $class->name)
                     || $class->isInheritanceTypeSingleTable()
                 )
                 && null !== $class->discriminatorColumn
@@ -523,7 +535,11 @@ class LogRevisionsListener implements EventSubscriber
         $conn = $em->getConnection();
 
         $params = [$this->getRevisionId($conn), $revType];
-        $types = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+        if ($this->isDbal4()) {
+            $types = [ParameterType::INTEGER, ParameterType::STRING];
+        } else {
+            $types = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+        }
 
         $fields = [];
 
@@ -547,7 +563,11 @@ class LogRevisionsListener implements EventSubscriber
                         $fields[$sourceColumn] = true;
                         if (null === $data) {
                             $params[] = null;
-                            $types[] = \PDO::PARAM_STR;
+                            if ($this->isDbal4()) {
+                                $types[] = ParameterType::STRING;
+                            } else {
+                                $types[] = \PDO::PARAM_STR;
+                            }
                         } else {
                             $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]] ?? null;
                             $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
@@ -622,6 +642,7 @@ class LogRevisionsListener implements EventSubscriber
             }
         }
 
+        /** @psalm-suppress InvalidArgument for doctrine/dbal 3 type can be integer */
         $conn->executeStatement($this->getInsertRevisionSQL($em, $class), $params, $types);
     }
 
@@ -642,7 +663,11 @@ class LogRevisionsListener implements EventSubscriber
     ): void {
         $conn = $em->getConnection();
         $joinTableParams = [$this->getRevisionId($conn), $revType];
-        $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+        if ($this->isDbal4()) {
+            $joinTableTypes = [ParameterType::INTEGER, ParameterType::STRING];
+        } else {
+            $joinTableTypes = [\PDO::PARAM_INT, \PDO::PARAM_STR];
+        }
 
         foreach (self::getRelationToSourceKeyColumns($assoc) as $targetColumn) {
             $joinTableParams[] = $entityData[$class->fieldNames[$targetColumn]];
@@ -655,10 +680,11 @@ class LogRevisionsListener implements EventSubscriber
             $joinTableParams[] = $reflField->getValue($relatedEntity);
             $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $targetClass, $em);
         }
+        /** @psalm-suppress InvalidArgument for doctrine/dbal 3 type can be integer */
         $conn->executeStatement(
             $this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc),
             $joinTableParams,
-            $joinTableTypes
+            $joinTableTypes // @phpstan-ignore-line for doctrine/dbal 3 type can be integer
         );
     }
 
