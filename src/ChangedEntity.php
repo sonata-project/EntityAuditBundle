@@ -25,8 +25,8 @@ class ChangedEntity
     /**
      * @param array<string, int|string> $id
      *
-     * @phpstan-param class-string<T> $className
      * @phpstan-param T $entity
+     * @phpstan-param class-string<T> $className
      */
     public function __construct(
         private string $className,
