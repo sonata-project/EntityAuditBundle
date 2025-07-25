@@ -323,10 +323,9 @@ class AuditedCollection implements Collection
     }
 
     /**
-     * @phpstan-template U
-     *
      * @return Collection<TKey, U>
      *
+     * @phpstan-template U
      * @phpstan-param \Closure(T):U $func
      * @phpstan-return Collection<TKey, U>
      */
