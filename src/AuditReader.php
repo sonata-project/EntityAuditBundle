@@ -1070,7 +1070,12 @@ class AuditReader
                                     $joinKey = $row[$targetKeyJoinColumn];
                                     $id[$targetKeyColumn] = $joinKey;
                                 }
-                                $object = $this->find($targetClass->getName(), $id, $revision);
+                                try {
+                                    $object = $this->find($targetClass->getName(), $id, $revision);
+                                } catch (NoRevisionFoundException) {
+                                    // The entity does not have any revision yet. So let's get the actual state of it.
+                                    $object = $this->em->getRepository($targetClass->getName())->findOneBy($id);
+                                }
                                 if (null !== $object) {
                                     $collection->add($object);
                                 }
@@ -1155,7 +1160,12 @@ class AuditReader
                                     $id[$sourceKeyColumn] = $joinKey;
                                 }
 
-                                $object = $this->find($targetClass->getName(), $id, $revision);
+                                try {
+                                    $object = $this->find($targetClass->getName(), $id, $revision);
+                                } catch (NoRevisionFoundException) {
+                                    // The entity does not have any revision yet. So let's get the actual state of it.
+                                    $object = $this->em->getRepository($targetClass->getName())->findOneBy($id);
+                                }
                                 if (null !== $object) {
                                     $collection->add($object);
                                 }
