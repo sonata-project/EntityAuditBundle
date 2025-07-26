@@ -68,8 +68,8 @@ class AuditedCollection implements Collection
      * @param array<string, mixed>                    $foreignKeys
      * @param string|int                              $revision
      *
-     * @phpstan-param class-string<T> $class
      * @phpstan-param ClassMetadata<T> $metadata
+     * @phpstan-param class-string<T> $class
      */
     public function __construct(
         protected AuditReader $auditReader,
@@ -323,9 +323,10 @@ class AuditedCollection implements Collection
     }
 
     /**
+     * @phpstan-template U
+     *
      * @return Collection<TKey, U>
      *
-     * @phpstan-template U
      * @phpstan-param \Closure(T):U $func
      * @phpstan-return Collection<TKey, U>
      */
