@@ -297,7 +297,7 @@ class AuditReader
                 $allDiscrValues = array_flip($classMetadata->discriminatorMap);
                 $queriedDiscrValues = [$this->em->getConnection()->quote($classMetadata->discriminatorValue)];
                 foreach ($classMetadata->subClasses as $subclassName) {
-                    $queriedDiscrValues[] = $this->em->getConnection()->quote($allDiscrValues[$subclassName]);
+                    $queriedDiscrValues[] = $this->em->getConnection()->quote((string) $allDiscrValues[$subclassName]);
                 }
 
                 $whereSQL .= \sprintf(

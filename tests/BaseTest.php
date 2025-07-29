@@ -17,6 +17,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\DefaultSchemaManagerFactory;
+use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
@@ -126,7 +127,8 @@ abstract class BaseTest extends TestCase
         if (!isset(self::$conn)) {
             $url = getenv('DATABASE_URL');
             if (false !== $url) {
-                $params = ['url' => $url];
+                $dsnParser = new DsnParser(['mysql' => 'pdo_mysql', 'postgresql' => 'pdo_pgsql']);
+                $params = $dsnParser->parse($url);
             } else {
                 $params = [
                     'driver' => 'pdo_sqlite',
