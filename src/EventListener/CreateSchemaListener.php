@@ -144,6 +144,10 @@ class CreateSchemaListener implements EventSubscriber
         }
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
 
+        if ($this->config->areAssociationsDisabled()) {
+            return;
+        }
+
         foreach ($cm->associationMappings as $associationMapping) {
             if (self::isManyToManyOwningSideMapping($associationMapping)) {
                 if ($schema->hasTable(self::getMappingJoinTableNameValue($associationMapping))) {

@@ -33,6 +33,8 @@ class AuditConfiguration
 
     private bool $disableForeignKeys = false;
 
+    private bool $disableAssociations = false;
+
     /**
      * @var string[]
      */
@@ -105,6 +107,16 @@ class AuditConfiguration
     public function setDisabledForeignKeys(bool $disabled): void
     {
         $this->disableForeignKeys = $disabled;
+    }
+
+    public function areAssociationsDisabled(): bool
+    {
+        return $this->disableAssociations;
+    }
+
+    public function setDisableAssociations(bool $disabled): void
+    {
+        $this->disableAssociations = $disabled;
     }
 
     /**

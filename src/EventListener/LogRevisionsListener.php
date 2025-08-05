@@ -209,6 +209,10 @@ class LogRevisionsListener implements EventSubscriber
             $em->getConnection()->executeQuery($sql, $params, $types);
         }
 
+        if ($this->config->areAssociationsDisabled()) {
+            return;
+        }
+
         foreach ($this->deferredChangedManyToManyEntityRevisionsToPersist as $deferredChangedManyToManyEntityRevisionToPersist) {
             $this->recordRevisionForManyToManyEntity(
                 $deferredChangedManyToManyEntityRevisionToPersist->getEntity(),
@@ -573,7 +577,7 @@ class LogRevisionsListener implements EventSubscriber
                             $types[] = $targetClass->getTypeOfField($targetClass->getFieldForColumn($targetColumn));
                         }
                     }
-                } elseif (self::isManyToManyOwningSideMapping($assoc)) {
+                } elseif (!$this->config->areAssociationsDisabled() && self::isManyToManyOwningSideMapping($assoc)) {
                     $targetClass = $em->getClassMetadata(self::getMappingTargetEntityValue($assoc));
 
                     $collection = $entityData[$assoc['fieldName']];
