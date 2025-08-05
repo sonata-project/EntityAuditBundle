@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.20.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.19.0...1.20.0) - 2025-08-06
+### Added
+- [[#652](https://github.com/sonata-project/EntityAuditBundle/pull/652)] Support for doctrine/dbal 4 ([@valkars](https://github.com/valkars))
+
+### Fixed
+- [[#653](https://github.com/sonata-project/EntityAuditBundle/pull/653)] NoRevisionFoundException when viewing history of entities with ManyToMany associations. ([@valkars](https://github.com/valkars))
+- [[#652](https://github.com/sonata-project/EntityAuditBundle/pull/652)] Creating of Join Audit tables with string primary keys ([@valkars](https://github.com/valkars))
+
 ## [1.19.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.18.0...1.19.0) - 2025-05-16
 ### Deprecated
 - [[#647](https://github.com/sonata-project/EntityAuditBundle/pull/647)] Extending SimpleThings\EntityAudit\AuditConfiguration ([@VincentLanglet](https://github.com/VincentLanglet))
