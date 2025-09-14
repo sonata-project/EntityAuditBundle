@@ -195,7 +195,7 @@ final class CoreTest extends BaseTestCase
         $revisions = $reader->findRevisionHistory();
 
         static::assertCount(2, $revisions);
-        static::assertContainsOnly(Revision::class, $revisions);
+        static::assertContainsOnlyInstancesOf(Revision::class, $revisions);
 
         static::assertSame('2', (string) $revisions[0]->getRev());
         static::assertInstanceOf(\DateTime::class, $revisions[0]->getTimestamp());
@@ -230,7 +230,7 @@ final class CoreTest extends BaseTestCase
 
         // duplicated entries means a bug with discriminators
         static::assertCount(6, $changedEntities);
-        static::assertContainsOnly(ChangedEntity::class, $changedEntities);
+        static::assertContainsOnlyInstancesOf(ChangedEntity::class, $changedEntities);
 
         static::assertSame(ArticleAudit::class, $changedEntities[0]->getClassName());
         static::assertSame('INS', $changedEntities[0]->getRevisionType());
@@ -337,7 +337,7 @@ final class CoreTest extends BaseTestCase
         $revisions = $reader->findRevisions(UserAudit::class, $userId);
 
         static::assertCount(2, $revisions);
-        static::assertContainsOnly(Revision::class, $revisions);
+        static::assertContainsOnlyInstancesOf(Revision::class, $revisions);
 
         static::assertSame('2', (string) $revisions[0]->getRev());
         static::assertInstanceOf(\DateTime::class, $revisions[0]->getTimestamp());
@@ -442,7 +442,7 @@ final class CoreTest extends BaseTestCase
         $changedEntities = $reader->findEntitiesChangedAtRevision(2);
 
         static::assertCount(1, $changedEntities);
-        static::assertContainsOnly(ChangedEntity::class, $changedEntities);
+        static::assertContainsOnlyInstancesOf(ChangedEntity::class, $changedEntities);
         static::assertSame(UserAudit::class, $changedEntities[0]->getClassName());
         static::assertSame('DEL', $changedEntities[0]->getRevisionType());
         static::assertArrayHasKey('id', $changedEntities[0]->getId());

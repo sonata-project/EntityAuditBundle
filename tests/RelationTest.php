@@ -144,7 +144,7 @@ final class RelationTest extends BaseTestCase
         $changedOwner = $changedEntities[0]->getEntity();
         $changedOwned = $changedEntities[1]->getEntity();
 
-        static::assertContainsOnly(ChangedEntity::class, $changedEntities);
+        static::assertContainsOnlyInstancesOf(ChangedEntity::class, $changedEntities);
         static::assertSame(OwnerEntity::class, $changedEntities[0]->getClassName());
         static::assertInstanceOf(OwnerEntity::class, $changedOwner);
         static::assertInstanceOf(OwnedEntity1::class, $changedOwned);
