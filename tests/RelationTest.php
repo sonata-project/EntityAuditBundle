@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests;
 
 use Doctrine\Common\Collections\Collection;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\Group;
 use SimpleThings\EntityAudit\ChangedEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\AbstractDataEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Category;
@@ -41,7 +43,7 @@ use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationOneToOneEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationReferencedEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\WineProduct;
 
-final class RelationTest extends BaseTest
+final class RelationTest extends BaseTestCase
 {
     protected $schemaEntities = [
         OwnerEntity::class,
@@ -142,7 +144,7 @@ final class RelationTest extends BaseTest
         $changedOwner = $changedEntities[0]->getEntity();
         $changedOwned = $changedEntities[1]->getEntity();
 
-        static::assertContainsOnly(ChangedEntity::class, $changedEntities);
+        static::assertContainsOnlyInstancesOf(ChangedEntity::class, $changedEntities);
         static::assertSame(OwnerEntity::class, $changedEntities[0]->getClassName());
         static::assertInstanceOf(OwnerEntity::class, $changedOwner);
         static::assertInstanceOf(OwnedEntity1::class, $changedOwned);
@@ -401,9 +403,7 @@ final class RelationTest extends BaseTest
         static::assertCount(1, $audited->getSecondaryTargets());
     }
 
-    /**
-     * @group mysql
-     */
+    #[Group('mysql')]
     public function testRelations(): void
     {
         $em = $this->getEntityManager();
@@ -607,9 +607,7 @@ final class RelationTest extends BaseTest
         static::assertCount(5, $history);
     }
 
-    /**
-     * @group mysql
-     */
+    #[Group('mysql')]
     public function testRemoval(): void
     {
         $em = $this->getEntityManager();
@@ -684,9 +682,7 @@ final class RelationTest extends BaseTest
         static::assertCount(0, $owner->getOwned1());
     }
 
-    /**
-     * @group mysql
-     */
+    #[Group('mysql')]
     public function testDetaching(): void
     {
         $em = $this->getEntityManager();
@@ -906,9 +902,7 @@ final class RelationTest extends BaseTest
         static::assertNotEmpty($auditedPage->getLocalizations()->get('en-GB'));
     }
 
-    /**
-     * @group mysql
-     */
+    #[Group('mysql')]
     public function testOneToManyCollectionDeletedElements(): void
     {
         $em = $this->getEntityManager();
@@ -1011,9 +1005,8 @@ final class RelationTest extends BaseTest
     /**
      * Specific test for the case where a join condition is via an ORM/Id and where the column is also an object.
      * Used to result in an 'array to string conversion' error.
-     *
-     * @doesNotPerformAssertions
      */
+    #[DoesNotPerformAssertions]
     public function testJoinOnObject(): void
     {
         $em = $this->getEntityManager();

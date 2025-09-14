@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\EscapedColumnsEntity;
 
-final class IssueEscapedColumnsTest extends BaseTest
+final class IssueEscapedColumnsTest extends BaseTestCase
 {
     protected $schemaEntities = [
         EscapedColumnsEntity::class,

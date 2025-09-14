@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
 use Gedmo\SoftDeleteable\SoftDeleteableListener;
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue111Entity;
 
-final class Issue111Test extends BaseTest
+final class Issue111Test extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue111Entity::class,

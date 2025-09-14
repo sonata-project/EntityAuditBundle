@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue9Address;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue9Customer;
 
-final class Issue9Test extends BaseTest
+final class Issue9Test extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue9Address::class,

@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\DuplicateRevisionFailureTestOwnedElement;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\DuplicateRevisionFailureTestPrimaryOwner;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\DuplicateRevisionFailureTestSecondaryOwner;
 
-final class IssueDuplicateRevisionTest extends BaseTest
+final class IssueDuplicateRevisionTest extends BaseTestCase
 {
     protected $schemaEntities = [
         DuplicateRevisionFailureTestPrimaryOwner::class,
