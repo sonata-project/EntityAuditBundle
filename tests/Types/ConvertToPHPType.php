@@ -23,6 +23,9 @@ final class ConvertToPHPType extends TextType
         return 'upper';
     }
 
+    /**
+     * @return true
+     */
     public function canRequireSQLConversion(): bool
     {
         return true;

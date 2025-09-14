@@ -26,6 +26,9 @@ final class Issue196Type extends TextType
         return 'issue196type';
     }
 
+    /**
+     * @return true
+     */
     public function canRequireSQLConversion(): bool
     {
         return true;
