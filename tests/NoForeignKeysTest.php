@@ -21,7 +21,7 @@ use SimpleThings\EntityAudit\AuditManager;
 use SimpleThings\EntityAudit\Exception\NotAuditedException;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Core\UserAudit;
 
-final class NoForeignKeysTest extends BaseTest
+final class NoForeignKeysTest extends BaseTestCase
 {
     protected $schemaEntities = [
         UserAudit::class,

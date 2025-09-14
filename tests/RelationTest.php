@@ -43,7 +43,7 @@ use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationOneToOneEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\RelationReferencedEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\WineProduct;
 
-final class RelationTest extends BaseTest
+final class RelationTest extends BaseTestCase
 {
     protected $schemaEntities = [
         OwnerEntity::class,

@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue156Client;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue156Contact;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue156ContactTelephoneNumber;
 
-final class Issue156Test extends BaseTest
+final class Issue156Test extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue156Contact::class,

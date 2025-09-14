@@ -29,7 +29,7 @@ use Sonata\EntityAuditBundle\Tests\Fixtures\Core\ProfileAudit;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Core\Rabbit;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Core\UserAudit;
 
-final class CoreTest extends BaseTest
+final class CoreTest extends BaseTestCase
 {
     protected $schemaEntities = [
         ArticleAudit::class,

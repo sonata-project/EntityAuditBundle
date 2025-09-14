@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\BaseSelfReferencingManyToManyEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\SelfReferencingManyToManyEntity;
 
-final class IssueSelfReferencingManyToManyEntityTest extends BaseTest
+final class IssueSelfReferencingManyToManyEntityTest extends BaseTestCase
 {
     protected $schemaEntities = [
         BaseSelfReferencingManyToManyEntity::class,
