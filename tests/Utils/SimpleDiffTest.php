@@ -13,14 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Utils;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use SimpleThings\EntityAudit\Utils\SimpleDiff;
 
 final class SimpleDiffTest extends TestCase
 {
-    /**
-     * @dataProvider provideDiffCases
-     */
+    #[DataProvider('provideDiffCases')]
     public function testDiff(string $old, string $new, string $output): void
     {
         $diff = new SimpleDiff();
