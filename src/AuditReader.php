@@ -1086,7 +1086,7 @@ class AuditReader
                         }
                     }
 
-                    $classMetadata->setFieldValue($entity, $field, new ArrayCollection());
+                    $classMetadata->setFieldValue($entity, $field, $collection);
                 } elseif (isset($targetClass->associationMappings[$mappedBy])) {
                     $targetAssoc = $targetClass->associationMappings[$mappedBy];
                     $whereId = [$this->config->getRevisionFieldName().' = ?'];
