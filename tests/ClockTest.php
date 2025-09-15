@@ -16,7 +16,7 @@ namespace Sonata\EntityAuditBundle\Tests;
 use Psr\Clock\ClockInterface;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue318User;
 
-final class ClockTest extends BaseTest
+final class ClockTest extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue318User::class,

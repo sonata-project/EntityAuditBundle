@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Functional;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sonata\EntityAuditBundle\Tests\App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,9 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SmokeTest extends WebTestCase
 {
-    /**
-     * @dataProvider provideSuccessfulResponsesCases
-     */
+    #[DataProvider('provideSuccessfulResponsesCases')]
     public function testSuccessfulResponses(string $url): void
     {
         $client = self::createClient();
@@ -34,7 +33,7 @@ final class SmokeTest extends WebTestCase
     /**
      * @return iterable<array{string}>
      */
-    public function provideSuccessfulResponsesCases(): iterable
+    public static function provideSuccessfulResponsesCases(): iterable
     {
         yield 'index' => ['/audit'];
         yield 'view revision' => ['/audit/viewrev/1'];

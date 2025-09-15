@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
 use Doctrine\Common\Collections\Collection;
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue308User;
 
-final class Issue308Test extends BaseTest
+final class Issue308Test extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue308User::class,

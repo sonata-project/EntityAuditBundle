@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\ConvertToPHPEntity;
 use Sonata\EntityAuditBundle\Tests\Types\ConvertToPHPType;
 
-final class IssueConvertToPHPTest extends BaseTest
+final class IssueConvertToPHPTest extends BaseTestCase
 {
     protected $schemaEntities = [
         ConvertToPHPEntity::class,

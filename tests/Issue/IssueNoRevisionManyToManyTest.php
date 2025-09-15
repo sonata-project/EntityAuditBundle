@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Company;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\DocumentType;
 
-final class IssueNoRevisionManyToManyTest extends BaseTest
+final class IssueNoRevisionManyToManyTest extends BaseTestCase
 {
     protected $schemaEntities = [
         Company::class,

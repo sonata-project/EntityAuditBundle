@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\UnidirectionalManyToManyEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\UnidirectionalManyToManyLinkedEntity;
 
-final class IssueUnidirectionalManyToManyEntityTest extends BaseTest
+final class IssueUnidirectionalManyToManyEntityTest extends BaseTestCase
 {
     protected $schemaEntities = [
         UnidirectionalManyToManyEntity::class,

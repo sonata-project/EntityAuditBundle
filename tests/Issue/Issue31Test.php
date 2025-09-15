@@ -13,11 +13,12 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue31Reve;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue31User;
 
-final class Issue31Test extends BaseTest
+final class Issue31Test extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue31User::class,
@@ -29,9 +30,7 @@ final class Issue31Test extends BaseTest
         Issue31Reve::class,
     ];
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testIssue31(): void
     {
         $em = $this->getEntityManager();

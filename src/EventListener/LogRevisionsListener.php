@@ -198,8 +198,13 @@ class LogRevisionsListener implements EventSubscriber
                     throw new \RuntimeException('column name not found  for'.$idField);
                 }
 
-                $reflField = $meta->reflFields[$idField];
+                /** @psalm-suppress DeprecatedProperty */
+                $reflField = $meta->propertyAccessors[$idField] ?? $meta->reflFields[$idField];
                 \assert(null !== $reflField);
+                /**
+                 * @psalm-suppress InternalMethod
+                 * @phpstan-ignore-next-line method.internalInterface
+                 */
                 $params[] = $reflField->getValue($entity);
 
                 $sql .= ' AND '.$columnName.' = ?';
@@ -342,8 +347,13 @@ class LogRevisionsListener implements EventSubscriber
         if ($class->isVersioned) {
             $versionField = $class->versionField;
             \assert(null !== $versionField);
-            $reflField = $class->reflFields[$versionField];
+            /** @psalm-suppress DeprecatedProperty */
+            $reflField = $class->propertyAccessors[$versionField] ?? $class->reflFields[$versionField];
             \assert(null !== $reflField);
+            /**
+             * @psalm-suppress InternalMethod
+             * @phpstan-ignore-next-line method.internalInterface
+             */
             $data[$versionField] = $reflField->getValue($entity);
         }
 
@@ -361,8 +371,13 @@ class LogRevisionsListener implements EventSubscriber
         $class = $em->getClassMetadata($entity::class);
         foreach ($class->associationMappings as $field => $assoc) {
             if (self::isManyToManyOwningSideMapping($assoc)) {
-                $reflField = $class->reflFields[$field];
+                /** @psalm-suppress DeprecatedProperty */
+                $reflField = $class->propertyAccessors[$field] ?? $class->reflFields[$field];
                 \assert(null !== $reflField);
+                /**
+                 * @psalm-suppress InternalMethod
+                 * @phpstan-ignore-next-line method.internalInterface
+                 */
                 $data[$field] = $reflField->getValue($entity);
             }
         }
@@ -672,8 +687,13 @@ class LogRevisionsListener implements EventSubscriber
         }
 
         foreach (self::getRelationToTargetKeyColumns($assoc) as $targetColumn) {
-            $reflField = $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]];
+            /** @psalm-suppress DeprecatedProperty */
+            $reflField = $targetClass->propertyAccessors[$targetClass->fieldNames[$targetColumn]] ?? $targetClass->reflFields[$targetClass->fieldNames[$targetColumn]];
             \assert(null !== $reflField);
+            /**
+             * @psalm-suppress InternalMethod
+             * @phpstan-ignore-next-line method.internalInterface
+             */
             $joinTableParams[] = $reflField->getValue($relatedEntity);
             $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $targetClass, $em);
         }

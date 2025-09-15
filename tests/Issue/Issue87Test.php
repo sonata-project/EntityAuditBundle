@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use Sonata\EntityAuditBundle\Tests\BaseTest;
+use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue87AbstractProject;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue87Organization;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue87Project;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\Issue87ProjectComment;
 
-final class Issue87Test extends BaseTest
+final class Issue87Test extends BaseTestCase
 {
     protected $schemaEntities = [
         Issue87Project::class,
