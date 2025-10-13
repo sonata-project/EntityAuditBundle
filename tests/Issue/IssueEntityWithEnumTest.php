@@ -18,7 +18,7 @@ use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\PHP81Issue\IssueEntityWithEnum;
 use Sonata\EntityAuditBundle\Tests\Fixtures\PHP81Issue\Status;
 
-#[RequiresPhp('8.1')]
+#[RequiresPhp('>= 8.1')]
 final class IssueEntityWithEnumTest extends BaseTestCase
 {
     protected $schemaEntities = [
