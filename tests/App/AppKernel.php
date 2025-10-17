@@ -24,7 +24,6 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AppKernel extends Kernel
 {
@@ -67,11 +66,6 @@ final class AppKernel extends Kernel
         $containerBuilder->setParameter('app.base_dir', $this->getBaseDir());
 
         $loader->load(__DIR__.'/config/config.yml');
-
-        if (!class_exists(IsGranted::class)) {
-            $loader->load(__DIR__.'/config/config_symfony_v5.yml');
-        }
-
         $loader->load(__DIR__.'/config/services.php');
     }
 
