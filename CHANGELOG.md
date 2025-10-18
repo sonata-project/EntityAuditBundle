@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.22.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.21.0...1.22.0) - 2025-10-18
+### Added
+- [[#662](https://github.com/sonata-project/EntityAuditBundle/pull/662)] Added `audit.php` routing config ([@dmaicher](https://github.com/dmaicher))
+
+### Deprecated
+- [[#662](https://github.com/sonata-project/EntityAuditBundle/pull/662)] Deprecated `audit.xml` routing config ([@dmaicher](https://github.com/dmaicher))
+
 ## [1.21.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.20.0...1.21.0) - 2025-10-12
 ### Added
 - [[#660](https://github.com/sonata-project/EntityAuditBundle/pull/660)] - Add support for `doctrine/persistence` 4 ([@dmaicher](https://github.com/dmaicher))
