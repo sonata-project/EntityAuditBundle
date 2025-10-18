@@ -13,7 +13,6 @@ security:
             lazy: true
 
 twig:
-    exception_controller: null
     strict_variables: false
 
 parameters:
