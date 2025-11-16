@@ -21,7 +21,6 @@ use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\TestCase;
@@ -167,7 +166,7 @@ abstract class BaseTestCase extends TestCase
     {
         $em = $this->getEntityManager();
         $classes = array_map(
-            static fn (string $value): ClassMetadata => $em->getClassMetadata($value),
+            $em->getClassMetadata(...),
             $this->schemaEntities
         );
 
@@ -178,7 +177,7 @@ abstract class BaseTestCase extends TestCase
     {
         $em = $this->getEntityManager();
         $classes = array_map(
-            static fn (string $value): ClassMetadata => $em->getClassMetadata($value),
+            $em->getClassMetadata(...),
             $this->schemaEntities
         );
 
