@@ -39,8 +39,8 @@ jobs:
                 php-version:
                     - '8.4'
                 mysql-version:
-                    - '5.7'
                     - '8.0'
+                    - '8.4'
                 dependencies: [highest]
                 allowed-to-fail: [false]
 
