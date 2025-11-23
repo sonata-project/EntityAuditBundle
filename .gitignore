@@ -10,3 +10,4 @@ composer.lock
 phpunit.xml
 phpstan.neon
 /.phpunit.result.cache
+tests/App/config/reference.php
