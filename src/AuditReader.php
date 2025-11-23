@@ -842,8 +842,8 @@ class AuditReader
             && null !== $classMetadata->discriminatorColumn
         ) {
             $discriminator = $data[self::getMappingNameValue($classMetadata->discriminatorColumn)];
-            if (!isset($classMetadata->discriminatorMap[$discriminator])) {
-                throw new \RuntimeException("No mapping found for [{$discriminator}].");
+            if (null === $discriminator || !isset($classMetadata->discriminatorMap[$discriminator])) {
+                throw new \RuntimeException("No mapping found for [$discriminator].");
             }
 
             if (isset($classMetadata->discriminatorValue)) {
