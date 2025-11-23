@@ -115,8 +115,6 @@ class AuditedCollection implements Collection
      * @return bool
      *
      * @psalm-mutation-free See https://github.com/psalm/psalm-plugin-doctrine/issues/97
-     *
-     * @psalm-suppress ImpureMethodCall
      */
     #[\ReturnTypeWillChange]
     public function isEmpty()
@@ -442,8 +440,6 @@ class AuditedCollection implements Collection
 
     /**
      * @return int<0, max>
-     *
-     * @psalm-suppress LessSpecificReturnStatement, MoreSpecificReturnType, UnusedPsalmSuppress
      */
     #[\ReturnTypeWillChange]
     public function count()
