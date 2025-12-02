@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.23.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.22.0...1.23.0) - 2025-12-01
+### Added
+- [[#663](https://github.com/sonata-project/EntityAuditBundle/pull/663)] Support for Symfony 8 ([@dmaicher](https://github.com/dmaicher))
+
+### Removed
+- [[#663](https://github.com/sonata-project/EntityAuditBundle/pull/663)] Support for PHP 8.1 ([@dmaicher](https://github.com/dmaicher))
+- [[#663](https://github.com/sonata-project/EntityAuditBundle/pull/663)] Support for Symfony 7.1 and 7.2 ([@dmaicher](https://github.com/dmaicher))
+
 ## [1.22.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.21.0...1.22.0) - 2025-10-18
 ### Added
 - [[#662](https://github.com/sonata-project/EntityAuditBundle/pull/662)] Added `audit.php` routing config ([@dmaicher](https://github.com/dmaicher))

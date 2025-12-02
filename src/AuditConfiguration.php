@@ -81,8 +81,6 @@ class AuditConfiguration
      * @return string
      *
      * @phpstan-return literal-string
-     *
-     * @psalm-suppress MoreSpecificReturnType,LessSpecificReturnStatement https://github.com/vimeo/psalm/issues/10910
      */
     public function getTableName(ClassMetadata $metadata)
     {

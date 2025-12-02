@@ -203,7 +203,6 @@ class LogRevisionsListener implements EventSubscriber
                 $sql .= ' AND '.$columnName.' = ?';
             }
 
-            /** @psalm-suppress InvalidArgument for doctrine/dbal 3 type can be integer */
             $em->getConnection()->executeQuery($sql, $params, $types);
         }
 
@@ -385,7 +384,6 @@ class LogRevisionsListener implements EventSubscriber
             /*
              * NEXT_MAJOR: Remove this `if` block, because lastInsertId throws an exception in DBAL 4
              */
-            /** @psalm-suppress TypeDoesNotContainType */
             if (false === $revisionId) { // @phpstan-ignore-line doctrine/dbal 3 lastInsertId() can return false
                 throw new \RuntimeException('Unable to retrieve the last revision id.');
             }
@@ -633,7 +631,6 @@ class LogRevisionsListener implements EventSubscriber
             }
         }
 
-        /** @psalm-suppress InvalidArgument for doctrine/dbal 3 type can be integer */
         $conn->executeStatement($this->getInsertRevisionSQL($em, $class), $params, $types);
     }
 
@@ -669,7 +666,6 @@ class LogRevisionsListener implements EventSubscriber
             $joinTableParams[] = $targetClass->getFieldValue($relatedEntity, $targetClass->fieldNames[$targetColumn]);
             $joinTableTypes[] = PersisterHelper::getTypeOfColumn($targetColumn, $targetClass, $em);
         }
-        /** @psalm-suppress InvalidArgument for doctrine/dbal 3 type can be integer */
         $conn->executeStatement(
             $this->getInsertJoinTableRevisionSQL($class, $targetClass, $assoc),
             $joinTableParams,

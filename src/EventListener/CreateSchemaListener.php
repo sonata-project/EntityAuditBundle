@@ -73,9 +73,6 @@ class CreateSchemaListener implements EventSubscriber
         ];
     }
 
-    /**
-     * @psalm-suppress TypeDoesNotContainType, NoValue
-     */
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs): void
     {
         $cm = $eventArgs->getClassMetadata();
@@ -104,7 +101,6 @@ class CreateSchemaListener implements EventSubscriber
         if ($this->isDbal4_3()) {
             $tableName = $this->config->getTablePrefix().$entityTable->getObjectName()->toString().$this->config->getTableSuffix();
         } else {
-            /** @psalm-suppress InternalMethod */
             $tableName = $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
         }
         $revisionTable = $schema->createTable($tableName);
@@ -122,24 +118,19 @@ class CreateSchemaListener implements EventSubscriber
             $primaryKey = $entityTable->getPrimaryKeyConstraint();
             \assert(null !== $primaryKey);
             $pkColumns = $primaryKey->getColumnNames();
-            /** @psalm-suppress ArgumentTypeCoercion */
             $pkColumns[] = new UnqualifiedName(Identifier::unquoted($this->config->getRevisionFieldName())); // @phpstan-ignore-line
             $editor = PrimaryKeyConstraint::editor()->setColumnNames(...$pkColumns)->setIsClustered($primaryKey->isClustered());
             $revisionTable->addPrimaryKeyConstraint($editor->create());
         } else {
-            /** @psalm-suppress DeprecatedMethod */
             $primaryKey = $entityTable->getPrimaryKey();
             \assert(null !== $primaryKey);
-            /** @psalm-suppress DeprecatedMethod */
             $pkColumns = $primaryKey->getColumns();
             $pkColumns[] = $this->config->getRevisionFieldName();
-            /** @psalm-suppress DeprecatedMethod */
             $revisionTable->setPrimaryKey($pkColumns);
         }
         if ($this->isDbal4_3()) {
             $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getObjectName()->toString()).'_idx';
         } else {
-            /** @psalm-suppress InternalMethod */
             $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx'; // @phpstan-ignore-line
         }
         $revisionTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);
@@ -183,13 +174,9 @@ class CreateSchemaListener implements EventSubscriber
                 $revisionForeignKeyName
             );
         } elseif ($this->isDbal4()) {
-            /** @psalm-suppress InternalMethod */
             $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($relatedTable->getName()).'_fk'; // @phpstan-ignore-line
-            /** @psalm-suppress DeprecatedMethod */
             $primaryKey = $revisionsTable->getPrimaryKey();
             \assert(null !== $primaryKey);
-            /** @psalm-suppress InternalMethod */
-            /** @psalm-suppress DeprecatedMethod */
             $relatedTable->addForeignKeyConstraint(
                 $revisionsTable->getName(), // @phpstan-ignore-line
                 [$this->config->getRevisionFieldName()],
@@ -198,13 +185,9 @@ class CreateSchemaListener implements EventSubscriber
                 $revisionForeignKeyName
             );
         } else {
-            /** @psalm-suppress InternalMethod */
             $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($relatedTable->getName()).'_fk'; // @phpstan-ignore-line
-            /** @psalm-suppress DeprecatedMethod */
             $primaryKey = $revisionsTable->getPrimaryKey();
             \assert(null !== $primaryKey);
-            /** @psalm-suppress DeprecatedMethod */
-            /** @psalm-suppress InvalidArgument */
             $relatedTable->addForeignKeyConstraint(
                 $revisionsTable, // @phpstan-ignore-line doctrine/dbal 3 support for old addForeignKeyConstraint() signature
                 [$this->config->getRevisionFieldName()],
@@ -223,7 +206,6 @@ class CreateSchemaListener implements EventSubscriber
         if ($this->isDbal4_3()) {
             $columnName = $column->getObjectName()->toString();
         } else {
-            /** @psalm-suppress InternalMethod */
             $columnName = $column->getName(); // @phpstan-ignore-line
         }
 
@@ -246,7 +228,6 @@ class CreateSchemaListener implements EventSubscriber
         if ($this->isDbal4_3()) {
             $targetColumn->setPlatformOptions(['charset' => $column->getCharset(), 'collation' => $column->getCollation()]);
         } else {
-            /** @psalm-suppress DeprecatedMethod */
             $targetColumn->setPlatformOptions($column->getPlatformOptions());
         }
 
@@ -273,7 +254,6 @@ class CreateSchemaListener implements EventSubscriber
             $editor = PrimaryKeyConstraint::editor()->setColumnNames($id)->setIsClustered(true);
             $revisionsTable->addPrimaryKeyConstraint($editor->create());
         } else {
-            /** @psalm-suppress DeprecatedMethod */
             $revisionsTable->setPrimaryKey(['id']);
         }
 
@@ -286,7 +266,6 @@ class CreateSchemaListener implements EventSubscriber
         if ($this->isDbal4_3()) {
             $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getObjectName()->toString().$this->config->getTableSuffix();
         } else {
-            /** @psalm-suppress InternalMethod */
             $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
         }
 
@@ -298,7 +277,6 @@ class CreateSchemaListener implements EventSubscriber
         if ($this->isDbal4_3()) {
             $tableName = $this->config->getTablePrefix().$joinTable->getObjectName()->toString().$this->config->getTableSuffix();
         } else {
-            /** @psalm-suppress InternalMethod */
             $tableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
         }
         $revisionJoinTable = $schema->createTable($tableName);
@@ -311,7 +289,6 @@ class CreateSchemaListener implements EventSubscriber
             if ($this->isDbal4_3()) {
                 $revisionJoinTable->addColumn($column->getObjectName()->toString(), $typeRegistry->lookupName($column->getType()), $options);
             } else {
-                /** @psalm-suppress InternalMethod */
                 $revisionJoinTable->addColumn($column->getName(), $typeRegistry->lookupName($column->getType()), $options); // @phpstan-ignore-line
             }
         }
@@ -321,23 +298,18 @@ class CreateSchemaListener implements EventSubscriber
         if ($this->isDbal4_3()) {
             $pk = $joinTable->getPrimaryKeyConstraint();
             $pkColumns = null !== $pk ? $pk->getColumnNames() : [];
-            /** @psalm-suppress ArgumentTypeCoercion */
             $pkColumns[] = new UnqualifiedName(Identifier::unquoted($this->config->getRevisionFieldName())); // @phpstan-ignore-line
             $editor = PrimaryKeyConstraint::editor()->setColumnNames(...$pkColumns)->setIsClustered(!(null !== $pk) || $pk->isClustered());
             $revisionJoinTable->addPrimaryKeyConstraint($editor->create());
         } else {
-            /** @psalm-suppress DeprecatedMethod */
             $pk = $joinTable->getPrimaryKey();
-            /** @psalm-suppress DeprecatedMethod */
             $pkColumns = null !== $pk ? $pk->getColumns() : [];
             $pkColumns[] = $this->config->getRevisionFieldName();
-            /** @psalm-suppress DeprecatedMethod */
             $revisionJoinTable->setPrimaryKey($pkColumns);
         }
         if ($this->isDbal4_3()) {
             $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getObjectName()->toString()).'_idx';
         } else {
-            /** @psalm-suppress InternalMethod */
             $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getName()).'_idx'; // @phpstan-ignore-line
         }
         $revisionJoinTable->addIndex([$this->config->getRevisionFieldName()], $revIndexName);

@@ -95,6 +95,12 @@ abstract class BaseTestCase extends TestCase
         }
 
         $config = ORMSetup::createAttributeMetadataConfiguration($mappingPaths, true);
+        if (\PHP_VERSION_ID >= 80400) {
+            $config->enableNativeLazyObjects(true);
+        } else {
+            $config->setProxyDir(sys_get_temp_dir());
+            $config->setProxyNamespace('Proxies');
+        }
         $config->setSchemaManagerFactory(new DefaultSchemaManagerFactory());
         $connection = $this->_getConnection($config);
 

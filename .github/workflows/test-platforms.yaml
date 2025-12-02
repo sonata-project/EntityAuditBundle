@@ -37,7 +37,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - '8.4'
+                    - '8.5'
                 mysql-version:
                     - '8.0'
                     - '8.4'
@@ -90,7 +90,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - '8.4'
+                    - '8.5'
                 postgres-version:
                     - '13'
                     - '14'
