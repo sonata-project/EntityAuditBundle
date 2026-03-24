@@ -16,7 +16,7 @@ namespace Sonata\EntityAuditBundle\Tests\Issue;
 use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Issue\IssueGlobalIgnoreColumnsEntity;
 
-final class IssueGlobalIgnoreColumns extends BaseTestCase
+final class IssueGlobalIgnoreColumnsTest extends BaseTestCase
 {
     protected $schemaEntities = [
         IssueGlobalIgnoreColumnsEntity::class,
