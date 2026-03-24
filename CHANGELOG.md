@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.23.1](https://github.com/sonata-project/EntityAuditBundle/compare/1.23.0...1.23.1) - 2026-03-24
+### Fixed
+- [[#675](https://github.com/sonata-project/EntityAuditBundle/pull/675)] Fix unnecessary revision creation when only a column from the globalIgnoreColumns list is updated ([@valkars](https://github.com/valkars))
+
 ## [1.23.0](https://github.com/sonata-project/EntityAuditBundle/compare/1.22.0...1.23.0) - 2025-12-01
 ### Added
 - [[#663](https://github.com/sonata-project/EntityAuditBundle/pull/663)] Support for Symfony 8 ([@dmaicher](https://github.com/dmaicher))
