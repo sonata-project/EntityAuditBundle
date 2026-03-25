@@ -721,6 +721,10 @@ class LogRevisionsListener implements EventSubscriber
                 continue;
             }
 
+            if (\in_array($field, $this->config->getGlobalIgnoreColumns(), true)) {
+                continue;
+            }
+
             $newVal = $change[1];
 
             if (!isset($classMetadata->associationMappings[$field])) {
