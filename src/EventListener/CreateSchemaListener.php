@@ -98,11 +98,7 @@ class CreateSchemaListener implements EventSubscriber
         $revisionsTable = $this->createRevisionsTable($schema);
 
         $entityTable = $eventArgs->getClassTable();
-        if ($this->isDbal4_3()) {
-            $tableName = $this->config->getTablePrefix().$entityTable->getObjectName()->toString().$this->config->getTableSuffix();
-        } else {
-            $tableName = $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
-        }
+        $tableName = $this->config->getTablePrefix().$this->getUnquotedTableName($entityTable).$this->config->getTableSuffix();
         $revisionTable = $schema->createTable($tableName);
 
         foreach ($entityTable->getColumns() as $column) {
@@ -263,22 +259,14 @@ class CreateSchemaListener implements EventSubscriber
     private function createRevisionJoinTableForJoinTable(Schema $schema, string $joinTableName): void
     {
         $joinTable = $schema->getTable($joinTableName);
-        if ($this->isDbal4_3()) {
-            $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getObjectName()->toString().$this->config->getTableSuffix();
-        } else {
-            $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
-        }
+        $revisionJoinTableName = $this->config->getTablePrefix().$this->getUnquotedTableName($joinTable).$this->config->getTableSuffix();
 
         if ($schema->hasTable($revisionJoinTableName)) {
             return;
         }
 
         $typeRegistry = Type::getTypeRegistry();
-        if ($this->isDbal4_3()) {
-            $tableName = $this->config->getTablePrefix().$joinTable->getObjectName()->toString().$this->config->getTableSuffix();
-        } else {
-            $tableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
-        }
+        $tableName = $revisionJoinTableName;
         $revisionJoinTable = $schema->createTable($tableName);
         /** @var Column $column */
         foreach ($joinTable->getColumns() as $column) {
