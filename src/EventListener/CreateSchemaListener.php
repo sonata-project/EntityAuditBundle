@@ -99,7 +99,7 @@ class CreateSchemaListener implements EventSubscriber
 
         $entityTable = $eventArgs->getClassTable();
         if ($this->isDbal4_3()) {
-            $tableName = $this->config->getTablePrefix().$entityTable->getObjectName()->toString().$this->config->getTableSuffix();
+            $tableName = $this->config->getTablePrefix().$this->getObjectNameString($entityTable).$this->config->getTableSuffix();
         } else {
             $tableName = $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
         }
@@ -129,7 +129,7 @@ class CreateSchemaListener implements EventSubscriber
             $revisionTable->setPrimaryKey($pkColumns);
         }
         if ($this->isDbal4_3()) {
-            $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getObjectName()->toString()).'_idx';
+            $revIndexName = $this->config->getRevisionFieldName().'_'.md5($this->getObjectNameString($revisionTable)).'_idx';
         } else {
             $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionTable->getName()).'_idx'; // @phpstan-ignore-line
         }
@@ -163,11 +163,11 @@ class CreateSchemaListener implements EventSubscriber
     private function createForeignKeys(Table $relatedTable, Table $revisionsTable): void
     {
         if ($this->isDbal4_3()) {
-            $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($relatedTable->getObjectName()->toString()).'_fk';
+            $revisionForeignKeyName = $this->config->getRevisionFieldName().'_'.md5($this->getObjectNameString($relatedTable)).'_fk';
             $primaryKey = $revisionsTable->getPrimaryKeyConstraint();
             \assert(null !== $primaryKey);
             $relatedTable->addForeignKeyConstraint(
-                $revisionsTable->getObjectName()->toString(),
+                $this->getObjectNameString($revisionsTable),
                 [$this->config->getRevisionFieldName()],
                 array_map(static fn (UnqualifiedName $name) => $name->toString(), $primaryKey->getColumnNames()),
                 [],
@@ -204,7 +204,7 @@ class CreateSchemaListener implements EventSubscriber
     private function addColumnToTable(Column $column, Table $targetTable): void
     {
         if ($this->isDbal4_3()) {
-            $columnName = $column->getObjectName()->toString();
+            $columnName = $this->getObjectNameString($column);
         } else {
             $columnName = $column->getName(); // @phpstan-ignore-line
         }
@@ -264,7 +264,7 @@ class CreateSchemaListener implements EventSubscriber
     {
         $joinTable = $schema->getTable($joinTableName);
         if ($this->isDbal4_3()) {
-            $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getObjectName()->toString().$this->config->getTableSuffix();
+            $revisionJoinTableName = $this->config->getTablePrefix().$this->getObjectNameString($joinTable).$this->config->getTableSuffix();
         } else {
             $revisionJoinTableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
         }
@@ -275,7 +275,7 @@ class CreateSchemaListener implements EventSubscriber
 
         $typeRegistry = Type::getTypeRegistry();
         if ($this->isDbal4_3()) {
-            $tableName = $this->config->getTablePrefix().$joinTable->getObjectName()->toString().$this->config->getTableSuffix();
+            $tableName = $this->config->getTablePrefix().$this->getObjectNameString($joinTable).$this->config->getTableSuffix();
         } else {
             $tableName = $this->config->getTablePrefix().$joinTable->getName().$this->config->getTableSuffix(); // @phpstan-ignore-line
         }
@@ -287,7 +287,7 @@ class CreateSchemaListener implements EventSubscriber
                 $options['length'] = $column->getLength();
             }
             if ($this->isDbal4_3()) {
-                $revisionJoinTable->addColumn($column->getObjectName()->toString(), $typeRegistry->lookupName($column->getType()), $options);
+                $revisionJoinTable->addColumn($this->getObjectNameString($column), $typeRegistry->lookupName($column->getType()), $options);
             } else {
                 $revisionJoinTable->addColumn($column->getName(), $typeRegistry->lookupName($column->getType()), $options); // @phpstan-ignore-line
             }
@@ -308,7 +308,7 @@ class CreateSchemaListener implements EventSubscriber
             $revisionJoinTable->setPrimaryKey($pkColumns);
         }
         if ($this->isDbal4_3()) {
-            $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getObjectName()->toString()).'_idx';
+            $revIndexName = $this->config->getRevisionFieldName().'_'.md5($this->getObjectNameString($revisionJoinTable)).'_idx';
         } else {
             $revIndexName = $this->config->getRevisionFieldName().'_'.md5($revisionJoinTable->getName()).'_idx'; // @phpstan-ignore-line
         }

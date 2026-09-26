@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace Sonata\EntityAuditBundle\Tests\Issue;
 
-use PHPUnit\Framework\Attributes\RequiresPhp;
 use Sonata\EntityAuditBundle\Tests\BaseTestCase;
 use Sonata\EntityAuditBundle\Tests\Fixtures\PHP81Issue\IssueEntityWithEnum;
 use Sonata\EntityAuditBundle\Tests\Fixtures\PHP81Issue\Status;
 
-#[RequiresPhp('>= 8.1')]
 final class IssueEntityWithEnumTest extends BaseTestCase
 {
     protected $schemaEntities = [

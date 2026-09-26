@@ -31,13 +31,9 @@ final class CompareAction
      */
     public function __invoke(Request $request, string $className, string $id, ?int $oldRev = null, ?int $newRev = null): Response
     {
-        if (null === $oldRev) {
-            $oldRev = $request->query->getInt('oldRev');
-        }
+        $oldRev ??= $request->query->getInt('oldRev');
 
-        if (null === $newRev) {
-            $newRev = $request->query->getInt('newRev');
-        }
+        $newRev ??= $request->query->getInt('newRev');
 
         $diff = $this->auditReader->diff($className, $id, $oldRev, $newRev);
 
