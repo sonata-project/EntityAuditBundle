@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace SimpleThings\EntityAudit;
 
 use Doctrine\Common\EventManager;
+use Doctrine\Common\EventManagerInterface;
 use Doctrine\ORM\EntityManager;
 use Psr\Clock\ClockInterface;
 use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
@@ -65,7 +66,7 @@ class AuditManager
         return new AuditReader($em, $this->config, $this->metadataFactory);
     }
 
-    public function registerEvents(EventManager $evm): void
+    public function registerEvents(EventManager|EventManagerInterface $evm): void
     {
         $evm->addEventSubscriber(new CreateSchemaListener($this));
         $evm->addEventSubscriber(new LogRevisionsListener($this, $this->clock));
