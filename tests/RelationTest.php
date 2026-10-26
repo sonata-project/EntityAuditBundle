@@ -14,9 +14,12 @@ declare(strict_types=1);
 namespace Sonata\EntityAuditBundle\Tests;
 
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Group;
 use SimpleThings\EntityAudit\ChangedEntity;
+use SimpleThings\EntityAudit\Collection\AuditedCollection;
+use Sonata\EntityAuditBundle\Tests\Collection\CriteriaFactory;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\AbstractDataEntity;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\Category;
 use Sonata\EntityAuditBundle\Tests\Fixtures\Relation\CheeseProduct;
@@ -900,6 +903,42 @@ final class RelationTest extends BaseTestCase
 
         static::assertNotEmpty($auditedPage->getLocalizations()->get('en-US'));
         static::assertNotEmpty($auditedPage->getLocalizations()->get('en-GB'));
+    }
+
+    public function testMatchingUsesTheAuditedRevision(): void
+    {
+        $em = $this->getEntityManager();
+        $page = new Page();
+        $gbLocalization = new PageLocalization('en-GB');
+        $usLocalization = new PageLocalization('en-US');
+        $page->addLocalization($gbLocalization);
+        $page->addLocalization($usLocalization);
+        $em->persist($page);
+        $em->persist($gbLocalization);
+        $em->persist($usLocalization);
+        $em->flush();
+
+        $reader = $this->getAuditManager()->createAuditReader($em);
+        $pageId = $page->getId();
+        static::assertNotNull($pageId);
+        $revision = $reader->getCurrentRevision(Page::class, $pageId);
+        static::assertNotNull($revision);
+
+        $deLocalization = new PageLocalization('de-DE');
+        $page->addLocalization($deLocalization);
+        $em->persist($deLocalization);
+        $em->flush();
+        $em->clear();
+
+        $auditedPage = $reader->find(Page::class, $pageId, $revision);
+        static::assertNotNull($auditedPage);
+        $collection = $auditedPage->getLocalizations();
+        static::assertInstanceOf(AuditedCollection::class, $collection);
+
+        $matches = $collection->matching(CriteriaFactory::create()->where(Criteria::expr()->neq('locale', 'en-GB')));
+
+        static::assertSame(['en-US'], $matches->getKeys());
+        static::assertSame(['en-GB', 'en-US'], $collection->getKeys());
     }
 
     #[Group('mysql')]

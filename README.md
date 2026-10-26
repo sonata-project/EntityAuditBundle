@@ -64,6 +64,10 @@ Simply run assuming you have composer:
 $ composer require sonata-project/entity-audit-bundle
 ```
 
+Doctrine Collections `^1.8`, `^2.0` and `^3.1` are supported. Collections 3.x requires PHP 8.4 or later.
+Audited collections support `matching()` to filter, sort and paginate entities at the requested
+revision using a Doctrine `Criteria`. Matching loads the audited entities into memory.
+
 ### Enable the bundle
 
 Finally, enable the bundle in the kernel:
