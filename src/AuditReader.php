@@ -295,7 +295,7 @@ class AuditReader
                 && null !== $classMetadata->discriminatorValue) {
                 // Support for single table inheritance sub-classes
                 $allDiscrValues = array_flip($classMetadata->discriminatorMap);
-                $queriedDiscrValues = [$this->em->getConnection()->quote($classMetadata->discriminatorValue)];
+                $queriedDiscrValues = [$this->em->getConnection()->quote((string) $classMetadata->discriminatorValue)];
                 foreach ($classMetadata->subClasses as $subclassName) {
                     $queriedDiscrValues[] = $this->em->getConnection()->quote((string) $allDiscrValues[$subclassName]);
                 }
