@@ -16,10 +16,10 @@
         "doctrine/orm": "^2.14 || ^3.0",
         "doctrine/persistence": "^3.0 || ^4.0",
         "psr/clock": "^1.0",
-        "symfony/config": "^6.4 || ^7.3 || ^8.0",
-        "symfony/dependency-injection": "^6.4 || ^7.3 || ^8.0",
-        "symfony/http-kernel": "^6.4 || ^7.3 || ^8.0",
-        "symfony/security-core": "^6.4 || ^7.3 || ^8.0",
+        "symfony/config": "^6.4 || ^7.4 || ^8.1",
+        "symfony/dependency-injection": "^6.4 || ^7.4 || ^8.1",
+        "symfony/http-kernel": "^6.4 || ^7.4 || ^8.1",
+        "symfony/security-core": "^6.4 || ^7.4 || ^8.1",
         "twig/twig": "^3.0"
     },
     "require-dev": {
@@ -36,14 +36,14 @@
         "phpstan/phpstan-symfony": "^1.0 || ^2.0",
         "phpunit/phpunit": "^11.5.38 || ^12.3.10",
         "rector/rector": "^1.1 || ^2.0",
-        "symfony/browser-kit": "^6.4 || ^7.3 || ^8.0",
-        "symfony/cache": "^6.4 || ^7.3 || ^8.0",
-        "symfony/filesystem": "^6.4 || ^7.3 || ^8.0",
-        "symfony/framework-bundle": "^6.4 || ^7.3 || ^8.0",
-        "symfony/http-foundation": "^6.4 || ^7.3 || ^8.0",
-        "symfony/security-bundle": "^6.4 || ^7.3 || ^8.0",
-        "symfony/twig-bundle": "^6.4 || ^7.3 || ^8.0",
-        "symfony/var-dumper": "^6.4 || ^7.3 || ^8.0"
+        "symfony/browser-kit": "^6.4 || ^7.4 || ^8.1",
+        "symfony/cache": "^6.4 || ^7.4 || ^8.1",
+        "symfony/filesystem": "^6.4 || ^7.4 || ^8.1",
+        "symfony/framework-bundle": "^6.4 || ^7.4 || ^8.1",
+        "symfony/http-foundation": "^6.4 || ^7.4 || ^8.1",
+        "symfony/security-bundle": "^6.4 || ^7.4 || ^8.1",
+        "symfony/twig-bundle": "^6.4 || ^7.4 || ^8.1",
+        "symfony/var-dumper": "^6.4 || ^7.4 || ^8.1"
     },
     "conflict": {
         "doctrine/doctrine-bundle": "<2.7",
