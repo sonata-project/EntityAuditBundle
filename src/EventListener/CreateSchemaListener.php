@@ -297,13 +297,13 @@ class CreateSchemaListener implements EventSubscriber
 
         if ($this->isDbal4_3()) {
             $pk = $joinTable->getPrimaryKeyConstraint();
-            $pkColumns = null !== $pk ? $pk->getColumnNames() : [];
+            $pkColumns = $pk?->getColumnNames() ?? [];
             $pkColumns[] = new UnqualifiedName(Identifier::unquoted($this->config->getRevisionFieldName())); // @phpstan-ignore-line
             $editor = PrimaryKeyConstraint::editor()->setColumnNames(...$pkColumns)->setIsClustered(!(null !== $pk) || $pk->isClustered());
             $revisionJoinTable->addPrimaryKeyConstraint($editor->create());
         } else {
             $pk = $joinTable->getPrimaryKey();
-            $pkColumns = null !== $pk ? $pk->getColumns() : [];
+            $pkColumns = $pk?->getColumns() ?? [];
             $pkColumns[] = $this->config->getRevisionFieldName();
             $revisionJoinTable->setPrimaryKey($pkColumns);
         }
