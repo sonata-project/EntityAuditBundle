@@ -894,12 +894,10 @@ final class RelationTest extends BaseTestCase
         $auditedPage = $reader->find(Page::class, $pageId, $currentRevision);
         static::assertNotNull($auditedPage);
 
-        static::assertNotEmpty($auditedPage->getLocalizations());
-
         static::assertCount(2, $auditedPage->getLocalizations());
 
-        static::assertNotEmpty($auditedPage->getLocalizations()->get('en-US'));
-        static::assertNotEmpty($auditedPage->getLocalizations()->get('en-GB'));
+        static::assertNotNull($auditedPage->getLocalizations()->get('en-US'));
+        static::assertNotNull($auditedPage->getLocalizations()->get('en-GB'));
     }
 
     #[Group('mysql')]
