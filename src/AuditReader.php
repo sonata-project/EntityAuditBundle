@@ -741,7 +741,7 @@ class AuditReader
                 $this->quoteStrategy->getColumnName($field, $classMetadata, $this->platform),
                 $this->platform
             );
-            /** @phpstan-var literal-string $quotedField */
+            /** @phpstan-var literal-string&non-empty-string $quotedField */
             $quotedField = $this->platform->quoteSingleIdentifier($field);
             $columnList[] = $sqlExpr.' AS '.$quotedField;
             $columnMap[$field] = $this->getSQLResultCasing($this->platform, $columnName);
