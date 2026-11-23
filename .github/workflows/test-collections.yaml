@@ -1,0 +1,50 @@
+name: Test Doctrine Collections compatibility
+
+on:
+    push:
+        branches:
+            - 1.x
+            - 2.x
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        name: PHP ${{ matrix.php-version }} + Collections ${{ matrix.collections }}
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - php-version: '8.2'
+                      collections: '1.8.0'
+                    - php-version: '8.2'
+                      collections: '2.1.0'
+                    - php-version: '8.2'
+                      collections: '2.4.0'
+                    - php-version: '8.5'
+                      collections: '^2.6'
+                    - php-version: '8.4'
+                      collections: '^3.1'
+                    - php-version: '8.5'
+                      collections: '^3.1'
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Install dependencies
+              run: composer update --with doctrine/collections:"${{ matrix.collections }}" --prefer-stable --no-interaction --no-progress
+
+            - name: Run collection compatibility tests
+              run: vendor/bin/phpunit tests/Collection --fail-on-deprecation
